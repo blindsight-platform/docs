@@ -350,7 +350,7 @@ paths:
           description: Cursor — returns events older than this event UUID.
         - name: verdict
           in: query
-          schema: { type: string, enum: [allow, redact, block] }
+          schema: { type: string, enum: [allow, flag, redact, block] }
         - name: direction
           in: query
           schema: { type: string, enum: [input, output, tool_call] }
@@ -422,6 +422,23 @@ paths:
                   desired_count: { type: integer }
                   running_count: { type: integer }
                   pending_count: { type: integer }
+
+  /api/runtime-security/ner/status:
+    get:
+      tags: [Health]
+      summary: NER PII tier load state (GLiNER2-PII model, readiness, defaults)
+      description: |
+        Also warms the model: the first call from the UI or your own
+        tooling kicks off the background load (~40s cold) so the tier
+        is ready by the time traffic needs it. Requires
+        `runtime_security.view`.
+      operationId: getNerStatus
+      responses:
+        '200':
+          description: NER tier status
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/NerStatus' }
 
 components:
   securitySchemes:
@@ -598,7 +615,12 @@ components:
           description: Audit-record UUID. Empty when `log_events=false`.
         verdict:
           type: string
-          enum: [allow, redact, block]
+          enum: [allow, flag, redact, block]
+          description: |
+            `flag` records a suspicion without mutating traffic: an
+            injection score that crossed the redact threshold without
+            independent corroboration, or a monitor-mode NER PII
+            finding. See the Verdicts guide for the full decision logic.
         injection:
           type: object
           properties:
@@ -614,7 +636,10 @@ components:
                 Diagnostics — model name, phrase hits, calibration info.
                 The `normalized: true` flag indicates bypass-resistant
                 normalization fired (NFKC / zero-width strip / Cyrillic
-                confusables undo / leet undo).
+                confusables undo / leet undo). `uncorroborated_injection`
+                is present when a high score was downgraded to `flag` for
+                lack of corroboration. `ner` is present when the NER PII
+                tier ran (model, state, latency, findings count).
         pii:
           type: object
           properties:
@@ -650,6 +675,11 @@ components:
         extra:
           type: object
           additionalProperties: true
+          description: |
+            For a NER-tier finding: `detector: "ner_gliner2"`,
+            `model` (HuggingFace model id), and `action` (`"flag"` or
+            `"redact"`, mirroring the App's `ner.mode`). Absent for
+            regex/entropy findings.
 
     ScanToolCallResponse:
       type: object
@@ -658,7 +688,7 @@ components:
         uuid: { type: string }
         verdict:
           type: string
-          enum: [allow, redact, block]
+          enum: [allow, flag, redact, block]
         reasons:
           type: array
           items:
@@ -753,6 +783,25 @@ components:
           default: prepend
         agentic: { $ref: '#/components/schemas/AgenticPolicyConfig' }
 
+    NerStatus:
+      type: object
+      properties:
+        enabled: { type: boolean }
+        available:
+          type: boolean
+          description: True when the `gliner2` package (and torch) are importable in this image.
+        state:
+          type: string
+          enum: [idle, loading, ready, error, disabled, unavailable]
+        model: { type: string }
+        load_seconds: { type: number, nullable: true }
+        error: { type: string, nullable: true }
+        default_entities:
+          type: array
+          items: { type: string }
+        default_threshold: { type: number }
+        default_mode: { type: string, enum: [flag, redact] }
+
     AnalyticsResponse:
       type: object
       properties:
@@ -814,7 +863,7 @@ components:
         uuid: { type: string }
         created_at: { type: string, format: date-time }
         direction: { type: string, enum: [input, output, tool_call] }
-        verdict: { type: string, enum: [allow, redact, block] }
+        verdict: { type: string, enum: [allow, flag, redact, block] }
         injection_score: { type: number }
         injection_label: { type: string, nullable: true }
         pii_count: { type: integer }

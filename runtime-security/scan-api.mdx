@@ -43,6 +43,11 @@ Scan a user prompt before forwarding it to your LLM.
 }
 ```
 
+`verdict` is one of `allow` / `flag` / `redact` / `block`. See
+[Verdicts](/runtime-security/verdicts) for the full decision logic,
+including when an uncorroborated high injection score or a
+monitor‑mode NER finding produces `flag` instead of `allow`.
+
 Rate limit: **20 requests / second / workspace**.
 
 ## `POST /api/runtime-security/scan/output`
@@ -104,26 +109,35 @@ Every scan call returns the same shape.
 ```json
 {
   "uuid": "<event UUID, references the persisted audit row>",
-  "verdict": "allow | redact | block",
+  "verdict": "allow | flag | redact | block",
   "injection": {
     "score": 0.0,            // 0.0–1.0; calibrated probability of attack
     "label": "INJECTION | SAFE | null",
     "meta": {                // diagnostics: ml model, phrase hits, etc.
       "ml_model": "…",
       "phrase_hits": ["ignore previous"],
-      "normalized": true     // present when bypass-resistant normalization fired
+      "normalized": true,    // present when bypass-resistant normalization fired
+      "uncorroborated_injection": {"score": 0.91, "downgraded_to": "flag"}, // present when a high score lacked corroboration
+      "ner": {"model": "…", "state": "ready", "elapsed_ms": 132.4, "entities_checked": 10, "findings": 1, "mode": "flag", "threshold": 0.55, "findings_added": 1} // present when detectors.ner ran
     }
   },
   "pii": {
     "count": 1,
     "categories": ["email"],
-    "findings": [{"type": "secret", "subtype": "email", "score": 0.95, "snippet": "…", "start": 12, "end": 30}]
+    "findings": [{"type": "secret", "subtype": "email", "score": 0.95, "snippet": "…", "start": 12, "end": 30, "extra": {}}]
   },
   "redacted_text": "my email is <EMAIL> please reply",
   "blocked_reason": "prompt_injection:score=0.97 | null",
   "text_length": 56
 }
 ```
+
+A finding sourced from the NER tier carries
+`extra: {"detector": "ner_gliner2", "model": "fastino/gliner2-privacy-filter-PII-multi", "action": "flag" | "redact"}`.
+`action` mirrors the App's `ner.mode` and tells you whether this
+particular finding contributed to redaction or was recorded in
+monitor‑only mode. See [NER PII
+detection](/runtime-security/configuration#ner-pii-detection).
 
 | Field             | What to do with it                                                                                                |
 | ----------------- | ----------------------------------------------------------------------------------------------------------------- |
@@ -158,6 +172,8 @@ def safe_chat(user_text: str) -> str:
     v = pre.json()
     if v["verdict"] == "block":
         raise PermissionError(f"Blocked: {v['blocked_reason']}")
+    # "flag" and "allow" both fall through here: flag is a recording
+    # verdict, redacted_text is unchanged from the original for it.
     safe_text = v["redacted_text"] if v["verdict"] == "redact" else user_text
 
     # Your model

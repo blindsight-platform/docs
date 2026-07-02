@@ -24,8 +24,8 @@ Returns aggregate counts for the window.
     "pii_hits": 412,
     "injection_hits": 78
   },
-  "verdict_breakdown": {"allow": 11960, "redact": 412, "block": 78},
-  "pii_category_breakdown": {"email": 220, "phone": 110, "ssn": 12},
+  "verdict_breakdown": {"allow": 11960, "flag": 19, "redact": 412, "block": 78},
+  "pii_category_breakdown": {"email": 220, "phone": 110, "ssn": 12, "person": 34},
   "top_injection_labels": [{"label": "INJECTION", "count": 78}],
   "series": [
     {"date": "2026-04-15", "allow": 800, "redact": 30, "block": 5, "total": 835}
@@ -41,8 +41,8 @@ Use `minutes=N` instead of `days=N` for sub‑day windows
 
 | Field                       | What it tells you                                                                 |
 | --------------------------- | --------------------------------------------------------------------------------- |
-| `verdict_breakdown`         | The shape of your traffic. If `block` spikes, investigate before tuning.           |
-| `pii_category_breakdown`    | Which categories are actually firing. Drives custom rule decisions.                |
+| `verdict_breakdown`         | The shape of your traffic. If `block` spikes, investigate before tuning. A rising `flag` count usually means an uncorroborated injection signal or a monitor‑mode NER detector; see [Verdicts](/runtime-security/verdicts). |
+| `pii_category_breakdown`    | Which categories are actually firing, including NER‑sourced ones (`person`, `address`, `date_of_birth`, …) when `detectors.ner` is on. Drives custom rule and NER entity‑list decisions. |
 | `top_injection_labels`      | The labels the model is producing. Useful for spotting an emerging attack family.  |
 | `series`                    | Daily series. Plot it to see weekend / weekday rhythms or rollout impact.          |
 
@@ -56,7 +56,7 @@ Paginated event list.
 | -------------- | -------- | ------------------------------------------------------------------ |
 | `limit`        | int      | 1–500. Default 50.                                                  |
 | `before_uuid`  | string   | Cursor for pagination. Pass the last UUID you saw.                 |
-| `verdict`      | string   | Filter to `allow`, `redact`, or `block`.                            |
+| `verdict`      | string   | Filter to `allow`, `flag`, `redact`, or `block`.                     |
 | `direction`    | string   | Filter to `input`, `output`, or `tool_call`.                        |
 
 The response includes the full event payload: `uuid`, `verdict`,

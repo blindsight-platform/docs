@@ -22,6 +22,7 @@ verdict inside a 200 response; this page is for protocol failures.
 | `403`  |,                                                 | Caller lacks the required permission scope.                                                         | Add `runtime_security.scan` (or `.view` / `.manage`) to the API key.                                  |
 | `404`  |,                                                 | Feature not licensed for this workspace.                                                            | Module is invisible to unlicensed tenants.                                                           |
 | `410`  | `APP_ARCHIVED`                                   | App was deleted or archived.                                                                        | Switch to a live App.                                                                                |
+| `413`  |,                                                 | Proxy request body exceeded `RUNTIME_SECURITY_MAX_REQUEST_BODY_BYTES` (16 MB default).              | Send smaller requests, or raise the cap for self‑hosted deployments.                                 |
 | `422`  |,                                                 | Schema validation failed.                                                                           | See `detail` for the array of field errors.                                                          |
 | `423`  | `APP_DISABLED`                                   | App has `status="disabled"`.                                                                        | Re‑enable in the dashboard.                                                                          |
 | `429`  |,                                                 | Per‑second rate limit hit.                                                                          | Back off. Limits are per workspace, not per key.                                                     |
@@ -78,6 +79,23 @@ through unscored is exactly what the firewall is meant to prevent.
 
 The `/health` endpoint reports liveness; integrate it into your
 readiness probe if you operate the firewall in self‑hosted mode.
+
+That's the whole‑service‑down case. There's a narrower one: the
+service is up, but the ML injection classifier itself errors mid‑request
+(a transient inference failure). By default (`RUNTIME_SECURITY_FAIL_MODE=open`)
+the scan proceeds on whatever other signals are available (PII
+detectors, structural markers, phrase pack) rather than failing the
+whole call. Set `RUNTIME_SECURITY_FAIL_MODE=closed` to force `verdict=block`
+(`blocked_reason=detector_error:fail_closed`) instead: the stricter
+posture for deployments that would rather over‑block than let anything
+through unscored by the primary classifier.
+
+Separately, a proxy request with an attachment that can't be turned
+into scannable text (oversized, unsupported type, extraction failure,
+an image with no OCR text) is **silently forwarded unscanned** by
+default, a potential scan bypass. Set
+`RUNTIME_SECURITY_FILE_ANALYSIS_BLOCK_UNSCANNABLE=true` to instead
+block it (`blocked_reason=attachment_unscannable:<kind>`).
 
 ## FAQ
 

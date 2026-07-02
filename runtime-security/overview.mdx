@@ -5,8 +5,10 @@ description: "What the Runtime Security firewall does, how it integrates, and ho
 
 Runtime Security is a drop‑in firewall for LLM traffic. It scans
 prompts before they reach the model and responses before they reach
-the user, catching prompt injection, PII and secret leakage, and
-dangerous agent tool calls. It's wire‑compatible with the OpenAI,
+the user, catching prompt injection, PII and secret leakage (both
+structured, like email/IBAN/API keys via regex/entropy, and
+unstructured, like names/addresses/dates of birth via a zero‑shot NER
+tier), and dangerous agent tool calls. It's wire‑compatible with the OpenAI,
 Anthropic, Gemini, Vertex, and Bedrock SDKs, so most apps integrate
 by changing one config value.
 

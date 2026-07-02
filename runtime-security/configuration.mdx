@@ -75,10 +75,16 @@ operator's reason.
     "detectors": {
       "injection": true,
       "pii": true,
+      "ner": true,
       "embedding_anomaly": false,
       "perplexity": false,
       "topic_drift": false,
       "agentic_guardrails": true
+    },
+    "ner": {
+      "mode": "flag",
+      "threshold": 0.55,
+      "entities": ["person", "address", "phone_number", "date_of_birth"]
     },
     "custom_phrases": ["ignore previous instructions"],
     "pii_rules": [
@@ -108,11 +114,15 @@ operator's reason.
 | `thresholds.redact`                         | 0.0–1.0           | Input verdict becomes `redact` at or above (and below block).                              |
 | `thresholds.output_block` / `output_redact` | 0.0–1.0           | Same, applied to model output traffic.                                                     |
 | `detectors.injection`                       | bool              | Run the prompt‑injection classifier on input.                                              |
-| `detectors.pii`                             | bool              | Run PII / secret detection (input and output).                                             |
+| `detectors.pii`                             | bool              | Run regex / entropy PII and secret detection (input and output).                            |
+| `detectors.ner`                             | bool              | Run the transformer NER tier for unstructured PII (names, addresses, DOB). See [NER PII detection](#ner-pii-detection). Default **on**. |
 | `detectors.embedding_anomaly`               | bool              | Score the prompt against the App's embedding baseline. Flags out‑of‑distribution traffic.   |
 | `detectors.perplexity`                      | bool              | Score perplexity to catch fuzzed / obfuscated prompts.                                     |
 | `detectors.topic_drift`                     | bool              | Track topic distribution drift across the App's traffic window.                            |
 | `detectors.agentic_guardrails`              | bool              | Apply tool‑call rules in `tool_policy` plus the SSRF / shell / SQL guards.                  |
+| `ner.mode`                                  | `flag` / `redact` | Default `flag` (monitor‑only, never mutates traffic). `redact` masks NER spans like regex PII hits. |
+| `ner.threshold`                             | 0.05–0.99, default 0.55 | Confidence floor for a NER span to count as a finding.                                |
+| `ner.entities`                              | array of strings  | Zero‑shot entity labels to look for. Free‑form, no retrain needed to add a custom one.      |
 | `custom_phrases`                            | array of strings  | Phrase pack. Exact / fuzzy hits force `block` regardless of model score.                    |
 | `pii_rules`                                 | array             | App‑scoped regex PII rules. Validated for catastrophic backtracking before accept.          |
 | `tool_policy.allowlist` / `denylist`        | array of strings  | Per‑App tool gates. Combined with workspace‑level rules.                                    |
@@ -146,6 +156,99 @@ Workspace‑shared body shape:
 
 Newly‑added patterns become live within ~30 seconds (cache TTL).
 
+## NER PII detection
+
+The regex / entropy detectors in `detectors.pii` are precise on
+**structured** PII (email, phone, IBAN with mod‑97 validation, API
+keys) because those have a lexical shape a pattern can anchor on. They're
+blind to **unstructured** PII: person names, street addresses, dates
+of birth. `detectors.ner` adds a zero‑shot transformer NER tier
+(**GLiNER2‑PII**, Apache‑2.0, [fastino/gliner2-privacy-filter-PII-multi](https://huggingface.co/fastino/gliner2-privacy-filter-PII-multi))
+on top for exactly that gap.
+
+On overlapping spans, the regex tier always wins: a checksum‑validated
+IBAN is strictly more trustworthy than a token classifier reading the
+same characters. NER only ever adds findings the pattern tier couldn't
+see.
+
+### `AppNerPolicy`
+
+```json
+{
+  "ner": {
+    "mode": "flag",
+    "threshold": 0.55,
+    "entities": ["person", "address", "date_of_birth", "medical_condition"]
+  }
+}
+```
+
+| Field       | Range / values                       | What it does                                                                 |
+| ----------- | ------------------------------------- | ----------------------------------------------------------------------------- |
+| `mode`      | `flag` (default) / `redact`           | `flag` records findings and lifts an `allow` verdict to `flag`, but never rewrites text. `redact` masks NER spans exactly like a regex PII hit. |
+| `threshold` | 0.05–0.99, default `0.55`             | Confidence floor per span.                                                    |
+| `entities`  | array of zero‑shot labels, ≤ 64       | The entity types to look for. Defaults to `person`, `address`, `phone_number`, `date_of_birth`, `social_security_number`, `passport_number`, `driver_license`, `bank_account_number`, `medical_condition`, `organization`. Add any custom label (`medical_record_number`, `patient_mrn`, `employee_number`, …): zero‑shot means no retrain or redeploy. |
+
+<Warning>
+  Ship new entity types in `flag` mode first. NER precision is
+  domain‑dependent (cross‑domain benchmarks show real‑world F1 well
+  below headline model‑card numbers), so treat a fresh entity/threshold
+  combination as untrusted until you've watched its `flag` volume and
+  spot‑checked findings in the event log. Promote to `redact` per App
+  once validated.
+</Warning>
+
+### Recommended configurations
+
+Benchmarked against ai4privacy (general PII) and NCBI‑disease /
+synthetic clinical notes (medical):
+
+| Use case             | Entities                                                              | Threshold | Notes                                                                 |
+| --------------------- | ---------------------------------------------------------------------- | --------- | ---------------------------------------------------------------------- |
+| General / default      | `person`, `address`, `date_of_birth`                                    | 0.60      | Recall ~0.83 person / ~0.88 DOB with over‑redaction cut to ~7% (from ~16% at the broader default). Numeric IDs and `organization` are noisy, leave those to the regex tier. |
+| Healthcare / PHI       | `person`, `date_of_birth`, `medical_record_number`, `medical_condition`, `medication`, `address` | 0.50–0.60 | Custom zero‑shot labels (`medical_record_number`, `medication`) fire with no retrain. Disease‑mention recall ~0.83 on real clinical prose. Keep phone / email / SSN / insurance IDs on the regex / `pii_rules` tier. |
+
+Latency is CPU‑bound and independent of these choices: p50 ≈ 130–140ms,
+p99 ≈ 200ms per scan once the model is warm.
+
+### Model status
+
+```
+GET /api/runtime-security/ner/status
+```
+
+Requires `runtime_security.view`. Also **warms the model**: the first
+call kicks off the (~40s) background load so the tier is ready before
+traffic needs it. Poll this after enabling `detectors.ner` for the
+first time, or to render a live status badge in your own tooling.
+
+```json
+{
+  "enabled": true,
+  "available": true,
+  "state": "ready",
+  "model": "fastino/gliner2-privacy-filter-PII-multi",
+  "load_seconds": 38.2,
+  "error": null,
+  "default_entities": ["person", "address", "phone_number", "date_of_birth", "…"],
+  "default_threshold": 0.55,
+  "default_mode": "flag"
+}
+```
+
+| `state`     | Meaning                                                                                          |
+| ----------- | -------------------------------------------------------------------------------------------------- |
+| `idle`      | Not yet requested. Call this endpoint (or run a scan) to trigger the load.                         |
+| `loading`   | Background load in progress. Scans that arrive now proceed **without** NER (fail‑open).             |
+| `ready`     | Warm. Scans include NER findings.                                                                   |
+| `error`     | Load failed (see `error`). NER is skipped; every other detector runs normally.                      |
+| `disabled`  | `RUNTIME_SECURITY_NER_ENABLED=0` or `detectors.ner=false`.                                          |
+| `unavailable` | The `gliner2` package (and torch) aren't installed in this image. Expected on the slim firewall build, which intentionally omits ML runtime deps. |
+
+The tier fails open at every stage: cold model, load error, or a slim
+image with no `gliner2` package all just mean NER findings are absent
+for that scan. Every other detector still runs.
+
 ## Pre‑prompts on the proxy
 
 Admins can configure a system message that the proxy auto‑prepends
@@ -168,6 +271,45 @@ EU‑only App might forbid `openai`, `groq`, and `bedrock` US regions).
 
 Refused requests return a provider‑shaped error with verdict `block`
 and `blocked_reason="provider_forbidden:<name>"`.
+
+## Environment variables
+
+Most tuning lives in the App / workspace config APIs above. A smaller
+set of knobs (mostly about detector rollout, fail‑posture, and abuse
+caps) are process‑level env vars, useful for self‑hosted deployments.
+None of these require a config‑API round trip; they take effect on
+process restart.
+
+| Variable                                        | Default             | What it does                                                                                     |
+| ------------------------------------------------ | -------------------- | -------------------------------------------------------------------------------------------------- |
+| `RUNTIME_SECURITY_FAIL_MODE`                      | `open`               | `open`: if the ML injection classifier errors at runtime, fall back to remaining signals. `closed`: force `block`. |
+| `RUNTIME_SECURITY_NER_ENABLED`                    | `1` (on)             | Global kill‑switch for the NER PII tier. `0` / `false` / `off` disables regardless of `detectors.ner`. |
+| `RUNTIME_SECURITY_NER_MODEL`                      | `fastino/gliner2-privacy-filter-PII-multi` | HuggingFace model id for the NER tier.                                        |
+| `RUNTIME_SECURITY_NER_THRESHOLD`                  | `0.55`               | Fallback confidence floor when an App has no `ner.threshold` set.                                   |
+| `RUNTIME_SECURITY_NER_MODE`                       | `flag`               | Fallback mode (`flag` / `redact`) when an App has no `ner.mode` set.                                |
+| `RUNTIME_SECURITY_NER_ENTITIES`                   | built‑in default set | Comma‑separated fallback entity list when an App has no `ner.entities` set.                         |
+| `RUNTIME_SECURITY_NER_MAX_TEXT`                   | `12000`              | Characters of (already truncated) input handed to the NER model per scan.                           |
+| `RUNTIME_SECURITY_CALIBRATION_MIN_SAMPLES`        | `200`                | A fitted calibration temperature below this many labelled samples is discarded (identity used instead) rather than shipped untrustworthy. |
+| `RUNTIME_SECURITY_PERPLEXITY_THRESHOLD`           | `500`                | Perplexity score that nudges a verdict toward `redact`. Ordinary English prose scores ~40–120; genuine obfuscation (base64 / homoglyph / token smuggling) ~150–600. |
+| `RUNTIME_SECURITY_PERPLEXITY_WINDOW_THRESHOLD`    | `1200`               | Same, for the sliding‑window score.                                                                 |
+| `RUNTIME_SECURITY_PERPLEXITY_LOAD_RETRY_S`        | `300`                | After a scorer load failure (transient OOM, partial download), retry after this many seconds instead of leaving the tier dead for the process lifetime. |
+| `RUNTIME_SECURITY_EMBEDDING_ALLOW_FALLBACK`       | `false`               | The embedding‑anomaly tier refuses to score with the hash‑fallback embedder by default (its geometry doesn't match tuned thresholds). Opt in only if you understand the tradeoff. |
+| `RUNTIME_SECURITY_FILE_ANALYSIS_ALLOW_PRIVATE_HOSTS` | `false`            | File‑attachment URL fetching refuses loopback / RFC1918 / link‑local / cloud‑metadata targets (SSRF guard) unless this is set.                |
+| `RUNTIME_SECURITY_FILE_ANALYSIS_BLOCK_UNSCANNABLE`   | `false`             | When `true`, an attachment that couldn't be turned into scannable text (oversized, unsupported type, extraction failure, image with no OCR text) is treated as a policy violation (`blocked_reason: attachment_unscannable:<kind>`) instead of silently forwarded. |
+| `RUNTIME_SECURITY_MCP_MAX_DESCRIPTION_LEN`        | `32768`              | Character cap on an MCP tool description before it's scanned for tool‑poisoning (prevents a hostile MCP server DoS‑ing the scanner with a huge description). |
+| `RUNTIME_SECURITY_MAX_REQUEST_BODY_BYTES`         | `16777216` (16 MB)   | Hard cap on proxy request‑body size, enforced on `Content-Length` and via streaming byte‑count. Returns `413` on overflow.                      |
+| `RUNTIME_SECURITY_LLM_JUDGE_TIMEOUT_MS`           | `5000`               | Hard timeout for the LLM‑judge corroboration tier. On timeout the judge verdict is `ABSTAIN`, it just doesn't corroborate a block.                |
+| `RUNTIME_SECURITY_LLM_JUDGE_WORKERS`              | `4`                   | Thread‑pool size backing the judge timeout enforcement.                                             |
+| `RUNTIME_SECURITY_STREAM_SCAN_WINDOW_CHARS`       | `4096`               | Mid‑stream output scans look at only the last N characters of the growing buffer per tick, rather than rescanning the whole buffer (keeps streaming scan cost flat, not quadratic, over a long response). |
+
+<Note>
+  The perplexity defaults above were retuned this release (previously
+  1500 / 5000, which was high enough that the detector effectively
+  never fired). If you run with `detectors.perplexity` enabled and
+  rely on the old defaults implicitly, expect more `redact` verdicts
+  from this tier after upgrading. Re‑tune per your own corpus via the
+  env overrides if that's not what you want.
+</Note>
 
 ## Common workflows
 
