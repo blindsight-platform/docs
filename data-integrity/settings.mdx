@@ -24,7 +24,7 @@ behind feature gates.
 
 ## Appearance
 
-The Appearance tab controls how Antidote looks for everyone in the
+The Appearance tab controls how Blindsight looks for everyone in the
 workspace.
 
 - **Theme**: light, dark, or follow system. Per user, but the default
@@ -108,8 +108,8 @@ you hit a hard limit, mutation APIs return an appropriate `402` or
 
 ## Single‑tenant model
 
-Antidote Cloud is single‑tenant: each customer gets an isolated
-deployment, managed by the Antidote team, with its own database,
+Blindsight Cloud is single‑tenant: each customer gets an isolated
+deployment, managed by the Blindsight team, with its own database,
 storage, and worker pool. Your workspace URL, severity counts,
 licensing, and API keys are scoped to that one deployment.
 
@@ -133,11 +133,11 @@ This means:
 
   <Accordion title="Scan stuck in queued">
     No worker is consuming that engine's queue. Open a support
-    ticket; this is on the Antidote team to resolve on cloud.
+    ticket; this is on the Blindsight team to resolve on cloud.
   </Accordion>
 
   <Accordion title="HuggingFace import is slow or hits 429">
-    HuggingFace rate‑limits aggressive imports. Antidote retries with
+    HuggingFace rate‑limits aggressive imports. Blindsight retries with
     exponential backoff automatically. Check the retry counter on
     the import card; if it keeps failing, rotate to a fresh token
     under **Settings → Integrations**.
@@ -156,7 +156,7 @@ This means:
   </Accordion>
 
   <Accordion title="Webhook deliveries stopped">
-    Antidote auto‑disables endpoints that consistently fail to
+    Blindsight auto‑disables endpoints that consistently fail to
     protect the queue. Check **Settings → Integrations → Webhooks**
     for a disabled badge, fix the receiver, and re‑enable.
   </Accordion>
@@ -165,7 +165,7 @@ This means:
 ## Support & feedback
 
 - **In‑app**: **Help → Report a bug** or **Help → Feature request**.
-  Attachments are saved with the submission and reach the Antidote
+  Attachments are saved with the submission and reach the Blindsight
   team.
 - **Email**: every workspace gets a dedicated support address.
   Reference the workspace URL in the subject line.

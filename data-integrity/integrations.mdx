@@ -1,9 +1,9 @@
 ---
 title: "Integrations & webhooks"
-description: "Connect Antidote to the outside world: code repos, model hubs, object storage, ticketing, and outbound webhooks."
+description: "Connect Blindsight to the outside world: code repos, model hubs, object storage, ticketing, and outbound webhooks."
 ---
 
-Antidote talks to the outside world through a handful of typed
+Blindsight talks to the outside world through a handful of typed
 integrations. Each has stored credentials, a **Test** button, and a
 health indicator on the **Settings → Integrations** page.
 
@@ -27,11 +27,11 @@ health indicator on the **Settings → Integrations** page.
     up.
   </Step>
   <Step title="Add credentials">
-    Provide what the provider needs. Antidote encrypts secrets at
+    Provide what the provider needs. Blindsight encrypts secrets at
     rest (with `DATASET_TOKEN_SECRET` when configured).
   </Step>
   <Step title="Test the connection">
-    Every card has a **Test** button. Antidote performs a read‑only
+    Every card has a **Test** button. Blindsight performs a read‑only
     probe and shows the result. Fix any error before saving.
   </Step>
   <Step title="(Optional) add more credentials">
@@ -63,7 +63,7 @@ health indicator on the **Settings → Integrations** page.
   <Accordion title="Kaggle">
     - Provide a `kaggle.json` payload (the file you download from
       kaggle.com/settings).
-    - Antidote can pull competition data, dataset releases, and
+    - Blindsight can pull competition data, dataset releases, and
       kernel outputs.
   </Accordion>
 
@@ -81,17 +81,17 @@ health indicator on the **Settings → Integrations** page.
     1. Add the integration: site URL, integration email, API token,
        project key.
     2. *(Optional)* Configure inbound webhooks from Jira so issue
-       status / comment updates sync back into Antidote.
+       status / comment updates sync back into Blindsight.
     3. From any scan result row, **Send to Jira** opens a one‑click
-       modal with the finding details pre‑filled. Antidote attaches
+       modal with the finding details pre‑filled. Blindsight attaches
        a snapshot of the result.
-    4. The Jira issue carries a link back to the scan in Antidote.
+    4. The Jira issue carries a link back to the scan in Blindsight.
   </Accordion>
 </AccordionGroup>
 
 ## Outbound webhooks
 
-Webhooks let your downstream systems react to events in Antidote.
+Webhooks let your downstream systems react to events in Blindsight.
 
 ### What triggers a webhook
 
@@ -114,8 +114,8 @@ You pick which events your endpoint receives:
     schema documented in the API reference.
   </Step>
   <Step title="Set a secret">
-    Antidote signs every payload with HMAC‑SHA256 using your secret
-    in the `X-Antidote-Signature` header. Verify on your end before
+    Blindsight signs every payload with HMAC‑SHA256 using your secret
+    in the `X-Blindsight-Signature` header. Verify on your end before
     trusting the body.
   </Step>
   <Step title="Test it">

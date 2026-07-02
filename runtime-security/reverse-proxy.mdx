@@ -1,12 +1,12 @@
 ---
 title: "Reverse proxy"
-description: "Wire-compatible passthrough endpoints for OpenAI, Anthropic, Gemini, Vertex, Bedrock, and self-hosted runtimes. Swap one config value to put Antidote in front of LLM traffic."
+description: "Wire-compatible passthrough endpoints for OpenAI, Anthropic, Gemini, Vertex, Bedrock, and self-hosted runtimes. Swap one config value to put Blindsight in front of LLM traffic."
 ---
 
 # Runtime Security Reverse-Proxy
 
 Wire-compatible passthrough endpoints for all supported LLM providers
-that let client applications drop Antidote Runtime Security in front of
+that let client applications drop Blindsight Runtime Security in front of
 their LLM traffic by swapping a single configuration value, the SDK
 `base_url`. Every prompt is scanned before it reaches the upstream
 provider and every response is scanned before it returns to the caller,
@@ -37,7 +37,7 @@ their code. That's fine for purpose-built middleware, but awkward for:
 - Applications that already go through an OpenAI or Anthropic SDK and
   want zero code changes beyond `base_url`.
 - Third-party tools (LangChain, LlamaIndex, raw `curl`, Cursor, etc.)
-  where the wire protocol is the only contract Antidote can rely on.
+  where the wire protocol is the only contract Blindsight can rely on.
 - Teams that want a hard guarantee that every call went through the
   firewall, enforced at the network boundary instead of relying on each
   developer to remember to call the scan endpoints.
@@ -58,7 +58,7 @@ and are mounted in `backend/app/api/router.py` alongside the scan API.
 | POST   | `/api/runtime-security/proxy/openai/v1/chat/completions`                                                        | `https://api.openai.com/v1/chat/completions`                                                              |
 | POST   | `/api/runtime-security/proxy/openai/v1/completions`                                                             | `https://api.openai.com/v1/completions`                                                                   |
 | POST   | `/api/runtime-security/proxy/anthropic/v1/messages`                                                             | `https://api.anthropic.com/v1/messages`                                                                   |
-| POST   | `/api/runtime-security/proxy/openai-compatible/v1/chat/completions`                                             | Picked by `X-Antidote-Upstream-Provider` or App routing config (see §6.4)                                 |
+| POST   | `/api/runtime-security/proxy/openai-compatible/v1/chat/completions`                                             | Picked by `X-Blindsight-Upstream-Provider` or App routing config (see §6.4)                                 |
 | POST   | `/api/runtime-security/proxy/openai-compatible/v1/completions`                                                  | Same as above                                                                                             |
 | POST   | `/api/runtime-security/proxy/gemini/v1beta/models/{model}:generateContent`                                      | `https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent`                         |
 | POST   | `/api/runtime-security/proxy/gemini/v1beta/models/{model}:streamGenerateContent`                                | `…:streamGenerateContent?alt=sse`                                                                         |
@@ -88,11 +88,11 @@ The user-facing change is a single setting.
 from openai import OpenAI
 
 client = OpenAI(
-    base_url="https://<your-antidote-host>/api/runtime-security/proxy/openai/v1",
+    base_url="https://<your-blindsight-host>/api/runtime-security/proxy/openai/v1",
     api_key="sk-...your-openai-key...",           # forwarded upstream
     default_headers={
-        "X-API-Key": "ak_...your-antidote-api-key...",   # antidote auth
-        "X-Antidote-App-Id": "app_...",                  # which App owns this traffic
+        "X-API-Key": "ak_...your-blindsight-api-key...",   # blindsight auth
+        "X-Blindsight-App-Id": "app_...",                  # which App owns this traffic
     },
 )
 
@@ -108,11 +108,11 @@ client.chat.completions.create(
 import OpenAI from "openai";
 
 const client = new OpenAI({
-  baseURL: "https://<your-antidote-host>/api/runtime-security/proxy/openai/v1",
+  baseURL: "https://<your-blindsight-host>/api/runtime-security/proxy/openai/v1",
   apiKey: process.env.OPENAI_API_KEY,
   defaultHeaders: {
-    "X-API-Key": process.env.ANTIDOTE_API_KEY!,
-    "X-Antidote-App-Id": process.env.ANTIDOTE_APP_ID!,
+    "X-API-Key": process.env.BLINDSIGHT_API_KEY!,
+    "X-Blindsight-App-Id": process.env.BLINDSIGHT_APP_ID!,
   },
 });
 ```
@@ -123,11 +123,11 @@ const client = new OpenAI({
 from anthropic import Anthropic
 
 client = Anthropic(
-    base_url="https://<your-antidote-host>/api/runtime-security/proxy/anthropic",
+    base_url="https://<your-blindsight-host>/api/runtime-security/proxy/anthropic",
     api_key="sk-ant-...your-anthropic-key...",    # forwarded upstream as x-api-key
     default_headers={
-        "X-Antidote-Key": "ak_...your-antidote-api-key...",  # antidote auth
-        "X-Antidote-App-Id": "app_...",                      # which App owns this traffic
+        "X-Blindsight-Key": "ak_...your-blindsight-api-key...",  # blindsight auth
+        "X-Blindsight-App-Id": "app_...",                      # which App owns this traffic
     },
 )
 
@@ -138,29 +138,29 @@ client.messages.create(
 )
 ```
 
-> **Why two different antidote-auth headers?** OpenAI puts its upstream
+> **Why two different blindsight-auth headers?** OpenAI puts its upstream
 > key in `Authorization`, Anthropic puts its upstream key in
 > `x-api-key`. To avoid colliding with either, OpenAI callers send the
-> antidote credential as `X-API-Key` (free for OpenAI) and Anthropic
-> callers send it as `X-Antidote-Key` (free for Anthropic).
+> blindsight credential as `X-API-Key` (free for OpenAI) and Anthropic
+> callers send it as `X-Blindsight-Key` (free for Anthropic).
 > `Authorization` is **never** consumed by the proxy routes, it is
 > forwarded verbatim.
 
 ### OpenAI-compatible providers (Groq, DeepSeek, Perplexity, Mistral, OpenRouter, Cerebras)
 
 The same OpenAI SDK works against the `/openai-compatible/v1` route,
-pick the upstream with `X-Antidote-Upstream-Provider`.
+pick the upstream with `X-Blindsight-Upstream-Provider`.
 
 ```python
 from openai import OpenAI
 
 client = OpenAI(
-    base_url="https://<your-antidote-host>/api/runtime-security/proxy/openai-compatible/v1",
+    base_url="https://<your-blindsight-host>/api/runtime-security/proxy/openai-compatible/v1",
     api_key="gsk_...your-groq-key...",
     default_headers={
-        "X-API-Key": "ak_...your-antidote-api-key...",
-        "X-Antidote-App-Id": "app_...",
-        "X-Antidote-Upstream-Provider": "groq",   # groq|deepseek|perplexity|mistral|openrouter|cerebras
+        "X-API-Key": "ak_...your-blindsight-api-key...",
+        "X-Blindsight-App-Id": "app_...",
+        "X-Blindsight-Upstream-Provider": "groq",   # groq|deepseek|perplexity|mistral|openrouter|cerebras
     },
 )
 ```
@@ -177,7 +177,7 @@ attributed to that App.
 ### Self-hosted Ollama, llama.cpp, vLLM, TGI
 
 Self-hosted runtimes that speak OpenAI-shape go through the same route
-using `X-Antidote-Upstream-Base`. The deployment must allowlist the
+using `X-Blindsight-Upstream-Base`. The deployment must allowlist the
 base URL via `RUNTIME_SECURITY_OPENAI_COMPAT_EXTRA_BASES`:
 
 ```bash
@@ -187,12 +187,12 @@ RUNTIME_SECURITY_OPENAI_COMPAT_EXTRA_BASES=http://ollama.internal:11434/v1,http:
 
 ```python
 client = OpenAI(
-    base_url="https://<your-antidote-host>/api/runtime-security/proxy/openai-compatible/v1",
+    base_url="https://<your-blindsight-host>/api/runtime-security/proxy/openai-compatible/v1",
     api_key="not-needed-for-ollama",
     default_headers={
         "X-API-Key": "ak_...",
-        "X-Antidote-App-Id": "app_...",
-        "X-Antidote-Upstream-Base": "http://ollama.internal:11434/v1",
+        "X-Blindsight-App-Id": "app_...",
+        "X-Blindsight-Upstream-Base": "http://ollama.internal:11434/v1",
     },
 )
 ```
@@ -209,7 +209,7 @@ genai.configure(
     api_key="...your-google-api-key...",   # forwarded upstream via x-goog-api-key / ?key=
     transport="rest",
     client_options={
-        "api_endpoint": "https://<your-antidote-host>/api/runtime-security/proxy/gemini",
+        "api_endpoint": "https://<your-blindsight-host>/api/runtime-security/proxy/gemini",
     },
 )
 # OR pass the key as a header, the proxy forwards both query-string `?key=` and `x-goog-api-key`.
@@ -221,10 +221,10 @@ Or with plain `requests`:
 import requests
 
 requests.post(
-    "https://<your-antidote-host>/api/runtime-security/proxy/gemini/v1beta/models/gemini-1.5-pro:generateContent",
+    "https://<your-blindsight-host>/api/runtime-security/proxy/gemini/v1beta/models/gemini-1.5-pro:generateContent",
     headers={
-        "X-API-Key": "ak_...your-antidote-api-key...",
-        "X-Antidote-App-Id": "app_...",
+        "X-API-Key": "ak_...your-blindsight-api-key...",
+        "X-Blindsight-App-Id": "app_...",
         "x-goog-api-key": "...your-google-api-key...",
     },
     json={"contents": [{"role": "user", "parts": [{"text": "Hello"}]}]},
@@ -245,11 +245,11 @@ import requests
 token = ...  # from `gcloud auth print-access-token` or a service-account flow
 
 requests.post(
-    "https://<your-antidote-host>/api/runtime-security/proxy/vertex/v1/projects/"
+    "https://<your-blindsight-host>/api/runtime-security/proxy/vertex/v1/projects/"
     "my-proj/locations/us-central1/publishers/google/models/gemini-1.5-pro:generateContent",
     headers={
         "X-API-Key": "ak_...",
-        "X-Antidote-App-Id": "app_...",
+        "X-Blindsight-App-Id": "app_...",
         "Authorization": f"Bearer {token}",
     },
     json={"contents": [{"role": "user", "parts": [{"text": "Hello"}]}]},
@@ -271,15 +271,15 @@ upstream call server-side:
 import requests, os
 
 requests.post(
-    "https://<your-antidote-host>/api/runtime-security/proxy/bedrock/"
+    "https://<your-blindsight-host>/api/runtime-security/proxy/bedrock/"
     "model/anthropic.claude-3-5-sonnet-20241022-v2:0/converse",
     headers={
-        "X-API-Key": "ak_...your-antidote-api-key...",
-        "X-Antidote-App-Id": "app_...",
-        "X-Antidote-AWS-Access-Key-Id": os.environ["AWS_ACCESS_KEY_ID"],
-        "X-Antidote-AWS-Secret-Access-Key": os.environ["AWS_SECRET_ACCESS_KEY"],
-        "X-Antidote-AWS-Session-Token": os.environ.get("AWS_SESSION_TOKEN", ""),
-        "X-Antidote-AWS-Region": "us-east-1",
+        "X-API-Key": "ak_...your-blindsight-api-key...",
+        "X-Blindsight-App-Id": "app_...",
+        "X-Blindsight-AWS-Access-Key-Id": os.environ["AWS_ACCESS_KEY_ID"],
+        "X-Blindsight-AWS-Secret-Access-Key": os.environ["AWS_SECRET_ACCESS_KEY"],
+        "X-Blindsight-AWS-Session-Token": os.environ.get("AWS_SESSION_TOKEN", ""),
+        "X-Blindsight-AWS-Region": "us-east-1",
     },
     json={
         "messages": [{"role": "user", "content": [{"text": "Hello"}]}],
@@ -291,7 +291,7 @@ requests.post(
 
 If the deployment already has IAM credentials in its environment
 (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`), the
-`X-Antidote-AWS-*` headers become optional and the server-side identity
+`X-Blindsight-AWS-*` headers become optional and the server-side identity
 is used instead. The headers always take precedence so callers can use
 their own AWS account.
 
@@ -310,12 +310,12 @@ Unlike the normal `get_current_user` dependency, it must leave
 
 Priority order:
 
-1. `X-API-Key: ak_...`, the normal antidote API key header. OpenAI
+1. `X-API-Key: ak_...`, the normal blindsight API key header. OpenAI
    clients should use this.
-2. `X-Antidote-Key: ak_... | Bearer <jwt>`, fallback for clients
+2. `X-Blindsight-Key: ak_... | Bearer <jwt>`, fallback for clients
    that already use `x-api-key` for the upstream provider (i.e.
    Anthropic).
-3. `antidote_session` cookie, lets the in-app dashboard exercise the
+3. `blindsight_session` cookie, lets the in-app dashboard exercise the
    proxy without provisioning an API key.
 
 After authentication, the route enforces the `runtime_security.scan`
@@ -324,12 +324,12 @@ used with the proxy need a scope that maps to `runtime_security.scan`
 (typically `*`) and a role with `runtime_security.scan` capability.
 
 Missing credentials return HTTP 401 with a message instructing the
-client to set `X-API-Key` or `X-Antidote-Key`. Missing permission
+client to set `X-API-Key` or `X-Blindsight-Key`. Missing permission
 returns HTTP 403.
 
 ### App attribution
 
-Every proxy call must also carry `X-Antidote-App-Id` (the UUID of an
+Every proxy call must also carry `X-Blindsight-App-Id` (the UUID of an
 App in the workspace). The proxy resolves the App via
 `runtime_security.app_resolver.resolve_runtime_app`, which:
 
@@ -337,7 +337,7 @@ App in the workspace). The proxy resolves the App via
    missing or unknown App.
 2. Returns **HTTP 423 `APP_DISABLED`** when `app.status == "disabled"`,
    **HTTP 410 `APP_ARCHIVED`** when archived or soft-deleted.
-3. Verifies `X-Antidote-App-Token` against the App's signed token
+3. Verifies `X-Blindsight-App-Token` against the App's signed token
    table when `require_signed_token=true`
    (`APP_TOKEN_REQUIRED` / `APP_TOKEN_INVALID`).
 4. Enforces `max_events_per_hour` / `max_events_per_day` and returns
@@ -354,7 +354,7 @@ persisted event so the dashboard can correlate sudden verdict-mix
 changes with config edits.
 
 > **Strict attribution mode.** Setting
-> `ANTIDOTE_REQUIRE_APP_ATTRIBUTION=1` makes the *scan* endpoints
+> `BLINDSIGHT_REQUIRE_APP_ATTRIBUTION=1` makes the *scan* endpoints
 > reject calls without an App-Id too. The proxy already requires it
 > regardless of this flag.
 
@@ -382,7 +382,7 @@ For every proxy call the route performs:
    `source_app="proxy:openai"` / `source_app="proxy:anthropic"` so the
    dashboard can segment proxy traffic from direct scan traffic.
 5. **Forward upstream** via `httpx.AsyncClient.post()`. Headers are
-   filtered by `_filter_inbound_headers()`, hop-by-hop and antidote
+   filtered by `_filter_inbound_headers()`, hop-by-hop and blindsight
    auth headers are stripped, and provider-specific headers are kept
    (`Authorization` for OpenAI, `x-api-key` / `anthropic-version` for
    Anthropic).
@@ -502,10 +502,10 @@ parse them without modification.
 ```json
 {
   "error": {
-    "message": "Blocked by Antidote Runtime Security: prompt_injection:score=0.92",
-    "type": "antidote_runtime_security",
+    "message": "Blocked by Blindsight Runtime Security: prompt_injection:score=0.92",
+    "type": "blindsight_runtime_security",
     "param": null,
-    "code": "antidote_blocked"
+    "code": "blindsight_blocked"
   }
 }
 ```
@@ -514,9 +514,9 @@ Status codes:
 
 | Code | When                                                       | `code` field       |
 | ---- | ---------------------------------------------------------- | ------------------ |
-| 400  | Input blocked (prompt injection / PII policy hit)          | `antidote_blocked` |
+| 400  | Input blocked (prompt injection / PII policy hit)          | `blindsight_blocked` |
 | 400  | `stream=true` or invalid JSON                              | n/a                |
-| 401  | Missing antidote credential                                | n/a                |
+| 401  | Missing blindsight credential                                | n/a                |
 | 403  | Missing `runtime_security.scan` permission                 | n/a                |
 | 502  | Upstream network error (timeout, DNS, 5xx from OpenAI)     | `upstream_error`   |
 | 502  | Output blocked (PII/secret leak in upstream response)      | `upstream_blocked` |
@@ -529,7 +529,7 @@ Status codes:
   "type": "error",
   "error": {
     "type": "invalid_request_error",
-    "message": "Blocked by Antidote Runtime Security: ..."
+    "message": "Blocked by Blindsight Runtime Security: ..."
   }
 }
 ```
@@ -543,14 +543,14 @@ failures use `api_error`.
 {
   "error": {
     "code": 400,
-    "status": "antidote_blocked",
-    "message": "Blocked by Antidote Runtime Security: …"
+    "status": "blindsight_blocked",
+    "message": "Blocked by Blindsight Runtime Security: …"
   }
 }
 ```
 
 The `code` field carries the HTTP status; `status` is the
-machine-readable reason (`antidote_blocked`, `upstream_error`,
+machine-readable reason (`blindsight_blocked`, `upstream_error`,
 `upstream_blocked`, `unsupported_endpoint`).
 
 Streaming blocks emit a terminal SSE event with a
@@ -561,8 +561,8 @@ safety-stop shape.
 
 ```json
 {
-  "message": "Blocked by Antidote Runtime Security: …",
-  "type": "antidote_blocked"
+  "message": "Blocked by Blindsight Runtime Security: …",
+  "type": "blindsight_blocked"
 }
 ```
 
@@ -570,8 +570,8 @@ Bedrock-specific status codes:
 
 | Code | When                                                                 | `type` field           |
 | ---- | -------------------------------------------------------------------- | ---------------------- |
-| 401  | Missing `X-Antidote-AWS-Access-Key-Id` / `-Secret-Access-Key`        | `missing_credentials`  |
-| 400  | Missing `X-Antidote-AWS-Region` (and no `AWS_REGION` env var)        | `missing_region`       |
+| 401  | Missing `X-Blindsight-AWS-Access-Key-Id` / `-Secret-Access-Key`        | `missing_credentials`  |
+| 400  | Missing `X-Blindsight-AWS-Region` (and no `AWS_REGION` env var)        | `missing_region`       |
 | 500  | SigV4 signing failed (malformed creds, botocore error)               | `sign_error`           |
 
 ### Upstream error passthrough
@@ -580,7 +580,7 @@ If the upstream provider returns a non-2xx (e.g. OpenAI 429
 rate-limit, Anthropic 400 invalid model), the proxy **does not
 rewrite** the body. The upstream JSON and status code are forwarded
 verbatim so SDKs can surface the provider's native error. Only blocks
-originated by Antidote adopt the antidote-shaped error envelope.
+originated by Blindsight adopt the blindsight-shaped error envelope.
 
 ---
 
@@ -595,8 +595,8 @@ environment variables.
 | `RUNTIME_SECURITY_ANTHROPIC_BASE_URL`              | `https://api.anthropic.com`               | Upstream Anthropic origin.                                                                                                               |
 | `RUNTIME_SECURITY_GEMINI_BASE_URL`                 | `https://generativelanguage.googleapis.com` | Upstream Google AI Studio origin. (Vertex picks its origin from the request path's `{location}` segment.)                              |
 | `RUNTIME_SECURITY_OPENAI_COMPAT_ALLOWLIST`         | *(empty → full catalogue)*                | Comma-separated subset of `groq,deepseek,perplexity,mistral,openrouter,cerebras` permitted on this deployment.                          |
-| `RUNTIME_SECURITY_OPENAI_COMPAT_EXTRA_BASES`       | *(empty)*                                 | Comma-separated `http(s)://` bases that callers may target via `X-Antidote-Upstream-Base`, used for Ollama, llama.cpp, vLLM, on-prem TGI. |
-| `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` / `AWS_SESSION_TOKEN` / `AWS_REGION` | *(empty)*                | Fallback AWS credentials used by the Bedrock route when the caller doesn't send `X-Antidote-AWS-*` headers.                              |
+| `RUNTIME_SECURITY_OPENAI_COMPAT_EXTRA_BASES`       | *(empty)*                                 | Comma-separated `http(s)://` bases that callers may target via `X-Blindsight-Upstream-Base`, used for Ollama, llama.cpp, vLLM, on-prem TGI. |
+| `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` / `AWS_SESSION_TOKEN` / `AWS_REGION` | *(empty)*                | Fallback AWS credentials used by the Bedrock route when the caller doesn't send `X-Blindsight-AWS-*` headers.                              |
 | `RUNTIME_SECURITY_PROXY_TIMEOUT`                   | `60` (seconds)                            | Upstream request timeout for `httpx.AsyncClient`.                                                                                        |
 
 Workspace-level knobs (`injection_model`, `max_text_length`,
@@ -716,7 +716,7 @@ around the tested helpers.
 ## 12. Dedicated Runtime Security Container
 
 For production deployments where you want the firewall to scale
-independently of the main Antidote API (and fail independently of the
+independently of the main Blindsight API (and fail independently of the
 worker stack), a dedicated container ships alongside the main image.
 
 ### Image layout
@@ -731,9 +731,9 @@ The minimal app intentionally excludes everything outside the Runtime
 Security data-plane, no datasets, healing, playground, or
 auth/user-management routes. **App management endpoints
 (`/api/runtime-security/apps/...`) are also excluded**, Apps are
-created and configured against the main Antidote API, then their
+created and configured against the main Blindsight API, then their
 UUIDs and tokens are referenced by the dedicated container at
-runtime via `X-Antidote-App-Id` / `X-Antidote-App-Token`. Both
+runtime via `X-Blindsight-App-Id` / `X-Blindsight-App-Token`. Both
 containers share the same database, so Apps published from the main
 API are visible to the firewall instantly.
 
@@ -780,7 +780,7 @@ The only endpoints it serves are:
 
 Both containers talk to the **same** PostgreSQL instance, scan events
 from the dedicated proxy container land in the same
-`runtime_security_events` table that the Antidote dashboard reads, so
+`runtime_security_events` table that the Blindsight dashboard reads, so
 events show up in the UI automatically without any cross-service
 plumbing. The main API container continues to own migrations
 (`alembic upgrade head`); the runtime-security container never runs
@@ -804,7 +804,7 @@ runtime_security:
     RUNTIME_SECURITY_GEMINI_BASE_URL: ${RUNTIME_SECURITY_GEMINI_BASE_URL:-https://generativelanguage.googleapis.com}
     RUNTIME_SECURITY_OPENAI_COMPAT_ALLOWLIST: ${RUNTIME_SECURITY_OPENAI_COMPAT_ALLOWLIST:-}
     RUNTIME_SECURITY_OPENAI_COMPAT_EXTRA_BASES: ${RUNTIME_SECURITY_OPENAI_COMPAT_EXTRA_BASES:-}
-    # Bedrock signing, optional; can also be provided per-request via X-Antidote-AWS-* headers.
+    # Bedrock signing, optional; can also be provided per-request via X-Blindsight-AWS-* headers.
     AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
     AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
     AWS_REGION: ${AWS_REGION:-}

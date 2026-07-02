@@ -76,7 +76,7 @@
             ]
           },
           {
-            "group": "Antidote API",
+            "group": "Blindsight API",
             "openapi": "api-reference/openapi.json"
           },
           {

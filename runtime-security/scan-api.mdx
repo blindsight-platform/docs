@@ -153,18 +153,18 @@ The minimal integration: scan input, call your model, scan output.
 ```python
 import httpx
 
-ANTIDOTE = httpx.Client(
-    base_url="https://api.your-antidote.com",
+BLINDSIGHT = httpx.Client(
+    base_url="https://api.your-blindsight.com",
     headers={
         "X-API-Key": "ak_live_…",
-        "X-Antidote-App-Id": "app_…",
+        "X-Blindsight-App-Id": "app_…",
     },
     timeout=10.0,
 )
 
 def safe_chat(user_text: str) -> str:
     # Pre-flight
-    pre = ANTIDOTE.post(
+    pre = BLINDSIGHT.post(
         "/api/runtime-security/scan/input",
         json={"text": user_text},
     )
@@ -180,7 +180,7 @@ def safe_chat(user_text: str) -> str:
     response = call_my_llm(safe_text)
 
     # Post-flight
-    post = ANTIDOTE.post(
+    post = BLINDSIGHT.post(
         "/api/runtime-security/scan/output",
         json={"prompt": safe_text, "response": response},
     )

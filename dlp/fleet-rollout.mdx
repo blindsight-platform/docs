@@ -3,7 +3,7 @@ title: "Fleet rollout"
 description: "Push the DLP agent to every employee laptop with no per‑user clicks. One enrollment token covers the whole fleet across macOS and Windows."
 ---
 
-This is how a company rolls Antidote DLP out "like AD": one silent
+This is how a company rolls Blindsight DLP out "like AD": one silent
 push from the MDM, the directory auto-provisions every employee, and
 every device binds to a real identity.
 
@@ -56,8 +56,8 @@ managed config profile that points the agent at your tenant.
 mac-agent/system-extension/scripts/gen-ca.sh                 # org root CA
 mac-agent/system-extension/scripts/gen-mdm-bundle.sh \
     --team-id ABCDE12345 \
-    --ca antidote-root.pem \
-    --cloud-base https://api.antidote.example.com \
+    --ca blindsight-root.pem \
+    --cloud-base https://api.blindsight.example.com \
     --enroll-token antde_xxxxxxxxxxxxxxxxxxxx \
     --out ./out/<workspace>
 ```
@@ -86,8 +86,8 @@ The Windows agent runs as a SYSTEM service and uses WinDivert
 # Prereq (out‑of‑repo): Authenticode‑sign the MSI, service EXE, and
 # the bundled WinDivert driver. Needs an OV/EV code‑signing cert.
 
-msiexec /i Antidote.msi /qn ^
-  CLOUD_BASE=https://api.antidote.example.com ^
+msiexec /i Blindsight.msi /qn ^
+  CLOUD_BASE=https://api.blindsight.example.com ^
   ENROLL_TOKEN=antde_xxxxxxxxxxxxxxxxxxxx
 ```
 
@@ -97,7 +97,7 @@ Deploy via:
 - **GPO** software installation.
 - **SCCM** package deployment.
 
-The MSI writes `HKLM\SOFTWARE\Antidote`, imports the root CA to the
+The MSI writes `HKLM\SOFTWARE\Blindsight`, imports the root CA to the
 machine trust store, and installs the SYSTEM service. The service
 self‑enrolls and runs the SSO identity‑binding flow.
 
@@ -118,7 +118,7 @@ disabled proxy) surface as high‑severity audit events under
 
 ## Out-of-repo signing
 
-Certain steps **cannot** be done inside Antidote's source tree.
+Certain steps **cannot** be done inside Blindsight's source tree.
 They require external certificates and Apple / Microsoft developer
 relationships.
 

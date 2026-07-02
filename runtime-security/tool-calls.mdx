@@ -90,17 +90,17 @@ The minimal integration is one HTTP call before every tool dispatch.
     ```python
     import httpx
 
-    ANTIDOTE = httpx.Client(
-        base_url="https://api.your-antidote.com",
+    BLINDSIGHT = httpx.Client(
+        base_url="https://api.your-blindsight.com",
         headers={
             "X-API-Key": "ak_live_…",
-            "X-Antidote-App-Id": "app_…",
+            "X-Blindsight-App-Id": "app_…",
         },
         timeout=2.0,
     )
 
     def safe_dispatch(tool_name: str, arguments: dict):
-        r = ANTIDOTE.post(
+        r = BLINDSIGHT.post(
             "/api/runtime-security/scan/tool-call",
             json={"tool_name": tool_name, "arguments": arguments},
         )
@@ -122,8 +122,8 @@ The minimal integration is one HTTP call before every tool dispatch.
         {
           method: "POST",
           headers: {
-            "X-API-Key": process.env.ANTIDOTE_API_KEY,
-            "X-Antidote-App-Id": process.env.ANTIDOTE_APP_ID,
+            "X-API-Key": process.env.BLINDSIGHT_API_KEY,
+            "X-Blindsight-App-Id": process.env.BLINDSIGHT_APP_ID,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ tool_name: toolName, arguments: args }),
@@ -142,7 +142,7 @@ The minimal integration is one HTTP call before every tool dispatch.
     ```bash
     verdict=$(curl -sS -X POST $API_BASE/api/runtime-security/scan/tool-call \
       -H "X-API-Key: ak_live_…" \
-      -H "X-Antidote-App-Id: app_…" \
+      -H "X-Blindsight-App-Id: app_…" \
       -H "Content-Type: application/json" \
       -d "$(jq -n --arg name "$tool" --argjson args "$tool_args" \
               '{tool_name:$name, arguments:$args}')" \

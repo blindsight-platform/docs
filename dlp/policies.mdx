@@ -4,7 +4,7 @@ description: "Centrally‑managed AI host rules, per‑App configuration that fl
 ---
 
 The DLP agent is a thin enforcement point. Every meaningful decision
-is made centrally in your Antidote workspace and pushed to the agent
+is made centrally in your Blindsight workspace and pushed to the agent
 via `/agent/policy`. This page covers what that policy looks like and
 which backend endpoints the agent talks to.
 
@@ -13,7 +13,7 @@ which backend endpoints the agent talks to.
 | Setting                       | What it does                                                                          |
 | ----------------------------- | ------------------------------------------------------------------------------------- |
 | **AI host rules**             | Which hostnames the agent intercepts (e.g. `api.openai.com`, `api.anthropic.com`).     |
-| **App attribution**           | Which Antidote App each host's traffic is attributed to.                              |
+| **App attribution**           | Which Blindsight App each host's traffic is attributed to.                              |
 | **Verdict actions**           | Whether the agent enforces `block` locally or just records (observe‑only mode).        |
 | **TLS MITM scope**            | Per‑host inclusion / exclusion. Banking, healthcare portals, etc. can be exempted.     |
 | **Redaction reveal**          | Whether the user sees `<EMAIL>` markers locally or just gets the original.             |
@@ -54,13 +54,13 @@ other connection passes through untouched.
 | Field            | What it means                                                                       |
 | ---------------- | ----------------------------------------------------------------------------------- |
 | `host`           | Exact hostname or wildcard pattern (e.g. `*.openai.com`).                            |
-| `app_id`         | Which Antidote App owns this traffic. Determines thresholds and event attribution.   |
+| `app_id`         | Which Blindsight App owns this traffic. Determines thresholds and event attribution.   |
 | `enforce`        | `true`: agent blocks on `block` verdict. `false`: observe‑only.                       |
 | `exclude_hosts`  | Hostnames the agent never MITMs even if they match a rule above.                     |
 
 ### Built-in host pack
 
-Antidote maintains a default host pack covering every supported
+Blindsight maintains a default host pack covering every supported
 provider. **DLP policy → Use default host pack** toggles it on; you
 can layer your own overrides on top.
 

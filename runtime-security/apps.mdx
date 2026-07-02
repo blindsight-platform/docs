@@ -8,7 +8,7 @@ assistant, a code agent. Each App owns its own thresholds, detectors,
 custom PII rules, custom phrases, tool policy, privacy mode, custom
 event params, dataset projection, and per‑App quotas. Every scan and
 proxy call is attributed to exactly one App via the
-`X-Antidote-App-Id` header.
+`X-Blindsight-App-Id` header.
 
 ## Why Apps
 
@@ -65,8 +65,8 @@ field picks.
 
 | Header                   | Required                                                          | What it does                                                                                                |
 | ------------------------ | ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `X-Antidote-App-Id`      | Always                                                            | App UUID. The call is rejected with `400 APP_ID_REQUIRED` if missing.                                       |
-| `X-Antidote-App-Token`   | Only when the App has `require_signed_token=true`                 | Plaintext token issued via `…/apps/{id}/tokens`. Verified for signature and against the live token row.     |
+| `X-Blindsight-App-Id`      | Always                                                            | App UUID. The call is rejected with `400 APP_ID_REQUIRED` if missing.                                       |
+| `X-Blindsight-App-Token`   | Only when the App has `require_signed_token=true`                 | Plaintext token issued via `…/apps/{id}/tokens`. Verified for signature and against the live token row.     |
 
 | Status code              | When                                                                                          |
 | ------------------------ | --------------------------------------------------------------------------------------------- |
@@ -130,7 +130,7 @@ the event row that produced it.
     2. Rename the clone `staging_<original>`.
     3. Lower its `max_events_per_hour` so a misconfigured client
        can't burn quota.
-    4. Point your staging environment at the clone's `X-Antidote-App-Id`.
+    4. Point your staging environment at the clone's `X-Blindsight-App-Id`.
   </Accordion>
 
   <Accordion title="Roll out a tighter PII threshold safely">

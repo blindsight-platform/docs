@@ -9,7 +9,7 @@ which employee is using the machine on its own. Identity is bound
 
 This page covers the two complementary mechanisms:
 
-- **SCIM** to provision users into the Antidote workspace from your
+- **SCIM** to provision users into the Blindsight workspace from your
   IdP.
 - **OIDC** + the device‑code flow to bind each device to a specific
   directory user.
@@ -20,16 +20,16 @@ dashboard.
 ## SCIM provisioning
 
 SCIM (System for Cross‑domain Identity Management) is how your IdP
-keeps the Antidote workspace's user list in sync with your directory.
-When you hire someone, they appear in Antidote automatically. When
+keeps the Blindsight workspace's user list in sync with your directory.
+When you hire someone, they appear in Blindsight automatically. When
 you off‑board them, they're disabled.
 
 ### Set it up
 
 <Steps>
-  <Step title="Add a SCIM provider in Antidote">
+  <Step title="Add a SCIM provider in Blindsight">
     Open **Runtime Security → Directory & SSO → SCIM** and click
-    **Issue token**. Antidote returns:
+    **Issue token**. Blindsight returns:
 
     - A bearer token (shown once). Copy it.
     - A base URL: `https://<cloud>/scim/v2`.
@@ -44,10 +44,10 @@ you off‑board them, they're disabled.
 
   <Step title="Assign users and groups">
     Assign the directory groups whose members should be provisioned
-    into Antidote. Your IdP pushes them immediately.
+    into Blindsight. Your IdP pushes them immediately.
   </Step>
 
-  <Step title="Verify in Antidote">
+  <Step title="Verify in Blindsight">
     Under **Settings → Users**, look for the SCIM source badge on
     each row. Users land with `provisioning_source=scim` and are
     auto‑activated.
@@ -56,19 +56,19 @@ you off‑board them, they're disabled.
 
 ### Behavior
 
-| Event in IdP                       | Effect in Antidote                                                              |
+| Event in IdP                       | Effect in Blindsight                                                              |
 | ---------------------------------- | ------------------------------------------------------------------------------- |
 | User created and assigned          | User auto‑created in the workspace with the mapped role.                         |
-| User updated (name, email, group)  | Antidote row updated within ~1 minute.                                           |
-| User deactivated                   | Soft‑disabled in Antidote. Sessions revoked, API keys disabled.                  |
-| User reactivated                   | Re‑enabled in Antidote with the same row and history.                            |
+| User updated (name, email, group)  | Blindsight row updated within ~1 minute.                                           |
+| User deactivated                   | Soft‑disabled in Blindsight. Sessions revoked, API keys disabled.                  |
+| User reactivated                   | Re‑enabled in Blindsight with the same row and history.                            |
 
 ### Group‑to‑role mapping
 
 Under **Directory & SSO → Group mappings**, map IdP groups to
-Antidote roles. Common pattern:
+Blindsight roles. Common pattern:
 
-| IdP group              | Antidote role | Reason                                            |
+| IdP group              | Blindsight role | Reason                                            |
 | ---------------------- | ------------- | ------------------------------------------------- |
 | `eng-leads`            | `Admin`       | Manage Apps and DLP policies.                      |
 | `compliance-team`      | `Reviewer`    | Triage findings, no destructive actions.           |
@@ -79,13 +79,13 @@ A user with multiple matching groups gets the **highest** role.
 
 ## OIDC single sign‑on
 
-OIDC is how employees sign into the Antidote dashboard and how the
+OIDC is how employees sign into the Blindsight dashboard and how the
 DLP agent binds a device to a directory user.
 
 ### Configure your provider
 
 <Steps>
-  <Step title="Register Antidote as an OIDC client">
+  <Step title="Register Blindsight as an OIDC client">
     In your IdP, create a new app and copy the `client_id` and
     `client_secret`. Set the redirect URI to:
 
@@ -94,10 +94,10 @@ DLP agent binds a device to a directory user.
     ```
 
     Where `<provider-uuid>` is generated when you add the provider in
-    Antidote.
+    Blindsight.
   </Step>
 
-  <Step title="Add the provider in Antidote">
+  <Step title="Add the provider in Blindsight">
     **Runtime Security → Directory & SSO → OIDC providers → Add**.
     Provide:
 
@@ -108,7 +108,7 @@ DLP agent binds a device to a directory user.
   </Step>
 
   <Step title="Test the flow">
-    Click **Test sign-in** on the provider card. Antidote opens the
+    Click **Test sign-in** on the provider card. Blindsight opens the
     IdP, you authenticate, and it redirects back with a confirmation
     page.
   </Step>
@@ -129,7 +129,7 @@ directory user** is sitting at the machine. The agent runs the OIDC
 device‑code flow (RFC 8628):
 
 1. The agent posts to `/agent/identity/start`.
-2. Antidote returns a short verification code and opens the IdP sign‑in
+2. Blindsight returns a short verification code and opens the IdP sign‑in
    page in the user's default browser.
 3. The employee signs in with their normal corporate credentials.
 4. The agent polls `/agent/identity/status` until the IdP confirms
@@ -166,7 +166,7 @@ filtered out of the regular user fleet view.
 <AccordionGroup>
   <Accordion title="On‑board a new employee">
     1. HR adds them to the directory.
-    2. SCIM provisions them into Antidote (~1 min).
+    2. SCIM provisions them into Blindsight (~1 min).
     3. IT ships a managed laptop. On first boot, the agent enrolls
        and prompts for SSO identity binding.
     4. Employee signs in with corporate credentials. Device is
@@ -175,7 +175,7 @@ filtered out of the regular user fleet view.
 
   <Accordion title="Off‑board an employee">
     1. HR deactivates them in the directory.
-    2. SCIM disables them in Antidote.
+    2. SCIM disables them in Blindsight.
     3. Their device is auto‑revoked. The agent stops processing
        traffic and flags the machine for reclaim.
   </Accordion>

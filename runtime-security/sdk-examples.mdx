@@ -1,32 +1,134 @@
 ---
 title: "SDK examples"
-description: "Copy‑paste integrations for Python, Node, curl, LangChain, and LlamaIndex."
+description: "The official SDK, plus copy‑paste integrations for Node, curl, LangChain, and LlamaIndex."
 ---
 
-These snippets are deliberately minimal so you can drop them into a
-real project and adjust. None of them require an Antidote SDK; the
-LLM SDKs already accept `base_url` and `default_headers`, which is
-all the firewall needs.
+There are two ways to integrate. The **official SDK** wraps the scan
+API and the reverse‑proxy configuration behind a typed client. Or,
+because the LLM vendor SDKs already accept `base_url` and
+`default_headers`, you can point them at the firewall with **no extra
+dependency** at all. The snippets below cover both.
 
-## Python: explicit scan calls
+## Official SDK
+
+<CardGroup cols={2}>
+  <Card title="TypeScript / Node.js" icon="npm">
+    `@blindsight/security`, available now on npm.
+  </Card>
+  <Card title="Python" icon="python">
+    `blindsight-security`, coming soon.
+  </Card>
+</CardGroup>
+
+### TypeScript / Node.js
+
+```bash
+npm install @blindsight/security
+```
+
+Node.js 18+ (or any runtime with a global `fetch`), zero runtime
+dependencies. Scan the prompt before the model, and the response
+before the user:
+
+```ts
+import OpenAI from "openai";
+import { RuntimeSecurity } from "@blindsight/security";
+
+const rs = new RuntimeSecurity({
+  baseUrl: "https://api.your-blindsight.com",
+  apiKey: "ak_live_…",
+  appId: "app_…", // optional
+});
+const openai = new OpenAI();
+
+const verdict = await rs.scanInput(userText, { provider: "openai", model: "gpt-4o" });
+if (verdict.blocked) throw new Error(verdict.blockedReason ?? "blocked");
+const safePrompt = verdict.safeText; // redacted when the prompt carries PII
+
+const completion = await openai.chat.completions.create({
+  model: "gpt-4o",
+  messages: [{ role: "user", content: safePrompt }],
+});
+const answer = completion.choices[0].message.content ?? "";
+
+const result = await rs.scanOutput(answer, { prompt: safePrompt });
+const final = result.safeText; // empty when blocked
+```
+
+The client exposes `scanInput`, `scanOutput`, `scanFile`,
+`scanToolCall`, and `scanBatch`. Every result carries `uuid`,
+`verdict`, `injection`, `pii`, `redactedText`, `blockedReason`,
+`latencyMs`, and `textLength`, plus the boolean flags `allowed` /
+`flagged` / `redacted` / `blocked` and the convenience accessors
+`safeText`, `injectionScore`, `piiCategories`, and `raw` (the full
+JSON response). `assertNotBlocked(result)` throws `ContentBlockedError`
+on a block verdict.
+
+Files and agent tool‑calls use the same client:
+
+```ts
+import { readFile, writeFile } from "node:fs/promises";
+import { assertNotBlocked } from "@blindsight/security";
+
+// File scanning
+const bytes = await readFile("resume.pdf");
+const scan = await rs.scanFile(bytes, { filename: "resume.pdf", mediaType: "application/pdf" });
+if (scan.wasRedacted) await writeFile("resume.clean.pdf", scan.fileBytes);
+
+// Tool-call gate
+const gate = await rs.scanToolCall("delete_file", { path: requestedPath });
+assertNotBlocked(gate); // throws on block
+await deleteFile(gate.safeArguments);
+```
+
+To route a vendor client through the reverse proxy without writing
+explicit scan calls, spread a proxy helper into the client options:
+
+```ts
+import OpenAI from "openai";
+const openai = new OpenAI({ apiKey: OPENAI_KEY, ...rs.proxy.openai() });
+
+import Anthropic from "@anthropic-ai/sdk";
+const anthropic = new Anthropic({ apiKey: ANTHROPIC_KEY, ...rs.proxy.anthropic() });
+```
+
+`rs.proxy.gemini()`, `rs.proxy.vertex()`, `rs.proxy.bedrock()`, and
+`rs.proxy.openaiCompatible({ provider: "groq" })` cover the rest. Each
+returns `{ baseURL, defaultHeaders }`, ready to spread. All exceptions
+derive from `BlindsightError`: `BlindsightApiError` (with `.statusCode`
+and `.code`, specialised as `BlindsightAuthError` on 401/403 and
+`BlindsightQuotaError` on 402/429), `BlindsightConnectionError`, and
+`ContentBlockedError`.
+
+### Python
+
+<Note>
+  The Python SDK (`blindsight-security`) is **coming soon**. Its
+  surface mirrors the TypeScript client with snake‑case names
+  (`rs.scan_input(...)`, `verdict.blocked`, `verdict.safe_text`). Until
+  it ships, use the dependency‑free `httpx` pattern below, which is
+  functionally identical.
+</Note>
+
+## Python: explicit scan calls (no SDK)
 
 The portable pattern: scan input, call your model, scan output.
 
 ```python
 import httpx
 
-ANTIDOTE = httpx.Client(
-    base_url="https://api.your-antidote.com",
+BLINDSIGHT = httpx.Client(
+    base_url="https://api.your-blindsight.com",
     headers={
         "X-API-Key": "ak_live_…",
-        "X-Antidote-App-Id": "app_…",
+        "X-Blindsight-App-Id": "app_…",
     },
     timeout=10.0,
 )
 
 def safe_chat(user_text: str) -> str:
     # Pre-flight scan
-    pre = ANTIDOTE.post(
+    pre = BLINDSIGHT.post(
         "/api/runtime-security/scan/input",
         json={"text": user_text},
     )
@@ -40,7 +142,7 @@ def safe_chat(user_text: str) -> str:
     response = call_my_llm(safe_text)
 
     # Post-flight scan
-    post = ANTIDOTE.post(
+    post = BLINDSIGHT.post(
         "/api/runtime-security/scan/output",
         json={"prompt": safe_text, "response": response},
     )
@@ -51,7 +153,7 @@ def safe_chat(user_text: str) -> str:
     return out["redacted_text"] if out["verdict"] == "redact" else response
 ```
 
-## Node: reverse proxy
+## Node: reverse proxy (no SDK)
 
 The shortest integration possible: swap one URL.
 
@@ -59,11 +161,11 @@ The shortest integration possible: swap one URL.
 import OpenAI from "openai";
 
 const openai = new OpenAI({
-  baseURL: "https://api.your-antidote.com/api/runtime-security/proxy/openai/v1",
+  baseURL: "https://api.your-blindsight.com/api/runtime-security/proxy/openai/v1",
   apiKey: process.env.OPENAI_API_KEY,
   defaultHeaders: {
-    "X-API-Key": process.env.ANTIDOTE_API_KEY,
-    "X-Antidote-App-Id": process.env.ANTIDOTE_APP_ID,
+    "X-API-Key": process.env.BLINDSIGHT_API_KEY,
+    "X-Blindsight-App-Id": process.env.BLINDSIGHT_APP_ID,
   },
 });
 
@@ -78,9 +180,9 @@ const completion = await openai.chat.completions.create({
 The minimal one‑liner before a tool dispatch.
 
 ```bash
-verdict=$(curl -sS -X POST https://api.your-antidote.com/api/runtime-security/scan/tool-call \
+verdict=$(curl -sS -X POST https://api.your-blindsight.com/api/runtime-security/scan/tool-call \
   -H "X-API-Key: ak_live_…" \
-  -H "X-Antidote-App-Id: app_…" \
+  -H "X-Blindsight-App-Id: app_…" \
   -H "Content-Type: application/json" \
   -d "$(jq -n --arg name "$tool" --argjson args "$tool_args" \
         '{tool_name:$name, arguments:$args}')" \
@@ -96,7 +198,7 @@ fi
 
 LangChain's `ChatOpenAI` is a thin wrapper over the OpenAI Python SDK
 and forwards `base_url` and `default_headers`. Point those at the
-Antidote reverse proxy and every LangChain call, chains, retrievers,
+Blindsight reverse proxy and every LangChain call, chains, retrievers,
 agent LLM steps, flows through Runtime Security.
 
 ```python
@@ -105,10 +207,10 @@ from langchain_openai import ChatOpenAI
 llm = ChatOpenAI(
     model="gpt-4o",
     api_key=OPENAI_API_KEY,
-    base_url=f"{ANTIDOTE_URL}/api/runtime-security/proxy/openai/v1",
+    base_url=f"{BLINDSIGHT_URL}/api/runtime-security/proxy/openai/v1",
     default_headers={
-        "X-API-Key": ANTIDOTE_API_KEY,
-        "X-Antidote-App-Id": ANTIDOTE_APP_ID,
+        "X-API-Key": BLINDSIGHT_API_KEY,
+        "X-Blindsight-App-Id": BLINDSIGHT_APP_ID,
     },
 )
 
@@ -120,7 +222,7 @@ works the same way for projects that use the model‑string indirection.
 
 For Anthropic, swap to `ChatAnthropic` from `langchain-anthropic`,
 point `base_url` at `/api/runtime-security/proxy/anthropic`, and pass
-the Antidote key on `X-Antidote-Key` (Anthropic reserves `x-api-key`
+the Blindsight key on `X-Blindsight-Key` (Anthropic reserves `x-api-key`
 for the upstream provider).
 
 <Tip>
@@ -141,10 +243,10 @@ from llama_index.llms.openai import OpenAI
 llm = OpenAI(
     model="gpt-4o",
     api_key=OPENAI_API_KEY,
-    api_base=f"{ANTIDOTE_URL}/api/runtime-security/proxy/openai/v1",
+    api_base=f"{BLINDSIGHT_URL}/api/runtime-security/proxy/openai/v1",
     default_headers={
-        "X-API-Key": ANTIDOTE_API_KEY,
-        "X-Antidote-App-Id": ANTIDOTE_APP_ID,
+        "X-API-Key": BLINDSIGHT_API_KEY,
+        "X-Blindsight-App-Id": BLINDSIGHT_APP_ID,
     },
 )
 
@@ -160,7 +262,7 @@ Settings.llm = llm
 
 For Anthropic, `from llama_index.llms.anthropic import Anthropic`
 with `api_base="/api/runtime-security/proxy/anthropic"` and the
-Antidote key on `X-Antidote-Key`.
+Blindsight key on `X-Blindsight-Key`.
 
 <Tip>
   **Agent tool calls.** The proxy sees LLM traffic but not the agent

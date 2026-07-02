@@ -1,7 +1,7 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "Antidote API",
+    "title": "Blindsight API",
     "version": "0.1.0"
   },
   "paths": {
@@ -120,7 +120,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -132,7 +132,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -282,7 +282,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -294,7 +294,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -352,7 +352,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -364,7 +364,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -494,7 +494,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -506,7 +506,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -613,7 +613,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -625,7 +625,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -691,7 +691,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -703,7 +703,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -770,7 +770,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -782,7 +782,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -841,7 +841,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -853,7 +853,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -1051,7 +1051,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -1063,7 +1063,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -1120,7 +1120,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -1132,7 +1132,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -1229,7 +1229,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -1241,7 +1241,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -1316,7 +1316,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -1328,7 +1328,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -1387,7 +1387,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -1399,7 +1399,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -1474,7 +1474,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -1486,7 +1486,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -1571,7 +1571,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -1583,7 +1583,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -1651,7 +1651,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -1663,7 +1663,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -1742,7 +1742,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -1754,7 +1754,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -1821,7 +1821,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -1833,7 +1833,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -1912,7 +1912,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -1924,7 +1924,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -1991,7 +1991,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -2003,7 +2003,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -2088,7 +2088,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -2100,7 +2100,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -2185,7 +2185,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -2197,7 +2197,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -2282,7 +2282,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -2294,7 +2294,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -2379,7 +2379,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -2391,7 +2391,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -2492,7 +2492,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -2504,7 +2504,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -2563,7 +2563,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -2575,7 +2575,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -2694,7 +2694,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -2706,7 +2706,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -2778,7 +2778,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -2790,7 +2790,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -2856,7 +2856,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -2868,7 +2868,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -2931,7 +2931,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -2943,7 +2943,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -3175,7 +3175,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -3187,7 +3187,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -3289,7 +3289,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -3301,7 +3301,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -3378,7 +3378,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -3390,7 +3390,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -3469,7 +3469,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -3481,7 +3481,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -3577,7 +3577,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -3589,7 +3589,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -3649,7 +3649,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -3661,7 +3661,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -3736,7 +3736,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -3748,7 +3748,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -3835,7 +3835,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -3847,7 +3847,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -3925,7 +3925,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -3937,7 +3937,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -4014,7 +4014,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -4026,7 +4026,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -4153,7 +4153,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -4165,7 +4165,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -4234,7 +4234,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -4246,7 +4246,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -4320,7 +4320,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -4332,7 +4332,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -4407,7 +4407,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -4419,7 +4419,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -4493,7 +4493,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -4505,7 +4505,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -4589,7 +4589,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -4601,7 +4601,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -4684,7 +4684,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -4696,7 +4696,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -4770,7 +4770,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -4782,7 +4782,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -4896,7 +4896,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -4908,7 +4908,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -5003,7 +5003,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -5015,7 +5015,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -5092,7 +5092,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -5104,7 +5104,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -5171,7 +5171,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -5183,7 +5183,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -5250,7 +5250,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -5262,7 +5262,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -5330,7 +5330,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -5342,7 +5342,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -5409,7 +5409,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -5421,7 +5421,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -5500,7 +5500,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -5512,7 +5512,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -5598,7 +5598,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -5610,7 +5610,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -5688,7 +5688,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -5700,7 +5700,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -5822,7 +5822,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -5834,7 +5834,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -5962,7 +5962,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -5974,7 +5974,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -6083,7 +6083,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -6095,7 +6095,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -6175,7 +6175,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -6187,7 +6187,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -6294,7 +6294,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -6306,7 +6306,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -6401,7 +6401,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -6413,7 +6413,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -6506,7 +6506,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -6518,7 +6518,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -6584,7 +6584,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -6596,7 +6596,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -6673,7 +6673,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -6685,7 +6685,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -6762,7 +6762,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -6774,7 +6774,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -6849,7 +6849,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -6861,7 +6861,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -6946,7 +6946,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -6958,7 +6958,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -7045,7 +7045,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -7057,7 +7057,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -7141,7 +7141,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -7153,7 +7153,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -7219,7 +7219,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -7231,7 +7231,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -7309,7 +7309,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -7321,7 +7321,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -7417,7 +7417,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -7429,7 +7429,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -7506,7 +7506,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -7518,7 +7518,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -7620,7 +7620,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -7632,7 +7632,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -7727,7 +7727,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -7739,7 +7739,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -7861,7 +7861,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -7873,7 +7873,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -7941,7 +7941,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -7953,7 +7953,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -8008,7 +8008,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -8020,7 +8020,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -8100,7 +8100,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -8112,7 +8112,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -8182,7 +8182,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -8194,7 +8194,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -8287,7 +8287,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -8299,7 +8299,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -8362,7 +8362,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -8374,7 +8374,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -8470,7 +8470,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -8482,7 +8482,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -8556,7 +8556,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -8568,7 +8568,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -8638,7 +8638,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -8650,7 +8650,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -8719,7 +8719,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -8731,7 +8731,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -8800,7 +8800,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -8812,7 +8812,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -8881,7 +8881,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -8893,7 +8893,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -8971,7 +8971,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -8983,7 +8983,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -9051,7 +9051,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -9063,7 +9063,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -9132,7 +9132,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -9144,7 +9144,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -9283,7 +9283,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -9295,7 +9295,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -9389,7 +9389,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -9401,7 +9401,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -9461,7 +9461,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -9473,7 +9473,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -9550,7 +9550,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -9562,7 +9562,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -9637,7 +9637,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -9649,7 +9649,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -9700,7 +9700,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -9712,7 +9712,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -10021,7 +10021,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -10033,7 +10033,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -10089,7 +10089,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -10101,7 +10101,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -10178,7 +10178,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -10190,7 +10190,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -10224,7 +10224,7 @@
           "audit-trail"
         ],
         "summary": "Ingest Audit Record",
-        "description": "Public webhook ingest \u2014 authenticated via ``X-Antidote-Audit-Token``.\n\nExternal systems POST audit records (including their custom params)\nhere to submit them into the Antidote audit trail.",
+        "description": "Public webhook ingest \u2014 authenticated via ``X-Blindsight-Audit-Token``.\n\nExternal systems POST audit records (including their custom params)\nhere to submit them into the Blindsight audit trail.",
         "operationId": "ingest_audit_record_api_audit_trail_ingest_post",
         "security": [
           {
@@ -10233,7 +10233,7 @@
         ],
         "parameters": [
           {
-            "name": "X-Antidote-Audit-Token",
+            "name": "X-Blindsight-Audit-Token",
             "in": "header",
             "required": false,
             "schema": {
@@ -10245,7 +10245,7 @@
                   "type": "null"
                 }
               ],
-              "title": "X-Antidote-Audit-Token"
+              "title": "X-Blindsight-Audit-Token"
             }
           },
           {
@@ -10265,7 +10265,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -10277,7 +10277,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -10543,7 +10543,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -10555,7 +10555,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -10801,7 +10801,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -10813,7 +10813,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -11007,7 +11007,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -11019,7 +11019,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -11075,7 +11075,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -11087,7 +11087,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -11155,7 +11155,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -11167,7 +11167,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -11235,7 +11235,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -11247,7 +11247,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -11307,7 +11307,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -11319,7 +11319,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -11396,7 +11396,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -11408,7 +11408,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -11459,7 +11459,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -11471,7 +11471,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -11531,7 +11531,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -11543,7 +11543,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -11620,7 +11620,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -11632,7 +11632,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -11707,7 +11707,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -11719,7 +11719,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -11779,7 +11779,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -11791,7 +11791,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -11868,7 +11868,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -11880,7 +11880,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -12047,7 +12047,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -12059,7 +12059,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -12202,7 +12202,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -12214,7 +12214,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -12350,7 +12350,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -12362,7 +12362,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -12484,7 +12484,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -12496,7 +12496,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -12563,7 +12563,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -12575,7 +12575,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -12643,7 +12643,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -12655,7 +12655,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -12733,7 +12733,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -12745,7 +12745,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -12820,7 +12820,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -12832,7 +12832,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -12899,7 +12899,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -12911,7 +12911,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -12989,7 +12989,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -13001,7 +13001,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -13067,7 +13067,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -13079,7 +13079,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -13145,7 +13145,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -13157,7 +13157,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -13223,7 +13223,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -13235,7 +13235,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -13300,7 +13300,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -13312,7 +13312,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -13427,7 +13427,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -13439,7 +13439,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -13495,7 +13495,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -13507,7 +13507,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -13584,7 +13584,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -13596,7 +13596,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -13661,7 +13661,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -13673,7 +13673,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -13748,7 +13748,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -13760,7 +13760,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -13821,7 +13821,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -13833,7 +13833,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -13899,7 +13899,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -13911,7 +13911,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -13967,7 +13967,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -13979,7 +13979,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -14047,7 +14047,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -14059,7 +14059,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -14127,7 +14127,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -14139,7 +14139,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -14208,7 +14208,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -14220,7 +14220,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -14279,7 +14279,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -14291,7 +14291,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -14352,7 +14352,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -14364,7 +14364,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -14441,7 +14441,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -14453,7 +14453,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -14512,7 +14512,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -14524,7 +14524,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -14580,7 +14580,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -14592,7 +14592,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -14660,7 +14660,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -14672,7 +14672,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -14728,7 +14728,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -14740,7 +14740,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -14808,7 +14808,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -14820,7 +14820,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -14896,7 +14896,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -14908,7 +14908,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -14964,7 +14964,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -14976,7 +14976,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -15045,7 +15045,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -15057,7 +15057,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -15113,7 +15113,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -15125,7 +15125,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -15183,7 +15183,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -15195,7 +15195,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -15253,7 +15253,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -15265,7 +15265,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -15321,7 +15321,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -15333,7 +15333,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -15410,7 +15410,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -15422,7 +15422,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -15480,7 +15480,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -15492,7 +15492,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -15548,7 +15548,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -15560,7 +15560,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -15637,7 +15637,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -15649,7 +15649,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -15707,7 +15707,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -15719,7 +15719,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -15775,7 +15775,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -15787,7 +15787,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -15855,7 +15855,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -15867,7 +15867,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -15923,7 +15923,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -15935,7 +15935,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -16003,7 +16003,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -16015,7 +16015,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -16100,7 +16100,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -16112,7 +16112,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -16170,7 +16170,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -16182,7 +16182,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -16258,7 +16258,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -16270,7 +16270,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -16329,7 +16329,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -16341,7 +16341,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -16409,7 +16409,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -16421,7 +16421,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -16481,7 +16481,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -16493,7 +16493,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -16552,7 +16552,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -16564,7 +16564,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -16633,7 +16633,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -16645,7 +16645,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -16704,7 +16704,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -16716,7 +16716,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -16774,7 +16774,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -16786,7 +16786,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -16846,7 +16846,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -16858,7 +16858,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -16926,7 +16926,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -16938,7 +16938,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -16994,7 +16994,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -17006,7 +17006,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -17083,7 +17083,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -17095,7 +17095,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -17160,7 +17160,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -17172,7 +17172,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -17247,7 +17247,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -17259,7 +17259,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -17319,7 +17319,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -17331,7 +17331,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -17401,7 +17401,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -17413,7 +17413,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -17499,7 +17499,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -17511,7 +17511,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -17595,7 +17595,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -17607,7 +17607,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -17704,7 +17704,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -17716,7 +17716,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -17778,7 +17778,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -17790,7 +17790,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -17846,7 +17846,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -17858,7 +17858,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -17927,7 +17927,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -17939,7 +17939,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -17996,7 +17996,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -18008,7 +18008,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -18077,7 +18077,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -18089,7 +18089,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -18148,7 +18148,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -18160,7 +18160,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -18217,7 +18217,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -18229,7 +18229,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -18297,7 +18297,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -18309,7 +18309,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -18365,7 +18365,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -18377,7 +18377,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -18445,7 +18445,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -18457,7 +18457,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -18526,7 +18526,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -18538,7 +18538,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -18594,7 +18594,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -18606,7 +18606,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -18702,7 +18702,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -18714,7 +18714,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -18772,7 +18772,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -18784,7 +18784,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -18840,7 +18840,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -18852,7 +18852,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -18929,7 +18929,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -18941,7 +18941,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -18999,7 +18999,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -19011,7 +19011,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -19069,7 +19069,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -19081,7 +19081,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -19148,7 +19148,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -19160,7 +19160,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -19240,7 +19240,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -19252,7 +19252,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -19310,7 +19310,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -19322,7 +19322,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -19378,7 +19378,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -19390,7 +19390,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -19458,7 +19458,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -19470,7 +19470,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -19547,7 +19547,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -19559,7 +19559,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -19634,7 +19634,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -19646,7 +19646,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -19706,7 +19706,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -19718,7 +19718,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -19808,7 +19808,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -19820,7 +19820,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -19879,7 +19879,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -19891,7 +19891,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -19963,7 +19963,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -19975,7 +19975,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -20034,7 +20034,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -20046,7 +20046,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -20103,7 +20103,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -20115,7 +20115,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -20184,7 +20184,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -20196,7 +20196,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -20264,7 +20264,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -20276,7 +20276,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -20342,7 +20342,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -20354,7 +20354,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -20430,7 +20430,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -20442,7 +20442,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -20494,7 +20494,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -20506,7 +20506,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -20565,7 +20565,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -20577,7 +20577,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -20667,7 +20667,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -20679,7 +20679,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -20747,7 +20747,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -20759,7 +20759,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -20825,7 +20825,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -20837,7 +20837,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -20913,7 +20913,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -20925,7 +20925,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -20986,7 +20986,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -20998,7 +20998,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -21064,7 +21064,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -21076,7 +21076,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -21154,7 +21154,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -21166,7 +21166,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -21267,7 +21267,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -21279,7 +21279,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -21345,7 +21345,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -21357,7 +21357,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -21435,7 +21435,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -21447,7 +21447,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -21525,7 +21525,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -21537,7 +21537,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -21633,7 +21633,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -21645,7 +21645,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -21713,7 +21713,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -21725,7 +21725,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -21769,7 +21769,7 @@
           "playground"
         ],
         "summary": "Publish Session As Dataset",
-        "description": "Materialize a playground session into a persisted Antidote dataset, optionally enqueueing a scan.",
+        "description": "Materialize a playground session into a persisted Blindsight dataset, optionally enqueueing a scan.",
         "operationId": "publish_session_as_dataset_api_playground_sessions__session_id__publish_post",
         "security": [
           {
@@ -21803,7 +21803,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -21815,7 +21815,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -21893,7 +21893,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -21905,7 +21905,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -21962,7 +21962,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -21974,7 +21974,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -22052,7 +22052,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -22064,7 +22064,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -22140,7 +22140,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -22152,7 +22152,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -22246,7 +22246,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -22258,7 +22258,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -22326,7 +22326,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -22338,7 +22338,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -22406,7 +22406,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -22418,7 +22418,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -22496,7 +22496,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -22508,7 +22508,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -22583,7 +22583,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -22595,7 +22595,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -22672,7 +22672,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -22684,7 +22684,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -22762,7 +22762,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -22774,7 +22774,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -22833,7 +22833,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -22845,7 +22845,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -22915,7 +22915,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -22927,7 +22927,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -22995,7 +22995,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -23007,7 +23007,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -23065,7 +23065,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -23077,7 +23077,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -23133,7 +23133,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -23145,7 +23145,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -23222,7 +23222,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -23234,7 +23234,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -23299,7 +23299,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -23311,7 +23311,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -23386,7 +23386,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -23398,7 +23398,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -23458,7 +23458,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -23470,7 +23470,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -23569,7 +23569,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -23581,7 +23581,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -23642,7 +23642,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -23654,7 +23654,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -23732,7 +23732,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -23744,7 +23744,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -23810,7 +23810,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -23822,7 +23822,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -23898,7 +23898,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -23910,7 +23910,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -24038,7 +24038,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -24050,7 +24050,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -24111,7 +24111,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -24123,7 +24123,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -24201,7 +24201,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -24213,7 +24213,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -24279,7 +24279,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -24291,7 +24291,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -24357,7 +24357,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -24369,7 +24369,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -24435,7 +24435,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -24447,7 +24447,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -24517,7 +24517,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -24529,7 +24529,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -24614,7 +24614,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -24626,7 +24626,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -24701,7 +24701,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -24713,7 +24713,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -24770,7 +24770,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -24782,7 +24782,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -24853,7 +24853,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -24865,7 +24865,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -24938,7 +24938,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -24950,7 +24950,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -25025,7 +25025,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -25037,7 +25037,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -25102,7 +25102,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -25114,7 +25114,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -25187,7 +25187,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -25199,7 +25199,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -25274,7 +25274,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -25286,7 +25286,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -25342,7 +25342,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -25354,7 +25354,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -25422,7 +25422,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -25434,7 +25434,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -25502,7 +25502,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -25514,7 +25514,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -25570,7 +25570,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -25582,7 +25582,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -25662,7 +25662,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -25674,7 +25674,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -25789,7 +25789,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -25801,7 +25801,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -25857,7 +25857,7 @@
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -25869,7 +25869,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -25920,7 +25920,7 @@
             }
           },
           {
-            "name": "X-Antidote-Key",
+            "name": "X-Blindsight-Key",
             "in": "header",
             "required": false,
             "schema": {
@@ -25932,11 +25932,11 @@
                   "type": "null"
                 }
               ],
-              "title": "X-Antidote-Key"
+              "title": "X-Blindsight-Key"
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -25948,7 +25948,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -25999,7 +25999,7 @@
             }
           },
           {
-            "name": "X-Antidote-Key",
+            "name": "X-Blindsight-Key",
             "in": "header",
             "required": false,
             "schema": {
@@ -26011,11 +26011,11 @@
                   "type": "null"
                 }
               ],
-              "title": "X-Antidote-Key"
+              "title": "X-Blindsight-Key"
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -26027,7 +26027,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -26078,7 +26078,7 @@
             }
           },
           {
-            "name": "X-Antidote-Key",
+            "name": "X-Blindsight-Key",
             "in": "header",
             "required": false,
             "schema": {
@@ -26090,11 +26090,11 @@
                   "type": "null"
                 }
               ],
-              "title": "X-Antidote-Key"
+              "title": "X-Blindsight-Key"
             }
           },
           {
-            "name": "antidote_session",
+            "name": "blindsight_session",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -26106,7 +26106,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Antidote Session"
+              "title": "Blindsight Session"
             }
           }
         ],
@@ -28173,7 +28173,7 @@
         },
         "type": "object",
         "title": "AuditWebhookSettings",
-        "description": "Inbound audit-trail webhook settings (user POSTs into Antidote)."
+        "description": "Inbound audit-trail webhook settings (user POSTs into Blindsight)."
       },
       "AuditWebhookUpdate": {
         "properties": {

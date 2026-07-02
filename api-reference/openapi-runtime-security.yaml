@@ -1,6 +1,6 @@
 openapi: 3.1.0
 info:
-  title: Antidote Runtime Security API
+  title: Blindsight Runtime Security API
   version: "1.0.0"
   summary: LLM firewall — prompt-injection, PII, and agent tool-call protection.
   description: |
@@ -16,14 +16,14 @@ info:
     See `runtime-security-guide.md` for prose docs, SDK examples, and a
     walk-through of verdicts and configuration.
   contact:
-    name: Antidote Support
-    url: https://antidote.example.com/support
+    name: Blindsight Support
+    url: https://blindsight.example.com/support
   license:
     name: Proprietary
 servers:
-  - url: https://api.antidote.example.com
+  - url: https://api.blindsight.example.com
     description: Production
-  - url: https://api.staging.antidote.example.com
+  - url: https://api.staging.blindsight.example.com
     description: Staging
 
 tags:
@@ -40,7 +40,7 @@ tags:
 
 security:
   - ApiKeyAuth: []
-  - AntidoteKeyAuth: []
+  - BlindsightKeyAuth: []
   - SessionCookieAuth: []
 
 paths:
@@ -170,7 +170,7 @@ paths:
       summary: Wire-compatible OpenAI Chat Completions proxy
       description: |
         Body and response match `POST https://api.openai.com/v1/chat/completions`
-        verbatim. Antidote scans both directions; the verdict either
+        verbatim. Blindsight scans both directions; the verdict either
         forwards (allow), mutates content in place (redact), or returns
         an OpenAI-shaped error (block).
 
@@ -180,7 +180,7 @@ paths:
         a block verdict.
 
         **Headers**: `Authorization` is reserved for OpenAI and forwarded
-        upstream untouched. Authenticate to Antidote via `X-API-Key`.
+        upstream untouched. Authenticate to Blindsight via `X-API-Key`.
       operationId: proxyOpenAIChat
       requestBody:
         required: true
@@ -199,7 +199,7 @@ paths:
             text/event-stream:
               schema: { type: string, format: byte }
         '400':
-          description: Blocked by Antidote (input scan), or invalid body
+          description: Blocked by Blindsight (input scan), or invalid body
           content:
             application/json:
               schema: { $ref: '#/components/schemas/OpenAIError' }
@@ -246,14 +246,14 @@ paths:
       summary: Wire-compatible Anthropic Messages proxy
       description: |
         Body and response match `POST https://api.anthropic.com/v1/messages`
-        verbatim. Antidote scans both directions.
+        verbatim. Blindsight scans both directions.
 
         **Streaming**: `stream=true` is supported. Mid-stream blocks emit
         a `content_block_delta` with the reason text plus a
         `message_delta` with `stop_reason: refusal`.
 
         **Headers**: `x-api-key` is reserved for Anthropic and forwarded
-        upstream. Authenticate to Antidote via `X-Antidote-Key`.
+        upstream. Authenticate to Blindsight via `X-Blindsight-Key`.
       operationId: proxyAnthropicMessages
       requestBody:
         required: true
@@ -447,23 +447,23 @@ components:
       in: header
       name: X-API-Key
       description: |
-        Antidote workspace API key (`ak_live_…`). Use this header for the
+        Blindsight workspace API key (`ak_live_…`). Use this header for the
         scan API and the OpenAI proxy routes. The required permission
         scope is `runtime_security.scan` for scan endpoints,
         `runtime_security.view` for read-only analytics, and
         `runtime_security.manage` for configuration changes.
-    AntidoteKeyAuth:
+    BlindsightKeyAuth:
       type: apiKey
       in: header
-      name: X-Antidote-Key
+      name: X-Blindsight-Key
       description: |
         Alternative header for Anthropic proxy callers — `x-api-key` is
         reserved for the upstream provider on those routes. Accepts an
-        Antidote API key or `Bearer <jwt>`.
+        Blindsight API key or `Bearer <jwt>`.
     SessionCookieAuth:
       type: apiKey
       in: cookie
-      name: antidote_session
+      name: blindsight_session
       description: In-app dashboard session — for browser callers only.
 
   responses:

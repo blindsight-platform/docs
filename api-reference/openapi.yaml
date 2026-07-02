@@ -1,6 +1,6 @@
 openapi: 3.1.0
 info:
-  title: Antidote API
+  title: Blindsight API
   version: 0.1.0
 paths:
   /api/auth/password/forgot:
@@ -77,14 +77,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -171,14 +171,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -209,14 +209,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -289,14 +289,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -357,14 +357,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -400,14 +400,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -449,14 +449,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -488,14 +488,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -630,14 +630,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -668,14 +668,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -730,14 +730,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -777,14 +777,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -816,14 +816,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -863,14 +863,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -917,14 +917,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -962,14 +962,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -1015,14 +1015,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -1060,14 +1060,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -1113,14 +1113,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -1157,14 +1157,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         content:
           application/json:
@@ -1211,14 +1211,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         content:
           application/json:
@@ -1265,14 +1265,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         content:
           application/json:
@@ -1319,14 +1319,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         content:
           application/json:
@@ -1373,14 +1373,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         content:
           application/json:
@@ -1435,14 +1435,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -1475,14 +1475,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -1554,14 +1554,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -1602,14 +1602,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -1646,14 +1646,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -1688,14 +1688,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -1846,14 +1846,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -1912,14 +1912,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -1963,14 +1963,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -2017,14 +2017,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -2080,14 +2080,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '204':
           description: Successful Response
@@ -2120,14 +2120,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -2170,14 +2170,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -2227,14 +2227,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -2278,14 +2278,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -2328,14 +2328,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -2417,14 +2417,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -2464,14 +2464,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -2513,14 +2513,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -2563,14 +2563,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -2612,14 +2612,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -2673,14 +2673,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -2728,14 +2728,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -2777,14 +2777,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -2857,14 +2857,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -2927,14 +2927,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -2978,14 +2978,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -3024,14 +3024,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -3072,14 +3072,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -3117,14 +3117,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -3163,14 +3163,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -3216,14 +3216,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         content:
           application/json:
@@ -3271,14 +3271,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -3323,14 +3323,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -3407,14 +3407,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -3492,14 +3492,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -3564,14 +3564,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -3618,14 +3618,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -3689,14 +3689,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -3752,14 +3752,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -3814,14 +3814,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -3858,14 +3858,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -3909,14 +3909,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -3960,14 +3960,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -4010,14 +4010,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -4066,14 +4066,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -4124,14 +4124,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -4180,14 +4180,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -4224,14 +4224,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -4275,14 +4275,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -4336,14 +4336,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -4388,14 +4388,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -4451,14 +4451,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         content:
           application/json:
@@ -4512,14 +4512,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -4596,14 +4596,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -4642,14 +4642,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -4678,14 +4678,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -4736,14 +4736,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -4783,14 +4783,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -4842,14 +4842,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -4883,14 +4883,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -4944,14 +4944,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         content:
           multipart/form-data:
@@ -4992,14 +4992,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -5038,14 +5038,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -5083,14 +5083,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -5128,14 +5128,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -5173,14 +5173,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -5224,14 +5224,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -5269,14 +5269,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '202':
           description: Successful Response
@@ -5315,14 +5315,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         content:
           application/json:
@@ -5406,14 +5406,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -5466,14 +5466,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -5506,14 +5506,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -5556,14 +5556,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -5605,14 +5605,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '204':
           description: Successful Response
@@ -5639,14 +5639,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -5821,14 +5821,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -5858,14 +5858,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -5908,14 +5908,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -5934,21 +5934,21 @@ paths:
       tags:
       - audit-trail
       summary: Ingest Audit Record
-      description: "Public webhook ingest \u2014 authenticated via ``X-Antidote-Audit-Token``.\n\
+      description: "Public webhook ingest \u2014 authenticated via ``X-Blindsight-Audit-Token``.\n\
         \nExternal systems POST audit records (including their custom params)\nhere\
-        \ to submit them into the Antidote audit trail."
+        \ to submit them into the Blindsight audit trail."
       operationId: ingest_audit_record_api_audit_trail_ingest_post
       security:
       - HTTPBearer: []
       parameters:
-      - name: X-Antidote-Audit-Token
+      - name: X-Blindsight-Audit-Token
         in: header
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: X-Antidote-Audit-Token
+          title: X-Blindsight-Audit-Token
       - name: X-API-Key
         in: header
         required: false
@@ -5957,14 +5957,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -6108,14 +6108,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -6246,14 +6246,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -6358,14 +6358,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -6395,14 +6395,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -6439,14 +6439,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -6483,14 +6483,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -6524,14 +6524,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -6574,14 +6574,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '204':
           description: Successful Response
@@ -6608,14 +6608,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -6649,14 +6649,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -6699,14 +6699,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -6748,14 +6748,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '204':
           description: Successful Response
@@ -6788,14 +6788,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -6838,14 +6838,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -6941,14 +6941,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -7037,14 +7037,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -7123,14 +7123,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -7202,14 +7202,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -7246,14 +7246,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -7291,14 +7291,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -7342,14 +7342,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -7390,14 +7390,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -7434,14 +7434,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -7485,14 +7485,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -7529,14 +7529,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -7573,14 +7573,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -7617,14 +7617,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -7660,14 +7660,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         content:
           application/json:
@@ -7733,14 +7733,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -7770,14 +7770,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -7820,14 +7820,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -7863,14 +7863,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -7912,14 +7912,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '204':
           description: Successful Response
@@ -7953,14 +7953,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -7997,14 +7997,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -8034,14 +8034,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -8078,14 +8078,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -8122,14 +8122,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -8171,14 +8171,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -8211,14 +8211,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -8256,14 +8256,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -8306,14 +8306,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -8346,14 +8346,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -8383,14 +8383,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -8427,14 +8427,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -8464,14 +8464,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -8508,14 +8508,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         content:
           application/json:
@@ -8556,14 +8556,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -8593,14 +8593,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -8638,14 +8638,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -8675,14 +8675,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -8713,14 +8713,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -8751,14 +8751,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -8788,14 +8788,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -8838,14 +8838,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -8876,14 +8876,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -8913,14 +8913,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -8963,14 +8963,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -9001,14 +9001,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -9038,14 +9038,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -9082,14 +9082,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -9119,14 +9119,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -9163,14 +9163,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         content:
           application/json:
@@ -9216,14 +9216,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -9254,14 +9254,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         content:
           application/json:
@@ -9301,14 +9301,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -9341,14 +9341,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -9385,14 +9385,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -9440,14 +9440,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -9487,14 +9487,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -9540,14 +9540,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -9589,14 +9589,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -9627,14 +9627,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -9667,14 +9667,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -9711,14 +9711,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -9748,14 +9748,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -9798,14 +9798,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -9841,14 +9841,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -9890,14 +9890,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '204':
           description: Successful Response
@@ -9930,14 +9930,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -9981,14 +9981,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -10037,14 +10037,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -10092,14 +10092,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '204':
           description: Successful Response
@@ -10153,14 +10153,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -10194,14 +10194,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -10231,14 +10231,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -10276,14 +10276,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -10314,14 +10314,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -10359,14 +10359,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -10398,14 +10398,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -10436,14 +10436,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -10480,14 +10480,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -10517,14 +10517,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -10561,14 +10561,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -10606,14 +10606,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -10643,14 +10643,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -10704,14 +10704,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -10742,14 +10742,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -10779,14 +10779,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -10829,14 +10829,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -10867,14 +10867,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -10905,14 +10905,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -10949,14 +10949,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -11002,14 +11002,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -11040,14 +11040,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -11077,14 +11077,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -11121,14 +11121,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -11171,14 +11171,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -11220,14 +11220,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '204':
           description: Successful Response
@@ -11260,14 +11260,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -11320,14 +11320,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -11359,14 +11359,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -11408,14 +11408,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -11447,14 +11447,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -11490,14 +11490,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -11535,14 +11535,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -11580,14 +11580,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -11624,14 +11624,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -11674,14 +11674,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '204':
           description: Successful Response
@@ -11710,14 +11710,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -11749,14 +11749,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -11810,14 +11810,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -11855,14 +11855,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -11899,14 +11899,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -11949,14 +11949,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '204':
           description: Successful Response
@@ -11990,14 +11990,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -12035,14 +12035,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -12087,14 +12087,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -12155,14 +12155,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -12199,14 +12199,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -12250,14 +12250,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -12301,14 +12301,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -12362,14 +12362,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -12407,14 +12407,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -12439,7 +12439,7 @@ paths:
       tags:
       - playground
       summary: Publish Session As Dataset
-      description: Materialize a playground session into a persisted Antidote dataset,
+      description: Materialize a playground session into a persisted Blindsight dataset,
         optionally enqueueing a scan.
       operationId: publish_session_as_dataset_api_playground_sessions__session_id__publish_post
       security:
@@ -12459,14 +12459,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -12517,14 +12517,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -12555,14 +12555,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -12607,14 +12607,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -12663,14 +12663,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -12722,14 +12722,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -12769,14 +12769,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -12822,14 +12822,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -12880,14 +12880,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -12929,14 +12929,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -12981,14 +12981,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -13034,14 +13034,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -13082,14 +13082,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -13129,14 +13129,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -13177,14 +13177,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -13215,14 +13215,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -13252,14 +13252,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -13302,14 +13302,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -13345,14 +13345,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -13394,14 +13394,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '204':
           description: Successful Response
@@ -13434,14 +13434,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -13494,14 +13494,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -13535,14 +13535,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -13586,14 +13586,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -13630,14 +13630,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -13680,14 +13680,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -13759,14 +13759,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -13800,14 +13800,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -13851,14 +13851,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -13895,14 +13895,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -13939,14 +13939,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -13983,14 +13983,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -14031,14 +14031,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -14087,14 +14087,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -14137,14 +14137,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -14175,14 +14175,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -14222,14 +14222,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -14269,14 +14269,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -14318,14 +14318,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -14361,14 +14361,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -14408,14 +14408,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -14457,14 +14457,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -14494,14 +14494,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -14538,14 +14538,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -14582,14 +14582,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -14619,14 +14619,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       requestBody:
         required: true
         content:
@@ -14672,14 +14672,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -14745,14 +14745,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -14782,14 +14782,14 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: antidote_session
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -14817,22 +14817,22 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: X-Antidote-Key
+      - name: X-Blindsight-Key
         in: header
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: X-Antidote-Key
-      - name: antidote_session
+          title: X-Blindsight-Key
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -14860,22 +14860,22 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: X-Antidote-Key
+      - name: X-Blindsight-Key
         in: header
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: X-Antidote-Key
-      - name: antidote_session
+          title: X-Blindsight-Key
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -14903,22 +14903,22 @@ paths:
           - type: string
           - type: 'null'
           title: X-Api-Key
-      - name: X-Antidote-Key
+      - name: X-Blindsight-Key
         in: header
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: X-Antidote-Key
-      - name: antidote_session
+          title: X-Blindsight-Key
+      - name: blindsight_session
         in: cookie
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Antidote Session
+          title: Blindsight Session
       responses:
         '200':
           description: Successful Response
@@ -16250,7 +16250,7 @@ components:
           title: Token
       type: object
       title: AuditWebhookSettings
-      description: Inbound audit-trail webhook settings (user POSTs into Antidote).
+      description: Inbound audit-trail webhook settings (user POSTs into Blindsight).
     AuditWebhookUpdate:
       properties:
         enabled:
