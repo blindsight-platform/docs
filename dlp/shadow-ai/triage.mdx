@@ -1,0 +1,282 @@
+---
+title: "Triage & governance"
+description: "Work the Shadow AI inventory: how risk is ranked, what sanction / block / onboard actually do, the Insights read on the estate, and the exportable report."
+---
+
+The inventory is a worklist, not a dashboard. Every row is an AI
+service somebody reached from a managed device, and every row wants
+one of three decisions.
+
+Open it at **Runtime Security → Shadow AI**.
+
+## The worklist
+
+### Figures
+
+| Figure           | What it counts                                                             |
+| ---------------- | --------------------------------------------------------------------------- |
+| **AI services**  | Distinct services in scope, with how many are new in the last 7 days.       |
+| **Needs review** | Services with no decision recorded. This is your backlog.                    |
+| **High risk**    | Unsanctioned services the risk model ranks high.                             |
+| **Governed**     | Share of services that have any decision: sanctioned, blocked, or managed.  |
+
+### Filters
+
+One search box over host and provider, a row of state chips, and quiet
+scoping controls on the right.
+
+| Control        | Options                                                                              |
+| -------------- | ------------------------------------------------------------------------------------- |
+| **Chips**      | All · Needs review · High risk · Unknown host · Workflow · Sanctioned · Blocked · Managed |
+| **Sort**       | Highest risk (default) · Most active · Recently seen · Most devices                    |
+| **Device**     | Drill into one device's services.                                                       |
+| **User**       | Drill into one identity's services.                                                     |
+| **Time range** | Last 7 / 30 / 90 days, or all time.                                                     |
+
+Chips only appear when they can match something, so an empty
+**Workflow** chip means no automation platform has been seen at all.
+
+### Columns
+
+| Column       | What it shows                                                                    |
+| ------------ | --------------------------------------------------------------------------------- |
+| **Service**  | The hostname, with the provider slug underneath.                                  |
+| **Category** | **Known AI**, **Unknown host**, or **Managed**. Suffixed `· workflow` for automation platforms. |
+| **Risk**     | High / Medium / Low, or `—` for a service that already has a decision.            |
+| **Decision** | Needs review · Sanctioned · Blocked · Managed.                                     |
+| **Devices**  | Distinct devices that reached it.                                                  |
+| **Activity** | Cumulative observed connections.                                                   |
+| **Last seen**| Time since the most recent observation.                                            |
+
+Click any row to expand it. The detail strip shows **Why this
+ranking** (the reasons behind the risk level), exact first and last
+seen timestamps, and the three action buttons.
+
+## How risk is ranked
+
+Risk is derived from signals the inventory already carries. There is
+no hidden score and no model: recognition, capability, and exposure.
+
+| Signal                                   | Effect   | Reason shown                                            |
+| ---------------------------------------- | -------- | -------------------------------------------------------- |
+| Known AI, not sanctioned                 | Medium   | "Known AI, not sanctioned"                                |
+| Not in the catalog (**Unknown host**)    | **High** | "Unrecognised host: not in the AI catalog"                |
+| Workflow automation platform             | **High** | "Automation platform: can move data between systems"      |
+| Seen on 5 or more devices                | **High** | "Broad exposure: seen on N devices"                       |
+| Seen on 2 to 4 devices                   | Medium   | "Seen on N devices"                                       |
+
+Unknown hosts rank high because nobody has verified where the data
+goes. Workflow platforms rank high because an AI step inside an
+automation can relay records between systems without a human in the
+loop. Device spread ranks high because a tool on twenty laptops is a
+policy problem, not an individual one.
+
+<Note>
+  Risk is only meaningful for undecided services. Anything sanctioned,
+  blocked, or managed resolves to low by definition, so the worklist
+  shows `—` rather than pretending the ranking still says something.
+</Note>
+
+## The three decisions
+
+All three require the `runtime_security.policy.manage` permission and
+write an audit record.
+
+| Action              | Status becomes | What it does                                                                                                  |
+| ------------------- | -------------- | -------------------------------------------------------------------------------------------------------------- |
+| **Sanction**        | `sanctioned`   | Marks the service as an approved tool. It stays in the inventory with its history, drops out of the shadow count, and is excluded from the report entirely. |
+| **Block**           | `blocked`      | Appends a `block` host rule to the workspace policy. Agents refuse the connection on their next policy pull.    |
+| **Onboard as app**  | `promoted`     | Creates a managed App keyed from the hostname and links the row to it, so the service can be configured like any other App. |
+
+<Warning>
+  Onboarding creates the App and the attribution; it does not start
+  decrypting on its own. To actually inspect that traffic, add an
+  `inspect` host rule pointing at the new App, see
+  [Set up discovery](/dlp/shadow-ai/setup#5-tune-what-gets-observed).
+  Until you do, the service is governed but still uninspected.
+</Warning>
+
+### Which decision to reach for
+
+| Situation                                                       | Decision                                          |
+| --------------------------------------------------------------- | -------------------------------------------------- |
+| An approved vendor tool that you do not need to inspect          | **Sanction**                                        |
+| A companion / roleplay service, or an unknown host nobody claims | **Block**                                           |
+| A tool a team genuinely needs, on sensitive work                 | **Onboard as app**, then add an `inspect` rule      |
+| A service you have not investigated yet                          | Leave it. **Needs review** is an honest state.      |
+
+## A weekly triage pass
+
+<Steps>
+  <Step title="Filter to Needs review, sorted by highest risk">
+    The default sort already does this. Set the time range to the last
+    7 days for the new arrivals, or all time to clear the backlog.
+  </Step>
+
+  <Step title="Start with the unknown hosts">
+    Expand each row and read **Why this ranking**. Resolve the
+    hostname: is it an internal gateway, a new vendor, or something
+    nobody can account for?
+  </Step>
+
+  <Step title="Check exposure before deciding">
+    A service on one device is usually a person to talk to. A service
+    on twenty is a policy to write. Use the device and user filters to
+    see who is behind it.
+  </Step>
+
+  <Step title="Decide">
+    Sanction, block, or onboard. Every row you leave undecided is a
+    row the report will call ungoverned.
+  </Step>
+
+  <Step title="Confirm the block landed">
+    Blocked services push a host rule to the fleet. Policy propagates
+    within about 30 seconds, or immediately if you **Push policy**
+    from **Devices & Enrollment**.
+  </Step>
+</Steps>
+
+## Insights
+
+**Runtime Security → Shadow AI → Insights** is the read on the estate,
+where the worklist is the read on individual services. It deliberately
+repeats nothing from the inventory.
+
+| Section                   | What it answers                                                                                     |
+| ------------------------- | ----------------------------------------------------------------------------------------------------- |
+| **AI traffic over time**  | Daily connections to AI destinations, this window against the previous one. Read from the per-day rollup, so it says *when*, not just how much. |
+| **Governance funnel**     | How much of the discovered estate has a decision.                                                      |
+| **Sensitive data to AI**  | What the firewall found in prompts to *managed* apps: verdict mix and PII categories. The bridge between discovery and inspection. |
+| **What drives the risk**  | Aggregate risk drivers among the unsanctioned: broad exposure, unrecognised hosts, workflow platforms. |
+| **Account type**          | Observing devices split into SSO / directory-bound and off-SSO.                                        |
+| **Top devices / users / departments** | Distinct AI services seen per device, identity, and group.                                  |
+| **Recent alerts**         | Newly discovered services, and ones that have been waiting too long for a decision.                    |
+
+The trend needs at least a day of rollup data. Until agents have
+reported, it says so rather than drawing a flat zero line.
+
+## Export the report
+
+**Export** on the Shadow AI page generates a PDF built server-side.
+
+| Option        | Values                                                                                  |
+| ------------- | ---------------------------------------------------------------------------------------- |
+| **Type**      | Full report, or summary.                                                                  |
+| **Sections**  | Discovered services inventory · Risk analysis & traffic trend · Usage & exposure · Methodology & definitions. The executive summary is always included. |
+| **Range**     | Last 7 / 30 / 90 days, or all time.                                                       |
+| **Anonymize** | Replaces user and device names with `User 1`, `Device 1`. Departments are kept.           |
+
+The report leads with a narrative summary, then the risk-ranked
+inventory, the traffic trend against the prior period, exposure
+breakdowns, and a methodology section that states plainly that
+detection is passive and destination-only.
+
+<Note>
+  Sanctioned services are approved tools, not shadow AI, so they are
+  excluded from the report everywhere: the table, the totals, and the
+  breakdowns. The inventory in the console still shows them, filtered
+  behind the **Sanctioned** chip.
+</Note>
+
+Filenames are stamped, `shadow-ai-report-20260729.pdf` or
+`shadow-ai-summary-20260729.pdf`, so a monthly export drops cleanly
+into an evidence folder.
+
+## API
+
+The discovery routes live under `/api/runtime-security/` and use the
+same workspace authentication as the rest of the dashboard API.
+`runtime_security.view` reads; `runtime_security.policy.manage` acts.
+
+| Endpoint                                                    | What it does                                                                 |
+| ------------------------------------------------------------ | ----------------------------------------------------------------------------- |
+| `GET /api/runtime-security/discovery`                        | The inventory: services, totals, and the device / user / department breakdowns. |
+| `GET /api/runtime-security/discovery/activity`               | Daily connection counts for a window and the one before it.                    |
+| `GET /api/runtime-security/discovery/catalog`                | Inspected providers plus every passively detectable host.                       |
+| `POST /api/runtime-security/discovery/{id}/sanction`         | Mark a service as approved.                                                     |
+| `POST /api/runtime-security/discovery/{id}/block`            | Block it and push the host rule.                                                |
+| `POST /api/runtime-security/discovery/{id}/promote`          | Onboard it as a managed App.                                                    |
+| `POST /api/runtime-security/discovery/report`                | Render the PDF report.                                                          |
+| `POST /api/runtime-security/agent/discovery`                 | Agent ingest. Device-token authenticated, not for dashboard clients.            |
+
+`GET /discovery` accepts `status`, `days`, `device_id`, and `user`
+query parameters, matching the console's filters:
+
+```bash
+# Everything still awaiting a decision in the last 30 days
+curl -s "$API_BASE/api/runtime-security/discovery?status=new&days=30" \
+  -H "Authorization: Bearer $TOKEN" | jq '.totals, .services[0]'
+```
+
+```bash
+# Block a service by its id
+curl -s -X POST \
+  "$API_BASE/api/runtime-security/discovery/$SERVICE_ID/block" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+## Audit trail
+
+Every decision is recorded in the [audit trail](/data-integrity/audit-trail)
+against the `rs_discovered_service` entity, with the acting user and
+the hostname.
+
+| Event type                                   | Recorded when                          |
+| -------------------------------------------- | --------------------------------------- |
+| `runtime_security.discovery.sanctioned`      | A service is marked approved.            |
+| `runtime_security.discovery.blocked`         | A service is blocked (severity medium).  |
+| `runtime_security.discovery.promoted`        | A service is onboarded as an App.        |
+
+Forward them to your SIEM with the
+[audit webhook](/data-integrity/integrations) if shadow-AI decisions
+are part of your control evidence.
+
+## Common workflows
+
+<AccordionGroup>
+  <Accordion title="Build the case for enforcement">
+    1. Run the fleet observe-only for two weeks.
+    2. Export the full report for the last 14 days.
+    3. Walk the risk drivers and the department breakdown with the
+       data-protection owner.
+    4. Decide the enforcement policy with real numbers rather than
+       hypotheticals.
+  </Accordion>
+
+  <Accordion title="Clear the high-risk backlog">
+    1. Chip: **High risk**. Sort: **Most devices**.
+    2. Work top-down. Broad exposure first, since it affects the most
+       people.
+    3. Blocked services push a host rule immediately; tell the affected
+       teams before you block a tool they use daily.
+  </Accordion>
+
+  <Accordion title="Investigate one team">
+    1. Set the **User** filter to a team member, or read the
+       department breakdown on Insights.
+    2. Switch the drill-down between device and user while staying
+       filtered, the breakdowns stay populated.
+    3. Sanction the tools the team genuinely needs and onboard the one
+       handling sensitive data.
+  </Accordion>
+
+  <Accordion title="Bring a discovered service under full inspection">
+    1. **Onboard as app** on the row. An App is created and linked.
+    2. Configure thresholds, custom PII rules, and tool policy on the
+       new App, see [Apps](/runtime-security/apps).
+    3. Add an `inspect` host rule for the hostname pointing at that
+       App, in **DLP policy → AI host rules**.
+    4. Confirm events start arriving with `source=agent` in
+       [Observability](/runtime-security/observability).
+  </Accordion>
+
+  <Accordion title="Prove coverage to an auditor">
+    1. Export the full report with **Anonymize** on if the audience
+       should not see identities.
+    2. Pair it with the audit trail export for the same period, which
+       carries the decisions and who made them.
+    3. The methodology section states the detection limits explicitly,
+       which is usually the auditor's first question.
+  </Accordion>
+</AccordionGroup>

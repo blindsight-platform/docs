@@ -70,6 +70,23 @@ the same scanners, the same App config, and the same event log as
 in-app Runtime Security. Dashboards show DLP traffic alongside SDK
 traffic, attributed to the device's directory user.
 
+## Inspection and discovery
+
+The agent does two different jobs, and it's worth keeping them apart.
+
+- **Inspection.** For the AI hosts you have onboarded, the agent
+  MITMs the connection with the org root CA, scans the prompt, and
+  enforces the verdict. You see content, verdicts, and redactions.
+- **Discovery.** For every *other* AI destination, the agent records
+  the hostname only, no decryption. That inventory is **Shadow AI**:
+  the services your workforce reaches without approval, ranked by
+  risk, each awaiting a decision to sanction, block, or onboard.
+
+Discovery is what you run first. It answers "which AI is this company
+actually using?" without touching anyone's traffic, and it produces
+the list that tells you what is worth inspecting. See
+[Shadow AI](/dlp/shadow-ai/overview).
+
 ## What it covers, what it doesn't
 
 DLP catches LLM traffic from any managed device, including:
@@ -89,6 +106,10 @@ It does not cover:
 ## Where to next
 
 <CardGroup cols={2}>
+  <Card title="Shadow AI" icon="radar" href="/dlp/shadow-ai/overview">
+    Passive discovery of every AI service your workforce reaches, and
+    a sanction / block / onboard decision for each one.
+  </Card>
   <Card title="Fleet rollout" icon="rocket" href="/dlp/fleet-rollout">
     MDM push for macOS and Windows. One enrollment token, the agent
     self-enrolls on every device.

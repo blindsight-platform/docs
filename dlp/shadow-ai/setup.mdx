@@ -1,0 +1,299 @@
+---
+title: "Set up discovery"
+description: "Turn on Shadow AI discovery, verify the first observations, attribute them to real users and departments, and tune what the agents observe, inspect, or ignore."
+---
+
+There is nothing extra to install. Discovery rides on the DLP agent
+you already push through your MDM: once a device is enrolled, it
+starts classifying the destinations it sees and reporting a rollup.
+
+This page is the setup and tuning path. For the concepts behind it,
+read [Shadow AI overview](/dlp/shadow-ai/overview) first.
+
+## 1. Enroll the agents
+
+Discovery has exactly one hard prerequisite: at least one enrolled
+device. Follow [Fleet rollout](/dlp/fleet-rollout) to push the agent
+and mint an enrollment token, then confirm the device appears in
+**Runtime Security → Devices & Enrollment** with a recent **Last
+seen**.
+
+Two useful properties of discovery during a rollout:
+
+- It works in **observe-only** mode. You do not need `enforce=true` on
+  any host rule to build the inventory.
+- It works **before identity binding**. A device that is still
+  `pending` reports observations; they are attributed to its OS user
+  until the directory user is bound.
+
+<Tip>
+  Roll the agent out to a pilot group, leave every rule in observe-only
+  mode for a week, and use the inventory as the business case for
+  enforcement. Nobody's workflow breaks, and you get a real list of
+  what your workforce actually uses.
+</Tip>
+
+## 2. Confirm the observe catalog is in policy
+
+The AI catalog is merged into the host rules the agent fetches from
+`/agent/policy` by default, so a freshly enrolled device already knows
+which hosts to observe. Confirm it under **Runtime Security → Apps →
+\[your DLP App\] → DLP policy**:
+
+- **Use default host pack** is on. This is the inspected provider set.
+- The discovery catalog is layered on top of it automatically, as
+  `observe` rules. It never overlaps the inspected hosts.
+
+To see exactly what the current policy can detect, open **Runtime
+Security → Shadow AI → See what is detectable**, or call:
+
+```bash
+curl -s "$API_BASE/api/runtime-security/discovery/catalog" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+The response lists the providers agents actively inspect
+(`inspected_providers`) and every host they passively flag
+(`catalog`).
+
+## 3. Verify the first observations
+
+<Steps>
+  <Step title="Generate some traffic">
+    From an enrolled device, open an AI service that is in the catalog
+    but not inspected in your workspace, `perplexity.ai` or
+    `huggingface.co` will do.
+  </Step>
+
+  <Step title="Wait about a minute">
+    Agents drain their rollup roughly once a minute. If the cloud is
+    unreachable, the batch is requeued and retried on the next tick, so
+    a laptop that was offline in a café still reports when it
+    reconnects.
+  </Step>
+
+  <Step title="Open Shadow AI">
+    **Runtime Security → Shadow AI**. The service appears with status
+    **Needs review**, a device count of 1, and a **Last seen** of a few
+    seconds ago.
+  </Step>
+
+  <Step title="Check the figures row">
+    **AI services**, **Needs review**, **High risk**, and **Governed**
+    should all be non-zero or zero in ways that match what you just
+    did. If the page still shows the empty state, jump to
+    [Troubleshooting](#troubleshooting).
+  </Step>
+</Steps>
+
+## 4. Make the attribution meaningful
+
+Discovery records devices. Everything user-shaped is derived, so two
+optional steps make the reports far more useful.
+
+### Bind devices to directory users
+
+A "user" in the Shadow AI breakdowns is the device's **bound directory
+email**, and falls back to its **OS user name** when there is no
+binding. Set up [identity binding](/dlp/identity) and the top-users
+list becomes real names instead of `jsmith` and `admin`.
+
+Identity binding also drives the **Account type** split on the
+Insights page: devices whose identity is `bound` or `auto` count as
+SSO / directory-bound, everything still `pending` counts as off-SSO. A
+high off-SSO number usually means an incomplete rollout, not a rogue
+population.
+
+### Create groups for departments
+
+Departments in the breakdowns are your workspace **groups**, created
+by hand or mirrored from your directory via SCIM. A device inherits:
+
+- every group it belongs to directly, and
+- every group its **bound user** belongs to.
+
+So grouping users is enough. Map `sales`, `engineering`, `finance`,
+and the per-department view fills itself in. Without groups the
+department breakdown is simply empty; nothing else is affected.
+
+## 5. Tune what gets observed
+
+Coverage is host rules, the same mechanism described in
+[Policies & agent API](/dlp/policies). Each rule carries a `match` and
+an `action`:
+
+```json
+{
+  "host": "llm-gateway.internal.example.com",
+  "match": "suffix",
+  "action": "observe",
+  "provider": "internal-gateway"
+}
+```
+
+| Field      | Values                              | Notes                                                                   |
+| ---------- | ----------------------------------- | ------------------------------------------------------------------------ |
+| `host`     | hostname or pattern                 | Lowercased. Trailing dots ignored.                                        |
+| `match`    | `suffix`, `exact`, `regex`          | `suffix` matches the host itself and any subdomain. Invalid regex is dropped. |
+| `action`   | `inspect`, `observe`, `tunnel`, `block` | See the table below.                                                  |
+| `provider` | free-form slug                      | Groups hosts under one name in the inventory and reports.                 |
+
+| Action     | Effect on traffic                                  | Effect on discovery                                  |
+| ---------- | -------------------------------------------------- | ----------------------------------------------------- |
+| `inspect`  | TLS MITM, scanned, verdict enforced.               | Classified **Managed**. Not in the shadow inventory.  |
+| `observe`  | Passes through opaque, no decryption.              | Recorded as **Known AI**.                              |
+| `tunnel`   | Passes through opaque.                             | **Never recorded.** Use this to silence a host.        |
+| `block`    | Connection refused on the device.                  | Not recorded as shadow AI.                             |
+
+Rules resolve in a defined order. Built-in defaults load first, then
+the discovery catalog, then your workspace overrides, so a later entry
+wins on an exact host collision. At match time the **most specific**
+(longest) matching host pattern wins.
+
+### Common tuning tasks
+
+<AccordionGroup>
+  <Accordion title="Watch an internal or self-hosted AI endpoint">
+    Add an `observe` rule for the hostname. Useful for an internal LLM
+    gateway that the heuristic would miss, or that you want tracked
+    under a friendly provider name.
+
+    ```json
+    {"host": "ai.internal.example.com", "match": "suffix", "action": "observe", "provider": "internal-gateway"}
+    ```
+  </Accordion>
+
+  <Accordion title="Silence a false-positive candidate">
+    A non-AI host whose name trips the heuristic (an internal service
+    called `chat-agent`, say) shows up as **Unknown host**. Add a
+    `tunnel` rule and it disappears from discovery for good, without
+    any change to how its traffic flows.
+
+    ```json
+    {"host": "chat-agent.internal.example.com", "match": "suffix", "action": "tunnel"}
+    ```
+  </Accordion>
+
+  <Accordion title="Stop a service outright">
+    Use the **Block** action on the row in the worklist rather than
+    hand-writing a rule. It sets the status and appends the matching
+    `block` host rule for you, so the two never drift apart.
+  </Accordion>
+
+  <Accordion title="Start inspecting a service you approved">
+    Onboarding a discovered service creates a managed App and links it
+    to the row, but it does not decrypt anything on its own. To
+    actually inspect the traffic, add an `inspect` host rule pointing
+    at that App. Only then do prompts, verdicts, and redactions start
+    flowing.
+  </Accordion>
+
+  <Accordion title="Exempt a sensitive host from inspection entirely">
+    Anything in **Exclude hosts** is never MITM'd. If you also do not
+    want it recorded as a destination, give it a `tunnel` rule.
+  </Accordion>
+</AccordionGroup>
+
+<Warning>
+  A `tunnel` rule makes a host invisible to discovery, not just
+  uninspected. That is the point, but it means a silenced host will
+  never reappear in the inventory, even if usage explodes. Prefer
+  **sanction** for approved AI tools, which keeps the row and its
+  history, and reserve `tunnel` for hosts that are not AI at all.
+</Warning>
+
+## 6. Set a review cadence
+
+Discovery is only useful if somebody decides. A cadence that works:
+
+| Rhythm      | Who         | What                                                                                   |
+| ----------- | ----------- | --------------------------------------------------------------------------------------- |
+| **Weekly**  | Security    | Clear the **Needs review** chip. Every high-risk row gets a decision.                    |
+| **Monthly** | Security    | Export the PDF report and walk the risk drivers with IT and the data-protection owner.  |
+| **Quarterly** | IT + Security | Re-check the sanctioned list. Approved a year ago is not approved forever.           |
+
+## What the agent sends
+
+For reference, the payload posted to
+`POST /api/runtime-security/agent/discovery`, authenticated with the
+device token:
+
+```json
+{
+  "observations": [
+    {
+      "host": "perplexity.ai",
+      "provider": "perplexity",
+      "classification": "catalog_observed",
+      "hit_count": 14,
+      "first_seen": "2026-07-29T08:31:02Z",
+      "last_seen": "2026-07-29T09:04:55Z"
+    }
+  ]
+}
+```
+
+Host and counts only. The cloud re-classifies each host against the
+current catalog and rules on ingest, and answers with the number of
+observations it accepted.
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="The page shows the empty state">
+    1. Confirm at least one device is enrolled and **Last seen** is
+       recent, in **Devices & Enrollment**.
+    2. Confirm the device has actually reached an AI host that is *not*
+       inspected. Traffic to inspected hosts is scanned, not
+       discovered, so it never appears here.
+    3. Wait a minute. Rollups flush on an interval, not per request.
+    4. Check the device's tamper history. An agent whose service is
+       disabled reports nothing at all.
+  </Accordion>
+
+  <Accordion title="A service I know people use is missing">
+    Either its host is already inspected (look for it under Apps and
+    events instead), or it is covered by a `tunnel` rule, or its
+    hostname does not match the catalog or the heuristic. For the last
+    case, add an explicit `observe` rule for the hostname.
+  </Accordion>
+
+  <Accordion title="Everything shows as off-SSO or an OS user name">
+    Identity binding has not completed on those devices. Filter
+    **Devices & Enrollment** by identity `pending` and use **Force
+    re-bind**. See [Identity binding](/dlp/identity).
+  </Accordion>
+
+  <Accordion title="The department breakdown is empty">
+    No groups exist, or no group contains the users bound to the
+    observing devices. Create groups, or map your directory groups via
+    SCIM, and the breakdown fills in on the next load.
+  </Accordion>
+
+  <Accordion title="Too many unknown hosts">
+    The heuristic is strict, but internal naming conventions can still
+    trip it. Silence individual hosts with `tunnel` rules, or give them
+    an `observe` rule with a provider slug if you would rather track
+    them properly. Do not disable discovery to make the noise go away,
+    unknown hosts are the highest-value part of the inventory.
+  </Accordion>
+
+  <Accordion title="The Shadow AI page is not in the navigation">
+    The page requires Runtime Security with the endpoint component
+    enabled, plus the `runtime_security.view` permission on your role.
+    Ask a workspace admin to check your role, or your account manager
+    to check the workspace entitlement.
+  </Accordion>
+</AccordionGroup>
+
+## Next
+
+<CardGroup cols={2}>
+  <Card title="Triage & governance" icon="list-check" href="/dlp/shadow-ai/triage">
+    Work the inventory: risk ranking, the three decisions, insights,
+    and the exportable report.
+  </Card>
+  <Card title="Policies & agent API" icon="shield-halved" href="/dlp/policies">
+    The full host-rule reference and the agent-to-cloud endpoints.
+  </Card>
+</CardGroup>

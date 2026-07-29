@@ -61,7 +61,15 @@
               "dlp/fleet-rollout",
               "dlp/identity",
               "dlp/devices",
-              "dlp/policies"
+              "dlp/policies",
+              {
+                "group": "Shadow AI",
+                "pages": [
+                  "dlp/shadow-ai/overview",
+                  "dlp/shadow-ai/setup",
+                  "dlp/shadow-ai/triage"
+                ]
+              }
             ]
           }
         ]

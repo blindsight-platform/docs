@@ -1,0 +1,255 @@
+---
+title: "Shadow AI overview"
+description: "Passive discovery of every AI service your workforce reaches from a managed device. Destination-only detection, no decryption, and a decision for every service you find."
+---
+
+Shadow AI is the AI a workforce reaches **without approval**: the
+personal ChatGPT tab, the AI writing assistant someone expensed, the
+inference host a team wired into a side project, the automation
+platform quietly relaying customer records through an LLM step.
+
+The DLP agent already sits on the network path of every managed
+laptop. Shadow AI discovery uses that position to answer a question
+that comes *before* enforcement: **which AI services is this company
+actually using?**
+
+Detection is passive. Agents read the destination hostname of each
+outbound TLS connection (the SNI) and report a per-host rollup. They
+do not decrypt, and they never see the prompt.
+
+<Note>
+  Discovery is usually the opening wedge of a DLP rollout. Run the
+  agents in observe mode for a week, look at the inventory, and you
+  have an evidence-backed list of what to sanction, what to block, and
+  what to onboard, before you enforce anything.
+</Note>
+
+## Discovery vs inspection
+
+The agent handles two classes of AI host differently. Both are driven
+by the same [host rules](/dlp/policies), which carry an `action`.
+
+| Dimension               | Inspected (`inspect`)                                          | Observed (`observe`)                                              |
+| ----------------------- | -------------------------------------------------------------- | ----------------------------------------------------------------- |
+| **What the agent does** | Local TLS MITM with the org root CA, then `/agent/scan`.        | Records the destination hostname only. Bytes pass through opaque. |
+| **What you see**        | Prompts, verdicts, PII spans, redactions, blocks.               | Host, provider, device count, connection count, first / last seen. |
+| **Where it lands**      | Events and dashboards, attributed to an App.                    | The Shadow AI inventory.                                          |
+| **Typical hosts**       | The providers you have onboarded (`chatgpt.com`, `claude.ai`, `api.openai.com`, ...). | Everything else that looks like AI.                     |
+
+A host that is already inspected is not shadow AI, so it never enters
+the inventory. The inventory is the list of AI destinations you are
+*not* looking inside yet.
+
+The two other actions never produce a discovery record: `tunnel`
+(explicitly not AI, or opted out of inspection) and `block` (refused
+at connect time).
+
+## How detection works
+
+<Steps>
+  <Step title="The agent observes the destination">
+    On the interception path the agent already parses the TLS SNI (and
+    the `CONNECT` target on the explicit-proxy path). Non-inspected
+    hosts stop there, no decryption happens.
+  </Step>
+
+  <Step title="It classifies the host locally">
+    The agent carries a copy of the AI catalog and the heuristic, so it
+    only records hosts that look like AI. Everything else is ignored
+    and never leaves the device.
+  </Step>
+
+  <Step title="It rolls up per host">
+    Observations are aggregated in memory: host, provider, connection
+    count, first seen, last seen. A background thread drains the rollup
+    on an interval.
+  </Step>
+
+  <Step title="It batches to the cloud">
+    The rollup is POSTed to `/api/runtime-security/agent/discovery`,
+    authenticated with the device token. Up to 1000 observations are
+    accepted per report.
+  </Step>
+
+  <Step title="The cloud re-classifies authoritatively">
+    The agent's classification is advisory. The cloud re-runs the
+    classifier on ingest against the current catalog and rules, so
+    coverage can be extended centrally without shipping a new agent
+    build.
+  </Step>
+
+  <Step title="The inventory is updated">
+    One row per workspace and host. Device IDs are unioned, connection
+    counts accumulate, and a per-day rollup records *when* the traffic
+    happened.
+  </Step>
+</Steps>
+
+## Classifications
+
+Every observed host lands in one of three classifications. Only the
+last two are shadow AI.
+
+| Classification      | Shown as         | What it means                                                                             |
+| ------------------- | ---------------- | ----------------------------------------------------------------------------------------- |
+| `managed_inspected` | **Managed**      | Matches an `inspect` host rule. Fully scanned, attributed to an App. Not in the inventory.  |
+| `catalog_observed`  | **Known AI**     | Matches the built-in AI catalog: a recognised provider, but nobody has approved it.         |
+| `candidate`         | **Unknown host** | Not in any rule or the catalog, but the heuristic says it looks like an LLM endpoint.       |
+
+### The built-in catalog
+
+Blindsight ships a curated catalog of roughly 180 AI hosts, maintained
+centrally and extended without an agent release. It spans:
+
+- **Chat assistants and answer engines**, `poe.com`, `perplexity.ai`,
+  `grok.com`, `chat.deepseek.com`, `meta.ai`, ...
+- **Frontier labs and model makers**, `mistral.ai`, `cohere.com`,
+  `stability.ai`, ...
+- **Inference hosting and LLM API platforms**, `together.ai`,
+  `fireworks.ai`, `replicate.com`, `openai.azure.com`, ...
+- **Local and self-host model runners**, `huggingface.co`,
+  `ollama.com`, `lmstudio.ai`, ...
+- **Code assistants**, `cursor.com`, `codeium.com`, `tabnine.com`,
+  `continue.dev`, `devin.ai`, ...
+- **Writing and marketing AI**, `jasper.ai`, `quillbot.com`,
+  `grammarly.com`, ...
+- **Image, video, and audio generation**, `midjourney.com`,
+  `runwayml.com`, `elevenlabs.io`, `synthesia.io`, ...
+- **Research and search AI**, `exa.ai`, `elicit.com`,
+  `consensus.app`, ...
+- **Agents, automation, and voice agents**, `lindy.ai`, `dust.tt`,
+  `vapi.ai`, ...
+- **Companion and roleplay AI**, high data-exfiltration risk and
+  usually the first thing security teams want to see.
+- **Smart-workflow platforms with AI steps**, Power Automate, Copilot
+  Studio, Make, n8n, Workato. These carry extra risk weight because
+  they can move data *between* systems.
+
+The full list is in the console: **Runtime Security → Shadow AI →
+See what is detectable**. It is also served by
+`GET /api/runtime-security/discovery/catalog`, together with the list
+of providers the agents actively inspect.
+
+### The unknown-host heuristic
+
+A host in no rule and no catalog entry is still flagged as a
+`candidate` when it looks like an LLM service. This is what catches
+brand-new tools, internal AI gateways, and anything the catalog does
+not know yet.
+
+The rule is deliberately strict, matched against the dot- and
+hyphen-separated labels of the hostname:
+
+- A label token matches a high-precision AI keyword: `llm`, `gpt`,
+  `chatgpt`, `copilot`, `genai`, `chatbot`, or a brand or model token
+  such as `openai`, `claude`, `anthropic`, `gemini`, `mistral`,
+  `deepseek`, `llama`, `groq`, `huggingface`, `elevenlabs`.
+- Or the host is on the `.ai` TLD **and** its stem carries an
+  assistant token: `chat`, `bot`, `assistant`, `llm`, `gpt`,
+  `copilot`, `agent`, `ai`.
+
+Substring matching alone never qualifies. `email.example.com` and
+`domain.example.com` do not become candidates, while
+`my-llm-proxy.example.com` does.
+
+<Note>
+  The heuristic is a net, not a verdict. A candidate means "worth a
+  look", which is exactly why unknown hosts rank as high risk in the
+  worklist until somebody decides.
+</Note>
+
+## What a discovery record contains
+
+| Field                     | Example                          | Notes                                                              |
+| ------------------------- | -------------------------------- | ------------------------------------------------------------------ |
+| `host`                    | `perplexity.ai`                  | The destination hostname, from SNI.                                 |
+| `provider`                | `perplexity`                     | Catalog provider slug. `null` for unknown hosts.                    |
+| `classification`          | `catalog_observed`               | `catalog_observed` or `candidate`.                                  |
+| `status`                  | `new`                            | The governance decision. See below.                                 |
+| `hit_count`               | `1284`                           | Cumulative observed connections.                                    |
+| `device_count`            | `7`                              | Distinct devices that reached it.                                   |
+| `first_seen` / `last_seen`| `2026-07-14T09:12:00Z`           | UTC.                                                                |
+| `app_id`                  | `null`                           | Set when the service is onboarded as a managed App.                 |
+
+And what it never contains: prompt text, response text, request
+bodies, URLs beyond the hostname, file contents, headers, or
+credentials. Discovery cannot see them, because nothing is decrypted.
+
+## The lifecycle of a discovered service
+
+<Steps>
+  <Step title="Observed">
+    A device reaches an AI host that is not inspected. The service
+    appears with status `new`, shown as **Needs review**.
+  </Step>
+  <Step title="Ranked">
+    Risk is derived from recognition, capability, and exposure, so the
+    worklist orders itself. See [Triage and governance](/dlp/shadow-ai/triage).
+  </Step>
+  <Step title="Decided">
+    You **sanction** it (approved tool), **block** it (agents refuse
+    the connection), or **onboard** it as a managed App so its traffic
+    can be inspected like any other App.
+  </Step>
+  <Step title="Evidenced">
+    Every decision writes an audit record, and the Shadow AI report
+    exports the inventory, the risk analysis, and the exposure
+    breakdown as a PDF.
+  </Step>
+</Steps>
+
+| Status      | Shown as         | Meaning                                                                     |
+| ----------- | ---------------- | ---------------------------------------------------------------------------- |
+| `new`       | **Needs review** | Discovered, no decision recorded. This is the shadow AI number.              |
+| `sanctioned`| **Sanctioned**   | Approved for use. No longer shadow AI; excluded from the report.             |
+| `blocked`   | **Blocked**      | A `block` host rule is pushed to every agent.                                |
+| `promoted`  | **Managed**      | Onboarded as an App, so it can be configured and inspected.                   |
+
+## What it covers, and what it doesn't
+
+Discovery sees AI traffic from **enrolled devices only**, so it covers
+the same surface as the rest of DLP: browser tabs, IDE plugins, native
+desktop apps, and CLI tools on managed laptops.
+
+It does not cover:
+
+- **Unmanaged devices.** Personal phones and contractor laptops
+  without the agent are invisible to discovery. Use SSO and
+  conditional access there.
+- **Server-side AI calls.** Traffic from your own backends does not
+  pass through a laptop. Instrument those with
+  [Runtime Security](/runtime-security/overview).
+- **What was sent.** Discovery is destination-only by design. To see
+  content you must onboard the service as a managed App and inspect
+  it.
+
+## Prerequisites
+
+- The DLP agent enrolled on at least one device. See
+  [Fleet rollout](/dlp/fleet-rollout).
+- Runtime Security with the endpoint component enabled on your
+  workspace.
+- `runtime_security.view` to read the inventory,
+  `runtime_security.policy.manage` to sanction, block, or onboard.
+- Optional but recommended: [identity binding](/dlp/identity) and
+  directory groups, so discovery can attribute services to real users
+  and departments instead of OS user names.
+
+## Where to next
+
+<CardGroup cols={2}>
+  <Card title="Set up discovery" icon="radar" href="/dlp/shadow-ai/setup">
+    Turn it on, verify the first observations, and tune what the
+    agents observe, inspect, or ignore.
+  </Card>
+  <Card title="Triage & governance" icon="list-check" href="/dlp/shadow-ai/triage">
+    The worklist, the risk model, the sanction / block / onboard
+    decisions, insights, and the PDF report.
+  </Card>
+  <Card title="Policies & agent API" icon="shield-halved" href="/dlp/policies">
+    Host rules, actions, and the endpoints the agent calls.
+  </Card>
+  <Card title="Devices & enrollment" icon="laptop" href="/dlp/devices">
+    The fleet that feeds discovery. No enrolled agents, no inventory.
+  </Card>
+</CardGroup>

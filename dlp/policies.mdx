@@ -64,6 +64,23 @@ Blindsight maintains a default host pack covering every supported
 provider. **DLP policy → Use default host pack** toggles it on; you
 can layer your own overrides on top.
 
+### Rule actions
+
+Beyond which App owns a host, every rule carries an **action** that
+decides how far the agent goes on that connection.
+
+| Action    | What the agent does                                                                 |
+| --------- | ------------------------------------------------------------------------------------ |
+| `inspect` | TLS MITM with the org root CA, scan, enforce the verdict.                             |
+| `observe` | Record the destination hostname only. Feeds [Shadow AI](/dlp/shadow-ai/overview).      |
+| `tunnel`  | Pass through opaque and record nothing.                                               |
+| `block`   | Refuse the connection on the device.                                                  |
+
+The discovery catalog is merged in as `observe` rules, so anything AI
+that you have not onboarded still shows up as an inventory row without
+ever being decrypted. Overrides layer on top of the defaults and the
+catalog, and the most specific matching host wins.
+
 ## Verdict enforcement on the device
 
 The agent runs the verdict logic locally for speed, but the **same
