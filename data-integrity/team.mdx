@@ -33,7 +33,22 @@ custom role is just a named bundle of permissions.
 | `custom_rules.manage`        | Create and edit detection rules.              |
 | `support.manage`             | Triage support submissions.                   |
 | `runtime_security.scan`      | Call the Runtime Security scan endpoints.     |
-| `runtime_security.manage`    | Edit Runtime Security configuration and Apps. |
+| `runtime_security.view`      | Read Runtime Security analytics, events, and configuration. |
+| `runtime_security.apps.manage` | Register and configure protected Apps and their keys. |
+| `runtime_security.firewall.configure` | Change what the firewall blocks, flags, or redacts. |
+
+The endpoint DLP permissions live in their own `dlp.` namespace and
+are listed in [DLP permissions](/dlp/permissions), which also carries
+the rename note if you are holding a role definition written before
+August 2026.
+
+<Note>
+  `runtime_security.manage` and `runtime_security.policy.manage` were
+  broad umbrellas that have been split into the narrower keys above
+  and the `dlp.` keys. Both still resolve to everything they used to
+  grant, so no existing role loses access, but define new roles from
+  the narrow keys.
+</Note>
 
 ### Per‑project access
 
@@ -102,11 +117,16 @@ programmatically, mint a key.
     Give it a descriptive name (`CI pipeline`, `Lab upload script`).
     Pick scopes:
 
-    - **Read‑only**, can list and read but not mutate.
-    - **Upload dataset**, can ingest data.
-    - **Full**, mirrors your workspace permissions.
+    - **Full access** (`*`), everything the platform exposes across
+      Data Integrity **and** Runtime Security.
+    - **Full runtime access** (`runtime:*`), the four `runtime:`
+      scopes only.
+    - Or tick the individual scopes the key actually needs
+      (`datasets:read`, `runtime:scan`, ...).
 
-    Or compose a custom scope from the permission catalog.
+    A key can never do more than the person who created it. The full
+    scope list, and which scope each route family requires, is in the
+    [API reference](/api-reference/introduction#api-key-scopes).
 
   </Step>
   <Step title="Set an expiration">

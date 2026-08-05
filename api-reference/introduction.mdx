@@ -46,6 +46,8 @@ curl -H "Authorization: Bearer $API_KEY" $API_BASE/api/datasets
 ```
 
 API keys are scoped to a workspace and can be revoked individually.
+See [API key scopes](#api-key-scopes) for what a key is allowed to
+reach.
 
 ### JWT login (interactive sessions)
 
@@ -63,6 +65,119 @@ requests. Tokens expire after the configured TTL; refresh by logging
 in again.
 
 `GET /api/auth/me` returns the current user profile and roles.
+
+## API key scopes
+
+Every key carries a list of scopes. On each request the platform
+derives the scope that route requires and checks the key against it,
+so a key can only reach the surfaces it was issued for.
+
+### The scope list
+
+| Scope                 | Grants                                                                 |
+| --------------------- | ---------------------------------------------------------------------- |
+| `datasets:read`       | View datasets and their metadata.                                       |
+| `datasets:write`      | Create, update, delete datasets.                                        |
+| `scans:read`          | View scans and their results.                                           |
+| `scans:write`         | Start and manage scans.                                                 |
+| `projects:read`       | View projects.                                                          |
+| `projects:write`      | Create, update, delete projects.                                        |
+| `results:read`        | View scan results.                                                      |
+| `results:write`       | Modify scan results (healing).                                          |
+| `runtime:scan`        | Submit prompts and responses for inspection.                            |
+| `runtime:events:read` | Read the Runtime Security surface: events, analytics, health, and the device, App and policy listings. |
+| `runtime:config:read` | Read firewall configuration.                                            |
+| `runtime:config:write`| Every write on the Runtime Security surface, not only `/config`. See the table below. |
+| `runtime:*`           | All four `runtime:` scopes.                                             |
+| `*`                   | Full access: every scope the platform defines, across Data Integrity and Runtime Security. |
+
+<Note>
+  `*` used to expand to the Data Integrity scopes alone, so a key
+  labelled **Full access** carried no Runtime Security authority and
+  could not call the firewall. It now covers both halves of the
+  platform. If you worked around this by minting a second
+  `runtime:*` key, you no longer need it, though the extra key keeps
+  working.
+</Note>
+
+Only the values above are honoured. Category wildcards other than
+`runtime:*` (`datasets:*`, for example) are not valid scopes and are
+never recognised, at creation or on a request.
+
+### Which scope a route requires
+
+The required scope is derived from the path **and the method**. Reads
+are `GET`, `HEAD`, and `OPTIONS`; everything else counts as a write.
+
+| Path                                                                       | Read                  | Write                  |
+| -------------------------------------------------------------------------- | --------------------- | ---------------------- |
+| Any path containing `/results`                                              | `results:read`        | `results:write`        |
+| `/api/scans/…`, `/ws/api/scans/…`                                           | `scans:read`          | `scans:write`          |
+| `/api/projects/…`                                                           | `projects:read`       | `projects:write`       |
+| `/api/datasets/…`, `/api/uploads/…`, `/api/repositories/…`, `/api/import/…`, `/api/jobs/…` | `datasets:read` | `datasets:write` |
+| `/api/runtime-security/scan/…`, `/api/runtime-security/proxy/…`             | `runtime:scan`        | `runtime:scan`         |
+| `/api/runtime-security/events/…`                                            | `runtime:events:read` | `runtime:config:write` |
+| `/api/runtime-security/config/…`                                            | `runtime:config:read` | `runtime:config:write` |
+| Everything else under `/api/runtime-security/`                              | `runtime:events:read` | `runtime:config:write` |
+| Everything else                                                             | `*`                   | `*`                    |
+
+The `/results` row is matched first, so a results path wins over the
+scans or datasets rows it might otherwise fall into.
+
+<Warning>
+  The catch-all row used to return the read scope whatever the method,
+  so a key issued for telemetry could also mint and revoke enrollment
+  tokens, revoke and rebind devices, create and delete Apps, and
+  rewrite DLP policy. Writes on that surface now require
+  `runtime:config:write`. Audit any automation that mutates devices,
+  Apps, enrollment tokens or DLP policy with a `runtime:events:read`
+  key: it will start returning `403` with
+  `API key missing required scope: runtime:config:write`.
+</Warning>
+
+### A key can never exceed its creator
+
+Each scope is backed by a permission the creating user must hold, so
+minting a key is never a way to gain access:
+
+| Scope                  | Permission the creator must hold      |
+| ---------------------- | -------------------------------------- |
+| `datasets:read`        | `datasets.view`                        |
+| `datasets:write`       | `datasets.edit`                        |
+| `scans:read`           | `scans.view`                           |
+| `scans:write`          | `scans.run`                            |
+| `projects:read`        | `projects.view`                        |
+| `projects:write`       | `projects.edit`                        |
+| `results:read`         | `scans.view`                           |
+| `results:write`        | `scans.review`                         |
+| `runtime:scan`         | `runtime_security.scan`                |
+| `runtime:events:read`  | `runtime_security.view`                |
+| `runtime:config:read`  | `runtime_security.view`                |
+| `runtime:config:write` | `runtime_security.firewall.configure`  |
+
+`runtime:*` is granted only when the creator can exercise all four
+`runtime:` scopes, and `*` only when they can exercise every scope in
+the table. Asking for a scope you do not hold returns `403`.
+
+### Creating a key
+
+```bash
+curl -X POST $API_BASE/api/api-keys \
+  -H "Authorization: Bearer $API_KEY" \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"CI pipeline","scopes":["runtime:scan"],"expires_in_days":90}'
+```
+
+<Tip>
+  Omit `scopes` entirely and the key is issued with the widest set you
+  are personally authorized for. It used to default to `*`, which
+  meant anyone holding less than full access was refused for a request
+  they never made. Do not send a literal `"*"` unless you really hold
+  every scope; send `[]` or omit the field.
+</Tip>
+
+`GET /api/api-keys/scopes` returns the scope list with labels, which
+is what the console renders.
 
 ## Errors
 

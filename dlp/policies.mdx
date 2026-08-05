@@ -72,6 +72,7 @@ decides how far the agent goes on that connection.
 | Action    | What the agent does                                                                 |
 | --------- | ------------------------------------------------------------------------------------ |
 | `inspect` | TLS MITM with the org root CA, scan, enforce the verdict.                             |
+| `protect` | TLS MITM and scan, pseudonymize personal data before the prompt leaves the device, score and log injection, and **never block**. |
 | `observe` | Record the destination hostname only. Feeds [Shadow AI](/dlp/shadow-ai/overview).      |
 | `tunnel`  | Pass through opaque and record nothing.                                               |
 | `block`   | Refuse the connection on the device.                                                  |
@@ -80,6 +81,12 @@ The discovery catalog is merged in as `observe` rules, so anything AI
 that you have not onboarded still shows up as an inventory row without
 ever being decrypted. Overrides layer on top of the defaults and the
 catalog, and the most specific matching host wins.
+
+When two assignments disagree about a host, the strongest action
+wins, ranked `block` > `inspect` > `protect` > `tunnel`. `protect`
+sits below `inspect` because both decrypt and scan, but `protect`
+never blocks the person, so an assignment that says `inspect` must
+not be softened by one that says `protect`.
 
 ## Verdict enforcement on the device
 
@@ -111,8 +118,15 @@ event store as in‑app Runtime Security.
 | `POST /api/runtime-security/agent/scan`                  | Submit an intercepted prompt and get back a verdict.                                            |
 | `POST /api/runtime-security/agent/identity/start`        | Begin the OIDC device‑code identity binding flow.                                               |
 | `GET /api/runtime-security/agent/identity/status`        | Poll for completion of the binding.                                                             |
+| `POST /api/runtime-security/agent/scan-file`              | Submit an intercepted file attachment and get back a verdict.                                   |
 | `POST /api/runtime-security/agent/tamper-events`         | Drain the local tamper log to the cloud.                                                        |
 | `POST /api/runtime-security/agent/heartbeat`             | Liveness ping. Drives the `Last seen` column on the fleet view.                                  |
+| `POST /api/runtime-security/agent/discovery`             | Report the per-host rollup that feeds [Shadow AI](/dlp/shadow-ai/overview).                      |
+| `GET` / `POST /api/runtime-security/agent/protection/pause` | Read and set the per-device protection pause. See [Devices](/dlp/devices#pausing-protection).  |
+| `GET` / `PUT` / `POST` / `DELETE /api/runtime-security/agent/rules[/{name}]` | Device-scoped detection rules. See [Device rules](#device-scoped-rules).       |
+
+All of these authenticate with the per-device token, sent as
+`X-Blindsight-Device-Token`. They are not for dashboard clients.
 
 These endpoints share Apps, thresholds, and the event log with
 `/scan/input`, `/scan/output`, and the proxy routes. Dashboards do
@@ -132,6 +146,180 @@ Events from the DLP agent carry:
 
 Filter on `source=agent` in [Observability](/runtime-security/observability)
 to slice DLP traffic separately.
+
+### Direction and attachment on the event row
+
+Every event says which way it was going, and, when it was a file,
+what happened to that file.
+
+| Field       | Values                                                       | What it tells you                                     |
+| ----------- | ------------------------------------------------------------- | ----------------------------------------------------- |
+| `direction` | `input` · `output` · `tool_call` · `mcp_verify`               | Prompt, model reply, tool call, or an MCP tool-definition check. |
+| `attachment`| An object, or `null` for a text prompt.                        | What the agent did with an uploaded file.             |
+
+<Note>
+  The `direction` query parameter on
+  `GET /api/runtime-security/events` accepts `input`, `output`, and
+  `tool_call` only. `mcp_verify` rows are returned in unfiltered
+  listings but cannot be selected with that filter.
+</Note>
+
+The `attachment` object:
+
+| Field             | Values                                                        |
+| ----------------- | -------------------------------------------------------------- |
+| `handling`        | `pseudonymized` · `masked` · `blocked` · `clean`                |
+| `kind`            | The extractor used (`pdf`, `docx`, `xlsx`, ...), or `unscanned` for a file that went out uninspected. |
+| `filename`        | string or `null`.                                              |
+| `extension`       | Lower-cased, or `null`.                                        |
+| `media_type`      | string or `null`.                                              |
+| `bytes_seen`      | Size the agent saw.                                            |
+| `extracted_chars` | How much text came out of it.                                  |
+| `pages`           | Page count, where the format has one.                          |
+| `pseudonymized`   | bool.                                                          |
+| `injection`       | `{label, score}` or `null`.                                    |
+| `redaction`       | `{mode, redacted_count, new_mime}` or `null`.                  |
+
+`handling` is the field to read for "what happened to this file":
+
+| `handling`      | Shown as       | What it means                                                              |
+| --------------- | -------------- | --------------------------------------------------------------------------- |
+| `pseudonymized` | pseudonymized  | Values were swapped for realistic stand-ins before upload, and restored for the user afterwards. |
+| `masked`        | **redacted**   | Values were removed before upload. Not recoverable.                          |
+| `blocked`       | blocked        | The file was not uploaded at all.                                            |
+| `clean`         | *(no chip)*    | Nothing sensitive was found.                                                 |
+
+<Warning>
+  This used to be invisible. The agent reported the outcome under a
+  key the console never read, so an uploaded file's fate simply did
+  not appear on the event row. Agents older than 1.0.24 do not
+  populate `attachment`.
+</Warning>
+
+## Device-scoped rules
+
+A person can carry detection rules that apply to **their machine
+alone**, added from the desktop app's Rules tab. The workspace's own
+rules are listed alongside them, read-only.
+
+| Route                                                    | What it does                                          |
+| --------------------------------------------------------- | ----------------------------------------------------- |
+| `GET /api/runtime-security/agent/rules`                    | The device's view: workspace rules, its own rules, its overrides, and what it may do. |
+| `PUT /api/runtime-security/agent/rules/{name}`             | Create or replace a rule on this device.               |
+| `POST /api/runtime-security/agent/rules/{name}/toggle`     | Switch one on or off on this device.                   |
+| `DELETE /api/runtime-security/agent/rules/{name}`          | Remove this device's own rule.                         |
+
+Body for `PUT`:
+
+```json
+{
+  "name": "internal-ticket-id",
+  "pattern": "\\bTCK-\\d{5}\\b",
+  "label": "Ticket id",
+  "flags": "i",
+  "enabled": true
+}
+```
+
+| Field     | Constraint                                                        |
+| --------- | ------------------------------------------------------------------ |
+| `name`    | Starts with a letter, then letters, digits, spaces, `_` or `-`. Up to 64 characters. |
+| `pattern` | A regular expression, up to 512 characters. It must compile, or you get a `422` carrying the reason. |
+| `flags`   | Any of `i`, `m`, `s`, `x`.                                         |
+| `enabled` | Defaults to `true`.                                                |
+
+A device may hold up to **50** rules. The 51st returns `422`.
+
+### How device rules merge with the workspace's
+
+Workspace rules are laid down first, then the device's rules are
+merged **by name** on top. A new name adds a rule for that machine
+only. An existing name replaces it, and `enabled: false` switches it
+off, on that machine only.
+
+<Warning>
+  **A personal rule cannot switch the company's detection off by
+  default.** Before a device rule is allowed to shadow a workspace
+  rule, or one of the agent's built-in detectors, the server checks
+  that the person holds `dlp.rules.override_workspace`. Without it the
+  device rule is dropped and the workspace rule ships instead. Only
+  admin holds that permission by default, and every use is audited.
+</Warning>
+
+The check is made from live state on every read, never from a flag
+stored when the rule was written, and it requires all of:
+
+- the device belongs to that workspace,
+- its identity is `bound`, which only the SSO device-code flow sets,
+- it is attached to a user, and that account is active,
+- that user currently holds `dlp.rules.override_workspace`.
+
+The built-in detector names a device rule can collide with are
+`email_address`, `ipv4_address`, `ipv6_address`, `us_ssn`,
+`phone_us`, `credit_card`, `iban`, `github_pat`, `aws_access_key`,
+`anthropic_key`, `openai_key`, `jwt_token`, `api_key_label`, and
+`password_assignment`.
+
+<Note>
+  The collision check deliberately ignores `enabled`. A rule saved as
+  enabled with a pattern that matches nothing removes a detector just
+  as thoroughly as switching it off, so the gate is on the name, not
+  the flag.
+</Note>
+
+Admins can list device rules across the whole fleet with
+`GET /api/custom-rules?scope=device` (needs `dlp.view` or
+`dlp.manage`) and delete one with `dlp.manage`. Authoring a device
+rule from the console is not offered: they belong to the device.
+
+## Keeping prompts on the machine
+
+Injection scoring is the one reason prompt text leaves a device at
+all. Personal data is matched and redacted **on** the endpoint, and
+only what is left is sent to be scored. A workspace that will not
+have prompts leave its people's computers can switch that scoring
+off.
+
+| Route                                          | Permission                |
+| ------------------------------------------------ | ------------------------- |
+| `GET /api/runtime-security/dlp/settings`         | `dlp.view`                |
+| `PUT /api/runtime-security/dlp/settings`         | `dlp.injection.configure` |
+
+```bash
+curl -X PUT $API_BASE/api/runtime-security/dlp/settings \
+  -H "Authorization: Bearer $TOKEN" \
+  -H 'Content-Type: application/json' \
+  -d '{"injection_detection": false}'
+```
+
+Response: `{"injection_detection": false}`. Sending no key at all is
+a no-op that returns the current state.
+
+This is a **workspace floor no named policy can override**, because
+the permission that authors policies is a different and wider one.
+
+<Warning>
+  It buys privacy with detection. Those devices stop detecting
+  injection and jailbreak attempts entirely. `dlp.injection.configure`
+  is held by admin only, is never implied by an older umbrella
+  permission, and every change is audited at high severity.
+</Warning>
+
+With it off:
+
+- Host rules are still enforced first, so a `block` destination is
+  still refused. Banning a destination needs the hostname, never the
+  prompt.
+- Everything else is recorded with `scan_status = "local_only"` and
+  no text at all. The text is dropped on the server rather than
+  trusted to be absent, so an older agent that still sends the words
+  cannot cause them to be stored.
+- An unscored prompt is filed as **not scanned**, never as a clean
+  pass, so the console cannot show a green result for something
+  nobody looked at.
+- A device still running the older policy after you switch scoring
+  back on is recorded the same way, rather than scanned as an empty
+  string and filed as an inspected allow.
 
 ## Editing policy safely
 

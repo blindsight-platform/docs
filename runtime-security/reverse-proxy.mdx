@@ -798,7 +798,6 @@ runtime_security:
   environment:
     DATABASE_URL: ${DATABASE_URL}
     JWT_SECRET: ${JWT_SECRET}
-    RUNTIME_SECURITY_INJECTION_MODEL: ${RUNTIME_SECURITY_INJECTION_MODEL:-deepset/deberta-v3-base-injection}
     RUNTIME_SECURITY_OPENAI_BASE_URL: ${RUNTIME_SECURITY_OPENAI_BASE_URL:-https://api.openai.com}
     RUNTIME_SECURITY_ANTHROPIC_BASE_URL: ${RUNTIME_SECURITY_ANTHROPIC_BASE_URL:-https://api.anthropic.com}
     RUNTIME_SECURITY_GEMINI_BASE_URL: ${RUNTIME_SECURITY_GEMINI_BASE_URL:-https://generativelanguage.googleapis.com}
@@ -877,8 +876,8 @@ HuggingFace Hub download. For **air-gapped** builds set
   pipeline holds its own thread-pool internally.
 - Model load is the slow step. Keep the container warm; aggressive
   scale‑to‑zero forces a fresh model load on every wake.
-- Pin CPU limits high enough that DeBERTa inference doesn't starve on
-  a shared host.
+- Pin CPU limits high enough that classifier inference doesn't starve
+  on a shared host.
 
 ---
 

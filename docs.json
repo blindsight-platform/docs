@@ -62,6 +62,7 @@
               "dlp/identity",
               "dlp/devices",
               "dlp/policies",
+              "dlp/permissions",
               {
                 "group": "Shadow AI",
                 "pages": [

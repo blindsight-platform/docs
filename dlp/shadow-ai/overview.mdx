@@ -28,6 +28,8 @@ do not decrypt, and they never see the prompt.
 
 The agent handles two classes of AI host differently. Both are driven
 by the same [host rules](/dlp/policies), which carry an `action`.
+A third action, `protect`, sits between them and is covered under
+[Protect unapproved AI](#protect-unapproved-ai).
 
 | Dimension               | Inspected (`inspect`)                                          | Observed (`observe`)                                              |
 | ----------------------- | -------------------------------------------------------------- | ----------------------------------------------------------------- |
@@ -42,7 +44,8 @@ the inventory. The inventory is the list of AI destinations you are
 
 The two other actions never produce a discovery record: `tunnel`
 (explicitly not AI, or opted out of inspection) and `block` (refused
-at connect time).
+at connect time). A `protect` host stays in the inventory: it is
+being inspected, but nobody has decided about it yet.
 
 ## How detection works
 
@@ -170,6 +173,8 @@ Substring matching alone never qualifies. `email.example.com` and
 | `device_count`            | `7`                              | Distinct devices that reached it.                                   |
 | `first_seen` / `last_seen`| `2026-07-14T09:12:00Z`           | UTC.                                                                |
 | `app_id`                  | `null`                           | Set when the service is onboarded as a managed App.                 |
+| `is_shadow`               | `true`                           | `true` while `status` is `new`. This is the shadow-AI count.         |
+| `protected`               | `false`                          | Whether a rule currently has the agents inspecting this host. `null` when the caller did not resolve the rules. |
 
 And what it never contains: prompt text, response text, request
 bodies, URLs beyond the hostname, file contents, headers, or
@@ -186,6 +191,12 @@ credentials. Discovery cannot see them, because nothing is decrypted.
     Risk is derived from recognition, capability, and exposure, so the
     worklist orders itself. See [Triage and governance](/dlp/shadow-ai/triage).
   </Step>
+  <Step title="Protected, optionally">
+    At any point you can **protect** it: agents start inspecting the
+    traffic and pseudonymizing personal data in it, and nobody is ever
+    blocked for using it. This is not a decision, so the row stays in
+    the review queue.
+  </Step>
   <Step title="Decided">
     You **sanction** it (approved tool), **block** it (agents refuse
     the connection), or **onboard** it as a managed App so its traffic
@@ -201,9 +212,58 @@ credentials. Discovery cannot see them, because nothing is decrypted.
 | Status      | Shown as         | Meaning                                                                     |
 | ----------- | ---------------- | ---------------------------------------------------------------------------- |
 | `new`       | **Needs review** | Discovered, no decision recorded. This is the shadow AI number.              |
+| `new` + `protected` | **Protected** | Still undecided, but agents are inspecting and pseudonymizing it.        |
 | `sanctioned`| **Sanctioned**   | Approved for use. No longer shadow AI; excluded from the report.             |
 | `blocked`   | **Blocked**      | A `block` host rule is pushed to every agent.                                |
-| `promoted`  | **Managed**      | Onboarded as an App, so it can be configured and inspected.                   |
+| `promoted`  | **Managed**      | Onboarded as an App, with an `inspect` rule, so it is fully inspected.        |
+
+<Note>
+  Decision and protection are two independent axes, deliberately kept
+  apart. `status` records what the company decided about the service;
+  `protected` records what the agents are currently doing to it. A
+  service can be unreviewed and inspected at the same time, which is
+  the entire point of the protect posture below.
+</Note>
+
+## Protect unapproved AI
+
+Discovery leaves you with two blunt options on a service nobody has
+vetted: watch it go past unseen, or ban it. **Protect** is the third
+posture between them.
+
+| Posture       | The agent                                                                            | The person using it       |
+| ------------- | -------------------------------------------------------------------------------------- | ------------------------- |
+| `observe`     | Records the hostname only. Nothing is decrypted.                                         | Notices nothing.          |
+| `protect`     | Decrypts and scans, pseudonymizes personal data before the prompt leaves the device, scores and logs injection. | Is **never blocked**.     |
+| `inspect`     | Decrypts and scans, and enforces the verdict.                                            | Can be blocked or redacted.|
+| `block`       | Refuses the connection.                                                                  | Cannot reach the service. |
+
+Under `protect`, a `block` verdict is downgraded rather than enforced:
+a prompt that would have been blocked is `redact`ed instead, and a
+file that would have been blocked is allowed. The event records the
+downgrade, so you can see what *would* have been stopped.
+
+### Turning it on for the whole workspace
+
+`dlp_protect_unsanctioned` on
+`PUT /api/runtime-security/config` is a **floor** over the entire
+discovery catalog: every AI service nobody has approved becomes
+`protect` instead of `observe`. It is off by default, because it
+decrypts traffic to services nobody vetted, so turning it on is a
+deliberate decision rather than an upgrade side effect.
+
+Switching it on first pins an explicit rule for every service that
+already has a decision, so a tool the company approved does not start
+being inspected by a setting whose label says *unapproved*.
+
+Requires `runtime_security.firewall.configure`. See
+[Configuration](/runtime-security/configuration#workspace-config).
+
+<Note>
+  You can also protect a single service without turning the posture on
+  for everything, from the row itself. See
+  [Triage](/dlp/shadow-ai/triage#protect-inspect-without-deciding).
+</Note>
 
 ## What it covers, and what it doesn't
 
@@ -229,8 +289,9 @@ It does not cover:
   [Fleet rollout](/dlp/fleet-rollout).
 - Runtime Security with the endpoint component enabled on your
   workspace.
-- `runtime_security.view` to read the inventory,
-  `runtime_security.policy.manage` to sanction, block, or onboard.
+- `dlp.discovery.view` to read the inventory,
+  `dlp.ai_services.manage` to protect, sanction, block, or onboard.
+  See [DLP permissions](/dlp/permissions).
 - Optional but recommended: [identity binding](/dlp/identity) and
   directory groups, so discovery can attribute services to real users
   and departments instead of OS user names.

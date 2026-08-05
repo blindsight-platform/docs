@@ -77,23 +77,55 @@ policy problem, not an individual one.
   shows `—` rather than pretending the ranking still says something.
 </Note>
 
-## The three decisions
+## The decisions
 
-All three require the `runtime_security.policy.manage` permission and
-write an audit record.
+All of these require the `dlp.ai_services.manage` permission (formerly
+`runtime_security.ai_services.manage`, see
+[DLP permissions](/dlp/permissions)) and write an audit record.
+
+Three of them are **decisions about the service**, and they move
+`status`:
 
 | Action              | Status becomes | What it does                                                                                                  |
 | ------------------- | -------------- | -------------------------------------------------------------------------------------------------------------- |
-| **Sanction**        | `sanctioned`   | Marks the service as an approved tool. It stays in the inventory with its history, drops out of the shadow count, and is excluded from the report entirely. |
-| **Block**           | `blocked`      | Appends a `block` host rule to the workspace policy. Agents refuse the connection on their next policy pull.    |
-| **Onboard as app**  | `promoted`     | Creates a managed App keyed from the hostname and links the row to it, so the service can be configured like any other App. |
+| **Sanction**        | `sanctioned`   | Marks the service as an approved tool. It stays in the inventory with its history, drops out of the shadow count, and is excluded from the report entirely. Also writes an `observe` rule, which clears any earlier `block`, so approving a tool is a real way back from banning it. |
+| **Block**           | `blocked`      | Writes a `block` host rule. Agents refuse the connection on their next policy pull.                             |
+| **Onboard as app**  | `promoted`     | Creates a managed App keyed from the hostname, links the row to it, **and writes an `inspect` rule** so the traffic is fully inspected. |
+
+<Note>
+  Onboarding used to create the App and push no rule at all, which
+  left the service governed on paper but never decrypted. It now
+  writes its own `inspect` rule, so the one status that means "fully
+  managed" gets the full treatment. If you onboarded a service before
+  August 2026 and added the `inspect` rule by hand, that rule is
+  yours and is left alone.
+</Note>
+
+### Protect: inspect without deciding
+
+**Protect** is not a decision about whether the company wants the
+service, so it leaves `status` alone and the row stays in the review
+queue.
+
+| Action        | What it does                                                                                                                 |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| **Protect**   | Writes a `protect` host rule. The agent inspects the traffic, personal data is pseudonymized before the prompt leaves the device, and injection is scored and logged. **The person using it is never blocked.** |
+| **Unprotect** | Drops the service's own rule, so it falls back to the workspace posture. If the "protect unapproved AI" floor is on, this writes an explicit `observe` rule instead, which is the only way to stop inspecting one host while the posture stays on. |
+
+Protect is the middle ground between letting something happen unseen
+and banning it: you get visibility and redaction on a tool nobody has
+vetted, without breaking anybody's day while you decide.
 
 <Warning>
-  Onboarding creates the App and the attribution; it does not start
-  decrypting on its own. To actually inspect that traffic, add an
-  `inspect` host rule pointing at the new App, see
-  [Set up discovery](/dlp/shadow-ai/setup#5-tune-what-gets-observed).
-  Until you do, the service is governed but still uninspected.
+  Protect and unprotect are **refused with `409`** on a service
+  somebody has already blocked or onboarded, because either one writes
+  a rule that lets traffic through:
+
+  - On a **blocked** service, protecting it would un-ban it. Sanction
+    it first if you want it inspected rather than denied.
+  - On an **onboarded** service, either one is a way to stop it being
+    fully inspected. It is already inspected, and protect is the
+    weaker posture: it can never block a prompt.
 </Warning>
 
 ### Which decision to reach for
@@ -102,7 +134,8 @@ write an audit record.
 | --------------------------------------------------------------- | -------------------------------------------------- |
 | An approved vendor tool that you do not need to inspect          | **Sanction**                                        |
 | A companion / roleplay service, or an unknown host nobody claims | **Block**                                           |
-| A tool a team genuinely needs, on sensitive work                 | **Onboard as app**, then add an `inspect` rule      |
+| A tool a team genuinely needs, on sensitive work                 | **Onboard as app**                                  |
+| A tool you have not decided on, but do not want unseen either    | **Protect**. Visibility now, decision later.        |
 | A service you have not investigated yet                          | Leave it. **Needs review** is an honest state.      |
 
 ## A weekly triage pass
@@ -187,18 +220,31 @@ into an evidence folder.
 
 The discovery routes live under `/api/runtime-security/` and use the
 same workspace authentication as the rest of the dashboard API.
-`runtime_security.view` reads; `runtime_security.policy.manage` acts.
+`dlp.discovery.view` reads; `dlp.ai_services.manage` acts.
+
+<Note>
+  Both permissions were renamed in August 2026. Reading the inventory
+  used to require the DLP policy key, which took Shadow AI away from
+  roles that could see Runtime Security but were never given policy
+  read, so the inventory now has a permission of its own. See
+  [DLP permissions](/dlp/permissions).
+</Note>
 
 | Endpoint                                                    | What it does                                                                 |
 | ------------------------------------------------------------ | ----------------------------------------------------------------------------- |
 | `GET /api/runtime-security/discovery`                        | The inventory: services, totals, and the device / user / department breakdowns. |
 | `GET /api/runtime-security/discovery/activity`               | Daily connection counts for a window and the one before it.                    |
 | `GET /api/runtime-security/discovery/catalog`                | Inspected providers plus every passively detectable host.                       |
+| `POST /api/runtime-security/discovery/{id}/protect`          | Inspect and pseudonymize it without blocking. `409` if already blocked or onboarded. |
+| `POST /api/runtime-security/discovery/{id}/unprotect`        | Stop protecting it. `409` if already blocked or onboarded.                      |
 | `POST /api/runtime-security/discovery/{id}/sanction`         | Mark a service as approved.                                                     |
 | `POST /api/runtime-security/discovery/{id}/block`            | Block it and push the host rule.                                                |
-| `POST /api/runtime-security/discovery/{id}/promote`          | Onboard it as a managed App.                                                    |
+| `POST /api/runtime-security/discovery/{id}/promote`          | Onboard it as a managed App and write its `inspect` rule.                       |
 | `POST /api/runtime-security/discovery/report`                | Render the PDF report.                                                          |
 | `POST /api/runtime-security/agent/discovery`                 | Agent ingest. Device-token authenticated, not for dashboard clients.            |
+
+`{id}` is the service's `uuid`. Every decision route returns the
+updated service row.
 
 `GET /discovery` accepts `status`, `days`, `device_id`, and `user`
 query parameters, matching the console's filters:

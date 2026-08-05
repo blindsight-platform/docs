@@ -3,11 +3,19 @@ title: "Overview"
 description: "Endpoint DLP for AI traffic. A signed desktop agent intercepts LLM calls at the OS network layer and routes them through Blindsight so nothing reaches a public model unscanned."
 ---
 
-Blindsight DLP is the **endpoint** half of the runtime story. A signed
-desktop agent runs on every employee laptop (macOS + Windows),
-intercepts outbound LLM traffic at the OS network layer, and routes
-every prompt through Blindsight for verdict and policy enforcement
-before the bytes leave the device.
+Blindsight DLP is the **endpoint** half of the runtime story. A
+desktop agent runs on every employee laptop (Windows and macOS),
+intercepts outbound LLM traffic on the device, and routes every
+prompt through Blindsight for verdict and policy enforcement before
+the bytes leave the machine.
+
+<Note>
+  Windows is the primary platform and the one to plan a fleet rollout
+  around. macOS is supported, but the app currently ships unsigned and
+  its coverage model differs. Read
+  [Fleet rollout](/dlp/fleet-rollout#2b-macos-push) before committing
+  to a Mac fleet.
+</Note>
 
 It's the right answer when you cannot rely on every internal team to
 wire SDK-level Runtime Security on their own. Once the agent is
@@ -81,6 +89,10 @@ The agent does two different jobs, and it's worth keeping them apart.
   the hostname only, no decryption. That inventory is **Shadow AI**:
   the services your workforce reaches without approval, ranked by
   risk, each awaiting a decision to sanction, block, or onboard.
+- **Protection.** A third posture in between: the agent inspects and
+  pseudonymizes traffic to a service nobody has approved, and never
+  blocks the person for using it. See
+  [Protect unapproved AI](/dlp/shadow-ai/overview#protect-unapproved-ai).
 
 Discovery is what you run first. It answers "which AI is this company
 actually using?" without touching anyone's traffic, and it produces
@@ -124,5 +136,9 @@ It does not cover:
   <Card title="Policies & agent API" icon="shield-halved" href="/dlp/policies">
     Centrally-managed AI host rules and the backend endpoints the
     agent calls.
+  </Card>
+  <Card title="DLP permissions" icon="key" href="/dlp/permissions">
+    The `dlp.` permission keys, what each grants, and the rename off
+    the runtime-security prefix.
   </Card>
 </CardGroup>

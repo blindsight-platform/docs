@@ -139,7 +139,12 @@ Security needs:
 
 - `runtime_security.scan` to call the scan endpoints.
 - `runtime_security.view` for analytics and event reads.
-- `runtime_security.manage` to manage Apps and configuration.
+- `runtime_security.apps.manage` to register and configure Apps.
+- `runtime_security.firewall.configure` to change what the firewall
+  blocks, flags, or redacts.
+
+The endpoint DLP permissions moved to their own `dlp.` namespace in
+August 2026. See [DLP permissions](/dlp/permissions).
 
 ## Where to next
 

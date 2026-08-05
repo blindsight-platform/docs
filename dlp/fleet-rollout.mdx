@@ -10,8 +10,8 @@ every device binds to a real identity.
 There are two independent axes; you almost always want both.
 
 1. **Fleet software push.** IT deploys the agent to every machine
-   with no per-user clicks. macOS: `.pkg` + config profiles via Jamf,
-   Kandji, or Intune. Windows: `.msi` via Intune, GPO, or SCCM. One
+   with no per-user clicks. Windows: `.msi` via Intune, GPO, or SCCM.
+   macOS: a `.dmg` plus a managed-preferences profile. One
    workspace‑wide enrollment token is baked into the package; the
    agent self‑enrolls on first run.
 2. **Directory sync + SSO.** Your IdP (Entra, Okta, Google) provisions
@@ -42,54 +42,19 @@ This page is the IT‑side rollout.
   </Step>
 </Steps>
 
-## 2a. macOS push
+## 2a. Windows push
 
-The macOS agent is a signed System Extension that hooks into the
-Network Extension framework, plus a `.pkg` that delivers it and a
-managed config profile that points the agent at your tenant.
-
-```bash
-# Prereq (out‑of‑repo): compile + Developer‑ID‑sign the System
-# Extension with the Network Extension entitlement, then notarize
-# the .pkg. Needs Xcode + an Apple Developer Team ID.
-
-mac-agent/system-extension/scripts/gen-ca.sh                 # org root CA
-mac-agent/system-extension/scripts/gen-mdm-bundle.sh \
-    --team-id ABCDE12345 \
-    --ca blindsight-root.pem \
-    --cloud-base https://api.blindsight.example.com \
-    --enroll-token antde_xxxxxxxxxxxxxxxxxxxx \
-    --out ./out/<workspace>
-```
-
-Push the four generated profiles via your MDM (Jamf, Kandji, Intune),
-in this order:
-
-1. **`sysext-policy`**, pre‑approves the System Extension.
-2. **`transparent-proxy`**, installs the Network Extension's
-   transparent‑proxy provider.
-3. **`trusted-CA`**, adds the org root CA to the device's trust
-   store.
-4. **`managed-config`**, points the agent at your tenant and embeds
-   the enrollment token.
-
-Then push the notarized `.pkg`. The agent reads the managed config,
-self‑enrolls fleet‑wide, and prompts each employee once for SSO
-identity binding.
-
-## 2b. Windows push
-
-The Windows agent runs as a SYSTEM service and uses WinDivert
-(user‑mode WFP) to capture outbound 443 to AI hosts.
+Windows is the primary platform. The agent runs as a SYSTEM service
+named `BlindsightDLP`.
 
 ```text
-# Prereq (out‑of‑repo): Authenticode‑sign the MSI, service EXE, and
-# the bundled WinDivert driver. Needs an OV/EV code‑signing cert.
-
 msiexec /i Blindsight.msi /qn ^
   CLOUD_BASE=https://api.blindsight.example.com ^
   ENROLL_TOKEN=antde_xxxxxxxxxxxxxxxxxxxx
 ```
+
+`CLOUD_BASE` and `ENROLL_TOKEN` are the **only two** properties the
+package takes. Both are 64‑bit, per‑machine, x64 only.
 
 Deploy via:
 
@@ -97,9 +62,137 @@ Deploy via:
 - **GPO** software installation.
 - **SCCM** package deployment.
 
-The MSI writes `HKLM\SOFTWARE\Blindsight`, imports the root CA to the
-machine trust store, and installs the SYSTEM service. The service
-self‑enrolls and runs the SSO identity‑binding flow.
+The MSI writes `HKLM\SOFTWARE\Blindsight` (`CloudBaseURL`,
+`EnrollmentToken`, `SSOLoginBase`), imports the root CA
+(`Blindsight Root CA`) to the machine trust store, and installs the
+SYSTEM service. The service self‑enrolls and runs the SSO
+identity‑binding flow. An interactive install opens the dashboard
+once; `/qn` stays silent.
+
+<Note>
+  Passing a property on the command line always wins. If you omit
+  both, the installer keeps whatever the machine already has in
+  `HKLM\SOFTWARE\Blindsight`, and only a genuinely fresh install
+  falls back to the build's default. This is what makes an upgrade
+  safe: a self-update runs `msiexec` with no properties and must not
+  retarget a device that IT pointed somewhere specific.
+</Note>
+
+<Warning>
+  A bare `msiexec /i Blindsight.msi /qn` does **not** enrol a device
+  unless the build was created with a token baked in, or the machine
+  already carries one. Pass `ENROLL_TOKEN` for a fleet push.
+</Warning>
+
+There is also a per‑user `.exe` installer (Inno Setup) for people
+installing it themselves. It is a **separate product identity**: the
+MSI cannot upgrade an `.exe` install and vice versa, they would
+side‑install as two products. Pick one per machine, and use the MSI
+for fleets.
+
+### Windows 11 and the network driver
+
+Windows 11 turns Microsoft's vulnerable-driver blocklist on by
+default, and it refuses the bundled capture driver. This is the
+**stock** configuration, not an exotic one.
+
+There is nothing for you or the user to do. The agent falls back to
+its explicit-proxy engine, which needs no driver, and first-run setup
+finishes as `degraded` rather than failing. The window opens and
+protection runs.
+
+What differs is coverage:
+
+| Engine            | Covers                                                                       |
+| ----------------- | ----------------------------------------------------------------------------- |
+| Capture driver    | Every process, whether or not it honours system proxy settings.               |
+| Explicit proxy    | Browsers, and any app that reads the system proxy settings (WinINET, WinHTTP, environment variables, PAC, Firefox). Proxy-unaware apps are **not** covered. |
+
+The device reports `protection_state = "degraded"` with the blocklist
+named as the reason, and sends a health event immediately, so you can
+find affected machines from the fleet view rather than discovering
+them later.
+
+<Note>
+  Do not turn the blocklist off to get the driver loaded. The fallback
+  is the supported path on Windows 11.
+</Note>
+
+## 2b. macOS push
+
+macOS ships as a **`.dmg`**: drag `Blindsight Mac.app` into
+Applications. macOS 11.0 is the minimum. There is no `.pkg`.
+
+Managed configuration is delivered as a configuration profile in the
+`dev.blindsight` preferences domain, carrying the same three keys the
+Windows registry does:
+
+| Key               | Value                                        |
+| ----------------- | -------------------------------------------- |
+| `CloudBaseURL`    | `https://api.blindsight.example.com`         |
+| `EnrollmentToken` | `antde_xxxxxxxxxxxxxxxxxxxx`                 |
+| `SSOLoginBase`    | `<CloudBaseURL>/api/auth/sso`                |
+
+A per-user profile is read before the device-wide one. Push it with
+Jamf, Kandji, or Intune, then distribute the `.dmg`. The agent reads
+the managed config, self-enrolls, and prompts each employee once for
+SSO identity binding.
+
+Interception on macOS uses a pf anchor plus a local inspection proxy,
+with the org root CA in the login keychain and a root guardian daemon.
+
+<Warning>
+  **The macOS app currently ships unsigned.** A user must right-click
+  the app and choose **Open**, then **Open** again, the first time, to
+  get past Gatekeeper. System notifications are delivered through
+  `osascript` as a result, so they appear to come from **Script
+  Editor** rather than Blindsight. Ask your account manager for a
+  signed and notarized build before a wide macOS rollout.
+</Warning>
+
+<Note>
+  A macOS build older than 1.0.29 reports its bundle version as
+  `0.1.0` to Finder and to inventory tools, whatever the agent
+  actually is. Read the version from **Devices & Enrollment** instead,
+  which is reported by the agent itself.
+</Note>
+
+<Warning>
+  The macOS **System Extension** (Network Extension transparent proxy)
+  described in earlier versions of this page is **not shipping**. It
+  is a scaffold that needs Xcode, an Apple Developer account with the
+  Network Extension entitlement, Developer ID signing, notarization,
+  and an MDM before it can be used. Do not plan a rollout around it.
+  macOS coverage today is the pf-based path above.
+</Warning>
+
+Linux is not supported.
+
+## 2c. Keeping the fleet up to date
+
+The agent checks a release manifest 60 seconds after start and then
+every 6 hours, verifies the download's SHA-256 and size before
+installing it, and preserves device state across the upgrade
+(enrollment, the CA, the pseudonymization vault, and the local event
+spool).
+
+| Channel   | What it is                                     |
+| --------- | ---------------------------------------------- |
+| `auto`    | The default. Follows whatever platform the device is enrolled against. |
+| `stable`  | Promoted production builds.                    |
+| `staging` | Internal and pre-release builds. `beta` is an alias for this. |
+
+<Warning>
+  On a managed fleet, set `auto_update = false` (under `[update]` in
+  the agent's config, or `BLINDSIGHT_AUTO_UPDATE=0`) and push builds
+  through your MDM instead, so version rollout stays on your change
+  calendar.
+</Warning>
+
+Never delete `%ProgramData%\Blindsight\pseudonym_vault.db` or
+`vault.key`. They hold the only mapping from a surrogate back to what
+the person actually wrote, and losing them is permanent and visible
+to the user. A genuine uninstall wipes them; an upgrade does not.
 
 ## 3. Verify rollout
 
@@ -124,10 +217,11 @@ relationships.
 
 | Step                                                       | Why it cannot be done here                                                                          |
 | ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| Compile + sign macOS System Extension                       | Needs Xcode + Apple Developer Team ID + the Network Extension entitlement.                          |
-| Notarize the macOS `.pkg`                                   | Needs Apple's notary service + Developer ID cert.                                                    |
-| Authenticode‑sign MSI / service / WinDivert                  | Needs an OV / EV code‑signing certificate.                                                           |
-| Signed WFP kernel driver (optional v2, admin‑tamper hardening)| Needs EV cert + Microsoft attestation signing.                                                       |
+| Developer‑ID‑sign and notarize the macOS `.dmg`             | Needs Apple's notary service + a Developer ID certificate. Until this is done the app ships unsigned. |
+| Compile + sign the macOS System Extension                   | Needs Xcode + Apple Developer Team ID + the Network Extension entitlement. Not shipping today.        |
+| Signed WFP kernel driver (optional, admin‑tamper hardening)  | Needs EV cert + Microsoft attestation signing.                                                       |
+
+Windows installers and binaries **are** signed in the shipped builds.
 
 Talk to your account manager for the signed bundles tailored to your
 organisation.

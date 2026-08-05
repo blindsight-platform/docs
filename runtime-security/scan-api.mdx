@@ -133,7 +133,7 @@ Every scan call returns the same shape.
 ```
 
 A finding sourced from the NER tier carries
-`extra: {"detector": "ner_gliner2", "model": "fastino/gliner2-privacy-filter-PII-multi", "action": "flag" | "redact"}`.
+`extra: {"detector": "ner", "action": "flag" | "redact"}`.
 `action` mirrors the App's `ner.mode` and tells you whether this
 particular finding contributed to redaction or was recorded in
 monitor‑only mode. See [NER PII

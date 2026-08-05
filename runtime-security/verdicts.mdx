@@ -131,7 +131,8 @@ The category set covers structured secrets: `EMAIL`, `PHONE`, `SSN`,
 `IP`, `URL`, `API_KEY`, `JWT`, `AWS_ACCESS_KEY`, `GITHUB_PAT` (also
 `GITHUB_TOKEN` for the `gho_`/`ghs_`/`ghu_`/`ghr_` prefixes),
 `SLACK_TOKEN`, `GOOGLE_API_KEY`, `STRIPE_KEY`, `OPENAI_API_KEY` /
-`ANTHROPIC_API_KEY`, `PEM_PRIVATE_KEY`, `BEARER_TOKEN`, plus any
+`ANTHROPIC_API_KEY`, `PEM_PRIVATE_KEY`, `BEARER_TOKEN`, the
+[national identifiers](#national-identifiers) below, plus any
 custom categories you defined as App‑level or workspace‑level rules,
 and, when the [NER PII tier](/runtime-security/configuration#ner-pii-detection)
 is enabled in `redact` mode, unstructured categories like `PERSON`,
@@ -139,10 +140,40 @@ is enabled in `redact` mode, unstructured categories like `PERSON`,
 zero‑shot label you configured.
 
 Findings carry an `extra` object; NER‑sourced findings have
-`extra.detector = "ner_gliner2"` and `extra.model` (the HuggingFace
-model id) alongside the usual `type` / `subtype` / `score` / `start`
-/ `end`, so you can tell a regex hit from a NER hit in the audit
-trail.
+`extra.detector = "ner"` alongside the usual `type` / `subtype` /
+`score` / `start` / `end`, so you can tell a regex hit from a NER hit
+in the audit trail. Classifier identity is deliberately not part of
+this payload, so a detection upgrade never breaks what you built on
+it.
+
+### National identifiers
+
+Government-issued identifiers are matched by the pattern tier, which
+is where they belong: each one is validated against the structure the
+issuing authority actually uses, so a number that does not check out
+is not reported.
+
+| Detector          | Identifier                                              |
+| ----------------- | -------------------------------------------------------- |
+| `swiss_ahv`       | Swiss AHV / AVS social security number                    |
+| `nhs_number`      | UK NHS number                                             |
+| `german_tax_id`   | German tax identification number (Steuer-IdNr)            |
+| `vehicle_plate_ch`| Swiss vehicle registration plate                          |
+
+<Warning>
+  Two of these were previously **worse than a miss**. The NER tier
+  claimed them under a monitor-only label (Swiss AHV as a person, NHS
+  numbers as an organization), so a finding was reported while the
+  identifier itself was still forwarded to the model in full. The
+  other two had no coverage at all. If you built alerting on `person`
+  or `organization` findings that were really national identifiers,
+  they now arrive under their own detector names.
+</Warning>
+
+In the same change, the NER tier stopped claiming IP addresses, which
+it had been mislabelling as phone numbers and masking as
+`<PHONE_NUMBER>`. IPs belong to the pattern tier, which also
+deliberately suppresses private, loopback, and documentation ranges.
 
 ### On `block`
 

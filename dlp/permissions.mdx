@@ -1,0 +1,125 @@
+---
+title: "DLP permissions"
+description: "The permission keys that govern the desktop agent fleet, what each one grants, and the August 2026 rename off the runtime-security prefix."
+---
+
+Endpoint DLP is the desktop agent fleet on people's machines. Runtime
+Security is the API firewall that sits in front of your models. They
+are different products with different blast radiuses, so they now have
+different permission namespaces.
+
+Roles are composed from these keys in **Settings → Roles &
+permissions**.
+
+## The rename
+
+Six DLP permissions used to carry a `runtime_security.` prefix, which
+named the wrong product: an admin reading the role editor could not
+tell whether a key governed laptops or the firewall. They now live
+under `dlp.`.
+
+| Old name                                     | New name                          |
+| -------------------------------------------- | --------------------------------- |
+| `runtime_security.dlp.view`                   | `dlp.view`                        |
+| `runtime_security.dlp.manage`                 | `dlp.manage`                      |
+| `runtime_security.ai_services.manage`         | `dlp.ai_services.manage`          |
+| `runtime_security.rules.manage_own_device`    | `dlp.rules.manage_own_device`     |
+| `runtime_security.protection.pause`           | `dlp.protection.pause`            |
+| `runtime_security.rules.override_workspace`   | `dlp.rules.override_workspace`    |
+
+<Note>
+  **You do not have to do anything.** Every old name still resolves to
+  its new one, and a migration rewrote the stored role definitions and
+  per-person overrides in place. Nobody gained or lost a capability.
+  What changed is the name you should write when you define a *new*
+  role, or when you read a key out of the audit trail.
+</Note>
+
+The firewall keys did **not** move. `runtime_security.scan`,
+`runtime_security.view`, `runtime_security.view_latency`,
+`runtime_security.apps.manage`,
+`runtime_security.firewall.configure`, `runtime_security.mcp.manage`,
+`runtime_security.label`, and `runtime_security.delete` keep their
+names.
+
+### One key became two
+
+`dlp.manage` used to cover the MCP tool profiles devices obey as well
+as the policies themselves. Approving a tool for laptops and
+accepting a changed tool definition on the firewall are not the same
+decision, so the device-side half is now `dlp.mcp.manage`, split out
+of `dlp.manage`.
+
+Anyone who held `dlp.manage` (under either name) kept the split-out
+key, so nothing was taken away. New roles should grant the two
+separately if you want them separate.
+
+## The catalog
+
+| Permission                     | Lets the user                                                                                              |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| `dlp.view`                     | Read the named policies, groups, and assignments that decide what each device enforces, and the effective policy resolved for one person. |
+| `dlp.manage`                   | Create, edit, and delete those policies, groups, and assignments.                                            |
+| `dlp.mcp.manage`               | Create, edit, and delete the MCP tool profiles devices obey. Reading them stays with `dlp.view`.             |
+| `dlp.discovery.view`           | Read the [Shadow AI](/dlp/shadow-ai/overview) inventory: which AI services are in use, on how many devices, and whether each has a decision. |
+| `dlp.ai_services.manage`       | Approve, protect, block, or onboard a discovered AI service.                                                 |
+| `dlp.injection.configure`      | Turn prompt-injection detection off, and back on, for the devices in this workspace.                         |
+| `dlp.rules.manage_own_device`  | Add and deactivate detection rules from the desktop app, on that device alone.                               |
+| `dlp.rules.override_workspace` | Deactivate a rule the *workspace* set, on one device.                                                        |
+| `dlp.protection.pause`         | Turn inspection off from the desktop app and back on again, on that device alone.                            |
+
+### The three that lower a floor
+
+Three keys let someone reduce protection rather than configure it, so
+none of them is implied by the older umbrella grants and each writes
+an audit record on every use.
+
+| Permission                     | What it costs you                                                                                                  |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| `dlp.protection.pause`         | While a device is paused, AI requests from that machine are not checked at all. Nobody holds this by default.        |
+| `dlp.rules.override_workspace` | Switches off a rule the company set, on one machine. Only admin holds it by default.                                 |
+| `dlp.injection.configure`      | Buys privacy with detection: prompt text stops leaving the machine, and those devices stop detecting injection and jailbreak attempts. Only admin holds it by default. |
+
+<Warning>
+  These three were deliberately left out of the alias expansion for
+  `runtime_security.policy.manage` and `runtime_security.manage`.
+  Folding them in would have handed every existing policy editor the
+  ability to switch protection off, which is a hole opened by a
+  refactor rather than a decision anyone made. If you want someone to
+  hold them, grant them explicitly.
+</Warning>
+
+### Reading the inventory is not reading the policies
+
+`dlp.discovery.view` is separate from `dlp.view` on purpose. Seeing
+which AI services people use says nothing about the company's DLP
+policies, so it is granted to every role that can see Runtime
+Security at all, while `dlp.view` stays with the people who manage
+policy.
+
+## Where each one is enforced
+
+| Surface                                                    | Permission                |
+| ---------------------------------------------------------- | ------------------------- |
+| `GET /api/runtime-security/discovery` and its sub-routes    | `dlp.discovery.view`      |
+| `POST /api/runtime-security/discovery/{id}/protect`, `/unprotect`, `/sanction`, `/block`, `/promote` | `dlp.ai_services.manage`  |
+| `GET` / `PUT /api/runtime-security/dlp/settings`            | `dlp.injection.configure` |
+| `PUT /api/runtime-security/config`                          | `runtime_security.firewall.configure` |
+
+## Where to next
+
+<CardGroup cols={2}>
+  <Card title="Policies & agent API" icon="shield-halved" href="/dlp/policies">
+    What a policy controls, host rules and their actions, and the
+    endpoints the agent calls.
+  </Card>
+  <Card title="Shadow AI triage" icon="list-check" href="/dlp/shadow-ai/triage">
+    The four decisions you can reach for on a discovered service.
+  </Card>
+  <Card title="Devices & enrollment" icon="laptop" href="/dlp/devices">
+    The fleet console, enrollment tokens, and per-device actions.
+  </Card>
+  <Card title="Team & access" icon="users" href="/data-integrity/team">
+    Roles, invitations, and the Data Integrity permission catalog.
+  </Card>
+</CardGroup>

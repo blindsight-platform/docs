@@ -16,9 +16,10 @@ volume, and tamper history.
 | **OS**           | `macOS 14.5`, `Windows 11 Pro 23H2`, etc.                                                     |
 | **Identity**     | `bound` / `auto` / `pending` / `service`. See [Identity binding](/dlp/identity).               |
 | **User**         | Directory user attached to the device, when identity is `bound` or `auto`.                    |
-| **Agent version**| Build number of the installed agent.                                                          |
+| **Agent version**| Version of the installed agent (`1.0.29` at the time of writing).                             |
 | **Status**       | `online`, `idle`, `offline`, `tampered`.                                                      |
-| **Last seen**    | Most recent ping from the agent.                                                              |
+| **Protection**   | Whether the device is actually inspecting. `protected`, `degraded` (intercepting, but not everything), or `bypassed`. A paused, revoked, or silent device is never reported as protected. |
+| **Last seen**    | Most recent ping from the agent. Agents heartbeat every 60 seconds; a device is counted offline after five minutes of silence. |
 | **Verdict mix**  | Counts of `allow` / `redact` / `block` for the device in the last 7 days.                     |
 | **Tamper events**| Number of high‑severity events in the last 30 days. Click to drill in.                        |
 
@@ -39,20 +40,24 @@ The same page houses the workspace's enrollment tokens. Click
 
 | Field             | Meaning                                                                                  |
 | ----------------- | ---------------------------------------------------------------------------------------- |
-| **Name**          | Free‑form label (`fleet-mac-pilot`, `staging`).                                           |
-| **Token**         | The plaintext value, shown once at creation.                                              |
-| **Activations**   | How many devices have already enrolled with this token.                                   |
-| **Cap**           | Optional ceiling on activations.                                                          |
-| **Expiry**        | Optional auto‑disable timestamp.                                                          |
-| **Restriction**   | Optional directory group; only devices whose user is in the group may activate.            |
-| **Status**        | `active`, `expired`, `revoked`.                                                           |
+| **Name**          | Free‑form label (`fleet-mac-pilot`, `staging`), up to 128 characters.                     |
+| **Token**         | The plaintext value, shown once at creation. Only its hash is stored.                     |
+| **Prefix**        | The first characters of the token, so you can tell rows apart afterwards.                 |
+| **Last used**     | When a device last enrolled with it.                                                      |
+| **Status**        | `active` or `revoked`.                                                                    |
+
+<Warning>
+  An enrollment token has **no expiry and no activation cap**. It is a
+  workspace-wide bootstrap secret that stays valid until you revoke
+  it, so treat it like a credential: store it in your MDM's secret
+  vault and rotate it on a schedule.
+</Warning>
 
 ### Lifecycle
 
 <Steps>
   <Step title="Create">
-    **Tokens → New.** Pick a name; optionally cap activations, set an
-    expiry, restrict to a directory group.
+    **Tokens → New.** Give it a name. The plaintext is shown once.
   </Step>
   <Step title="Distribute">
     Embed in your MDM payload (see [Fleet rollout](/dlp/fleet-rollout)).
@@ -68,31 +73,191 @@ The same page houses the workspace's enrollment tokens. Click
   </Step>
 </Steps>
 
+### Minting one from the install page
+
+You no longer have to leave the install instructions to get a token.
+The **Install** tab has a button that mints one and drops the real
+value straight into the command it is showing you, in place of the
+placeholder, so you can copy a line that actually works.
+
+The token it creates is named `Install page · <date> <time>` and is
+an ordinary token: it appears in the list, and you revoke it the same
+way.
+
+| Route                                                    | Permission                     |
+| ---------------------------------------------------------- | ------------------------------ |
+| `POST /api/runtime-security/agent/enrollment-tokens`       | `runtime_security.apps.manage` |
+| `GET /api/runtime-security/agent/enrollment-tokens`        | `runtime_security.apps.manage` |
+| `POST /api/runtime-security/agent/enrollment-tokens/{uuid}/revoke` | `runtime_security.apps.manage` |
+
+```bash
+curl -X POST $API_BASE/api/runtime-security/agent/enrollment-tokens \
+  -H "Authorization: Bearer $TOKEN" \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"fleet-2026-q3"}'
+```
+
+```json
+{
+  "uuid": "…",
+  "name": "fleet-2026-q3",
+  "enrollment_token": "antde_xxxxxxxxxxxxxxxxxxxx",
+  "token_prefix": "antde_xxxx",
+  "created_at": "2026-08-05T09:12:00Z"
+}
+```
+
+`enrollment_token` is the only time you see the plaintext. The
+listing route never returns it.
+
 ## Per‑device actions
 
 Click any device row to open the detail panel.
 
-| Action             | What it does                                                                              |
-| ------------------ | ----------------------------------------------------------------------------------------- |
-| **Force re-bind**  | Triggers a new SSO device‑code flow on the agent.                                          |
-| **Revoke device**  | Disables the device token. Agent stops processing traffic and surfaces a tamper event.     |
-| **Pause scanning** | Temporarily marks the device as observe‑only. Traffic still flows, no block is enforced.   |
-| **Push policy**    | Forces the agent to re‑fetch `/agent/policy` immediately, useful for urgent rollouts.      |
-| **Reveal CA**      | Downloads the org root CA bundle the agent installed, in case IT needs to verify it.       |
+| Action                  | What it does                                                                              |
+| ----------------------- | ----------------------------------------------------------------------------------------- |
+| **Force re-bind**       | Triggers a new SSO device‑code flow on the agent. Also clears any pause.                    |
+| **Revoke device**       | Marks the device revoked. It cannot enrol again until you say so. See [Revocation](#revocation-and-re-enrollment). |
+| **Allow re-enrollment** | Opens a 24‑hour, single‑use window for a revoked device to enrol again.                     |
+| **Resume protection**   | Lifts a pause the person set on their own machine. See [Pausing protection](#pausing-protection). |
+| **Push policy**         | Forces the agent to re‑fetch `/agent/policy` immediately, useful for urgent rollouts.       |
+| **Reveal CA**           | Downloads the org root CA bundle the agent installed, in case IT needs to verify it.        |
+
+## Pausing protection
+
+A person can turn inspection off on **their own machine** from the
+desktop app, and turn it back on. It is not a fleet-wide switch and
+it is not an admin action: it exists so somebody can stop inspection
+on a machine they are responsible for, on the record.
+
+<Warning>
+  While a device is paused it is **not inspected at all**. This is not
+  observe‑only mode: prompts pass through untouched and no prompt text
+  is stored. Nobody holds `dlp.protection.pause` by default, and every
+  pause and resume is written to the audit trail, at high severity for
+  the pause.
+</Warning>
+
+### Only a proved identity may pause
+
+The agent runs as the person being governed, so its own opinion about
+their permissions would be worth nothing. It asks the platform, and
+the platform decides. A refusal comes back as `403` with a code:
+
+| Code                         | Why                                                              |
+| ---------------------------- | ----------------------------------------------------------------- |
+| `device_identity_unverified` | The device's identity is not `bound`. Only the SSO device-code flow sets that. |
+| `device_unattributed`        | The device is not attached to a directory user.                   |
+| `owner_inactive`             | That user's account is deactivated.                               |
+| `permission_denied`          | That user does not hold `dlp.protection.pause`.                   |
+
+An `auto` identity is **not** enough. `auto` means the agent asserted
+an OS user name that happened to match a directory account, and
+anybody holding the workspace-wide enrollment token could assert an
+admin's address. Good enough to attribute traffic, useless as
+authority.
+
+If the platform is unreachable, the desktop app does not offer the
+toggle at all rather than guessing yes.
+
+### The routes
+
+| Route                                                        | Auth                        |
+| -------------------------------------------------------------- | --------------------------- |
+| `GET /api/runtime-security/agent/protection/pause`             | Device token                |
+| `POST /api/runtime-security/agent/protection/pause`            | Device token                |
+| `POST /api/runtime-security/agent/devices/{uuid}/resume`       | Dashboard, `runtime_security.apps.manage` |
+
+`POST` takes `{"paused": true | false}` plus an optional `reason`
+(free text, up to 280 characters, recorded in the audit trail) and
+returns `{"paused", "since", "changed"}`. `GET` also returns
+`allowed`, and the platform's own `reason` when it is `false`, which
+is what the desktop app renders next to the toggle.
+
+There is **no expiry**. A pause lasts until the person resumes, an
+admin resumes it or re-binds the device, or the owning account is
+deactivated. It survives a restart, and it travels in the policy
+snapshot, so it holds even if the person paused from another machine.
+
+The fleet figures ask the server whether a device is protected rather
+than assuming. A device counts as unprotected when it is paused,
+revoked, silent for more than five minutes, or reporting a `bypassed`
+or `degraded` protection state.
+
+## Revocation and re-enrollment
+
+Revoking a device used to be advisory. The enrollment token is
+workspace-wide, so the same machine reappearing with the same
+hardware id was quietly reactivated on its next enrolment, and the
+revocation evaporated.
+
+Now a revoked device stays revoked. Enrolment is refused until an
+admin opens a window for it.
+
+| Route                                                                  | Permission                                    |
+| ------------------------------------------------------------------------ | --------------------------------------------- |
+| `POST /api/runtime-security/agent/devices/{uuid}/revoke`                 | `runtime_security.apps.manage`                |
+| `POST /api/runtime-security/agent/devices/{uuid}/allow-reenrollment`     | `runtime_security.apps.manage` **and** `dlp.manage` |
+
+The asymmetry is deliberate: revoking only ever takes a credential
+away, so the broader key is enough. Handing one back is a bigger
+decision and needs `dlp.manage` as well. Without it you get `403
+reenrollment_not_permitted`.
+
+Authorising re-enrollment on a device that is not revoked returns
+`400 device_not_revoked`: you cannot pre-arm one.
+
+<Note>
+  The window is **24 hours and single-use**. It is consumed by the
+  enrolment that uses it, and revoking the device again clears any
+  window still open. Refused attempts are counted on the device row
+  and audited (at most one audit record per device per hour).
+</Note>
+
+The fleet listing carries `revoked_at`, `reenrollment_allowed_at`,
+`reenrollment_allowed_by_email`, `blocked_reenroll_at`, and
+`blocked_reenroll_count`, so you can see a machine trying to come
+back.
+
+<Steps>
+  <Step title="Reissue a laptop to somebody else">
+    Revoke the device. The old enrolment is dead and stays dead.
+  </Step>
+  <Step title="Wipe and re-image">
+    Push the agent as usual. It enrols as a new device.
+  </Step>
+  <Step title="Or keep the same machine">
+    If you want the same hardware back under its old row, open the
+    re-enrollment window first, then let the agent enrol inside the
+    24 hours.
+  </Step>
+</Steps>
 
 ## Tamper events
 
 Every tamper attempt is captured. The agent's guardian process and
 the service report integrity events to `POST /agent/tamper-events`.
 
-| Event code                | What triggered it                                                                  |
-| ------------------------- | ---------------------------------------------------------------------------------- |
-| `agent.binary_modified`    | Agent binary checksum changed on disk.                                              |
-| `agent.service_disabled`   | Service stopped without the guardian's blessing.                                    |
-| `proxy.bypass_attempted`   | A process tried to route LLM traffic around the local proxy.                        |
-| `ca.removed`               | Org root CA was deleted from the device trust store.                                |
-| `network.firewall_off`     | OS‑level firewall toggled off in a way that exposes the proxy.                      |
-| `uninstall.blocked`        | A non‑admin uninstall attempt was blocked by the guardian.                          |
+The guardian both records the event **and repairs the layer**, rate
+limited so it does not fight a tamper loop faster than once a minute.
+
+| Event kind        | What triggered it                                                                  |
+| ----------------- | ------------------------------------------------------------------------------------ |
+| `ca_removed`      | The org root CA was deleted from the machine trust store. The guardian re-imports it. |
+| `system_config`   | The OS proxy configuration drifted away from what the agent set. The `detail` field names which layers drifted. |
+| `pac_restarted`   | The PAC server had stopped and was restarted.                                        |
+| `mitm_restarted`  | The local inspection proxy had stopped and was restarted. `detail` carries the failure message when the restart did not work. |
+
+Each event carries a `kind`, a free-text `detail`, and a timestamp.
+
+<Note>
+  Repair is deliberately conditional. If the OS proxy configuration
+  has drifted but nothing is listening on the local proxy yet, the
+  drift is recorded and **not** repaired: re-pointing the machine at a
+  proxy that is not accepting connections would turn a tampered
+  machine into one that cannot browse at all. The proxy is brought
+  back first.
+</Note>
 
 Tamper events appear in the audit trail with severity `CRITICAL` and
 can be pushed to your SIEM via the
@@ -106,8 +271,7 @@ can be pushed to your SIEM via the
     bottom panel.
   </Step>
   <Step title="Read the event">
-    Each event has a `code`, `detail` (free‑text), timestamp, and a
-    snapshot of the agent and OS state at the time.
+    Each event has a `kind`, `detail` (free‑text), and a timestamp.
   </Step>
   <Step title="Take action">
     For accidental tampering (a user uninstalled the agent), push
@@ -122,8 +286,12 @@ From the fleet table:
 
 - **Select rows** with checkboxes.
 - **Push policy** to every selected device.
-- **Pause / resume scanning** for a group.
 - **Export to CSV** for offline reporting.
+
+Pausing is not a bulk action. A pause is set by the person on their
+own machine, and lifted one device at a time, on purpose. To stop
+inspecting across the fleet, change the policy rather than pausing
+devices.
 
 Bulk actions are audited. The audit row records every device id touched.
 
