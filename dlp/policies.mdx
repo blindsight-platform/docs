@@ -138,7 +138,7 @@ attribute on the event row.
 Events from the DLP agent carry:
 
 - `source = "agent"`.
-- `device_id = "<uuid>"` referencing the row in **Devices & Enrollment**.
+- `device_id = "<uuid>"` referencing the row in **DLP → Endpoints**.
 - `user_id = "<directory_user>"` once identity is bound.
 - `host = "api.openai.com"` (or whatever was intercepted).
 - The usual `verdict`, `injection`, `pii`, `redacted_text`,
@@ -346,7 +346,7 @@ out a tightening change safely:
 
   <Step title="Promote to the full fleet">
     Apply the change to the production App and push policy from
-    **Devices & Enrollment** for an immediate refresh, or wait the
+    **DLP → Endpoints** for an immediate refresh, or wait the
     cache TTL.
   </Step>
 </Steps>

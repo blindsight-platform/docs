@@ -166,7 +166,7 @@ vetted, without breaking anybody's day while you decide.
   <Step title="Confirm the block landed">
     Blocked services push a host rule to the fleet. Policy propagates
     within about 30 seconds, or immediately if you **Push policy**
-    from **Devices & Enrollment**.
+    from **DLP → Endpoints**.
   </Step>
 </Steps>
 
@@ -264,7 +264,7 @@ curl -s -X POST \
 
 ## Audit trail
 
-Every decision is recorded in the [audit trail](/data-integrity/audit-trail)
+Every decision is recorded in the [audit trail](/compliance/audit-trail)
 against the `rs_discovered_service` entity, with the acting user and
 the hostname.
 
@@ -275,7 +275,7 @@ the hostname.
 | `runtime_security.discovery.promoted`        | A service is onboarded as an App.        |
 
 Forward them to your SIEM with the
-[audit webhook](/data-integrity/integrations) if shadow-AI decisions
+[audit webhook](/data-security/integrations) if shadow-AI decisions
 are part of your control evidence.
 
 ## Common workflows

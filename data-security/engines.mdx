@@ -25,6 +25,13 @@ actually triage against.
 | `bias_shortcut`   | 2D images (+ extras CSV)    | Spurious correlations and shortcuts                    | % flagged + confirmed hypotheses                 |
 | `mask_quality`    | Segmentation masks          | Invalid / inconsistent / missing masks                 | % flagged                                        |
 
+<Note>
+  A **RAG corpus** scan (`rag_scan`) is a run type, not an eighth
+  engine. It runs poisoning, text analysis, and drift over a retrieval
+  corpus rather than a plain dataset. See
+  [RAG Security](/data-security/rag-security).
+</Note>
+
 ## Mislabel 2D
 
 **Use it when** you have a standard image classification dataset
@@ -244,7 +251,7 @@ what's wrong and an overlay preview against the original image.
 
   <Accordion title="I'm building a fine‑tune corpus">
     Run **Text Analysis** before anything else. Anything `CRITICAL`
-    should be redacted with [Healing](/data-integrity/healing) before
+    should be redacted with [Healing](/data-security/healing) before
     training.
   </Accordion>
 </AccordionGroup>

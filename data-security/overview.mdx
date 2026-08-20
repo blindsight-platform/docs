@@ -1,12 +1,13 @@
 ---
 title: "Overview"
-description: "What Data Integrity does, the core vocabulary, and the severity scale that every scan rolls up to."
+description: "What Data Security does, the core vocabulary, and the severity scale that every scan rolls up to."
 ---
 
-Blindsight Data Integrity scans your datasets for the problems that
+Blindsight Data Security scans your datasets for the problems that
 silently break ML training: wrong labels, outliers, poisoned samples,
 hidden biases, leaked secrets, prompt injections, and compliance
-gaps. It then helps you triage, fix, report, and audit the results.
+gaps. It then helps you triage, fix, and hand the evidence to
+[Compliance](/compliance/overview).
 
 Use this page to learn the vocabulary; every other page in this
 section assumes it.
@@ -28,7 +29,7 @@ section assumes it.
   <Step title="Connect a data source">
     Open **Settings, Integrations** and connect at least one source
     you plan to scan. The supported list lives on the
-    [Integrations](/data-integrity/integrations) page.
+    [Integrations](/data-security/integrations) page.
   </Step>
   <Step title="Create a project, upload a dataset, scan it">
     Projects organise everything. From there, upload a dataset and
@@ -47,7 +48,8 @@ section assumes it.
 | **Result**    | A per‑item finding produced by a scan (one image, one paragraph, one case).                            |
 | **Healing**   | The remediation phase. Produces a cured copy of the dataset with the bad samples fixed or removed.     |
 | **Branch**    | A virtual version of a dataset, driven by a manifest CSV. Lets you compare and iterate without copying.|
-| **Report**    | A generated document (PDF / HTML / JSON) describing findings, optionally in a compliance format.      |
+| **Corpus**    | A retrieval corpus behind a RAG application, scanned on the same spine as a dataset.                    |
+| **Report**    | A generated document describing findings. Built and downloaded from [Compliance](/compliance/reports). |
 | **Severity**  | A four‑level rollup: `HEALTHY`, `UNHEALTHY−`, `UNHEALTHY+`, `CRITICAL`.                                |
 
 ## The severity scale
@@ -64,24 +66,31 @@ reports, and the audit trail stay consistent.
 
 <Tip>
   The same severity badge shows up everywhere a dataset appears: the
-  dataset table, the dashboard widgets, the compliance report cover
-  page, and webhook payloads. Treat it as the single‑number summary.
+  dataset table, the Overview page, compliance data posture, the
+  compliance report cover page, and webhook payloads. Treat it as the
+  single-number summary.
 </Tip>
 
 ## Where to next
 
 <CardGroup cols={2}>
-  <Card title="Projects" icon="folder-tree" href="/data-integrity/projects">
+  <Card title="Projects" icon="folder-tree" href="/data-security/projects">
     Organize datasets, schedules, and report templates by team or
     initiative.
   </Card>
-  <Card title="Datasets" icon="database" href="/data-integrity/datasets">
+  <Card title="Datasets" icon="database" href="/data-security/datasets">
     Upload, branch, version, and explore your data.
   </Card>
-  <Card title="Running scans" icon="play" href="/data-integrity/scans">
+  <Card title="Running scans" icon="play" href="/data-security/scans">
     Launch a scan, monitor progress, and triage results.
   </Card>
-  <Card title="Engines" icon="microchip" href="/data-integrity/engines">
+  <Card title="Engines" icon="microchip" href="/data-security/engines">
     The seven scanning engines and what each one finds.
+  </Card>
+  <Card title="RAG Security" icon="boxes-stacked" href="/data-security/rag-security">
+    Scan and quarantine the retrieval corpus behind a RAG app.
+  </Card>
+  <Card title="Compliance" icon="scale-balanced" href="/compliance/overview">
+    Turn these findings into framework-mapped evidence.
   </Card>
 </CardGroup>

@@ -1,0 +1,169 @@
+---
+title: "Audit trail"
+description: "A tamper-evident, hash-chained log of every action in the workspace. Filter it, verify it, export it, and push it to your SIEM."
+---
+
+The audit trail (`/compliance/audit`) records who did what, when, to
+which object, with what parameters. It is append-only: nothing in
+Blindsight rewrites or removes a row.
+
+What makes it evidence rather than a log is the hash chain. Every
+record's digest is `SHA256(previous_hash | canonical_json(content))`,
+so the records form a single chain in which altering any one record
+breaks every record after it. The chain head is tracked separately, and
+`/verify` walks the chain and reports what it finds.
+
+## What gets logged
+
+| Category           | Examples                                                                     |
+| ------------------ | ------------------------------------------------------------------------------ |
+| **Authentication** | Logins, logouts, failed login attempts.                                        |
+| **Users & roles**  | Invitations sent, accepted, revoked; role changes; password resets.            |
+| **Projects**       | Create, rename, archive, delete, member changes.                               |
+| **Datasets**       | Upload, metadata edits, branches, lineage updates, deletes.                     |
+| **Scans**          | Start, cancel, finish, error, retry, parameter snapshot.                        |
+| **Healing**        | Trigger, toggle set, output target, completion.                                 |
+| **Compliance**     | Framework selection changes, ePHI scope declarations, report generation.        |
+| **Endpoints**      | Device enrollment, tamper events, enrollment-token mints and downloads.         |
+| **Settings**       | Workspace settings, integration credential changes, security policy updates.    |
+| **Custom rules**   | Create, edit, archive, enable, disable, per scope.                              |
+
+## Records
+
+The default view is a filterable, paginated table.
+
+| Filter          | What it narrows to                                                        |
+| --------------- | --------------------------------------------------------------------------- |
+| **Search**      | Free text across summaries and entity names.                               |
+| **Event type**  | The specific event, for example `compliance.frameworks_updated`.            |
+| **Category**    | The groupings in the table above.                                           |
+| **Actor**       | Any user in the workspace, or the system for automated runs.                |
+| **Entity**      | Type and id, for example one dataset or one device.                         |
+| **Severity**    | `critical`, `high`, `medium`, `low`, `info`, `none`.                        |
+| **Date range**  | Free-form start and end.                                                    |
+| **Application** | Records tied to one Runtime Security app.                                   |
+| **Parameters**  | Registered parameters only, or a JSON filter of `{key, operator, value}`.   |
+| **Control**     | Framework id plus control id, to show only the evidence for one control.    |
+
+Click any row for the full event payload, before and after values, and
+the actor and origin metadata.
+
+<Note>
+  Severity is one of the hashed fields, so a record's severity cannot
+  be edited after the fact without invalidating its digest. Words from
+  other subsystems are normalised on write (`warn` becomes `medium`,
+  `error` becomes `high`, `fatal` becomes `critical`), so the
+  vocabulary above is the complete set you will see.
+</Note>
+
+## Verifying the chain
+
+`GET /api/audit-trail/verify` runs the tamper-evidence check and
+returns `{ok, checked, broken_at, ...}`. `ok` is exactly
+"no issues found"; when it is false, the response always names at least
+one issue.
+
+Two things about it are easy to misread:
+
+<AccordionGroup>
+  <Accordion title="The check covers the whole deployment, not just your workspace">
+    The hash chain is global, so it cannot be scoped to one tenant.
+    The verdict reports counts and record identifiers from every
+    workspace on the deployment. The response says so in its `scope`
+    field rather than letting you assume otherwise.
+
+    This is why verification has its own permission,
+    `compliance.verify`, held by `admin` and `compliance-auditor`
+    rather than travelling with `compliance.access`.
+  </Accordion>
+
+  <Accordion title="A rehash is attested inside the log it rewrote">
+    Migration `0114` brought the workspace id into the hashed payload
+    and recomputed every existing digest. Without an attestation,
+    hashes that no longer match an older export would be
+    indistinguishable from tampering, and tampering could be passed off
+    as the rehash. The verdict carries a `rehash` field naming the
+    event, and the pre-rehash digest is retained so it stays checkable
+    rather than merely stored.
+  </Accordion>
+</AccordionGroup>
+
+## Applications and parameter schemas
+
+Two related surfaces sit on the same API.
+
+**Applications** register the systems whose activity you are auditing,
+so records can be attributed to an application and reviewed per app on
+`/compliance/applications`.
+
+**Parameter schemas** let you register your own domain-specific knobs
+(`model_version`, `clinical_protocol`, `reviewer_id`) so the trail
+captures them as first-class, filterable fields rather than
+free-form payload. Parameter analytics then charts how a parameter's
+values drift across runs, which is the shape of the "consistent
+practice" question an auditor actually asks.
+
+Managing applications and parameter schemas needs `compliance.manage`.
+
+## Export, ingest, and SIEM
+
+| Route                                  | What it does                                                     |
+| -------------------------------------- | ------------------------------------------------------------------ |
+| `GET /api/audit-trail/export`          | CSV or JSON, honouring every filter `/records` honours.            |
+| `POST /api/audit-trail/ingest`         | Accept external audit events into the unified timeline.            |
+| `GET /api/audit-trail/import/preview`  | Dry-run a CSV import before committing it.                         |
+| `POST /api/audit-trail/import`         | Commit the import.                                                 |
+
+For real-time delivery, configure the **audit webhook** and every
+record is pushed to your SIEM as it is written. See
+[Integrations & webhooks](/data-security/integrations).
+
+<Tip>
+  Export honours the full filter set, including `control_standard` and
+  `control_id`. Filtering to a single control and exporting is the
+  fastest way to answer "show me your evidence for A.8.15".
+</Tip>
+
+## Reading it requires a license
+
+Audit trail reads are gated on the Compliance license alongside the
+rest of the product. Reads need `compliance.access`; writes, imports,
+applications, and parameter schemas need `compliance.manage`; chain
+verification needs `compliance.verify`.
+
+## Common workflows
+
+<AccordionGroup>
+  <Accordion title="Investigate a deletion">
+    1. Filter to the delete event type and the date it happened.
+    2. Open the row to see who triggered it and the snapshot of the
+       deleted object.
+    3. Cross-reference the parent object's records (scans and healings
+       against that dataset) to assess impact.
+  </Accordion>
+
+  <Accordion title="Prove that scans ran on a cadence">
+    1. Filter to scan-start events over the period you are proving.
+    2. Check coverage per dataset in the stats view.
+    3. Export to CSV and attach it to the compliance report.
+  </Accordion>
+
+  <Accordion title="Produce evidence for one control">
+    1. Set `control_standard` to the framework and `control_id` to the
+       control.
+    2. Confirm the record count looks right in Records.
+    3. Export that exact view.
+  </Accordion>
+
+  <Accordion title="Detect credential abuse">
+    1. Filter to integration entities and update events.
+    2. Cross-check actor and date against your team's calendar.
+    3. Any unexpected actor here is worth escalating.
+  </Accordion>
+</AccordionGroup>
+
+<Warning>
+  The audit trail is the workspace's source of truth for what happened.
+  If `/verify` reports a broken chain, treat it as an incident: capture
+  the verdict, do not delete or re-import anything, and contact support.
+</Warning>

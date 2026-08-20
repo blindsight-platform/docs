@@ -1,0 +1,192 @@
+---
+title: "Reports"
+description: "Generate auditor-ready documents from your evidence: scope, framework, depth, format, templates, and how to share the result."
+---
+
+Reports (`/compliance/reports`) is where evidence becomes a document
+you can hand to somebody. It lists every report the workspace has
+generated, and it is where you create new ones.
+
+There are two report engines behind this page, and they answer
+different questions.
+
+| Engine                | Produces                                                                 | Formats                    |
+| --------------------- | -------------------------------------------------------------------------- | -------------------------- |
+| **Compliance report** | A framework-mapped document: findings mapped to controls, with applicability and coverage statements. | PDF, JSON, CSV             |
+| **General report**    | An ad-hoc or project document built from a template: scan results, sections you choose. | PDF, HTML, JSON, XML       |
+
+## Compliance reports
+
+### Scope, framework, depth
+
+<Steps>
+  <Step title="Pick a scope">
+    A single dataset, a set of datasets, or the entire workspace. The
+    smaller the scope, the faster the build.
+  </Step>
+
+  <Step title="Pick a framework">
+    One of the six standards. What each mapping does and does not claim
+    is on [Frameworks](/compliance/frameworks), and every generated
+    report carries that framework's applicability conditions on its
+    face.
+  </Step>
+
+  <Step title="Pick a depth">
+    | Depth          | Best for                                                            |
+    | -------------- | -------------------------------------------------------------------- |
+    | **Summary**    | Executive one-pager with KPIs and severity rollups.                  |
+    | **Detailed**   | Per-dataset breakdowns, scan history, remediation actions.           |
+    | **Exhaustive** | Full per-finding audit trail, parameter snapshots, lineage graphs.   |
+  </Step>
+
+  <Step title="Set a time window">
+    Activity, scans, and healings inside this window appear in the
+    report. Pick a quarter for a quarterly review, or the whole
+    workspace lifetime for a first-time audit.
+  </Step>
+
+  <Step title="Generate">
+    The report is built and appears under Reports with a download link.
+  </Step>
+</Steps>
+
+<Tip>
+  Use **Summary** for weekly check-ins, **Detailed** for monthly
+  reviews, and **Exhaustive** when an auditor asks for source material.
+</Tip>
+
+### All six frameworks at once
+
+The Frameworks table needs a readiness figure per framework, and
+generating six separate reports to get them was slow: almost all of the
+cost is framework-independent evidence assembly, repeated six times.
+
+`POST /api/compliance/report/frameworks` builds the evidence **once**
+and applies every framework profile to it. Each entry carries the same
+control-mapping shape a single-framework report returns.
+
+Use it when you want comparable readiness figures. Use
+`POST /api/compliance/report` when you want one document for one
+framework, which is what an auditor actually receives.
+
+### Compliance report API
+
+| Endpoint                                                | What it does                                              |
+| ------------------------------------------------------- | ----------------------------------------------------------- |
+| `POST /api/compliance/report`                           | One workspace-level document for one framework.             |
+| `POST /api/compliance/report/frameworks`                | Every framework's mapping over one evidence build.          |
+| `POST /api/datasets/{id}/compliance-report`             | One dataset's compliance report.                            |
+| `POST /api/datasets/{id}/compliance-report/download`    | The same, streamed as a file.                               |
+| `GET /api/compliance/reports/instance`                  | Download a report for the whole instance. Takes `format`, `depth`, `compliance_standard`, and optional `dataset_ids`. |
+
+All of them need `compliance.access`.
+
+## General reports
+
+The `/api/reports` engine covers everything that is not framework
+mapped: ad-hoc documents, project reports, and scan-scoped exports.
+
+A report is created from a name, an optional template, a scope
+(`project_id`, `dataset_id`, or a list of `scan_ids`), a format, and an
+optional list of sections. Generation is synchronous and the report
+lands with a status, a progress figure, a file size, and a content
+summary you can inspect before sharing.
+
+| Endpoint                             | What it does                        |
+| ------------------------------------ | ------------------------------------- |
+| `GET /api/reports`                   | List every report.                    |
+| `POST /api/reports`                  | Create and generate one.              |
+| `GET /api/reports/{id}`              | Read one report's metadata.           |
+| `GET /api/reports/{id}/download`     | Download the file.                    |
+| `POST /api/reports/{id}/regenerate`  | Rebuild it in place.                  |
+| `DELETE /api/reports/{id}`           | Delete it.                            |
+
+## Report templates
+
+Templates standardize how reports look across the team. A workspace
+template covers the whole tenant; a project-level template can override
+it for one project.
+
+| Section        | What you control                                                             |
+| -------------- | ----------------------------------------------------------------------------- |
+| **Cover page** | Logo, title, subtitle, prepared-by name.                                      |
+| **Sections**   | Include or exclude KPIs, findings, methodology, appendix, executive summary.  |
+| **Branding**   | Logo upload, accent color, footer text.                                       |
+| **Filters**    | Which datasets, scans, or severities to include by default.                   |
+| **Layout**     | Reorder and toggle visibility of each block.                                  |
+
+Mark a project-level template as **default** so every new report in
+that project starts from it.
+
+| Endpoint                                                       | What it does                          |
+| -------------------------------------------------------------- | --------------------------------------- |
+| `GET` / `POST` `/api/reports/templates`                        | List and create workspace templates.    |
+| `GET` / `PUT` / `DELETE` `/api/reports/templates/{id}`         | Read, edit, remove one.                 |
+| `GET` / `POST` `/api/reports/projects/{project_id}/templates`  | Project-level templates.                |
+| `POST /api/reports/projects/{project_id}/templates/{id}/default` | Make one the project default.          |
+
+## Export templates
+
+Separate from report templates, **export templates** define reusable
+CSV and JSON exports of scan results: which columns, which filter,
+which sorting. Edit them at `/reports/exports/templates` and apply them
+from any scan's **Export** menu.
+
+Export templates are gated behind `FEATURE_ADVANCED_EXPORTS`, which is
+a different license flag from `FEATURE_COMPLIANCE_REPORTS`.
+
+## Sharing
+
+- Every generated report has a stable download link.
+- HTML reports can be opened by anyone holding the link. Treat the link
+  like a secret and rotate it by regenerating.
+- Compliance reports include a content summary so you can confirm what
+  is in the document before sharing it.
+- Generation, download, and deletion are all written to the
+  [audit trail](/compliance/audit-trail).
+
+## Common workflows
+
+<AccordionGroup>
+  <Accordion title="Prep for a SOC 2 audit">
+    1. Confirm which trust services categories your engagement covers.
+       The mapping means different things for a Security-only scope.
+    2. Make sure every dataset in scope is in a single project.
+    3. Generate a **SOC 2 / Detailed / PDF** report scoped to that
+       project, with a time window covering the audit period.
+    4. Generate an additional **SOC 2 / Exhaustive** report as source
+       material in case the auditor asks.
+  </Accordion>
+
+  <Accordion title="Weekly internal review">
+    1. Generate a **Summary** report at workspace scope every Monday
+       via a [scheduled report](/data-security/automation).
+    2. Share the link in your weekly channel.
+  </Accordion>
+
+  <Accordion title="Compare readiness across every framework">
+    1. Select all six frameworks on
+       [Frameworks](/compliance/frameworks).
+    2. Read the readiness table, which builds evidence once and applies
+       all six profiles to it.
+    3. Read each figure next to its "not assessed" count, never alone.
+  </Accordion>
+
+  <Accordion title="Hand off a model to QA">
+    1. Generate an ad-hoc **Detailed / PDF** report scoped to the
+       training dataset.
+    2. Attach it to the model card.
+  </Accordion>
+</AccordionGroup>
+
+## See also
+
+<Columns cols={2}>
+  <Card title="Frameworks" icon="scale-balanced" href="/compliance/frameworks">
+    What each standard's mapping covers.
+  </Card>
+  <Card title="Data posture" icon="chart-line" href="/compliance/data-posture">
+    The evidence a report is built from.
+  </Card>
+</Columns>

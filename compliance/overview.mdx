@@ -1,0 +1,112 @@
+---
+title: "Overview"
+description: "What the Compliance product does, the five surfaces it gives you, and the honesty rules it holds itself to."
+---
+
+Compliance turns what the rest of the platform already observed into
+evidence an auditor will accept. It does not run its own scanners. It
+reads dataset findings, runtime verdicts, endpoint events, and the
+audit log, then maps them onto the control frameworks your workspace
+declared it reports against.
+
+Compliance is licensed separately (`FEATURE_COMPLIANCE_REPORTS`). Its
+pages are hidden entirely for a workspace without it. See
+[Settings & licensing](/administration/settings).
+
+## The five surfaces
+
+Compliance lives at `/compliance` and is organised as five pages.
+
+| Page              | Path                       | What it answers                                                        |
+| ----------------- | -------------------------- | ----------------------------------------------------------------------- |
+| **Frameworks**    | `/compliance/frameworks`   | Which standards you report against, and how ready each one looks.       |
+| **Data posture**  | `/compliance/data-posture` | Where your datasets stand: severity rollups, what needs review.         |
+| **Audit trail**   | `/compliance/audit`        | The tamper-evident record of every action in the workspace.             |
+| **Applications**  | `/compliance/applications` | Per-application compliance state for the apps behind Runtime Security.  |
+| **Reports**       | `/compliance/reports`      | Generated documents, templates, and the download links you hand over.   |
+
+`/compliance` on its own redirects to Frameworks.
+
+## What honest evidence means here
+
+A compliance product that quietly implies coverage it does not have is
+worse than no compliance product. Three rules are built into the report
+builder, and it is worth knowing them before you show a report to
+anybody.
+
+<AccordionGroup>
+  <Accordion title="Unassessed controls are named, not implied">
+    Blindsight assesses eight finding types. A control a standard
+    expects that no Blindsight detection maps to is reported as **not
+    assessed**. It is never silently counted as passing, and a report
+    that covers only part of a framework says so on its face.
+  </Accordion>
+
+  <Accordion title="Applicability is carried into every report">
+    Almost none of these frameworks bind every organisation
+    unconditionally. SOC 2 covers only the trust services categories
+    your engagement selected. ISO/IEC 27001 Annex A is a reference set
+    governed by your Statement of Applicability. HIPAA binds you only
+    with respect to ePHI. The EU AI Act's duties turn on
+    classification and on whether you are the provider or the deployer.
+    Every report carries the applicability conditions for its
+    framework, so nobody reads a control listing as a duty you
+    necessarily owe.
+  </Accordion>
+
+  <Accordion title="A detection that was prevented is not a breach">
+    Exposures the platform masked or blocked are counted separately
+    from exposures that were not prevented. A blocked disclosure is a
+    non-disclosure. Whether an unprevented exposure amounts to a
+    notifiable personal data breach stays the controller's assessment,
+    and the report says so rather than deciding for you.
+  </Accordion>
+</AccordionGroup>
+
+## Declaring your scope
+
+Two declarations shape everything Compliance produces. Both live under
+Frameworks and both need the `compliance.manage` permission.
+
+<Steps>
+  <Step title="Select your frameworks">
+    Pick the standards your organisation actually reports against.
+    The selection drives the Frameworks table, seeds report defaults,
+    and is what the Getting Started walkthrough checks against instead
+    of a self-attested checkbox.
+  </Step>
+  <Step title="Declare whether you process ePHI">
+    Separate from the framework selection, because they answer
+    different questions. A workspace that has not declared ePHI scope
+    gets a HIPAA report saying it was never declared in scope, rather
+    than one inventing safeguards it does not owe.
+  </Step>
+</Steps>
+
+Both declarations are written to the audit trail when they change.
+
+## Where the evidence comes from
+
+| Source                | What it contributes                                                    |
+| --------------------- | ------------------------------------------------------------------------ |
+| [Data Security](/data-security/overview) | Dataset scan findings: leaked secrets, poisoning, injection payloads, bias, mislabels. |
+| [Runtime Security](/runtime-security/overview) | Prompt and response verdicts, what was redacted, what was blocked. |
+| [DLP](/dlp/overview)  | Endpoint events attributed to a device and a directory user.            |
+| [Audit trail](/compliance/audit-trail) | Who did what, when, in a hash-chained record.            |
+
+## See also
+
+<Columns cols={2}>
+  <Card title="Frameworks" icon="scale-balanced" href="/compliance/frameworks">
+    The six supported standards and what each mapping does and does not claim.
+  </Card>
+  <Card title="Data posture" icon="chart-line" href="/compliance/data-posture">
+    Severity rollups, the attention queue, and the activity timeline.
+  </Card>
+  <Card title="Audit trail" icon="scroll" href="/compliance/audit-trail">
+    Tamper-evident logging, filtering, export, and SIEM delivery.
+  </Card>
+  <Card title="Reports" icon="file-lines" href="/compliance/reports">
+    Generating documents, depths, formats, and templates.
+  </Card>
+</Columns>

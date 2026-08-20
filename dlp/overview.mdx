@@ -13,8 +13,9 @@ the bytes leave the machine.
   Windows is the primary platform and the one to plan a fleet rollout
   around. macOS is supported, but the app currently ships unsigned and
   its coverage model differs. Read
-  [Fleet rollout](/dlp/fleet-rollout#2b-macos-push) before committing
-  to a Mac fleet.
+  [Installing the agent](/dlp/install) before committing to a Mac
+  fleet. The console's Downloads page publishes the Windows installer
+  only; macOS is delivered through your MDM.
 </Note>
 
 It's the right answer when you cannot rely on every internal team to
@@ -118,6 +119,14 @@ It does not cover:
 ## Where to next
 
 <CardGroup cols={2}>
+  <Card title="Installing the agent" icon="download" href="/dlp/install">
+    Packages, silent install, what it changes on the machine, and how
+    to verify it landed.
+  </Card>
+  <Card title="Uninstalling the agent" icon="trash" href="/dlp/uninstall">
+    Clean removal on Windows and macOS, and what an uninstall
+    permanently destroys.
+  </Card>
   <Card title="Shadow AI" icon="radar" href="/dlp/shadow-ai/overview">
     Passive discovery of every AI service your workforce reaches, and
     a sanction / block / onboard decision for each one.
@@ -130,7 +139,7 @@ It does not cover:
     SCIM directory sync, OIDC SSO, and the device-code flow that
     binds each laptop to a directory user.
   </Card>
-  <Card title="Devices & enrollment" icon="laptop" href="/dlp/devices">
+  <Card title="Endpoints" icon="laptop" href="/dlp/devices">
     The fleet view: device status, identity binding, tamper events.
   </Card>
   <Card title="Policies & agent API" icon="shield-halved" href="/dlp/policies">

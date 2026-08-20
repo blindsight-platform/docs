@@ -1,0 +1,142 @@
+---
+title: "RAG Security"
+description: "Scan the retrieval corpus behind your AI application for poisoned, injected, and drifting documents, and quarantine what you find."
+---
+
+A model can be perfectly aligned and still be steered by what it
+retrieves. RAG Security (`/rag-security`) treats your retrieval corpus
+as an attack surface: it pulls the documents your application actually
+retrieves, scans them for poisoning and prompt-injection payloads, and
+lets you quarantine what it finds.
+
+A RAG corpus reuses the same scan spine as a dataset, so findings,
+severities, and the audit trail behave exactly as they do everywhere
+else in [Data Security](/data-security/overview).
+
+## Sources
+
+A corpus draws from one or more sources, and you can mix them.
+
+| Kind             | What it is                                                             |
+| ---------------- | ------------------------------------------------------------------------ |
+| `upload`         | Documents uploaded directly to the corpus.                              |
+| `dataset_link`   | An existing Blindsight dataset, linked rather than copied. You can only link datasets you can already see. |
+| `vector_store`   | A live connection to your production vector store.                      |
+
+### Vector store providers
+
+| Provider              | Status                    |
+| --------------------- | --------------------------- |
+| pgvector / Postgres   | Available                   |
+| Pinecone              | Available                   |
+| Weaviate              | Not yet available           |
+
+Credentials are encrypted at rest and are never returned by the API.
+Pass the connection secret as `dsn` or `api_key`; either way it is
+folded into the encrypted channel and stripped from the stored config.
+
+<Steps>
+  <Step title="Test the connection">
+    `POST /api/rag-corpus/test-connection` validates a provider config
+    before you save it. A bad provider or a malformed id is rejected at
+    422 rather than failing later during a scan.
+  </Step>
+  <Step title="Discover what is there">
+    `POST /api/rag-corpus/discover` runs the authenticate-then-pick
+    flow for providers that support it, so you choose an existing index
+    rather than typing its name.
+  </Step>
+  <Step title="Add the source">
+    Once added, the source can be re-tested at any time from the corpus
+    detail page.
+  </Step>
+</Steps>
+
+## Scanning
+
+`POST /api/rag-corpus/{id}/scan` queues a `rag_scan`, which runs three
+engines over the corpus:
+
+| Engine            | What it looks for                                                      |
+| ----------------- | ------------------------------------------------------------------------ |
+| **Poisoning**     | Documents crafted to steer retrieval-augmented answers.                  |
+| **Text analysis** | Prompt-injection payloads, leaked secrets, and sensitive content.        |
+| **Drift**         | Distribution shift, which is how a slow corpus poisoning campaign looks. |
+
+Only one `rag_scan` runs against a corpus at a time. Scans consume the
+same scan quota as the rest of the platform.
+
+## Quarantine, and the part people get wrong
+
+Quarantining a document excludes it from **Blindsight's own reads**. It
+does not, by itself, stop your application from retrieving it.
+
+<Warning>
+  A vector store that ignores metadata on unfiltered queries, which
+  includes Pinecone, still returns quarantined vectors to your
+  application's queries unless those queries carry the exclusion
+  filter. Quarantining in Blindsight and changing nothing in your
+  retrieval path leaves the poisoned document reachable.
+</Warning>
+
+This is why every corpus exposes a **filter contract**:
+
+```text
+GET /api/rag-corpus/{id}/filter-contract
+```
+
+It returns, per write-capable vector-store source, the exact filter
+your queries need and a copy-paste retrieval snippet. If a source
+cannot enforce quarantine at all, the contract says
+`enforceable: false` and explains why, rather than leaving you with a
+false sense of containment.
+
+<Steps>
+  <Step title="Quarantine the document">
+    `POST /api/rag-corpus/{id}/documents/{doc}/quarantine`. Reverse it
+    with the matching `unquarantine` route.
+  </Step>
+  <Step title="Read the filter contract">
+    Pull the contract for the corpus and check `enforceable` for every
+    vector-store source.
+  </Step>
+  <Step title="Apply the filter in your retrieval path">
+    Paste the snippet into the query your application actually runs.
+    Until this is done, quarantine is advisory.
+  </Step>
+</Steps>
+
+## API
+
+| Endpoint                                                   | What it does                                   |
+| ---------------------------------------------------------- | ------------------------------------------------ |
+| `GET` / `POST` `/api/rag-corpus`                           | List and create corpora.                        |
+| `GET` / `DELETE` `/api/rag-corpus/{id}`                    | Read or remove one.                             |
+| `GET /api/rag-corpus/providers`                            | The supported vector-store providers.           |
+| `POST /api/rag-corpus/test-connection`                     | Validate a provider config.                     |
+| `POST /api/rag-corpus/discover`                            | Authenticate-then-pick discovery.               |
+| `POST /api/rag-corpus/{id}/sources`                        | Add a source.                                   |
+| `POST /api/rag-corpus/{id}/sources/{source_id}/test`       | Re-test one source.                             |
+| `POST /api/rag-corpus/{id}/documents/upload`               | Upload documents.                               |
+| `GET /api/rag-corpus/{id}/documents`                       | List documents.                                 |
+| `POST /api/rag-corpus/{id}/scan`                           | Queue a RAG scan.                               |
+| `GET /api/rag-corpus/{id}/findings`                        | Read findings.                                  |
+| `POST /api/rag-corpus/{id}/documents/{doc}/quarantine`     | Quarantine a document.                          |
+| `POST /api/rag-corpus/{id}/documents/{doc}/unquarantine`   | Release it.                                     |
+| `GET /api/rag-corpus/{id}/filter-contract`                 | The retrieval filter your app must enforce.     |
+| `PUT /api/rag-corpus/{id}/settings`                        | Corpus settings.                                |
+
+Tenancy and access reuse the dataset rules: a corpus is resolved
+through its backing dataset, so whoever can see the dataset can see the
+corpus.
+
+## See also
+
+<Columns cols={2}>
+  <Card title="Engines" icon="microchip" href="/data-security/engines">
+    What poisoning, text analysis, and drift each detect.
+  </Card>
+  <Card title="Runtime Security" icon="bolt" href="/runtime-security/overview">
+    Catching an injection at request time, after retrieval.
+  </Card>
+</Columns>

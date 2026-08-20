@@ -1,0 +1,84 @@
+---
+title: "Data posture"
+description: "The at-a-glance compliance view of every dataset in the workspace: severity rollups, the attention queue, KPIs, and the activity timeline."
+---
+
+Data posture (`/compliance/data-posture`) answers one question: if an
+auditor walked in today, what state is our data in? It reads the same
+scan findings [Data Security](/data-security/overview) produces and
+rolls them up per workspace rather than per dataset.
+
+## What the page shows
+
+| Panel                 | What it shows                                                                                            |
+| --------------------- | --------------------------------------------------------------------------------------------------------- |
+| **KPIs**              | Total datasets, total scans, active scans, failed scans, critical changes, total reports.                  |
+| **Posture by dataset**| Every dataset with its severity, open vulnerability count, scan counts, failed scans, and report count.     |
+| **Attention queue**   | Datasets that need review: flagged issues, failing scans, no report yet.                                    |
+| **Activity timeline** | Every compliance-relevant action over the window, bucketed by day and drillable down to the event.           |
+
+## Severity rollup
+
+Datasets carry the same four-level scale used everywhere else in the
+platform.
+
+| Label          | What it means                                                                    |
+| -------------- | --------------------------------------------------------------------------------- |
+| **HEALTHY**    | No issues found.                                                                  |
+| **UNHEALTHY−** | A small number of issues. Review before training.                                 |
+| **UNHEALTHY+** | Significant problems. Training on this data is risky.                             |
+| **CRITICAL**   | Majority of samples flagged, or severe leakage or poisoning. Do not train.        |
+
+See [the severity scale](/data-security/overview) for the thresholds
+behind each label.
+
+## The activity timeline
+
+The timeline is the narrative an auditor asks for: not "what is the
+state now" but "what happened, and when did you react". Each day is
+bucketed with its highest severity, its critical and high counts, and
+how many datasets were affected.
+
+Click a bucket to open the detail view, which groups that day's events
+by dataset so you can see the sequence: upload, scan, findings, heal,
+re-scan.
+
+Events carry one of five severities: `critical`, `high`, `medium`,
+`low`, `none`.
+
+## Scoping
+
+Both the summary and the timeline accept an optional list of dataset
+ids, so you can scope the page to one project's datasets rather than
+the whole workspace. This is the same scoping a report uses, which
+means what you see here is what a report over that scope will contain.
+
+## API
+
+| Endpoint                                          | What it returns                                        |
+| ------------------------------------------------- | -------------------------------------------------------- |
+| `GET /api/compliance/summary`                     | KPIs, per-dataset stats, recent activity, critical changes. |
+| `GET /api/compliance/activity-timeline`           | Day buckets with severity and counts.                    |
+| `GET /api/compliance/activity-timeline/detail`    | One bucket, grouped by dataset. Takes `bucket_start` and `bucket_end`. |
+| `GET /api/datasets/{dataset_id}/lineage`          | The lineage graph for one dataset.                       |
+
+All of them accept `dataset_ids` to narrow the scope, and all read
+requests need `compliance.access`.
+
+## Dataset lineage
+
+Auditors reliably ask "where did this training corpus come from?".
+Lineage is the single answer, and it is included for every dataset in
+scope of a compliance report. You can also read it per dataset from the
+dataset detail page.
+
+## See also
+
+<Columns cols={2}>
+  <Card title="Reports" icon="file-lines" href="/compliance/reports">
+    Turn this posture into a document for an auditor.
+  </Card>
+  <Card title="Running scans" icon="play" href="/data-security/scans">
+    Where the findings behind these figures come from.
+  </Card>
+</Columns>

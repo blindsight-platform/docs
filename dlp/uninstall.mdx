@@ -1,0 +1,237 @@
+---
+title: "Uninstalling the agent"
+description: "Remove the DLP agent from a device or a fleet, and know exactly what is reverted, what is wiped, and what an uninstall reports to the console."
+---
+
+Uninstalling is deliberately a **full reset**, not a "leave it lying
+around" removal. The agent reverses every system change it made, drops
+the enrollment, and removes the local state, so a later reinstall
+starts clean rather than silently resurrecting an old device identity.
+
+This is the mirror of [Installing the agent](/dlp/install).
+
+<Warning>
+  A device that is uninstalled stops being protected the moment the
+  service stops. Nothing leaving that machine is inspected afterwards.
+  Uninstall on a managed fleet is a change worth scheduling, not one
+  worth doing ad hoc.
+</Warning>
+
+## Who can uninstall
+
+The Windows agent runs as a LocalSystem service and the macOS agent
+runs a root guardian, so **removal requires administrator rights on the
+device**. A standard employee cannot uninstall it, and an attempt to
+disable protection without those rights is reported as a tamper event
+rather than silently succeeding.
+
+Attempts that do reach the machine (the root CA removed, the proxy
+configuration reverted, the interceptor killed) are recorded as
+high-severity, hash-chained entries in the
+[audit trail](/compliance/audit-trail) and surface on the device row in
+**DLP → Endpoints**.
+
+## Uninstall on Windows
+
+### Interactively
+
+**Settings → Apps → Installed apps → Blindsight DLP → Uninstall**, or
+the same entry in **Programs and Features**. Run it as an
+administrator.
+
+### Silently
+
+```text
+msiexec /x Blindsight.msi /qn /norestart
+```
+
+If you no longer have the original MSI, uninstall by product code.
+The code is regenerated on every build, so look it up rather than
+hardcoding it:
+
+```powershell
+$p = Get-ChildItem HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall |
+     Where-Object { $_.GetValue('DisplayName') -eq 'Blindsight DLP' }
+Start-Process msiexec.exe -Wait -ArgumentList '/x', $p.PSChildName, '/qn', '/norestart'
+```
+
+Push either form through Intune, GPO, or SCCM the same way you pushed
+the install.
+
+<Note>
+  An **upgrade** is not an uninstall, even though the MSI technically
+  removes the old product first. The installer distinguishes the two:
+  a major upgrade keeps enrollment, the CA, the pseudonymization vault,
+  the undrained event spool, the user's sign-in, and their settings. A
+  real uninstall keeps none of it.
+</Note>
+
+### What a Windows uninstall does, in order
+
+1. Stops and deletes the `BlindsightDLP` service.
+2. Restores the system proxy, WinHTTP proxy, proxy environment
+   variables, browser policies, and firewall rules from the snapshot
+   taken at install time. This runs **after** the service stops, so the
+   guardian cannot re-apply the configuration it is trying to remove.
+3. Removes the per-machine inspection root CA from the machine trust
+   store, matched by SHA-1 thumbprint, and deletes the on-disk CA
+   material.
+4. Terminates anything still running: the desktop app, stray agent
+   processes, and the local inspection proxy.
+5. Removes the `HKLM` autostart value and both scheduled tasks
+   (`\Blindsight\ServiceGuard`, `\Blindsight\ConnectivityGuard`), then
+   the `\Blindsight\` task folder itself. Left behind, ServiceGuard
+   would keep trying to start a service that no longer exists.
+6. Deletes `%ProgramData%\Blindsight` in full, including the device
+   enrollment record and the pseudonymization vault.
+7. Deletes `.blindsight` from **every** user profile on the machine,
+   plus the LocalSystem profile at
+   `%WINDIR%\System32\config\systemprofile\.blindsight`, which is where
+   the service's own CA private key and log live.
+8. Removes the program files.
+
+Every step is best-effort and idempotent, so a partially broken install
+still uninstalls cleanly rather than failing halfway.
+
+## Uninstall on macOS
+
+macOS has no installer package to reverse, so removal is two steps: tear
+down the system changes, then delete the app.
+
+<Steps>
+  <Step title="Revert the network changes">
+    The agent has a root-gated teardown. It is refused without the
+    panic token, which is readable only by root and provisioned by IT
+    or your MDM at
+    `/Library/Application Support/Blindsight/panic.token`.
+
+    ```bash
+    sudo blindsight-mac panic --token <TOKEN>
+    ```
+
+    This stops and removes the guardian LaunchDaemon so it cannot
+    self-heal, flushes the `pf` anchor, restores `/etc/pf.conf` from
+    `/etc/pf.conf.blindsight.bak`, deletes
+    `/etc/pf.anchors/dev.blindsight`, kills the local inspection proxy,
+    clears any global proxy on every network service, reloads `pf`, and
+    disables the login item.
+  </Step>
+
+  <Step title="Remove the app and its state">
+    ```bash
+    sudo rm -rf "/Applications/Blindsight Mac.app"
+    sudo rm -rf "/Library/Application Support/Blindsight"
+    rm -rf ~/.blindsight
+    ```
+  </Step>
+
+  <Step title="Remove the certificate">
+    Open **Keychain Access → login**, find the Blindsight root
+    certificate, and delete it. Do this for every user profile that
+    signed in on the machine.
+  </Step>
+</Steps>
+
+<Note>
+  If the teardown fails, the manual fallback is:
+
+  ```bash
+  sudo launchctl bootout system /Library/LaunchDaemons/dev.blindsight.guardian.plist
+  sudo rm -f /Library/LaunchDaemons/dev.blindsight.guardian.plist
+  sudo cp /etc/pf.conf.blindsight.bak /etc/pf.conf && sudo pfctl -f /etc/pf.conf
+  ```
+</Note>
+
+## Retire the device in the console
+
+Uninstalling clears the device end. It does not remove the row.
+
+<Steps>
+  <Step title="Revoke the device">
+    **DLP → Endpoints**, find the machine, revoke it. Its enrollment
+    credential stops being accepted, so a copied credential file cannot
+    be used to impersonate the device.
+  </Step>
+  <Step title="Decide about its events">
+    Events the device already sent stay in the workspace. They are
+    evidence, and retiring hardware is not a reason to lose the record.
+    Retention is governed by your workspace settings, not by the
+    device.
+  </Step>
+  <Step title="Rotate the token if the machine was lost">
+    If the device was lost rather than decommissioned, mint a new
+    enrollment token and revoke the old one. See
+    [Fleet rollout](/dlp/fleet-rollout).
+  </Step>
+</Steps>
+
+## What you lose
+
+<Warning>
+  A genuine uninstall **permanently destroys the pseudonymization
+  vault** on that device (`pseudonym_vault.db` and `vault.key`). The
+  vault holds the only mapping from a surrogate back to what the person
+  actually typed. Once it is gone, every past conversation on that
+  device is left showing a realistic stand-in that can never be
+  resolved again, and nothing can recover it.
+
+  If you need those mappings, resolve or export what you need
+  **before** you uninstall.
+</Warning>
+
+Also gone from the device, and not recoverable from it:
+
+- The local event store and anything in the spool that had not yet
+  reached the platform.
+- The device's enrollment identity. A reinstall enrols as a **new**
+  device with a new row.
+- Local agent logs, which is worth remembering if you are uninstalling
+  to resolve a support case. Collect them first.
+
+## Common workflows
+
+<AccordionGroup>
+  <Accordion title="Decommission a laptop">
+    1. Resolve anything you still need from the vault.
+    2. Uninstall on the device (`msiexec /x`, or the macOS teardown).
+    3. Revoke the device row in **DLP → Endpoints**.
+    4. Leave its events in place. They stay as evidence.
+  </Accordion>
+
+  <Accordion title="Roll the agent back off a pilot group">
+    1. Point the MDM's uninstall command at the pilot smart group.
+    2. Watch **DLP → Endpoints** until every device in the group stops
+       reporting.
+    3. Revoke the pilot enrollment token so nothing re-enrols against
+       it.
+  </Accordion>
+
+  <Accordion title="Reinstall after a broken install">
+    1. Uninstall, which is safe to run even against a half-installed
+       agent.
+    2. Confirm `%ProgramData%\Blindsight` is gone. Its presence is what
+       makes a reinstall silently re-adopt the old enrollment.
+    3. Install again with `CLOUD_BASE` and `ENROLL_TOKEN` passed
+       explicitly.
+    4. Delete the stale device row in the console. The reinstall
+       creates a new one.
+  </Accordion>
+
+  <Accordion title="A user asks to remove it from their own machine">
+    They cannot, and that is the design. Route the request to whoever
+    owns the endpoint policy. If the machine genuinely should not be
+    protected, remove it through the MDM rather than by granting local
+    admin rights.
+  </Accordion>
+</AccordionGroup>
+
+## See also
+
+<Columns cols={2}>
+  <Card title="Installing the agent" icon="download" href="/dlp/install">
+    Packages, silent install, and what it changes on the device.
+  </Card>
+  <Card title="Devices" icon="laptop" href="/dlp/devices">
+    Revoking a device, health, and tamper events.
+  </Card>
+</Columns>

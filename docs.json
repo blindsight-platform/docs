@@ -17,26 +17,23 @@
             "group": "Getting started",
             "pages": [
               "index",
-              "quickstart"
+              "quickstart",
+              "overview"
             ]
           },
           {
-            "group": "Data Integrity",
+            "group": "Data Security",
             "pages": [
-              "data-integrity/overview",
-              "data-integrity/projects",
-              "data-integrity/datasets",
-              "data-integrity/scans",
-              "data-integrity/engines",
-              "data-integrity/healing",
-              "data-integrity/playground",
-              "data-integrity/compliance",
-              "data-integrity/audit-trail",
-              "data-integrity/dashboard",
-              "data-integrity/automation",
-              "data-integrity/integrations",
-              "data-integrity/team",
-              "data-integrity/settings"
+              "data-security/overview",
+              "data-security/projects",
+              "data-security/datasets",
+              "data-security/scans",
+              "data-security/engines",
+              "data-security/healing",
+              "data-security/rag-security",
+              "data-security/playground",
+              "data-security/automation",
+              "data-security/integrations"
             ]
           },
           {
@@ -58,6 +55,8 @@
             "group": "DLP (endpoint)",
             "pages": [
               "dlp/overview",
+              "dlp/install",
+              "dlp/uninstall",
               "dlp/fleet-rollout",
               "dlp/identity",
               "dlp/devices",
@@ -71,6 +70,23 @@
                   "dlp/shadow-ai/triage"
                 ]
               }
+            ]
+          },
+          {
+            "group": "Compliance",
+            "pages": [
+              "compliance/overview",
+              "compliance/frameworks",
+              "compliance/data-posture",
+              "compliance/audit-trail",
+              "compliance/reports"
+            ]
+          },
+          {
+            "group": "Administration",
+            "pages": [
+              "administration/access",
+              "administration/settings"
             ]
           }
         ]
@@ -96,6 +112,88 @@
       }
     ]
   },
+  "redirects": [
+    {
+      "source": "/data-integrity/compliance",
+      "destination": "/compliance/reports",
+      "permanent": true
+    },
+    {
+      "source": "/data-integrity/audit-trail",
+      "destination": "/compliance/audit-trail",
+      "permanent": true
+    },
+    {
+      "source": "/data-integrity/dashboard",
+      "destination": "/overview",
+      "permanent": true
+    },
+    {
+      "source": "/data-integrity/team",
+      "destination": "/administration/access",
+      "permanent": true
+    },
+    {
+      "source": "/data-integrity/settings",
+      "destination": "/administration/settings",
+      "permanent": true
+    },
+    {
+      "source": "/data-integrity/overview",
+      "destination": "/data-security/overview",
+      "permanent": true
+    },
+    {
+      "source": "/data-integrity/projects",
+      "destination": "/data-security/projects",
+      "permanent": true
+    },
+    {
+      "source": "/data-integrity/datasets",
+      "destination": "/data-security/datasets",
+      "permanent": true
+    },
+    {
+      "source": "/data-integrity/scans",
+      "destination": "/data-security/scans",
+      "permanent": true
+    },
+    {
+      "source": "/data-integrity/engines",
+      "destination": "/data-security/engines",
+      "permanent": true
+    },
+    {
+      "source": "/data-integrity/healing",
+      "destination": "/data-security/healing",
+      "permanent": true
+    },
+    {
+      "source": "/data-integrity/playground",
+      "destination": "/data-security/playground",
+      "permanent": true
+    },
+    {
+      "source": "/data-integrity/automation",
+      "destination": "/data-security/automation",
+      "permanent": true
+    },
+    {
+      "source": "/data-integrity/integrations",
+      "destination": "/data-security/integrations",
+      "permanent": true
+    },
+    {
+      "source": "/data-integrity/:slug*",
+      "destination": "/data-security/:slug*",
+      "permanent": true
+    },
+    {
+      "source": "/data-integrity",
+      "destination": "/data-security/overview",
+      "permanent": true
+    }
+  ],
   "logo": {
     "light": "/logo/light.png",
     "dark": "/logo/dark.png"

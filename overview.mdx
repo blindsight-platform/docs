@@ -1,0 +1,75 @@
+---
+title: "The Overview page"
+description: "The cross-capability home: live firewall traffic, what needs attention, and the most recent events and scans across every product."
+---
+
+Overview (`/overview`) is the workspace home. It is deliberately
+cross-capability: it does not belong to Runtime Security, Data
+Security, or DLP, and it stays reachable no matter which of them your
+license includes.
+
+Signing in lands you here unless your workspace still has setup to
+finish, in which case you land on Getting Started first.
+
+## What it shows
+
+| Section                    | What it answers                                                                    |
+| -------------------------- | ------------------------------------------------------------------------------------ |
+| **Live traffic**           | Prompts and responses through the firewall over the last N days, as a flow.          |
+| **Capabilities**           | Which products are provisioned, and whether each is actually receiving signal.       |
+| **Needs attention**        | The short list of things that are wrong right now.                                   |
+| **Top threats**            | What is being detected most across your traffic.                                     |
+| **Latest events**          | The most recent Runtime Security and DLP events, newest first.                       |
+| **Recent scans**           | The most recent Data Security scans and how they finished.                           |
+
+Sections you have no license or no permission for are not rendered.
+
+## Reading the empty states
+
+An empty panel here means something specific, and the page says which.
+
+| What you see                       | What it means                                                              |
+| ---------------------------------- | ---------------------------------------------------------------------------- |
+| **Watching for traffic**           | The capability is live but nothing has come through the firewall yet.       |
+| **Watching for signals**           | Provisioned, waiting for the first signal from a device or an app.          |
+| **Watching for events**            | Connected, but no events in the selected window.                            |
+| **No scans yet**                   | Data Security is available and no scan has been run.                        |
+| **Waiting for a connection**       | Nothing has connected to this workspace yet.                                |
+| **Could not load...**              | A real failure, not an empty state. Retry, then check the API is reachable. |
+
+<Note>
+  A section that is waiting is never rendered blank. If a panel says
+  nothing at all, that is a bug worth reporting, not an empty
+  workspace.
+</Note>
+
+## Where to go from here
+
+Overview is a status surface, not a working surface. Each panel links
+into the product that owns it:
+
+<Columns cols={2}>
+  <Card title="Your AI Deployment" icon="diagram-project" href="/runtime-security/overview">
+    The map of the AI systems you run, at `/deployment`.
+  </Card>
+  <Card title="Runtime Security" icon="bolt" href="/runtime-security/overview">
+    Apps, verdicts, drift, and the firewall itself.
+  </Card>
+  <Card title="Data Security" icon="database" href="/data-security/overview">
+    Datasets, scans, healing, and RAG corpora.
+  </Card>
+  <Card title="Compliance" icon="scale-balanced" href="/compliance/overview">
+    Frameworks, posture, audit trail, and reports.
+  </Card>
+</Columns>
+
+## What it is not
+
+- It is not the compliance posture view. That is
+  [Data posture](/compliance/data-posture), which rolls up datasets by
+  severity rather than showing recent activity.
+- It is not a report. Nothing here is exportable evidence; generate a
+  [report](/compliance/reports) for that.
+- It is not a substitute for alerting. Set up
+  [webhooks and notifications](/data-security/integrations) if you need
+  to be told rather than to look.

@@ -9,7 +9,7 @@ matches what you're integrating with.
 <Columns cols={2}>
   <Card title="Blindsight API" icon="shield-check">
     Datasets, scans, results, healing, compliance, and audit. Use this
-    surface to drive Data Integrity programmatically.
+    surface to drive Data Security programmatically.
   </Card>
   <Card title="Runtime Security API" icon="bolt-lightning">
     Prompt and response scanning plus the OpenAI / Anthropic
@@ -89,10 +89,10 @@ so a key can only reach the surfaces it was issued for.
 | `runtime:config:read` | Read firewall configuration.                                            |
 | `runtime:config:write`| Every write on the Runtime Security surface, not only `/config`. See the table below. |
 | `runtime:*`           | All four `runtime:` scopes.                                             |
-| `*`                   | Full access: every scope the platform defines, across Data Integrity and Runtime Security. |
+| `*`                   | Full access: every scope the platform defines, across Data Security and Runtime Security. |
 
 <Note>
-  `*` used to expand to the Data Integrity scopes alone, so a key
+  `*` used to expand to the Data Security scopes alone, so a key
   labelled **Full access** carried no Runtime Security authority and
   could not call the firewall. It now covers both halves of the
   platform. If you worked around this by minting a second

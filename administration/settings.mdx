@@ -9,18 +9,34 @@ behind feature gates.
 
 ## The Settings tabs
 
-| Tab                          | Contents                                                                                                  |
-| ---------------------------- | --------------------------------------------------------------------------------------------------------- |
-| **General**                  | Workspace name, timezone, default engine parameters, feature toggles, schedule list, export templates.      |
-| **Appearance**               | Theme (light / dark / system), accent color, density, logo upload.                                          |
-| **Healing**                  | Default healing toggles, auto‑heal preferences, retention window for cured zips.                            |
-| **Notifications**            | Email, in‑app, webhook defaults per event type. Team‑wide overrides for admins.                              |
-| **Security**                 | Session timeout, password policy, 2FA (when enabled), IP allowlist (when enabled).                          |
-| **Custom Rules**             | See [Schedules & custom rules](/data-integrity/automation).                                                 |
-| **Integrations**             | See [Integrations & webhooks](/data-integrity/integrations).                                                |
-| **API Keys**                 | See [Team & access](/data-integrity/team).                                                                  |
-| **Users / Roles / Reviewers**| See [Team & access](/data-integrity/team).                                                                  |
-| **License**                  | Current plan, enabled modules, seat count, expiry. Paste a new license key.                                  |
+Settings is grouped by product, and rows you have no license or no
+permission for are not shown.
+
+| Group                | Tab                     | Contents                                                                          |
+| -------------------- | ----------------------- | ----------------------------------------------------------------------------------- |
+| **Workspace**        | Workspace / Organization | Workspace name, timezone, and workspace-level identity.                           |
+|                      | Access management       | A signpost to [Access management](/administration/access), not a second copy of it. |
+|                      | Reviewers               | The reviewer roster used by triage workflows.                                       |
+|                      | License                 | Current plan, enabled modules, seat count, expiry. Paste a new license key.          |
+|                      | Billing                 | What you are on and how much of your allowance is left. Separate from License.       |
+| **Runtime Security** | Custom rules            | Detection rules for the app firewall. See [Schedules & custom rules](/data-security/automation). |
+| **DLP**              | Configurations          | A signpost to DLP → Configurations, where the fleet's policy actually lives.          |
+| **Data Security**    | Scanning                | Default engine parameters and scan behaviour.                                        |
+|                      | Healing and access      | Default healing toggles, auto-heal, retention, and dataset access control.           |
+| **Platform**         | Integrations            | See [Integrations & webhooks](/data-security/integrations).                          |
+|                      | Notifications           | Email, in-app, and webhook defaults per event type.                                  |
+|                      | Appearance              | Theme, accent color, density, logo upload.                                           |
+
+<Note>
+  People, roles, resource access, API keys, authentication and SSO all
+  moved to [Access management](/administration/access). Settings keeps
+  a signpost row rather than a duplicate form, so there is one place a
+  change can be made.
+
+  The workspace two-factor rule moved with them: it now sits on
+  **Access management → Directory**, beside the directory that enforces
+  most of it.
+</Note>
 
 ## Appearance
 
@@ -39,7 +55,7 @@ workspace.
 <Tip>
   The logo you upload here also appears on the default report
   template's cover page. To override per project, set a
-  project‑local report template (see [Compliance & reports](/data-integrity/compliance)).
+  project‑local report template (see [Compliance & reports](/compliance/reports)).
 </Tip>
 
 ## Healing defaults
@@ -69,13 +85,16 @@ workspace**:
 Some features are gated behind license flags. The License tab shows
 exactly what your workspace has access to.
 
-| Feature flag                   | Gates                                                                  |
-| ------------------------------ | ---------------------------------------------------------------------- |
-| `FEATURE_BIAS_ANALYSIS`        | The Bias & Shortcut engine.                                            |
-| `FEATURE_DATA_DRIFT`           | Data drift scans (when enabled).                                       |
-| `FEATURE_COMPLIANCE_REPORTS`   | The Compliance page and compliance report generation.                  |
-| `FEATURE_ADVANCED_EXPORTS`     | Export templates, JSON / ZIP bundled exports.                          |
-| `FEATURE_HEALING`              | Healing workflows.                                                     |
+| Feature flag                   | Gates                                                                    |
+| ------------------------------ | -------------------------------------------------------------------------- |
+| `FEATURE_DATA_SECURITY`        | Datasets, scans, and the rest of Data Security.                            |
+| `FEATURE_RUNTIME_SECURITY`     | The firewall, its apps, keys, and endpoint DLP.                            |
+| `FEATURE_RAG_SECURITY`         | [RAG Security](/data-security/rag-security) corpora and corpus scans.       |
+| `FEATURE_COMPLIANCE_REPORTS`   | The whole [Compliance](/compliance/overview) product, including the audit trail. |
+| `FEATURE_BIAS_ANALYSIS`        | The Bias & Shortcut engine.                                                |
+| `FEATURE_DATA_DRIFT`           | Drift analysis.                                                            |
+| `FEATURE_HEALING`              | Healing workflows.                                                         |
+| `FEATURE_ADVANCED_EXPORTS`     | Export templates and the richer export formats.                            |
 
 If a feature isn't licensed, the UI surfaces an **Upgrade required**
 banner on the relevant page, and API calls return
@@ -143,10 +162,19 @@ This means:
     under **Settings → Integrations**.
   </Accordion>
 
-  <Accordion title="Compliance page shows Upgrade required">
-    Your license doesn't include `FEATURE_COMPLIANCE_REPORTS`.
-    Contact your account manager or paste an updated key in
-    **Settings → License**.
+  <Accordion title="Compliance is missing from the sidebar entirely">
+    Your license doesn't include `FEATURE_COMPLIANCE_REPORTS`. Gated
+    products are hidden rather than shown as a dead entry, so the
+    absence is the symptom. Contact your account manager or paste an
+    updated key in **Settings → License**.
+  </Accordion>
+
+  <Accordion title="A tab I expected on Access management isn't there">
+    Each tab asks the permission its own endpoints ask, so the strip
+    never offers a surface the server would refuse. If Keys is missing
+    you lack `settings.security.manage`; if Roles is missing you lack
+    `roles.view`. See
+    [Access management](/administration/access).
   </Accordion>
 
   <Accordion title="API call returns 402 QUOTA_EXCEEDED">

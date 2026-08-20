@@ -8,7 +8,7 @@ produces results, artifacts, and a severity. This page covers the
 launch, the lifecycle, and how to triage the output.
 
 For what each engine actually detects, see
-[Engines](/data-integrity/engines).
+[Engines](/data-security/engines).
 
 ## Launching a scan
 
@@ -105,7 +105,7 @@ The scan page is where most triage happens.
   setting you trust before triggering a healing run.
 </Tip>
 
-## Result detail (`/results/:id`)
+## Result detail (`/scans/:scanId/results/:resultId`)
 
 When you click a row in the issue table, you land on the per‑result
 page.
@@ -156,16 +156,16 @@ From the issue table on the scan detail page:
 ## See also
 
 <CardGroup cols={2}>
-  <Card title="Engines" icon="microchip" href="/data-integrity/engines">
+  <Card title="Engines" icon="microchip" href="/data-security/engines">
     What each engine detects and how to interpret its output.
   </Card>
-  <Card title="Healing" icon="bandage" href="/data-integrity/healing">
+  <Card title="Healing" icon="bandage" href="/data-security/healing">
     Turn a scan's findings into a cured copy of the dataset.
   </Card>
-  <Card title="Scheduled scans" icon="clock" href="/data-integrity/automation">
+  <Card title="Scheduled scans" icon="clock" href="/data-security/automation">
     Run scans automatically on a cron.
   </Card>
-  <Card title="Webhooks" icon="webhook" href="/data-integrity/integrations">
+  <Card title="Webhooks" icon="webhook" href="/data-security/integrations">
     Push scan events to your downstream systems.
   </Card>
 </CardGroup>

@@ -73,7 +73,7 @@ Blindsight roles. Common pattern:
 | `eng-leads`            | `Admin`       | Manage Apps and DLP policies.                      |
 | `compliance-team`      | `Reviewer`    | Triage findings, no destructive actions.           |
 | `all-employees`        | `Viewer`      | Read‑only access to dashboards.                    |
-| `engineering`          | `Member`      | Standard contributor inside Data Integrity.        |
+| `engineering`          | `Member`      | Standard contributor inside Data Security.        |
 
 A user with multiple matching groups gets the **highest** role.
 
@@ -134,7 +134,7 @@ device‑code flow (RFC 8628):
 3. The employee signs in with their normal corporate credentials.
 4. The agent polls `/agent/identity/status` until the IdP confirms
    the binding.
-5. The device row in **Devices & Enrollment** flips from `pending` to
+5. The device row in **DLP → Endpoints** flips from `pending` to
    `bound`, with the directory user attached.
 
 The flow is one‑click for the employee. They sign in once on first
@@ -145,7 +145,7 @@ boot; the binding persists for the lifetime of the device.
 A device can be re‑bound to a different directory user:
 
 - **Automatically** when SCIM marks the previous user inactive.
-- **Manually** by an admin from **Devices & Enrollment** → device
+- **Manually** by an admin from **DLP → Endpoints** → device
   row → **Force re‑bind**.
 
 Re‑binding triggers a new device‑code flow on the agent.
@@ -158,7 +158,7 @@ servers), the agent sets `Identity = auto` when:
 - The OS username matches a directory user email's local part, and
 - SCIM has already provisioned that user.
 
-Mark these devices in **Devices & Enrollment** as `service` so they're
+Mark these devices in **DLP → Endpoints** as `service` so they're
 filtered out of the regular user fleet view.
 
 ## Common workflows

@@ -1,0 +1,284 @@
+---
+title: "Access management"
+description: "Everyone who can reach the workspace, what each of them is allowed to do, and how they prove who they are: people, roles, keys, resources, and the directory."
+---
+
+Access management (`/access`) is one page for every principal that can
+reach the workspace. It replaces six older surfaces that each answered
+part of the question separately.
+
+API keys sit beside the people on purpose: a key authenticates as the
+person who created it, so a page about who can do what is wrong without
+them.
+
+## The tabs
+
+| Tab                       | What it covers                                                     | Needs                         |
+| ------------------------- | -------------------------------------------------------------------- | ----------------------------- |
+| **People**                | The roster, roles per person, invitations.                          | `users.view`                  |
+| **Roles and permissions** | The role to permission matrix, and custom roles.                    | `roles.view`                  |
+| **Keys**                  | Every API key in the workspace.                                     | `settings.security.manage`    |
+| **Resource access**       | Dataset and project sharing.                                        | Admin or owner                |
+| **Explain access**        | Why a given person can or cannot do a given thing.                  | `users.view` + `roles.view`   |
+| **Directory**             | SCIM provisioning, OIDC SSO, and the sign-in policy.                | `directory.view`              |
+| **Activity**              | Access-relevant activity per person.                                | `users.view_activity`         |
+
+A tab you cannot read is not shown. That is deliberate: an entry that
+leads only to a refusal is worse than no entry.
+
+<Note>
+  Old links keep working. `?tab=users`, `?tab=api-keys`,
+  `?tab=roles-permissions`, `?tab=sso` and the other former slugs
+  resolve to their current tab, and the URL is rewritten to the tab you
+  are actually looking at, so a copied link reopens what the sender saw.
+</Note>
+
+## Built-in roles
+
+Nine roles ship with the platform. Five of them exist specifically so a
+large organisation can separate duties instead of handing out `admin`.
+
+| Role                    | What it is for                                                                                       |
+| ----------------------- | ------------------------------------------------------------------------------------------------------ |
+| **owner**               | Platform-level license and user management. Deliberately **no** tenant data access.                    |
+| **admin**               | Org-level power user with full data access inside their org.                                           |
+| **security-admin**      | Runs access control and auth policy, and holds **no** tenant data permissions at all.                  |
+| **security-analyst**    | Watches the firewall and tunes detection. Reads data to investigate; cannot change access or delete evidence. |
+| **data-manager**        | Owns the data lifecycle end to end, including who can reach a dataset. No access-control or policy power. |
+| **compliance-auditor**  | Read-only, plus producing reports and verifying the audit chain.                                       |
+| **developer**           | Integrates an app with the firewall: keys, playground, scan endpoints. No roster, no policy, no data mutation. |
+| **user**                | The standard contributor: datasets, scans, projects, reports, rules, healing.                          |
+| **viewer**              | Read-only.                                                                                             |
+
+<Note>
+  `security-admin` is the role that makes the platform separable: an IT
+  admin can add and remove people without being able to read a single
+  prompt, dataset, or scan result.
+
+  It carries `roles.view` and deliberately **not** `roles.manage`.
+  `roles.manage` can add any permission to a role its holder already
+  has, so granting it here would let a security-admin give themselves
+  data access in two clicks and quietly make "no data access" a lie.
+  Defining roles stays with `admin`; security-admin only assigns roles
+  that already exist.
+</Note>
+
+<Note>
+  `compliance-auditor` is read-only on purpose. An auditor who can
+  change the thing they audit is not an auditor. Its only writes are
+  producing reports and running the audit-chain verification.
+</Note>
+
+## Custom roles
+
+Admins can define custom roles from the granular permission catalog. A
+custom role is a named bundle of permissions, nothing more.
+
+Role names must be 2 to 64 characters, start with a letter, and use
+only letters, numbers, underscores and hyphens. A name that collides
+with a built-in role is rejected.
+
+| Action           | Endpoint                              | Needs           |
+| ---------------- | --------------------------------------- | --------------- |
+| List roles       | `GET /api/users/roles`                  | Signed in       |
+| Create a role    | `POST /api/users/roles`                 | `roles.manage`  |
+| Delete a role    | `DELETE /api/users/roles/{role}`        | `roles.manage`  |
+| Read the matrix  | `GET /api/users/roles/permissions`      | `roles.view`    |
+| Set a role's permissions | `PUT /api/users/roles/{role}/permissions` | `roles.manage` |
+
+<Warning>
+  A built-in role cannot be deleted, and a custom role cannot be
+  deleted while it is still assigned to somebody. Reassign those people
+  first, then delete the role. Deleting a role also drops its
+  permission overrides.
+</Warning>
+
+## Permission catalog
+
+Permissions are grouped by category and are the same keys the API
+enforces. A representative sample:
+
+| Permission                       | Lets the holder                                              |
+| -------------------------------- | -------------------------------------------------------------- |
+| `users.view`                     | See the roster.                                               |
+| `users.assign_roles`             | Change which roles a person holds.                            |
+| `roles.view`                     | Read the role to permission matrix.                           |
+| `roles.manage`                   | Define roles and what they grant.                             |
+| `datasets.view` / `.create` / `.edit` / `.delete` | Work with datasets.                          |
+| `scans.run` / `.view` / `.review`| Run and triage scans.                                         |
+| `healing.run`                    | Trigger a healing run.                                        |
+| `reports.create` / `.view`       | Produce and read reports.                                     |
+| `compliance.access`              | Read compliance endpoints and reports.                        |
+| `compliance.manage`              | Edit audit records, applications, and parameter schemas.       |
+| `compliance.verify`              | Run the tamper-evidence check on the audit chain.              |
+| `runtime_security.view`          | Read Runtime Security analytics, events, and configuration.    |
+| `runtime_security.scan`          | Call the Runtime Security scan endpoints.                      |
+| `runtime_security.apps.manage`   | Register and configure protected Apps.                         |
+| `runtime_security.firewall.configure` | Change what the firewall blocks, flags, or redacts.        |
+| `api_keys.manage`                | Manage your own API keys.                                      |
+| `settings.security.manage`       | Read every key in the workspace and manage security settings.  |
+| `directory.view` / `.manage`     | Read and configure SCIM and SSO.                               |
+| `playground.access`              | Open the playgrounds.                                          |
+| `custom_rules.manage`            | Create and edit detection rules.                               |
+
+The endpoint DLP permissions live in their own `dlp.` namespace and are
+listed in [DLP permissions](/dlp/permissions).
+
+<Note>
+  `runtime_security.manage` and `runtime_security.policy.manage` were
+  broad umbrellas that have been split into the narrower keys above and
+  the `dlp.` keys. Both still resolve to everything they used to grant,
+  so no existing role loses access, but define new roles from the
+  narrow keys.
+</Note>
+
+<Note>
+  `compliance.verify` is deliberately **not** implied by
+  `compliance.manage`. The verifier's numbers span every workspace on
+  the deployment, because the audit hash chain is global, so it is
+  granted only to `admin` and `compliance-auditor` rather than
+  travelling with a broader key.
+</Note>
+
+## Explain access
+
+The Explain access tab answers a specific, awkward question: why can
+this person do this, or why can't they? Pick a person and a
+permission, and it traces the answer through their roles rather than
+leaving you to read the matrix yourself.
+
+Use it before changing a role. It is usually faster, and it tells you
+which role is actually responsible.
+
+## Per-resource access
+
+Beyond workspace roles, datasets and projects carry their own sharing.
+The workspace role is the floor; a resource grant can raise it for one
+dataset or project.
+
+<Tip>
+  Give a contractor `viewer` at the workspace level and share exactly
+  the one project they need, rather than promoting their workspace
+  role.
+</Tip>
+
+## Invitations
+
+<Steps>
+  <Step title="Invite a person">
+    From the **People** tab, enter their work email and pick a role.
+    Only professional domains are accepted; consumer mail domains are
+    rejected inline.
+  </Step>
+  <Step title="They accept">
+    The invitee gets a one-click acceptance link, sets a password,
+    picks a display name, and lands in the workspace with the role you
+    assigned.
+  </Step>
+  <Step title="Manage pending invitations">
+    Pending invitations show on the People tab. Resend or revoke at any
+    time. Invitations expire after a configurable window, set under the
+    Directory tab's sign-in policy.
+  </Step>
+</Steps>
+
+## Directory and SSO
+
+SCIM provisions people from Entra, Okta, or Google into the workspace,
+and OIDC binds each sign-in to a directory user. The sign-in policy
+next to it controls the workspace's own authentication rules.
+
+SAML is schema-ready in the backend but not enabled in this build.
+OIDC covers Entra, Okta, Google, and Ping.
+
+See [Identity binding](/dlp/identity) for how the same directory binds
+DLP devices to people.
+
+## API keys
+
+Everything in the UI is also available over the REST API. To use it
+programmatically, mint a key from the **Keys** tab.
+
+<Steps>
+  <Step title="Create the key">
+    Give it a descriptive name (`CI pipeline`, `Lab upload script`).
+  </Step>
+  <Step title="Scope it">
+    - **Full access** (`*`): every scope the platform defines, across
+      Data Security and Runtime Security.
+    - **Full runtime access** (`runtime:*`): the `runtime:` scopes only.
+    - Or tick the individual scopes the key actually needs
+      (`datasets:read`, `runtime:scan`, and so on).
+
+    A key can never do more than the person who created it. The full
+    scope list is in the
+    [API reference](/api-reference/introduction#api-key-scopes).
+  </Step>
+  <Step title="Set an expiration">
+    Never, 30 days, 90 days, or 1 year. Short-lived keys are safer.
+  </Step>
+  <Step title="Copy the token">
+    **Now.** It is displayed exactly once. If you miss it, revoke and
+    mint a new one.
+  </Step>
+</Steps>
+
+Runtime Security keys can additionally be bound to specific Apps, so a
+key that leaks cannot be pointed at a different application.
+
+### Using the key
+
+Pass it as `Authorization: Bearer <token>` on every API call.
+
+```bash
+curl -H "Authorization: Bearer $BLINDSIGHT_TOKEN" \
+     $API_BASE/api/datasets
+```
+
+### Revoking a key
+
+Click **Revoke** on any row in the Keys tab. Revocation is instant and
+audit-logged. Subsequent calls with that key return `401`.
+
+### Rotation
+
+<AccordionGroup>
+  <Accordion title="CI / CD pipelines">
+    Mint one key per pipeline. Rotate every 90 days. Store the new
+    value in your CI's secret manager, run jobs against both old and
+    new for one rotation window, then revoke the old one.
+  </Accordion>
+
+  <Accordion title="Long-running services">
+    Mint with **Never** expiry and rotate manually on a cadence. Name
+    the key after the service so it is obvious in the audit trail.
+  </Accordion>
+
+  <Accordion title="Ad-hoc scripts">
+    Mint a short-lived key (30 days), use it, revoke when done. Treat
+    ad-hoc keys like one-use tokens.
+  </Accordion>
+</AccordionGroup>
+
+## Your own profile
+
+Every user has a profile page (`/profile`) with their display name and
+avatar, email and password reset, notification preferences per event
+type and channel, and their active sessions.
+
+## See also
+
+<Columns cols={2}>
+  <Card title="Settings & licensing" icon="sliders" href="/administration/settings">
+    Workspace-level configuration, quotas, and the license model.
+  </Card>
+  <Card title="DLP permissions" icon="key" href="/dlp/permissions">
+    The `dlp.` namespace and what each key grants.
+  </Card>
+  <Card title="Audit trail" icon="scroll" href="/compliance/audit-trail">
+    Every access change, recorded and hash-chained.
+  </Card>
+  <Card title="API reference" icon="terminal" href="/api-reference/introduction">
+    Scopes, routes, and try-it-out.
+  </Card>
+</Columns>

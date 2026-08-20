@@ -1,22 +1,23 @@
 ---
 title: "Blindsight Platform"
-description: "Three coordinated surfaces for AI safety: dataset integrity, an LLM‑traffic firewall, and endpoint DLP. One managed cloud workspace."
+description: "Four coordinated surfaces for AI safety: data security, an LLM‑traffic firewall, endpoint DLP, and the compliance evidence they produce. One managed cloud workspace."
 ---
 
 ## What Blindsight does
 
-Blindsight is a three‑part safety platform for AI systems, delivered as
-a managed cloud service. Use whichever surfaces (or all of them) fit
-your stack.
+Blindsight is a safety platform for AI systems, delivered as a managed
+cloud service. Three surfaces inspect, one turns what they found into
+evidence. Use whichever fit your stack.
 
-<Columns cols={3}>
+<Columns cols={2}>
   <Card
-    title="Data Integrity"
+    title="Data Security"
     icon="shield-check"
-    href="/data-integrity/overview"
+    href="/data-security/overview"
   >
-    Scan training datasets for label errors, outliers, poisoning, bias, leaked
-    secrets, and prompt‑injection payloads. Triage, heal, and audit the results.
+    Scan training datasets and RAG corpora for label errors, outliers,
+    poisoning, bias, leaked secrets, and prompt‑injection payloads. Triage,
+    heal, and quarantine.
   </Card>
   <Card
     title="Runtime Security"
@@ -30,11 +31,16 @@ your stack.
     A signed desktop agent that intercepts LLM traffic at the OS network layer
     on every managed laptop. No application code changes.
   </Card>
+  <Card title="Compliance" icon="scale-balanced" href="/compliance/overview">
+    Map everything the other three surfaces observed onto SOC 2, ISO 27001,
+    HIPAA, GDPR, the Swiss FADP, and the EU AI Act. Then generate the report.
+  </Card>
 </Columns>
 
-All three surfaces share the same scanners, the same Apps, the same
-event store, and the same admin console. They ship independently so
-you can adopt one (or two) without committing to the rest.
+The three inspection surfaces share the same scanners, the same Apps,
+the same event store, and the same admin console. They ship
+independently so you can adopt one (or two) without committing to the
+rest, and Compliance reads whichever of them you run.
 
 ## Pick a starting point
 
@@ -44,11 +50,17 @@ you can adopt one (or two) without committing to the rest.
     in about ten minutes.
   </Card>
   <Card
-    title="Data Integrity overview"
+    title="Data Security overview"
     icon="book-open"
-    href="/data-integrity/overview"
+    href="/data-security/overview"
   >
     Core concepts, severity scale, and the map of every feature.
+  </Card>
+  <Card title="Compliance overview" icon="scale-balanced" href="/compliance/overview">
+    The six frameworks, what a mapping claims, and how to generate a report.
+  </Card>
+  <Card title="Install the DLP agent" icon="download" href="/dlp/install">
+    Put the agent on one machine or a whole fleet, and know what it changes.
   </Card>
   <Card
     title="Runtime Security overview"
@@ -64,14 +76,19 @@ you can adopt one (or two) without committing to the rest.
 
 ## How the surfaces relate
 
-|                      | Data Integrity                                    | Runtime Security                                            | DLP (endpoint)                                                  |
+|                      | Data Security                                    | Runtime Security                                            | DLP (endpoint)                                                  |
 | -------------------- | ------------------------------------------------- | ----------------------------------------------------------- | --------------------------------------------------------------- |
-| **What it inspects** | Datasets at rest (images, text, NIfTI, detection) | Live LLM prompts and responses from instrumented apps       | Live LLM prompts and responses from any app on a managed device |
+| **What it inspects** | Datasets at rest and RAG corpora (images, text, NIfTI, detection) | Live LLM prompts and responses from instrumented apps       | Live LLM prompts and responses from any app on a managed device |
 | **When it runs**     | On upload, on schedule, on demand                 | On every request, inline                                    | On every request, on the device                                 |
 | **Who deploys it**   | The data / ML team                                | The application team                                        | IT, via MDM                                                     |
 | **Integration**      | Web UI, REST API, scheduled scans                 | Reverse proxy (swap `base_url`) or REST scan endpoints      | Push the signed agent through Jamf, Kandji, Intune, GPO, SCCM   |
 | **Output**           | Issue lists, healed datasets, compliance reports  | `allow` / `redact` / `block` verdicts, events, drift charts | Same verdicts, attributed to a device and a directory user      |
 
 If you only need one surface today, start there. Wiring up the rest
-later is additive: workspaces, Apps, API keys, observability, and
-audit already know about all three.
+later is additive: workspaces, Apps, API keys, observability, and audit
+already know about all three.
+
+[Compliance](/compliance/overview) sits on top of whichever of them you
+run. It adds no scanners of its own; it maps what they already found
+onto SOC 2, ISO/IEC 27001, HIPAA, GDPR, the Swiss FADP, and the EU AI
+Act, and produces the document an auditor asks for.

@@ -15,7 +15,7 @@ read [Shadow AI overview](/dlp/shadow-ai/overview) first.
 Discovery has exactly one hard prerequisite: at least one enrolled
 device. Follow [Fleet rollout](/dlp/fleet-rollout) to push the agent
 and mint an enrollment token, then confirm the device appears in
-**Runtime Security → Devices & Enrollment** with a recent **Last
+**DLP → Endpoints** with a recent **Last
 seen**.
 
 Two useful properties of discovery during a rollout:
@@ -242,7 +242,7 @@ observations it accepted.
 <AccordionGroup>
   <Accordion title="The page shows the empty state">
     1. Confirm at least one device is enrolled and **Last seen** is
-       recent, in **Devices & Enrollment**.
+       recent, in **DLP → Endpoints**.
     2. Confirm the device has actually reached an AI host that is *not*
        inspected. Traffic to inspected hosts is scanned, not
        discovered, so it never appears here.
@@ -260,7 +260,7 @@ observations it accepted.
 
   <Accordion title="Everything shows as off-SSO or an OS user name">
     Identity binding has not completed on those devices. Filter
-    **Devices & Enrollment** by identity `pending` and use **Force
+    **DLP → Endpoints** by identity `pending` and use **Force
     re-bind**. See [Identity binding](/dlp/identity).
   </Accordion>
 

@@ -23,14 +23,17 @@ SYSTEM / root and cannot know the human user, so identity is bound
 **after** enrollment via the SSO device‑code flow, opened
 automatically by the agent. The employee signs in once.
 
-See [Identity binding](/dlp/identity) for the directory and SSO side.
-This page is the IT‑side rollout.
+See [Identity binding](/dlp/identity) for the directory and SSO side,
+and [Installing the agent](/dlp/install) for what an install changes on
+a single machine. This page is the IT‑side rollout.
 
 ## 1. Create the fleet enrollment token
 
 <Steps>
-  <Step title="Open Devices & Enrollment">
-    **Runtime Security → Devices & Enrollment → create token.**
+  <Step title="Open DLP → Endpoints">
+    **DLP → Endpoints → create token.** The copy-paste install command
+    with the token already baked in is on
+    **DLP → Configurations → Install**.
   </Step>
   <Step title="Copy the token">
     Shown exactly once. Store it in your MDM secret vault. One token
@@ -63,9 +66,9 @@ Deploy via:
 - **SCCM** package deployment.
 
 The MSI writes `HKLM\SOFTWARE\Blindsight` (`CloudBaseURL`,
-`EnrollmentToken`, `SSOLoginBase`), imports the root CA
-(`Blindsight Root CA`) to the machine trust store, and installs the
-SYSTEM service. The service self‑enrolls and runs the SSO
+`EnrollmentToken`, `SSOLoginBase`), generates a **per-machine**
+inspection root CA and adds it to the machine trust store (there is no
+shared fleet key), and installs the SYSTEM service. The service self‑enrolls and runs the SSO
 identity‑binding flow. An interactive install opens the dashboard
 once; `/qn` stays silent.
 
@@ -84,39 +87,21 @@ once; `/qn` stays silent.
   already carries one. Pass `ENROLL_TOKEN` for a fleet push.
 </Warning>
 
-There is also a per‑user `.exe` installer (Inno Setup) for people
-installing it themselves. It is a **separate product identity**: the
-MSI cannot upgrade an `.exe` install and vice versa, they would
-side‑install as two products. Pick one per machine, and use the MSI
-for fleets.
+<Warning>
+  The per‑user `.exe` installer (Inno Setup) has been **withdrawn** and
+  should not be used for new installs, fleet or otherwise. It installs
+  into the user profile, which leaves the device token and the local
+  policy owned by the person the agent is protecting, so the tamper
+  resistance the MSI gets from LocalSystem does not apply. It is also a
+  separate product identity, so `msiexec` cannot upgrade it in place.
+</Warning>
 
-### Windows 11 and the network driver
-
-Windows 11 turns Microsoft's vulnerable-driver blocklist on by
-default, and it refuses the bundled capture driver. This is the
-**stock** configuration, not an exotic one.
-
-There is nothing for you or the user to do. The agent falls back to
-its explicit-proxy engine, which needs no driver, and first-run setup
-finishes as `degraded` rather than failing. The window opens and
-protection runs.
-
-What differs is coverage:
-
-| Engine            | Covers                                                                       |
-| ----------------- | ----------------------------------------------------------------------------- |
-| Capture driver    | Every process, whether or not it honours system proxy settings.               |
-| Explicit proxy    | Browsers, and any app that reads the system proxy settings (WinINET, WinHTTP, environment variables, PAC, Firefox). Proxy-unaware apps are **not** covered. |
-
-The device reports `protection_state = "degraded"` with the blocklist
-named as the reason, and sends a health event immediately, so you can
-find affected machines from the fleet view rather than discovering
-them later.
-
-<Note>
-  Do not turn the blocklist off to get the driver loaded. The fallback
-  is the supported path on Windows 11.
-</Note>
+On Windows 11 the stock vulnerable-driver blocklist refuses the
+bundled capture driver and the agent falls back to its explicit-proxy
+engine, which covers less. This is expected and needs no action from
+you, but it does change coverage. See
+[Windows 11 and the network driver](/dlp/install) for what is and is
+not covered, and how the device reports it.
 
 ## 2b. macOS push
 
@@ -153,7 +138,7 @@ with the org root CA in the login keychain and a root guardian daemon.
 <Note>
   A macOS build older than 1.0.29 reports its bundle version as
   `0.1.0` to Finder and to inventory tools, whatever the agent
-  actually is. Read the version from **Devices & Enrollment** instead,
+  actually is. Read the version from **DLP → Endpoints** instead,
   which is reported by the agent itself.
 </Note>
 
@@ -170,11 +155,11 @@ Linux is not supported.
 
 ## 2c. Keeping the fleet up to date
 
-The agent checks a release manifest 60 seconds after start and then
-every 6 hours, verifies the download's SHA-256 and size before
-installing it, and preserves device state across the upgrade
-(enrollment, the CA, the pseudonymization vault, and the local event
-spool).
+The agent self-updates by default: it checks a release manifest 60
+seconds after start and then every 6 hours, verifies the download's
+SHA-256 and size before installing it, and preserves device state
+across the upgrade (enrollment, the CA, the pseudonymization vault, the
+local event spool, sign-in and settings).
 
 | Channel   | What it is                                     |
 | --------- | ---------------------------------------------- |
@@ -192,11 +177,12 @@ spool).
 Never delete `%ProgramData%\Blindsight\pseudonym_vault.db` or
 `vault.key`. They hold the only mapping from a surrogate back to what
 the person actually wrote, and losing them is permanent and visible
-to the user. A genuine uninstall wipes them; an upgrade does not.
+to the user. A genuine uninstall wipes them; an upgrade does not. See
+[Uninstalling the agent](/dlp/uninstall).
 
 ## 3. Verify rollout
 
-Open **Devices & Enrollment** in the dashboard. Each machine appears
+Open **DLP → Endpoints** in the dashboard. Each machine appears
 with an **Identity** column.
 
 | Identity status | What it means                                                              |
@@ -236,7 +222,7 @@ a SAML‑only IdP.
 
 <AccordionGroup>
   <Accordion title="Pilot a small group before fleet rollout">
-    1. Create a token in **Devices & Enrollment** restricted to one
+    1. Create a token in **DLP → Endpoints** restricted to one
        directory group (`engineering-pilot`).
     2. Push the agent to that group via your MDM's smart‑group
        scoping.
@@ -246,7 +232,7 @@ a SAML‑only IdP.
   </Accordion>
 
   <Accordion title="Rotate the enrollment token">
-    1. Mint a new token in **Devices & Enrollment**.
+    1. Mint a new token in **DLP → Endpoints**.
     2. Update the MDM payload to embed the new token. Existing
        devices are unaffected; rotation only matters for new
        enrollments.
@@ -255,9 +241,25 @@ a SAML‑only IdP.
   </Accordion>
 
   <Accordion title="Replace a lost laptop">
-    1. Revoke the device row in **Devices & Enrollment**.
+    1. Revoke the device row in **DLP → Endpoints**.
     2. Ship the replacement with the same MDM policy as the rest of
        the fleet. The new device self‑enrolls and binds to the same
        directory user.
   </Accordion>
+
+  <Accordion title="Roll the agent back off a group">
+    See [Uninstalling the agent](/dlp/uninstall), which covers the
+    silent uninstall command, what it reverts, and what it destroys.
+  </Accordion>
 </AccordionGroup>
+
+## See also
+
+<Columns cols={2}>
+  <Card title="Installing the agent" icon="download" href="/dlp/install">
+    Single-machine install, what it changes, and how to verify it.
+  </Card>
+  <Card title="Uninstalling the agent" icon="trash" href="/dlp/uninstall">
+    Silent removal, the macOS teardown, and retiring the device row.
+  </Card>
+</Columns>

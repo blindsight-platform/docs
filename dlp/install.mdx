@@ -1,0 +1,268 @@
+---
+title: "Installing the agent"
+description: "Install the Blindsight DLP agent on a single machine or across a fleet, and know exactly what it changes on the device."
+---
+
+The DLP agent is a desktop application plus a background service that
+inspects AI traffic leaving the device. This page covers installing it.
+To remove it, see [Uninstalling the agent](/dlp/uninstall). For the
+MDM-driven rollout across a whole company, see
+[Fleet rollout](/dlp/fleet-rollout).
+
+## What ships today
+
+| Platform    | Package                     | How you get it                                              |
+| ----------- | --------------------------- | ------------------------------------------------------------ |
+| **Windows** | `Blindsight.msi`, x64       | The **Downloads** page in the console, or your MDM.           |
+| **macOS**   | `Blindsight Mac.app` in a `.dmg` | Your administrator, delivered with an MDM configuration profile. |
+
+Windows is the primary platform and the only one published on the
+console's Downloads page. Linux is not supported.
+
+<Note>
+  The standalone per-user Windows `.exe` (Inno Setup) has been
+  **withdrawn**. It installed into the user profile, which left the
+  device token and the local policy owned by the person the agent is
+  meant to protect, and it is a separate product identity that
+  `msiexec` cannot upgrade in place. Existing `.exe` installs keep
+  updating, but every new install should use the MSI.
+</Note>
+
+## Before you start
+
+<Steps>
+  <Step title="Check you have a license for DLP">
+    The agent enrols against a workspace whose license includes the
+    endpoint DLP capability. Without it, enrollment is refused.
+  </Step>
+  <Step title="Have the two values ready">
+    Every install needs a **cloud base URL** (your workspace's API
+    host) and an **enrollment token**. Both come from
+    **DLP → Configurations → Install** in the console.
+  </Step>
+  <Step title="Allowlist the agent in your AV / EDR">
+    The agent runs a local TLS-inspecting proxy, which some endpoint
+    products treat as suspicious. Do this before a wide rollout, not
+    after the first ticket.
+  </Step>
+</Steps>
+
+## Install on Windows (single machine)
+
+<Steps>
+  <Step title="Download the MSI">
+    Open **Downloads** in the console. The page shows the current
+    version, the release channel, and a SHA-256 checksum for the
+    installer. Verify the checksum before you run it:
+
+    ```powershell
+    Get-FileHash .\Blindsight.msi -Algorithm SHA256
+    ```
+  </Step>
+
+  <Step title="Run it as an administrator">
+    A double-click install walks through the normal MSI wizard and
+    opens the dashboard once when it finishes.
+  </Step>
+
+  <Step title="Approve protection">
+    On first run the agent asks to install its local inspection
+    certificate and turn on the secure proxy. Until this is approved,
+    nothing is inspected.
+  </Step>
+
+  <Step title="Sign in">
+    Sign in with your work account. The device binds to your directory
+    identity, and traffic from then on is attributed to you rather
+    than to a bare hostname. See
+    [Identity binding](/dlp/identity).
+  </Step>
+</Steps>
+
+## Install on Windows (silent / fleet)
+
+The MSI takes exactly two properties. Both are optional on the command
+line and both are per-machine, x64 only.
+
+```text
+msiexec /i Blindsight.msi CLOUD_BASE="https://api.blindsight.example.com" ENROLL_TOKEN="antde_xxxxxxxxxxxxxxxxxxxx" /qn /norestart
+```
+
+The console generates this exact line for your workspace, with a
+freshly minted token baked in, under
+**DLP → Configurations → Install**. The same screen streams a `.zip`
+containing `install.bat` and `install.ps1` if you would rather push a
+script.
+
+<Warning>
+  The downloaded install kit contains a live enrollment token. Treat
+  the archive as a secret and store it in your MDM's secret vault. The
+  mint and the download are both written to the
+  [audit trail](/compliance/audit-trail).
+</Warning>
+
+<Note>
+  A property passed on the command line always wins. If you omit both,
+  the installer keeps whatever the machine already has under
+  `HKLM\SOFTWARE\Blindsight`, and only a genuinely fresh install falls
+  back to the build's compiled-in default. That is what makes an
+  upgrade safe: a self-update runs `msiexec` with no properties and
+  must not retarget a device IT pointed somewhere specific.
+</Note>
+
+<Warning>
+  A bare `msiexec /i Blindsight.msi /qn` does **not** enrol a device
+  unless the build was created with a token baked in, or the machine
+  already carries one. Always pass `ENROLL_TOKEN` for a fleet push.
+</Warning>
+
+## Install on macOS
+
+macOS ships as a `.dmg`: drag `Blindsight Mac.app` into
+`/Applications`. macOS 11.0 is the minimum. There is no `.pkg`.
+
+Managed configuration arrives as a configuration profile in the
+`dev.blindsight` preferences domain, carrying the same three keys the
+Windows registry does. The console renders four profiles for your
+workspace, and they must be pushed in this order:
+
+| Order | Profile                             | What it does                                  |
+| ----- | ----------------------------------- | ---------------------------------------------- |
+| 1     | `10-system-extension-policy.mobileconfig` | Pre-approves the system extension.        |
+| 2     | `20-transparent-proxy.mobileconfig` | Declares the transparent proxy payload.        |
+| 3     | `30-trusted-ca.mobileconfig`        | Installs the workspace inspection root CA.     |
+| 4     | `40-managed-config.mobileconfig`    | Sets `CloudBaseURL`, `EnrollmentToken`, `SSOLoginBase`. |
+
+A per-user profile is read before the device-wide one. Push with Jamf,
+Kandji, or Intune, then distribute the `.dmg`.
+
+<Warning>
+  **The macOS app currently ships unsigned.** A user has to right-click
+  the app and choose **Open**, then **Open** again, the first time, to
+  get past Gatekeeper. System notifications are delivered through
+  `osascript` as a result, so they appear to come from **Script
+  Editor** rather than Blindsight. Signing and notarizing the profiles
+  needs your own Apple Developer certificate and your MDM. Ask your
+  account manager for a signed build before a wide macOS rollout.
+</Warning>
+
+## What the install actually changes
+
+Knowing this up front makes the security review shorter, and it is the
+same list [uninstall](/dlp/uninstall) reverses.
+
+### Windows
+
+| Change                          | Where                                                                 |
+| ------------------------------- | ---------------------------------------------------------------------- |
+| Program files                   | `%ProgramFiles%\Blindsight`                                             |
+| Machine configuration           | `HKLM\SOFTWARE\Blindsight` (`CloudBaseURL`, `EnrollmentToken`, `SSOLoginBase`) |
+| Background service              | `BlindsightDLP`, running as LocalSystem                                 |
+| Machine state                   | `%ProgramData%\Blindsight` (device enrollment, CA material, event spool, pseudonymization vault) |
+| Per-user state                  | `%USERPROFILE%\.blindsight` (sign-in, settings, logs, local event store) |
+| Trust store                     | A **per-machine** inspection root CA added to the machine Root store. No shared fleet key exists. |
+| System configuration            | System proxy, WinHTTP proxy, proxy environment variables, browser policies, and firewall rules that block QUIC so traffic falls back to inspectable TCP. The pre-existing configuration is snapshotted first. |
+| Scheduled tasks                 | `\Blindsight\ServiceGuard` and `\Blindsight\ConnectivityGuard`, which restart the service and repair the proxy configuration if either is disturbed. |
+
+### macOS
+
+| Change              | Where                                                       |
+| ------------------- | ------------------------------------------------------------ |
+| Application         | `/Applications/Blindsight Mac.app`                           |
+| Machine state       | `/Library/Application Support/Blindsight`                    |
+| Per-user state      | `~/.blindsight`                                              |
+| Root guardian       | LaunchDaemon `dev.blindsight.guardian`                       |
+| Login item          | LaunchAgent `dev.blindsight.mac`                             |
+| Interception        | A `pf` anchor at `/etc/pf.anchors/dev.blindsight`, referenced from `/etc/pf.conf` (backed up to `/etc/pf.conf.blindsight.bak` first), plus a local inspection proxy |
+| Trust store         | The workspace root CA in the login keychain                  |
+
+<Warning>
+  Never delete `pseudonym_vault.db` or `vault.key` from the machine
+  state directory. They hold the only mapping from a surrogate back to
+  what the person actually wrote. Losing them is permanent and visible
+  to the user: every past conversation is left showing a realistic
+  stand-in that can never be resolved again. An upgrade preserves them;
+  a genuine uninstall wipes them on purpose.
+</Warning>
+
+## Windows 11 and the network driver
+
+Windows 11 turns Microsoft's vulnerable-driver blocklist on by default
+and refuses the bundled capture driver. This is the **stock**
+configuration, not an exotic one.
+
+There is nothing for you or the user to do. The agent falls back to its
+explicit-proxy engine, which needs no driver, and first-run setup
+finishes as `degraded` rather than failing. The window opens and
+protection runs.
+
+What differs is coverage:
+
+| Engine         | Covers                                                                                                                                                    |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Capture driver | Every process, whether or not it honours system proxy settings.                                                                                            |
+| Explicit proxy | Browsers, and any app that reads the system proxy settings (WinINET, WinHTTP, environment variables, PAC, Firefox). Proxy-unaware apps are **not** covered. |
+
+The device reports `protection_state = "degraded"` with the blocklist
+named as the reason and sends a health event immediately, so you find
+affected machines from the fleet view rather than discovering them
+later.
+
+<Note>
+  Do not turn the blocklist off to get the driver loaded. The fallback
+  is the supported path on Windows 11.
+</Note>
+
+## Upgrades
+
+The agent checks a release manifest 60 seconds after start and then
+every 6 hours, verifies the download's SHA-256 and size before
+installing it, and preserves device state across the upgrade:
+enrollment, the CA, the pseudonymization vault, and the local event
+spool all survive. Sign-in and settings survive too.
+
+| Channel   | What it is                                                            |
+| --------- | ---------------------------------------------------------------------- |
+| `auto`    | The default. Follows whatever platform the device is enrolled against.  |
+| `stable`  | Promoted production builds.                                            |
+| `staging` | Internal and pre-release builds. `beta` is an alias for this.           |
+
+<Warning>
+  On a managed fleet, set `auto_update = false` (under `[update]` in
+  the agent's config, or `BLINDSIGHT_AUTO_UPDATE=0`) and push builds
+  through your MDM instead, so version rollout stays on your change
+  calendar.
+</Warning>
+
+## Verify the install
+
+Open **DLP → Endpoints** in the console. A healthy device shows up
+within a minute or two with a version, a protection state, and an
+identity.
+
+| Identity status | What it means                                                              |
+| --------------- | -------------------------------------------------------------------------- |
+| `bound`         | The employee completed SSO. Traffic is attributed to a directory user.      |
+| `auto`          | OS username matched a directory user via SCIM. Useful for non-user devices. |
+| `pending`       | Agent enrolled, identity binding not yet completed.                         |
+
+If the device never appears, the enrollment token is the usual cause:
+expired, revoked, at its activation cap, or never passed to `msiexec`
+at all.
+
+## See also
+
+<Columns cols={2}>
+  <Card title="Uninstalling the agent" icon="trash" href="/dlp/uninstall">
+    Remove it cleanly, and what gets wiped when you do.
+  </Card>
+  <Card title="Fleet rollout" icon="server" href="/dlp/fleet-rollout">
+    Enrollment tokens, MDM push, and pilot-then-promote.
+  </Card>
+  <Card title="Identity binding" icon="id-badge" href="/dlp/identity">
+    SCIM provisioning and the SSO device-code flow.
+  </Card>
+  <Card title="Devices" icon="laptop" href="/dlp/devices">
+    The fleet view, health, and tamper events.
+  </Card>
+</Columns>

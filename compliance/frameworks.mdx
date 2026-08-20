@@ -1,0 +1,225 @@
+---
+title: "Frameworks"
+description: "The six control frameworks Blindsight maps findings onto, what each mapping covers, and the applicability conditions that decide whether a control is owed at all."
+---
+
+The Frameworks page (`/compliance/frameworks`) is where you declare
+which standards your workspace reports against, and where you read
+control readiness for each one.
+
+## The six supported frameworks
+
+| Framework           | Id           | Baseline mapped                                                                 |
+| ------------------- | ------------ | -------------------------------------------------------------------------------- |
+| **SOC 2**           | `soc2`       | Trust Services Criteria                                                          |
+| **ISO/IEC 27001**   | `iso27001`   | Annex A controls (ISO/IEC 27001:2022)                                            |
+| **HIPAA**           | `hipaa`      | Security Rule safeguards (45 CFR Part 164, Subpart C)                            |
+| **GDPR**            | `gdpr`       | Articles 5, 24, 25, 30, 32, 33 and 35                                            |
+| **Swiss FADP**      | `fadp`       | Articles 6, 7, 8, 22 and 24 FADP, with Data Protection Ordinance Articles 1 to 4  |
+| **EU AI Act**       | `eu_ai_act`  | Articles 4a, 10, 12 and 15 of Regulation (EU) 2024/1689 as amended               |
+
+Selecting a framework is a reporting declaration, not a claim of
+compliance. You can select all six; the page then shows six readiness
+figures built from one pass over the evidence.
+
+## What Blindsight can and cannot assess
+
+Blindsight assesses eight finding types:
+
+`bias` · `mislabel` · `off-topic` · `outlier` · `poisoning` ·
+`prompt-injection` · `sensitive-info` · `shortcut`
+
+Under the five information-security and data-protection frameworks
+(SOC 2, ISO/IEC 27001, HIPAA, GDPR, FADP) only the three
+security and privacy finding types map to a control:
+`sensitive-info`, `prompt-injection`, and `poisoning`. The five
+data-quality and fairness types have no clean control there, so they
+are reported as **present but unmapped** rather than force-fitted.
+
+The EU AI Act is the exception. Article 10 governs the training,
+validation and testing data sets themselves, so the EU AI Act profile
+maps all eight finding types. It is the only profile with full finding
+coverage, and it is where the unmapped note under the other frameworks
+points.
+
+<Warning>
+  Controls that no Blindsight detection maps to are reported as **not
+  assessed**. Certification-level requirements are outside what any
+  automated detection can attest to: ISO/IEC 27001 certification is
+  granted against management system clauses 4 to 10, and SOC 2 has
+  governance criteria a data and runtime scanner cannot speak to. A
+  Blindsight report is evidence for an audit, never a substitute for
+  one.
+</Warning>
+
+## Applicability: read this before relying on a mapping
+
+Each framework carries scope conditions that decide whether its
+controls are owed at all. The console and every generated report carry
+these notes; they are reproduced here because they change how you
+should read a readiness figure.
+
+<AccordionGroup>
+  <Accordion title="SOC 2">
+    A SOC 2 report covers only the trust services categories the entity
+    selects for the engagement, and Security alone is the most common
+    scope. The confidentiality criteria apply only to an engagement
+    that includes the confidentiality category, and the processing
+    integrity criteria only to one that includes processing integrity.
+    Confirm the categories in scope for your engagement first.
+
+    The Trust Services Criteria publish no short control titles. Each
+    criterion is a single sentence, so the titles shown in Blindsight
+    are descriptive labels, not quotations.
+  </Accordion>
+
+  <Accordion title="ISO/IEC 27001">
+    Annex A of ISO/IEC 27001:2022 is a reference set of information
+    security controls, not a mandatory checklist. Which controls apply
+    is determined by your risk assessment and recorded in your
+    Statement of Applicability. A control listed here is not owed
+    unless your Statement of Applicability includes it.
+
+    Control titles follow the ISO/IEC 27002:2022 published names. The
+    2022 revision groups Annex A into four themes (Organizational,
+    People, Physical, Technological); the 2013 domain names were
+    dissolved.
+  </Accordion>
+
+  <Accordion title="HIPAA">
+    The Security Rule binds a covered entity or a business associate,
+    and only with respect to electronic protected health information
+    (45 CFR 164.302). A workspace that does not process ePHI owes none
+    of these safeguards.
+
+    Blindsight emits HIPAA findings **only** where the workspace has
+    been declared to process ePHI *and* the underlying detection
+    carried a health signal. If you have not made that declaration on
+    the Frameworks page, your HIPAA report will say so rather than
+    invent safeguards.
+
+    Several specifications are Addressable rather than Required
+    (164.306(d)). For those, an entity may document why the
+    specification is not reasonable and appropriate and implement an
+    equivalent alternative measure.
+  </Accordion>
+
+  <Accordion title="GDPR">
+    Duties are split between the controller, who determines the
+    purposes and means of processing, and the processor, who acts on
+    the controller's instructions (Art. 4(7), Art. 4(8), Art. 28).
+    Establish which role you hold before relying on this mapping.
+
+    Articles 24, 25, 30, 32, 33 and 35 are addressed to the controller.
+    A processor's own duties run under Art. 28(3), Art. 32 and
+    Art. 33(2). Art. 30(5) exempts an organisation with fewer than 250
+    employees from the record-keeping duty in the cases it lists. The
+    material and territorial scope conditions in Art. 2 and Art. 3
+    apply in every case.
+  </Accordion>
+
+  <Accordion title="Swiss FADP">
+    The Federal Act on Data Protection of 25 September 2020 (SR 235.1,
+    in force 1 September 2023) applies to circumstances that have an
+    effect in Switzerland, even if they were initiated abroad
+    (Art. 3(1)). Duties are split between the controller and the
+    processor (Art. 8, Art. 9).
+
+    The Ordinance duties are narrower still: the logging duty in
+    DPO Art. 4(1) binds a private controller only where a large volume
+    of sensitive personal data is processed by automated means, or
+    high-risk profiling is carried out, and preventive measures are
+    unable to guarantee data protection.
+
+    Article numbers and titles follow the Confederation's English
+    translation, which is provided for information and has no legal
+    force.
+  </Accordion>
+
+  <Accordion title="EU AI Act">
+    Regulation (EU) 2024/1689 does not place these obligations on every
+    AI system. Articles 10, 12, 14 and 15 bind high-risk AI systems as
+    classified under Art. 6, which has two limbs: Art. 6(1) with
+    Annex I for product-embedded systems, and Art. 6(2) with Annex III
+    for stand-alone ones.
+
+    The duty holder differs by role. Articles 10, 11, 12, 15, 17, 19
+    and 72 fall on the provider, Article 26 on the deployer, and
+    Article 4a on both. Article 27 is narrower than any of them: the
+    fundamental rights impact assessment is owed only by deployers that
+    are bodies governed by public law or private entities providing
+    public services, and by deployers of the Annex III point 5(b) and
+    5(c) systems. General-purpose AI models are governed separately
+    under Chapter V.
+
+    Application dates for high-risk systems were deferred by
+    Regulation (EU) 2026/1744, the Digital Omnibus on AI, OJ L series
+    2026/1744 of 24 July 2026: stand-alone Annex III systems moved from
+    2 August 2026 to 2 December 2027, and product-embedded Annex I
+    systems from 2 August 2027 to 2 August 2028. Confirm your system's
+    classification, the role you hold, and the date in force for you
+    before relying on this mapping.
+  </Accordion>
+</AccordionGroup>
+
+## Selecting frameworks
+
+<Steps>
+  <Step title="Open Frameworks">
+    **Compliance → Frameworks**. Reading the selection needs
+    `compliance.access`; changing it needs `compliance.manage`.
+  </Step>
+  <Step title="Tick the standards you report against">
+    Order is fixed and canonical, so the table reads the same way for
+    everyone in the workspace regardless of the order you picked them.
+  </Step>
+  <Step title="Answer the ePHI question">
+    Declare whether the workspace processes electronic protected health
+    information. This is what switches HIPAA attribution on. It is
+    stored separately from the framework selection, so declaring one
+    cannot wipe the other.
+  </Step>
+</Steps>
+
+Both changes are recorded in the [audit trail](/compliance/audit-trail).
+
+## Reading the readiness table
+
+Each framework row shows a readiness figure derived from the control
+mapping over the current evidence window. Two things are worth knowing:
+
+- **All six figures come from one evidence build.** The page does not
+  generate six reports. Evidence is assembled once, then each framework
+  profile is applied to it, so the figures are directly comparable and
+  the page returns in seconds rather than tens of seconds.
+- **A readiness figure is not a pass mark.** It reflects the controls
+  Blindsight can assess, against the evidence in the window. Read it
+  alongside the "not assessed" count, never on its own.
+
+## API
+
+| Endpoint                                     | What it does                                            |
+| -------------------------------------------- | -------------------------------------------------------- |
+| `GET /api/compliance/frameworks`             | The workspace's selection plus the full catalog.         |
+| `PUT /api/compliance/frameworks`             | Replace the selection. Send an explicit empty list to clear it. |
+| `GET /api/compliance/ephi-scope`             | Read the ePHI declaration.                               |
+| `PUT /api/compliance/ephi-scope`             | Set the ePHI declaration.                                |
+| `POST /api/compliance/report/frameworks`     | Every framework's control mapping over one evidence build. |
+
+<Note>
+  `PUT /api/compliance/frameworks` requires the `frameworks` key to be
+  present. An absent key is rejected rather than treated as an empty
+  list, because "I forgot to send it" and "clear my selection" must not
+  look identical to the server.
+</Note>
+
+## See also
+
+<Columns cols={2}>
+  <Card title="Reports" icon="file-lines" href="/compliance/reports">
+    Turn a framework mapping into a document.
+  </Card>
+  <Card title="Audit trail" icon="scroll" href="/compliance/audit-trail">
+    The evidence behind the governance and access controls.
+  </Card>
+</Columns>
