@@ -1,0 +1,149 @@
+---
+title: "Accepting an invite"
+description: "The path from the invitation email to a working account: set a password, sign in, enrol two-factor if your workspace requires it, and land in the console."
+---
+
+This is the invitee's side of the journey. Send it to teammates you
+have invited.
+
+It is four steps, and the second one surprises people: **accepting your
+invitation does not sign you in.** Accepting activates the account and
+sets your password. Signing in is a separate step, so that first
+sign-in goes through the same checks (two-factor, single sign-on, device
+trust) as every sign-in afterwards.
+
+## 1. Open the link
+
+The **Accept invite** button in your email opens a page that resolves
+your invitation before asking you for anything. You will see one of:
+
+| What you see | What happened |
+| --- | --- |
+| A password form | The invitation is good. Continue below. |
+| "This invite has already been used" | The account is already active. Sign in, or use "Forgot password". |
+| "This invite has expired" | Invitation links are time-limited, typically 7 days. Ask your administrator for a new one. |
+| "This invite is no longer valid" | It was cancelled, or replaced by a newer invitation sent to you. Check for a more recent email first. |
+| "This invite link is not valid" | Usually a truncated link. Copy the whole URL from the email rather than clicking through. |
+
+<Note>
+  A dead link never shows you the password form. If you are being asked
+  for a password, the invitation is live.
+</Note>
+
+## 2. Set your password
+
+The form names the address it is activating and the workspace and role
+you are joining, so you can tell which account you are creating.
+
+You choose a password, and nothing else. Your display name comes from
+your administrator or from your own profile later; there is no name
+field here.
+
+Your password must be:
+
+- Between 12 and 72 characters
+- With an uppercase letter, a lowercase letter, a number, and a symbol
+
+The requirements tick off as you type, so you find out before you
+submit rather than after.
+
+If your administrator requires two-factor authentication, the form says
+so here and you will set it up during the next step.
+
+Once you submit, you get **"Your account is ready"** and a **Sign in**
+button.
+
+## 3. Sign in
+
+The sign-in page is prefilled with your address. Enter the password you
+just chose.
+
+<Tabs>
+  <Tab title="Password">
+    Email and password, then continue. If you forget the password you
+    just set, "Forgot password" on the same screen will email you a
+    reset link.
+  </Tab>
+  <Tab title="Single sign-on">
+    If your organization uses SSO, choose **Continue with SSO** and
+    enter your work address. Blindsight resolves the identity provider
+    from your email domain and hands you to it.
+
+    "No SSO is configured for this email domain" means your workspace
+    has not set SSO up for that domain. Use your email and password.
+  </Tab>
+  <Tab title="Google or Microsoft">
+    These buttons appear only if your workspace has enabled them. They
+    take you out to the provider and return you to the console signed
+    in.
+  </Tab>
+</Tabs>
+
+### Setting up two-factor authentication
+
+If your workspace requires two-factor and you have none yet, first
+sign-in enrols you before letting you through:
+
+<Steps>
+  <Step title="Scan the code">
+    Add the account to any authenticator app (1Password, Authy, Google
+    Authenticator, and so on) by scanning the QR code or entering the
+    secret by hand.
+  </Step>
+  <Step title="Confirm a code">
+    Enter the current 6-digit code to prove the app is working.
+  </Step>
+  <Step title="Save your backup codes">
+    You are then shown a set of one-time backup codes. **This is the
+    only time they are displayed.** Download or copy them somewhere
+    safe and confirm you have done so. They are how you get in if you
+    lose the device with your authenticator on it.
+  </Step>
+</Steps>
+
+On later sign-ins you enter a 6-digit code, or one of those backup
+codes if you cannot reach your authenticator. You can tick **remember
+this device** to skip the prompt on a machine you trust.
+
+## 4. What you land on
+
+Where you arrive depends on how far your workspace has been set up.
+
+<AccordionGroup>
+  <Accordion title="The Overview page">
+    The normal case. Overview is the one home that works regardless of
+    which capabilities your workspace uses, and its sections reflect
+    what you have access to.
+  </Accordion>
+  <Accordion title="A 'Setup in progress' screen">
+    Your administrator has not finished [first-run
+    setup](/getting-started/first-run-setup) yet. Nothing is required
+    from you. The page checks by itself and moves you into the
+    workspace the moment they finish, or you can press "Check again".
+
+    This is common when you are among the first people invited to a
+    brand new workspace.
+  </Accordion>
+  <Accordion title="The setup wizard itself">
+    You are an admin of a workspace that has not been set up yet. See
+    [first-run setup](/getting-started/first-run-setup); it takes five
+    to fifteen minutes and unlocks the console for everyone else.
+  </Accordion>
+</AccordionGroup>
+
+## Finishing your profile
+
+Your display name, notification preferences, and your own two-factor
+settings live under **Profile**. If your administrator did not set a
+name for you, this is where you add one.
+
+## Next
+
+<CardGroup cols={2}>
+  <Card title="First-run setup" icon="wand-magic-sparkles" href="/getting-started/first-run-setup">
+    For admins: choose your workspace's capabilities and unlock the console.
+  </Card>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    From first sign-in to a first scanned request in about ten minutes.
+  </Card>
+</CardGroup>

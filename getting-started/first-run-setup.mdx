@@ -1,0 +1,178 @@
+---
+title: "First-run setup"
+description: "Every new workspace is blocked until an admin picks its capabilities. What the wizard asks, what applying it creates, and what happens to everyone else while it is unfinished."
+---
+
+The first time anyone signs in to a new workspace, Blindsight redirects
+to `/getting-started` and keeps every other page out of reach until an
+admin has completed setup. This is deliberate: nearly every page in the
+console is scoped to a capability, so a workspace that has not declared
+which capabilities it uses has no meaningful navigation to show.
+
+Setup is four stages: **choose**, **review**, **configure**, **done**.
+Plan on five to fifteen minutes depending on what you pick.
+
+<Note>
+  Only workspace **admins** and **owners** can run setup. Everyone else
+  sees a "Setup in progress" screen until it is finished. See [While
+  setup is unfinished](#while-setup-is-unfinished).
+</Note>
+
+## 1. Choose your capabilities
+
+Capabilities are grouped into four plain-language sections, shown one
+at a time rather than as a wall of cards.
+
+| Section | Capabilities |
+| --- | --- |
+| **AI applications** | Runtime Security, Model / API proxy, RAG, MCP tool security, Agentic guardrails |
+| **Workforce** | Shadow AI, DLP |
+| **Training data** | Data Security |
+| **Compliance** | Compliance and reporting |
+
+Each row states the effort involved before you commit to it, derived
+from the capability itself so it cannot drift: `code snippet · ~5 min`,
+`no code · ~3 min`, `installer · ~10 min`, `upload · ~10 min`.
+
+Capabilities your license does not cover still appear, locked. Clicking
+one opens an upsell dialog naming the package it belongs to instead of
+silently doing nothing.
+
+<Tip>
+  Pick only what you will actually set up today. Setup is re-openable,
+  so adding a capability next month is a two-minute change, not a
+  migration. See [Changing your mind later](#changing-your-mind-later).
+</Tip>
+
+### Partly licensed capabilities
+
+A capability can span packages, and it stays available as long as your
+license covers **any** part of it. RAG is the clearest example:
+
+- `rag`, the runtime scanning of retrieved chunks, rides your Runtime
+  Security license.
+- `rag_monitoring`, corpus scanning and quarantine, is its own sold
+  module (RAG Security).
+
+On a Runtime-Security-only license, RAG is selectable and its runtime
+half works. The corpus-monitoring half shows as a locked component with
+a quiet upsell line rather than disappearing.
+
+## 2. Review
+
+The review stage states what applying will do, per capability, as
+**adds**, **removes**, or **live** (already set up and staying). It also
+totals the components that will be wired into your apps.
+
+Nothing is created until you press Apply on this stage.
+
+## 3. Apply, and what it creates
+
+Applying does four things in one idempotent step:
+
+<Steps>
+  <Step title="Creates your primary App">
+    Named after your workspace unless you override it. Every scanned
+    request is attributed to an App; this is the one your first
+    integration reports as.
+  </Step>
+  <Step title="Seeds the component graph">
+    One node per licensed component of everything you selected
+    (prompts, responses, tool outputs, RAG, endpoints, and so on).
+    Components already present are left alone.
+  </Step>
+  <Step title="Mints one API key">
+    Only when you selected an SDK or proxy capability, and only if the
+    App has no key yet. **It is shown exactly once**, on the next
+    stage. Copy it before you leave.
+  </Step>
+  <Step title="Saves the deployment config">
+    This is what unlocks navigation. From here the console gates each
+    page on your license *and* this config.
+  </Step>
+</Steps>
+
+<Warning>
+  If your license covers none of the capabilities you selected, Apply
+  refuses with a 422 and writes nothing, rather than completing setup
+  with an empty deployment. Choose at least one available capability.
+</Warning>
+
+## 4. Configure
+
+Each selected capability gets its own guided steps: prerequisites, an
+estimate, and either a code snippet you copy or an action performed
+right there in the page. The inline actions are real work, not links:
+
+- **Upload a dataset**, or create an empty one to fill later (Data Security)
+- **Download the agent bundle** with your enrollment token already baked in (Shadow AI, DLP)
+- **Register an MCP server** so its tool descriptions are scanned (MCP tool security)
+- **Create or pick a [RAG corpus](/data-security/rag-security)** to monitor (RAG, with RAG Security)
+- **Pick your reporting frameworks** (Compliance)
+
+### How a capability goes live
+
+Setup does not take your word for it. Each capability names one signal
+it watches for, and polls in the background:
+
+| Capability | Goes live when |
+| --- | --- |
+| Runtime Security, RAG, MCP tools, Agentic guardrails, Model / API proxy | A scanned event arrives from your app |
+| Shadow AI, DLP | The endpoint agent reports its first AI service or activity |
+| Data Security | Your first dataset exists |
+| Compliance | You have picked at least one framework |
+
+You do not have to wait. Leaving setup with a capability still waiting
+is normal; it flips to live on its first signal and the notification
+bell tells you.
+
+## 5. Done
+
+The summary counts four figures: capabilities selected, how many are
+live, components wired in, and API keys minted. Finishing sends you to
+the first selected capability's home, so a Data-Security-only workspace
+lands on Datasets rather than a Runtime Security dashboard it cannot
+open. If nothing has a natural home, you land on Deployment.
+
+## While setup is unfinished
+
+Anyone who is not an admin and signs in before setup is done sees a
+single screen:
+
+> **Setup in progress.** Your workspace administrator is still
+> configuring which capabilities your team will use. You'll get access
+> the moment they finish. Nothing is needed from you.
+
+It carries a "Check again" button and moves them into the workspace by
+itself once an admin finishes. This is the most common first experience
+for the second person in a workspace, so it is worth telling invited
+teammates that it may be what they hit.
+
+<Tip>
+  Run setup **before** you invite the rest of your team, and the screen
+  above never appears for anyone.
+</Tip>
+
+## Changing your mind later
+
+Setup is not one-shot. An admin can reopen it from **Deployment** at any
+time to add or remove capabilities. In that mode it prefills your
+current selection and speaks in terms of what changes: what a capability
+**adds**, what it **removes**, and what is already **live** and staying.
+
+Everything already configured is kept. Re-applying does not mint a
+second API key or duplicate components.
+
+## Next
+
+<CardGroup cols={2}>
+  <Card title="Invite your team" icon="user-plus" href="/getting-started/invitations">
+    Seats, roles, the work-email policy, and the invitation lifecycle.
+  </Card>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    The ten-minute path from first sign-in to a first scanned request.
+  </Card>
+  <Card title="The Overview page" icon="house" href="/overview">
+    Where you land once setup is done.
+  </Card>
+</CardGroup>

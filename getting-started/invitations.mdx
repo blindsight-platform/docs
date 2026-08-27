@@ -1,0 +1,178 @@
+---
+title: "Inviting your team"
+description: "Blindsight is invite-only. How to send invitations, which addresses are accepted, what the invitee receives, and how invitation links live and die."
+---
+
+There is no public sign-up. Every account in a workspace arrives by
+invitation from someone who already holds one, and the first owner
+account is bootstrapped when the workspace is provisioned.
+
+<Note>
+  Sending invitations needs the `invitations.send` permission;
+  cancelling one needs `invitations.revoke`. Both are held by Admin and
+  Owner by default, and can be granted to a custom role.
+</Note>
+
+## Sending an invitation
+
+Invitations live on the **Access management** page, not in Settings.
+
+<Steps>
+  <Step title="Open Access management, People">
+    Navigate to **Access management → People → Invite**. The dialog
+    walks three stages: **Who**, **Access**, **Review**.
+  </Step>
+  <Step title="Who">
+    Enter one or more work email addresses. Each becomes its own
+    invitation, so you can bring in a whole team in one pass. Addresses
+    the [work-email policy](#which-addresses-are-accepted) rejects are
+    flagged here with the reason, before you send anything.
+  </Step>
+  <Step title="Access">
+    Pick the roles they will hold. Only roles you are permitted to hand
+    out are offered, and the dialog shows the effective permissions the
+    selection grants.
+  </Step>
+  <Step title="Review">
+    Confirm the addresses, the roles, and the seats it will consume,
+    then send.
+  </Step>
+</Steps>
+
+### Seats
+
+The dialog counts seats used **plus invitations still outstanding**
+against your license limit, and refuses to send an invitation that
+would put you over. Pending invitations hold a seat because accepting
+one is unilateral: the invitee decides when, and the seat has to be
+there when they do.
+
+If your license sets no seat limit, no meter is shown.
+
+### Roles you can assign
+
+Two guardrails apply on top of your own permissions:
+
+- **Only an owner can invite an owner.**
+- **You cannot invite someone into a role you could not grant an
+  existing user.** Without this, a role holding `invitations.send` plus
+  `users.reset_password` could invite an admin, reset that account's
+  password, and sign in as it.
+
+An invitation naming a role your workspace does not define is refused
+outright rather than quietly granting nothing.
+
+## Which addresses are accepted
+
+An account is expected to live at an organization's own mail domain, so
+invitations are refused for:
+
+| Rejected | Why |
+| --- | --- |
+| Consumer mailboxes (`gmail.com`, `yahoo.*`, `outlook.*`, ...) | The unit of account is an organization, not a person |
+| Disposable mailboxes (`mailinator.com`, `10minutemail.com`, ...) | An address that expires in ten minutes cannot receive a password reset or a security notice |
+| Relay and aliasing services (`duck.com`, `privaterelay.appleid.com`, `simplelogin.io`, ...) | The mailbox behind the relay is personal, and its owner can switch it off, silently detaching the account from any address we can reach |
+| Anything syntactically invalid | Checked properly, including internationalized domains folded to ASCII so lookalike domains cannot slip through |
+
+A blocked domain blocks everything beneath it, so `mail.gmail.com` is
+refused too.
+
+<Tip>
+  If a customer genuinely uses a domain this policy misreads, it can be
+  allowlisted per deployment without a release. Ask your account
+  manager rather than working around it.
+</Tip>
+
+This policy governs the paths where an address **enters** the system.
+It is never applied to sign-in or password reset, so tightening it can
+never lock out an account that already exists.
+
+## What the invitee receives
+
+An email titled **"You're invited to Blindsight"**, naming who invited
+them and the role they are being given, with an **Accept invite**
+button. If your workspace requires two-factor authentication, the email
+says so up front.
+
+What happens on their side is covered in [Accepting an
+invite](/getting-started/accepting-an-invite). The short version: they
+set a password, then sign in. Accepting does not sign them in by
+itself.
+
+### The workforce variant
+
+Rolling out endpoint DLP or Shadow AI to people who do not otherwise
+use the console has its own invitation, which carries the desktop agent
+download and install steps in the same email, so one message covers
+account setup and device setup.
+
+Anyone who **already** has a workspace account gets an install-only
+message instead, with no invitation link, since there is no account to
+create.
+
+See [Install the agent](/dlp/install) and [Fleet
+rollout](/dlp/fleet-rollout) for the MDM path, which needs no per-user
+invitation at all.
+
+## The life of an invitation link
+
+<AccordionGroup>
+  <Accordion title="It expires after 7 days by default">
+    The window is configurable per invitation, from 1 hour to 30 days,
+    and the deployment-wide default can be changed. An expired link
+    tells the invitee it expired and to ask for a new one.
+  </Accordion>
+  <Accordion title="Resending replaces the link">
+    **Resend** revokes the old token and issues a brand new one with a
+    fresh full expiry. Any copy of the previous link stops working
+    immediately. There is no way to re-send the same token.
+  </Accordion>
+  <Accordion title="Re-inviting the same address supersedes the old invite">
+    Sending a fresh invitation to an address with one already open
+    revokes the old one. Exactly one link per address is redeemable at
+    any moment, which is also how you correct a mis-sent invitation:
+    send another.
+  </Accordion>
+  <Accordion title="Accepting kills every other open invite">
+    The moment one link is redeemed, every other outstanding
+    invitation for that address is revoked, so a second token cannot
+    sit redeemable for the rest of its window.
+  </Accordion>
+  <Accordion title="Cancelling is a real revocation">
+    **Revoke** kills the token now and records the invitation as
+    cancelled by an admin, distinct from one that simply lapsed. You
+    cannot revoke an invitation that has already been accepted;
+    deactivate the user instead.
+  </Accordion>
+  <Accordion title="A stale link cannot resurrect a deactivated account">
+    If an account was deactivated after an invitation was issued, that
+    invitation stops working. Otherwise an old link sitting in a
+    former employee's mailbox would reactivate them with a password of
+    the bearer's choosing. Re-inviting them issues a newer link, which
+    works.
+  </Accordion>
+</AccordionGroup>
+
+## When an invitation is refused
+
+| Message | What it means |
+| --- | --- |
+| Account already exists | The address already holds an active account in this workspace. Adjust their roles instead of re-inviting. |
+| Account exists in another workspace | Users are not moved between workspaces by invitation. Contact the platform owner. |
+| Invite rate limit exceeded | One inviter may send 20 invitations a day. |
+| Too many invitation emails sent to this address today | One address may receive 10 invitation emails a day, counted across all inviters, so nobody can be mail-bombed. |
+
+Every invitation sent, cancelled, and accepted is recorded in the
+[audit trail](/compliance/audit-trail) with the actor, the target
+address, and the roles granted.
+
+## Next
+
+<CardGroup cols={2}>
+  <Card title="Accepting an invite" icon="envelope-open" href="/getting-started/accepting-an-invite">
+    What your teammates see, step by step, through their first sign-in.
+  </Card>
+  <Card title="Access management" icon="users" href="/administration/access">
+    Built-in roles, custom roles, the permission catalog, and per-resource access.
+  </Card>
+</CardGroup>
