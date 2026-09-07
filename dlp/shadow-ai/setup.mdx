@@ -150,6 +150,33 @@ the discovery catalog, then your workspace overrides, so a later entry
 wins on an exact host collision. At match time the **most specific**
 (longest) matching host pattern wins.
 
+### Watching the whole computer
+
+By default the agent watches the hosts it knows about: the built-in
+catalog plus whatever the workspace has named. A workspace can instead
+have its fleet watch **everything the computer sends**, so a service
+nobody catalogued is seen the first time somebody uses it.
+
+| Mode | What the agent routes | Good for |
+| ---- | --------------------- | -------- |
+| Scoped | The catalog and the workspace's own rules | A fleet that only needs the services it already knows |
+| Whole computer | Every outbound connection, with AI traffic inspected and the rest recorded by hostname only | Finding shadow AI nobody has listed |
+
+Whole-computer mode reaches traffic the older lane could not: desktop
+applications and command-line tools that never touch the browser's proxy
+settings, and connections made over IPv6, which used to bypass inspection
+entirely for most AI services.
+
+Two things it deliberately does not do. It does not decrypt anything the
+policy has not put under `inspect` or `protect`, so a bank or a health
+portal is routed and recorded by hostname and never opened. And it refuses
+QUIC on port 443 rather than passing it, so nothing leaves uninspected over
+HTTP/3; services that advertise HTTP/3 are asked not to, so a browser does
+not sit waiting for a route the lane cannot answer.
+
+It is a per-workspace decision, in **DLP → Configurations → Default
+policy**.
+
 ### Common tuning tasks
 
 <AccordionGroup>

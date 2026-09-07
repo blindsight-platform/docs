@@ -24,13 +24,33 @@ policy decision; it fetches the latest version from the cloud.
 
 ### Where to edit policy
 
-The agent picks up policy from the App it's attributed to (see
-[Apps](/runtime-security/apps)). Thresholds, custom phrases, custom
-PII rules, tool policy, all the same as SDK‑mode Runtime Security.
-Edit them in **Runtime Security → Apps → \[your DLP App\] → Config**.
+Policy comes from two places, and the difference matters.
 
-The additional DLP‑only settings (AI host rules, MITM scope) live
-under **Runtime Security → Apps → \[your DLP App\] → DLP policy**.
+| Where | What it sets |
+| ----- | ------------ |
+| **DLP → Configurations → Default policy** | The floor every device in the workspace starts from: fail mode, pseudonymization, on-device detection, the posture towards unapproved and newly discovered AI. |
+| **DLP → Policies** | Named policies layered on top of that floor, each assigned to people, groups or specific devices. |
+
+**Policies has its own page in the DLP menu.** It used to sit inside
+Configurations alongside the settings; it is a thing you come to manage
+rather than a setting you adjust once, so it now stands on its own. The
+old link still works and lands on the new page.
+
+Thresholds, custom phrases, custom PII rules and tool policy are the same
+as SDK-mode Runtime Security and are edited on the App the agent is
+attributed to (see [Apps](/runtime-security/apps)).
+
+<Note>
+  **The default policy is a floor, not the final answer.** Policy
+  resolution merges most-restrictively, so a named policy assigned to
+  somebody can be stricter than the workspace default but never looser.
+
+  Fail mode is where this is felt most often: if the default says *Send
+  anyway* and an assigned policy says *Stop*, the people that policy
+  reaches get *Stop*. The Fail mode row names any assigned policy that
+  overrides it and links straight to it, so the screen cannot show one
+  answer while a device enforces another.
+</Note>
 
 ## AI host rules
 
@@ -350,6 +370,19 @@ out a tightening change safely:
     cache TTL.
   </Step>
 </Steps>
+
+<Note>
+  **A change reaches a browser or tool that is already open.** Nothing has
+  to be restarted for a new rule to take effect: the agent reloads its
+  scope in place and closes the live connections the change affects, so
+  the next request is decided by the new rule.
+
+  The exception is a connection the agent cannot close, a flow held over
+  IPv6, which has no close API, or one whose close the operating system
+  refused. When that happens the app names the one program still holding
+  it and offers to restart just that program. It is the residue, not the
+  normal path.
+</Note>
 
 <Warning>
   Removing a hostname from `ai_hosts` stops the agent from MITMing

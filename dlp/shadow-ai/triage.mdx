@@ -71,6 +71,31 @@ automation can relay records between systems without a human in the
 loop. Device spread ranks high because a tool on twenty laptops is a
 policy problem, not an individual one.
 
+## When the automatic action passes a service over
+
+A workspace can set **Newly discovered AI** so that anything the fleet
+finds is inspected, or protected, or blocked, without waiting for a
+person. That action does not reach every discovered row, and the row now
+says so rather than leaving you to guess.
+
+Only a **corroborated** candidate is acted on automatically. A host the
+classifier recognised on a single weak signal stays a candidate for a
+person to decide about, and a host nobody probed is acted on only when its
+name alone clears the bar.
+
+| What the row says | What it means |
+| ----------------- | ------------- |
+| *Automatic inspection skips this one: the name alone is not enough evidence, so it waits for you* | Nothing looked at the host itself, and its name does not read as AI. |
+| *Automatic inspection skips this one: a single signal is not enough, so it waits for you* | Something looked, and found one signal. One is not enough to decrypt a host nobody has reviewed. |
+| *Automatic inspection never acts on this kind of host, whatever the evidence says* | The host is on the never-promote list: banks, healthcare, content networks, telemetry. |
+| *Infrastructure: automatic inspection never writes a rule for it* | A CDN or similar, which is not a service anybody uses. |
+
+The bar is deliberate. An earlier build promoted a **bank** to protected
+off a single refused request, and a rule that decrypts a bank on one weak
+signal is worse than a service nobody inspected. Anything held back is
+still listed, still ranked, and can be inspected or blocked by hand in one
+click; the automation simply will not decide for you.
+
 <Note>
   Risk is only meaningful for undecided services. Anything sanctioned,
   blocked, or managed resolves to low by definition, so the worklist

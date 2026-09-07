@@ -121,6 +121,21 @@ script.
 macOS ships as a `.dmg`: drag `Blindsight Mac.app` into
 `/Applications`. macOS 11.0 is the minimum. There is no `.pkg`.
 
+There are **two macOS builds, one per processor**, and they are not
+interchangeable: neither will launch on the other's chip.
+
+| Build | For |
+| ----- | --- |
+| `Blindsight-Mac-<version>-arm64.dmg` | Apple silicon, M1 and later |
+| `Blindsight-Mac-<version>-x86_64.dmg` | Intel Macs |
+
+A universal binary is not available to this product, because `onnxruntime`
+and `cryptography` no longer publish Intel macOS wheels, so each
+architecture is built and signed natively. The console's download page
+detects the Mac you are on and marks the matching build, but offers both,
+so an administrator collecting installers for a mixed fleet gets both from
+one screen.
+
 Managed configuration arrives as a configuration profile in the
 `dev.blindsight` preferences domain, carrying the same three keys the
 Windows registry does. The console renders four profiles for your
@@ -136,15 +151,18 @@ workspace, and they must be pushed in this order:
 A per-user profile is read before the device-wide one. Push with Jamf,
 Kandji, or Intune, then distribute the `.dmg`.
 
-<Warning>
-  **The macOS app currently ships unsigned.** A user has to right-click
-  the app and choose **Open**, then **Open** again, the first time, to
-  get past Gatekeeper. System notifications are delivered through
-  `osascript` as a result, so they appear to come from **Script
-  Editor** rather than Blindsight. Signing and notarizing the profiles
-  needs your own Apple Developer certificate and your MDM. Ask your
-  account manager for a signed build before a wide macOS rollout.
-</Warning>
+<Note>
+  **The macOS app is signed and notarized by Blindsight Technologies AG.**
+  It opens the way any other application does: no right-click, no
+  Gatekeeper detour. Notifications are delivered through
+  `UNUserNotificationCenter` and carry the app's own icon and name, once
+  the person has allowed alerts. The agent asks for that permission once,
+  during first-run setup, and explains what it is for.
+
+  The configuration profiles below are a separate question and still need
+  signing with your own certificate through your MDM, which is how every
+  MDM-delivered profile works.
+</Note>
 
 ## What the install actually changes
 
