@@ -42,7 +42,7 @@ administrator.
 ### Silently
 
 ```text
-msiexec /x Blindsight.msi /qn /norestart
+msiexec /x Blindsight-<version>.msi /qn /norestart
 ```
 
 If you no longer have the original MSI, uninstall by product code.
@@ -95,52 +95,56 @@ still uninstalls cleanly rather than failing halfway.
 
 ## Uninstall on macOS
 
-macOS has no installer package to reverse, so removal is two steps: tear
-down the system changes, then delete the app.
+Every macOS disk image carries `Uninstall Blindsight.command`. It is
+the supported way to remove the agent.
 
 <Steps>
-  <Step title="Revert the network changes">
-    The agent has a root-gated teardown. It is refused without the
-    panic token, which is readable only by root and provisioned by IT
-    or your MDM at
-    `/Library/Application Support/Blindsight/panic.token`.
+  <Step title="Run the uninstaller">
+    Open the disk image and double-click
+    **Uninstall Blindsight.command**. It opens in Terminal and asks for
+    an administrator password itself. From a shell:
 
     ```bash
-    sudo blindsight-mac panic --token <TOKEN>
+    sudo bash "/Volumes/Blindsight Mac/Uninstall Blindsight.command"
     ```
 
-    This stops and removes the guardian LaunchDaemon so it cannot
-    self-heal, flushes the `pf` anchor, restores `/etc/pf.conf` from
-    `/etc/pf.conf.blindsight.bak`, deletes
-    `/etc/pf.anchors/dev.blindsight`, kills the local inspection proxy,
-    clears any global proxy on every network service, reloads `pf`, and
-    disables the login item.
+    Run it from the account of the person who uses the Mac. The
+    per-user state it removes belongs to the account that started it.
   </Step>
 
-  <Step title="Remove the app and its state">
-    ```bash
-    sudo rm -rf "/Applications/Blindsight Mac.app"
-    sudo rm -rf "/Library/Application Support/Blindsight"
-    rm -rf ~/.blindsight
-    ```
-  </Step>
-
-  <Step title="Remove the certificate">
-    Open **Keychain Access → login**, find the Blindsight root
-    certificate, and delete it. Do this for every user profile that
-    signed in on the machine.
+  <Step title="Read the verification it prints">
+    The uninstaller reports each step as removed or absent, then checks
+    that no agent process is left running.
   </Step>
 </Steps>
 
-<Note>
-  If the teardown fails, the manual fallback is:
+<Warning>
+  Dragging the app to the Trash is **not** an uninstall. It leaves the
+  inspection certificate trusted and the network services pointed at
+  a proxy that no longer answers.
+</Warning>
 
-  ```bash
-  sudo launchctl bootout system /Library/LaunchDaemons/dev.blindsight.guardian.plist
-  sudo rm -f /Library/LaunchDaemons/dev.blindsight.guardian.plist
-  sudo cp /etc/pf.conf.blindsight.bak /etc/pf.conf && sudo pfctl -f /etc/pf.conf
-  ```
-</Note>
+### What a macOS uninstall does, in order
+
+1. Stops and removes the root guardian LaunchDaemon first, because its
+   job is to put back what it finds missing.
+2. Stops and removes the login item.
+3. Stops anything still running, including the whole-device lane when
+   it is on.
+4. Restores each network service's automatic proxy to what it was
+   before the agent's first run. A setting is only touched while it
+   points at the agent, so a company PAC or proxy survives the
+   uninstall.
+5. Restores the Firefox policy file that was there before, or removes
+   the agent's own.
+6. Removes `pf` rules left by agent versions that used them.
+7. Removes the inspection root CA from the login and System keychains,
+   and from any JDK trust store.
+8. Removes `/Applications/Blindsight Mac.app`.
+9. Removes `~/.blindsight` and `/Library/Application Support/Blindsight`,
+   including the sign-in, the local event store and the
+   pseudonymization vault.
+10. Ejects the mounted installer image.
 
 ## Retire the device in the console
 

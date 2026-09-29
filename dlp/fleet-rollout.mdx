@@ -1,6 +1,6 @@
 ---
 title: "Fleet rollout"
-description: "Push the DLP agent to every employee laptop with no per‑user clicks. One enrollment token covers the whole fleet across macOS and Windows."
+description: "Push the DLP agent to every employee laptop. Windows enrols silently with one fleet token; a Mac enrols when its user signs in."
 ---
 
 This is how a company rolls Blindsight DLP out "like AD": one silent
@@ -10,18 +10,20 @@ every device binds to a real identity.
 There are two independent axes; you almost always want both.
 
 1. **Fleet software push.** IT deploys the agent to every machine
-   with no per-user clicks. Windows: `.msi` via Intune, GPO, or SCCM.
-   macOS: a `.dmg` plus a managed-preferences profile. One
-   workspace‑wide enrollment token is baked into the package; the
-   agent self‑enrolls on first run.
+   with no per-user clicks. Windows: `.msi` via Intune, GPO, or SCCM,
+   with one workspace‑wide enrollment token baked into the command;
+   the agent self‑enrolls on first run. macOS: the `.dmg`, which
+   carries no token; each Mac enrols when its user signs in.
 2. **Directory sync + SSO.** Your IdP (Entra, Okta, Google) provisions
    every employee into the workspace (SCIM) and binds each device to
    the matching directory user on first sign‑in (OIDC).
 
-These are decoupled on purpose. The silent installer runs as
-SYSTEM / root and cannot know the human user, so identity is bound
+On Windows these are decoupled on purpose. The silent installer runs
+as SYSTEM and cannot know the human user, so identity is bound
 **after** enrollment via the SSO device‑code flow, opened
-automatically by the agent. The employee signs in once.
+automatically by the agent. On macOS the two happen together: the
+sign-in that binds the identity is the one that enrols the device.
+Either way, the employee signs in once.
 
 See [Identity binding](/dlp/identity) for the directory and SSO side,
 and [Installing the agent](/dlp/install) for what an install changes on
@@ -37,7 +39,7 @@ a single machine. This page is the IT‑side rollout.
   </Step>
   <Step title="Copy the token">
     Shown exactly once. Store it in your MDM secret vault. One token
-    covers the entire company fleet across both OSes.
+    covers the entire Windows fleet. Macs do not use it.
   </Step>
   <Step title="(Optional) Restrict the token">
     Token settings let you cap the number of activations, set an
@@ -51,7 +53,7 @@ Windows is the primary platform. The agent runs as a SYSTEM service
 named `BlindsightDLP`.
 
 ```text
-msiexec /i Blindsight.msi /qn ^
+msiexec /i Blindsight-<version>.msi /qn ^
   CLOUD_BASE=https://api.blindsight.example.com ^
   ENROLL_TOKEN=antde_xxxxxxxxxxxxxxxxxxxx
 ```
@@ -82,7 +84,7 @@ once; `/qn` stays silent.
 </Note>
 
 <Warning>
-  A bare `msiexec /i Blindsight.msi /qn` does **not** enrol a device
+  A bare `msiexec /i Blindsight-<version>.msi /qn` does **not** enrol a device
   unless the build was created with a token baked in, or the machine
   already carries one. Pass `ENROLL_TOKEN` for a fleet push.
 </Warning>
@@ -105,35 +107,40 @@ not covered, and how the device reports it.
 
 ## 2b. macOS push
 
-macOS ships as a **`.dmg`**: drag `Blindsight Mac.app` into
-Applications. macOS 11.0 is the minimum. There is no `.pkg`.
+macOS ships as a **`.dmg`**, one per processor
+(`Blindsight-Mac-<version>-arm64.dmg` for Apple silicon,
+`Blindsight-Mac-<version>-x86_64.dmg` for Intel). Drag
+`Blindsight Mac.app` into Applications. macOS 11.0 is the minimum.
+There is no `.pkg`. The app is signed and notarized, so it opens
+without a Gatekeeper prompt.
 
-Managed configuration is delivered as a configuration profile in the
-`dev.blindsight` preferences domain, carrying the same three keys the
-Windows registry does:
+There is no token to distribute for a Mac. Push the disk image, or the
+app from it, with Jamf, Kandji or Intune, or let employees take it from
+the console's Downloads page. On first open the person signs in with
+their work account, which enrols the device and binds their identity,
+then approves the inspection certificate and the protection service
+when macOS asks.
 
-| Key               | Value                                        |
-| ----------------- | -------------------------------------------- |
-| `CloudBaseURL`    | `https://api.blindsight.example.com`         |
-| `EnrollmentToken` | `antde_xxxxxxxxxxxxxxxxxxxx`                 |
-| `SSOLoginBase`    | `<CloudBaseURL>/api/auth/sso`                |
+**DLP → Configurations → Install** offers a macOS install kit: a
+README with the download links, checksums and steps for both builds on
+your release channel. It holds no secret and can be shared freely.
 
-A per-user profile is read before the device-wide one. Push it with
-Jamf, Kandji, or Intune, then distribute the `.dmg`. The agent reads
-the managed config, self-enrolls, and prompts each employee once for
-SSO identity binding.
+For a single-tenant or self-hosted platform, push a configuration
+profile in the `dev.blindsight` preferences domain so the app talks to
+your platform rather than the Blindsight cloud:
 
-Interception on macOS uses a pf anchor plus a local inspection proxy,
-with the org root CA in the login keychain and a root guardian daemon.
+| Key            | Value                                        |
+| -------------- | -------------------------------------------- |
+| `CloudBaseURL` | `https://api.blindsight.example.com`         |
+| `SSOLoginBase` | `<CloudBaseURL>/api/auth/sso`                |
 
-<Warning>
-  **The macOS app currently ships unsigned.** A user must right-click
-  the app and choose **Open**, then **Open** again, the first time, to
-  get past Gatekeeper. System notifications are delivered through
-  `osascript` as a result, so they appear to come from **Script
-  Editor** rather than Blindsight. Ask your account manager for a
-  signed and notarized build before a wide macOS rollout.
-</Warning>
+A per-user profile is read before the device-wide one.
+
+Interception on macOS uses an automatic proxy configuration (PAC) on
+every network service plus a local inspection proxy, with the
+inspection root CA in the login keychain and a root guardian daemon
+that restores the configuration if it is disturbed. See
+[What the install actually changes](/dlp/install) for the full list.
 
 <Note>
   A macOS build older than 1.0.29 reports its bundle version as
@@ -141,15 +148,6 @@ with the org root CA in the login keychain and a root guardian daemon.
   actually is. Read the version from **DLP → Endpoints** instead,
   which is reported by the agent itself.
 </Note>
-
-<Warning>
-  The macOS **System Extension** (Network Extension transparent proxy)
-  described in earlier versions of this page is **not shipping**. It
-  is a scaffold that needs Xcode, an Apple Developer account with the
-  Network Extension entitlement, Developer ID signing, notarization,
-  and an MDM before it can be used. Do not plan a rollout around it.
-  macOS coverage today is the pf-based path above.
-</Warning>
 
 Linux is not supported.
 
@@ -203,11 +201,9 @@ relationships.
 
 | Step                                                       | Why it cannot be done here                                                                          |
 | ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| Developer‑ID‑sign and notarize the macOS `.dmg`             | Needs Apple's notary service + a Developer ID certificate. Until this is done the app ships unsigned. |
-| Compile + sign the macOS System Extension                   | Needs Xcode + Apple Developer Team ID + the Network Extension entitlement. Not shipping today.        |
 | Signed WFP kernel driver (optional, admin‑tamper hardening)  | Needs EV cert + Microsoft attestation signing.                                                       |
 
-Windows installers and binaries **are** signed in the shipped builds.
+Windows installers and binaries, and the macOS app and disk images, **are** signed in the shipped builds. The macOS builds are also notarized.
 
 Talk to your account manager for the signed bundles tailored to your
 organisation.
