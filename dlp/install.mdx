@@ -13,11 +13,19 @@ MDM-driven rollout across a whole company, see
 
 | Platform    | Package                     | How you get it                                              |
 | ----------- | --------------------------- | ------------------------------------------------------------ |
-| **Windows** | `Blindsight.msi`, x64       | The **Downloads** page in the console, or your MDM.           |
-| **macOS**   | `Blindsight Mac.app` in a `.dmg` | Your administrator, delivered with an MDM configuration profile. |
+| **Windows** | `Blindsight-<version>.msi`, x64 | The **Downloads** page in the console, or your MDM.     |
+| **macOS**   | `Blindsight Mac.app` in a `.dmg`, one per processor | The **Downloads** page in the console, or your MDM. |
 
-Windows is the primary platform and the only one published on the
-console's Downloads page. Linux is not supported.
+Both platforms are published on the console's Downloads page, with the
+current version, the release channel and a SHA-256 checksum for each
+installer. Linux is not supported.
+
+The two platforms enrol differently:
+
+| Platform | How a device joins the workspace |
+| -------- | -------------------------------- |
+| Windows  | The MSI carries a fleet **enrollment token** and enrols the machine on its own. The person then signs in to bind their identity. |
+| macOS    | The disk image carries no token. The device enrols when the person **signs in** inside the app, and that same sign-in binds their identity. |
 
 <Note>
   The standalone per-user Windows `.exe` (Inno Setup) has been
@@ -35,10 +43,11 @@ console's Downloads page. Linux is not supported.
     The agent enrols against a workspace whose license includes the
     endpoint DLP capability. Without it, enrollment is refused.
   </Step>
-  <Step title="Have the two values ready">
-    Every install needs a **cloud base URL** (your workspace's API
+  <Step title="Windows: have the two values ready">
+    A Windows install needs a **cloud base URL** (your workspace's API
     host) and an **enrollment token**. Both come from
-    **DLP → Configurations → Install** in the console.
+    **DLP → Configurations → Install** in the console. A Mac needs
+    neither: the person's work account is what enrols it.
   </Step>
   <Step title="Allowlist the agent in your AV / EDR">
     The agent runs a local TLS-inspecting proxy, which some endpoint
@@ -56,7 +65,7 @@ console's Downloads page. Linux is not supported.
     installer. Verify the checksum before you run it:
 
     ```powershell
-    Get-FileHash .\Blindsight.msi -Algorithm SHA256
+    Get-FileHash .\Blindsight-<version>.msi -Algorithm SHA256
     ```
   </Step>
 
@@ -85,7 +94,7 @@ The MSI takes exactly two properties. Both are optional on the command
 line and both are per-machine, x64 only.
 
 ```text
-msiexec /i Blindsight.msi CLOUD_BASE="https://api.blindsight.example.com" ENROLL_TOKEN="antde_xxxxxxxxxxxxxxxxxxxx" /qn /norestart
+msiexec /i Blindsight-<version>.msi CLOUD_BASE="https://api.blindsight.example.com" ENROLL_TOKEN="antde_xxxxxxxxxxxxxxxxxxxx" /qn /norestart
 ```
 
 The console generates this exact line for your workspace, with a
@@ -111,7 +120,7 @@ script.
 </Note>
 
 <Warning>
-  A bare `msiexec /i Blindsight.msi /qn` does **not** enrol a device
+  A bare `msiexec /i Blindsight-<version>.msi /qn` does **not** enrol a device
   unless the build was created with a token baked in, or the machine
   already carries one. Always pass `ENROLL_TOKEN` for a fleet push.
 </Warning>
@@ -129,27 +138,42 @@ interchangeable: neither will launch on the other's chip.
 | `Blindsight-Mac-<version>-arm64.dmg` | Apple silicon, M1 and later |
 | `Blindsight-Mac-<version>-x86_64.dmg` | Intel Macs |
 
-A universal binary is not available to this product, because `onnxruntime`
+**Apple menu → About This Mac** says which processor a Mac has. A
+universal binary is not available to this product, because `onnxruntime`
 and `cryptography` no longer publish Intel macOS wheels, so each
-architecture is built and signed natively. The console's download page
+architecture is built and signed natively. The console's Downloads page
 detects the Mac you are on and marks the matching build, but offers both,
 so an administrator collecting installers for a mixed fleet gets both from
 one screen.
 
-Managed configuration arrives as a configuration profile in the
-`dev.blindsight` preferences domain, carrying the same three keys the
-Windows registry does. The console renders four profiles for your
-workspace, and they must be pushed in this order:
+<Steps>
+  <Step title="Open the disk image">
+    Download the build for the Mac's processor and open it. Verify the
+    checksum shown on the Downloads page first:
 
-| Order | Profile                             | What it does                                  |
-| ----- | ----------------------------------- | ---------------------------------------------- |
-| 1     | `10-system-extension-policy.mobileconfig` | Pre-approves the system extension.        |
-| 2     | `20-transparent-proxy.mobileconfig` | Declares the transparent proxy payload.        |
-| 3     | `30-trusted-ca.mobileconfig`        | Installs the workspace inspection root CA.     |
-| 4     | `40-managed-config.mobileconfig`    | Sets `CloudBaseURL`, `EnrollmentToken`, `SSOLoginBase`. |
+    ```bash
+    shasum -a 256 Blindsight-Mac-<version>-arm64.dmg
+    ```
+  </Step>
 
-A per-user profile is read before the device-wide one. Push with Jamf,
-Kandji, or Intune, then distribute the `.dmg`.
+  <Step title="Drag the app to Applications, then open it">
+    The disk image holds `Blindsight Mac.app`, a shortcut to
+    Applications, and `Uninstall Blindsight.command`.
+  </Step>
+
+  <Step title="Sign in to enrol">
+    Sign in with the work account inside the app. That sign-in enrols
+    the device into your workspace and binds it to the person's
+    identity. There is no code or token to enter. See
+    [Identity binding](/dlp/identity).
+  </Step>
+
+  <Step title="Approve protection">
+    When macOS asks, approve the inspection certificate and the
+    protection service. Each asks for the person's login password once.
+    Until both are approved, nothing is inspected.
+  </Step>
+</Steps>
 
 <Note>
   **The macOS app is signed and notarized by Blindsight Technologies AG.**
@@ -158,11 +182,31 @@ Kandji, or Intune, then distribute the `.dmg`.
   `UNUserNotificationCenter` and carry the app's own icon and name, once
   the person has allowed alerts. The agent asks for that permission once,
   during first-run setup, and explains what it is for.
-
-  The configuration profiles below are a separate question and still need
-  signing with your own certificate through your MDM, which is how every
-  MDM-delivered profile works.
 </Note>
+
+### The macOS install kit
+
+**DLP → Configurations → Install** also offers a macOS install kit: a
+`.zip` holding a README with the download links for both disk images on
+your release channel, their SHA-256 checksums and sizes, and the install
+and uninstall steps above. The kit and the disk images carry **no
+enrollment token and no secret**, so they can be handed to employees
+directly or published on an internal software portal.
+
+### Macs on a dedicated or self-hosted platform
+
+A Mac talks to the Blindsight cloud by default. To point it at a
+single-tenant or self-hosted platform instead, push a configuration
+profile in the `dev.blindsight` preferences domain before the app is
+first opened:
+
+| Key            | Value                                  |
+| -------------- | -------------------------------------- |
+| `CloudBaseURL` | Your platform's API host               |
+| `SSOLoginBase` | `<CloudBaseURL>/api/auth/sso`          |
+
+A per-user profile is read before the device-wide one. Enrolment still
+happens through the person's sign-in.
 
 ## What the install actually changes
 
@@ -191,8 +235,16 @@ same list [uninstall](/dlp/uninstall) reverses.
 | Per-user state      | `~/.blindsight`                                              |
 | Root guardian       | LaunchDaemon `dev.blindsight.guardian`                       |
 | Login item          | LaunchAgent `dev.blindsight.mac`                             |
-| Interception        | A `pf` anchor at `/etc/pf.anchors/dev.blindsight`, referenced from `/etc/pf.conf` (backed up to `/etc/pf.conf.blindsight.bak` first), plus a local inspection proxy |
-| Trust store         | The workspace root CA in the login keychain                  |
+| Interception        | An automatic proxy configuration (PAC) on every enabled network service, served on loopback by the agent, plus a local inspection proxy. Each service's previous automatic proxy is recorded first in `/Library/Application Support/Blindsight/network_proxy.backup.tsv`. |
+| Firefox             | A `policies.json` inside the Firefox app bundle, because Firefox reads neither the system PAC nor the proxy variables. An existing company policy file is kept beside it and restored on uninstall. |
+| Trust store         | The inspection root CA in the login keychain, and in any JDK trust store on the machine |
+
+The PAC sends only AI service hosts to the local proxy and everything
+else direct. It also answers direct for the AI hosts whenever the local
+proxy is not listening, so a stopped agent never takes the machine
+offline. The coverage matches the Windows explicit-proxy engine below:
+browsers and every app that honours the system proxy settings are
+inspected, and an app that ignores them is not.
 
 <Warning>
   Never delete `pseudonym_vault.db` or `vault.key` from the machine

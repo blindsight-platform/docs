@@ -1,0 +1,157 @@
+---
+title: "Deployment options"
+description: "Where the Blindsight platform runs: the Blindsight cloud, a dedicated instance, or your own infrastructure. How a self-hosted install is started, upgraded and rolled back."
+---
+
+The platform (console, API, database and scanning workers) runs in one
+of three places. What you integrate afterwards, the Runtime Security
+proxy or SDKs, the DLP agent and dataset scans, works the same way in
+all three; only the address your apps and devices point at changes.
+
+| Option | Who runs it | What you install |
+| ------ | ----------- | ---------------- |
+| **Blindsight cloud** | Blindsight, at `platform.blindsight.io` (EU) | Nothing. Your workspace is created for you, and you continue with [First-run setup](/getting-started/first-run-setup). |
+| **Dedicated instance** | Blindsight, one instance per customer | Nothing. Blindsight provisions it and gives you its address. |
+| **Self-hosted** | You, on your own hosts | The platform, as Docker images, described below. |
+
+<Note>
+  On a dedicated or self-hosted platform, point every integration at
+  your platform's address instead of the Blindsight cloud: the
+  `base_url` of the [reverse proxy](/runtime-security/reverse-proxy),
+  the SDK's API host, `CLOUD_BASE` for the Windows
+  [DLP agent](/dlp/install), and the `CloudBaseURL` profile for Macs.
+</Note>
+
+## Self-hosted install
+
+A self-hosted platform ships as a release bundle of Docker images plus
+a small folder of runtime files. It runs with Docker Compose on a single
+host. The images load from the bundle with no registry access, but the
+license is validated online, so the host needs outbound HTTPS to the
+license service. For a host with no outbound access at all, talk to
+Blindsight about air-gapped licensing before you plan the install.
+
+### What you need
+
+- Docker Engine or Docker Desktop with `docker compose`.
+- The image bundle for the host's processor:
+  `blindsight-onprem-<version>-linux-amd64.tar.gz` for Intel and AMD,
+  or `blindsight-onprem-<version>-linux-arm64.tar.gz` for ARM.
+- The `SHA256SUMS` file that came with it.
+- The `onprem` runtime folder: `start-local.sh`, `load-images.sh`,
+  `compose.onprem.yaml`, `.env.example`, and the upgrade and rollback
+  scripts.
+- A license key and account ID from Blindsight. A self-hosted platform
+  will not run without them.
+
+### Install
+
+<Steps>
+  <Step title="Copy the files to the host">
+    Put the bundle, `SHA256SUMS` and the `onprem` folder on the target
+    machine. `SHA256SUMS` next to the bundle is picked up automatically.
+  </Step>
+
+  <Step title="Create the environment file">
+    ```bash
+    cd onprem
+    cp .env.example .env
+    ```
+
+    Replace **every** value marked `REPLACE_ME` with a strong, unique
+    secret, for example the output of `openssl rand -hex 32`. The start
+    script refuses to run until at least these are set:
+
+    | Variable | What it is |
+    | -------- | ---------- |
+    | `JWT_SECRET` | Signs sign-in sessions. |
+    | `EMAIL_TOKEN_SECRET` | Signs invitation and verification links. |
+    | `OWNER_EMAIL`, `OWNER_PASSWORD` | The first owner account. |
+    | `KEYGEN_ACCOUNT_ID`, `KEYGEN_LICENSE_KEY` | Your license. |
+
+    Also set `POSTGRES_PASSWORD` (and the same password inside
+    `DATABASE_URL`), `DATASET_TOKEN_SECRET`, and `PUBLIC_APP_URL` to the
+    address people will open the console on. Keep `.env` out of version
+    control and back it up somewhere safe.
+  </Step>
+
+  <Step title="Start the platform">
+    ```bash
+    ./start-local.sh --bundle /path/to/blindsight-onprem-<version>-linux-<arch>.tar.gz
+    ```
+
+    The script checks `.env`, verifies the bundle against `SHA256SUMS`
+    and loads the images, starts Postgres and Redis, runs the database
+    migrations, starts the rest of the platform and waits for the API
+    to report healthy.
+  </Step>
+
+  <Step title="Sign in">
+    Open the console on port `3000` and sign in with the owner account
+    from `.env`. The API is on port `8000`, and
+    `http://<host>:8000/api/health` reports its state. From here,
+    continue with [First-run setup](/getting-started/first-run-setup).
+  </Step>
+</Steps>
+
+<Warning>
+  Put the platform behind TLS before anyone outside the host uses it.
+  `AUTH_COOKIE_SECURE=true`, the default, means sign-in cookies are
+  only sent over HTTPS.
+</Warning>
+
+### Licensing
+
+A self-hosted platform checks its license at start and revalidates it
+while it runs. A short loss of connectivity to the license service is
+covered by a grace period (`KEYGEN_GRACE_SECONDS`, one hour by
+default).
+
+| Situation | Result |
+| --------- | ------ |
+| `KEYGEN_ACCOUNT_ID` missing | The API refuses to start. |
+| License key missing, invalid, expired or suspended | The console opens, but every change is blocked until a valid license is active. Reading existing data still works. |
+
+The capabilities the console offers follow what the license includes.
+
+### Upgrade
+
+For an offline host, run the start script again with the new bundle.
+It loads the new images, runs any new database migrations and restarts
+the platform:
+
+```bash
+./start-local.sh --bundle /path/to/blindsight-onprem-<new-version>-linux-<arch>.tar.gz
+```
+
+A host that can reach the image registry upgrades from a release
+manifest instead. The manifest names each image by its digest, and the
+script refuses one that does not:
+
+```bash
+./upgrade.sh /path/to/release-<version>.env
+```
+
+It keeps the previous manifest, pulls the new images, runs the
+migrations, restarts the platform and waits for it to report healthy.
+
+<Warning>
+  Take a snapshot of the Postgres volume before every upgrade. A
+  rollback restores the previous images, but it does **not** undo a
+  database migration. For a schema change that the previous version
+  cannot read, restore the snapshot.
+</Warning>
+
+### Roll back
+
+```bash
+./rollback.sh /path/to/release-<previous-version>.env
+```
+
+Windows hosts have `upgrade.ps1`, `rollback.ps1` and `load-images.ps1`
+with the same arguments.
+
+### After an upgrade
+
+Check that `/api/health` reports `ok`, that you can sign in, and that
+one representative scan runs end to end.
