@@ -1,0 +1,90 @@
+---
+title: "Your MSP"
+description: "Approving or declining a request to be managed, and the switches that control what your MSP can do once it does: access, the two-factor code, and how long one opening lasts."
+---
+
+If a managed service provider manages your workspace, or has asked to,
+**Settings → Your MSP** is where you answer that request and control
+what it can do afterward. It needs `settings.security.manage`, and
+nothing here is ever reachable by an operator working inside your
+workspace from that MSP: only your own admins can change it.
+
+## Answering a request
+
+When an MSP asks to manage your workspace, the request appears here
+(and as a pending action) with who asked, when, and any note they
+attached. It tells you what its operators would be able to do, and
+what always stays with you:
+
+| Their operators can | Always stays with you |
+| --- | --- |
+| See protection, devices, AI services and alerts; change policies and settings while a session is open | People, roles, invitations, API keys, directory and sign-in policy |
+
+Before deciding, choose whether to **let them see your people list**,
+read-only. Leave it off and nobody from that account ever sees who
+works at your organization, no matter what they hold.
+
+**Approve** needs proof it is really you: the current code from your
+own authenticator app, or, if you have not set one up, your account
+password instead, unless your workspace's own sign-in policy ([Access
+management](/administration/access) → Directory) requires two-factor
+authentication. Then the password is not accepted at all, and you set
+up an authenticator in your profile first. A wrong password or code
+counts toward the same lockout as signing in; a few failed attempts
+lock the account for a short time. **Decline** ends the request; they
+would need to send a new one to ask again.
+
+<Warning>
+  Approval is refused if your workspace already has an MSP, whichever
+  one. End that relationship first by contacting Blindsight support.
+</Warning>
+
+## Once you have an MSP
+
+Three settings control it. The code switch and the session length are
+disabled while access is off:
+
+- **Let `<MSP>` open this workspace.** On by default once approved.
+  Turning it off ends every session an operator has open right now,
+  immediately, and refuses new ones. Only your own admins can turn it
+  back on (the MSP never holds the permission to do that from inside
+  your workspace, even while it is open).
+- **Ask for a two-factor code every time.** On by default. While on,
+  every opening needs a fresh code from the operator's own
+  authenticator app. Turn it off and they open after simply being
+  signed in to their own account (weaker), and every use while it is
+  off is recorded in your audit trail like any other change here.
+- **How long one opening lasts.** 15 minutes, 30 minutes (the
+  default), 1 hour, 2 hours, 4 hours, or 8 hours. A change applies to
+  the next opening only; it never shortens or extends a session already
+  under way.
+
+## What they can and cannot do
+
+The same operator limits described in [Team &
+permissions](/msp/team-and-permissions): the products and settings an
+admin could reach, minus inviting, editing or removing people, roles,
+API keys, directory, your security policy, anyone's password or
+two-factor, and this very setting. Your own account (password,
+two-factor, email, profile) cannot be changed by anyone signed in
+through a client session, on either side.
+
+## Where to see what they changed
+
+Every time an operator opens your workspace, leaves it, or has a
+session ended, and every change made inside it, is written to your
+[audit trail](/compliance/audit-trail), naming the account and the
+person. A change is recorded before it runs. Refused attempts to open
+are recorded on the MSP's side.
+
+A refused attempt to approve the request itself is written to your own
+audit trail too, whether the wrong proof was a password or a code: the
+reason it was refused, never the password or code itself. The MSP's
+own record of the approval never shows how you proved yourself.
+
+## Turning access off
+
+Turning the top switch off is immediate and does not require anything
+from the MSP. It ends their access, not the underlying relationship
+between your workspace and their account; if you want the relationship
+itself ended, contact Blindsight support.

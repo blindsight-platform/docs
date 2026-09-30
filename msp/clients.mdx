@@ -1,0 +1,111 @@
+---
+title: "Clients"
+description: "Creating a client workspace, what it is sold, changing its seats and licence, and the columns on the Clients table."
+---
+
+**Clients** (`/clients`) lists every client workspace the account runs,
+with its protection, licence, seats and your own access to it in one
+row. It needs `msp.clients.view`. Creating and changing clients needs
+`msp.clients.manage`; opening one needs `msp.clients.access`.
+
+## Creating a client workspace
+
+**New client** collects:
+
+- **Name** for the workspace.
+- **First admin**, invited by email. They receive an invitation to set
+  a password, exactly as any invited admin would, and become the
+  client's own admin, not a member of your account.
+- **Seats**, taken from the account's own seat pool. The dialog shows
+  how many are free and will not let you request more than that.
+- **Licence**, either the same as your account (it follows your
+  account live: a module you gain or lose, or a renewal, carries
+  straight through) or its own end date and its own set of modules and
+  limits, bounded by what your account holds.
+
+The workspace is created and its first admin invited in one step. If
+the invitation email cannot be sent, the dialog stays open with a
+one-time link you can hand the admin yourself.
+
+<Note>
+  A client cannot be created when the account's own licence is missing
+  or expired, or has no client workspace or seat allowance at all.
+  Creation is also refused for running out of client workspace slots
+  or free seats in the pool, if the first admin's address already has
+  an account, or if the licence asks for something the account cannot
+  grant (including leaving a sold pool without a share).
+</Note>
+
+## What a client is sold
+
+A client's licence is your own licence, folded in: anything you do not
+state for it, it inherits live from your account.
+
+- **Modules**: a client can hold any module your account holds, and no
+  other. A module your account loses is withdrawn from every client
+  that had it on the next read, rather than living on in a stale copy.
+- **Plan tier**: a client's tier can be anything at or below your
+  account's own (Free or Enterprise; Trial is a state a licence falls
+  into, not one you assign).
+- **Pools**: seats, Runtime Security calls, and endpoint (DLP) devices
+  are sold to your account as a shared budget. While a pool is sold,
+  every client that draws on it must carry a stated share. Leaving it
+  unstated would give that client no cap at all. A pool your account
+  was never sold is not yours to split; clients simply follow your
+  account's own figure for it.
+- **Ceilings**: everything else numeric (scans, concurrent scans,
+  queue size, datasets, storage, max dataset size) can be set for one
+  client up to your account's own figure, and is inherited when you
+  leave it alone.
+- **Term**: a client's licence can end before your account's own and
+  never after it. Left unset, it renews with your account.
+
+### Changing seats and licence
+
+Seats and licence are changed through the API. Seats cannot be set
+below the client's own number of active people, or above what the
+rest of your clients leave free in the pool. When changing a client's
+licence, the change replaces your whole stated decision for that
+client; leaving a field out of the change puts it back on following
+the account.
+
+**Follow the account** drops your decision entirely. It is refused if
+the client would be left with no stated share of a pool your account
+sells: an unallocated pool is exactly the situation the pooled-limits
+rule above exists to prevent.
+
+<Warning>
+  A client that chose, when it approved being linked, to keep its own
+  licence is never billed by the account and its licence cannot be
+  changed by it. Its seats stay its own to manage, and
+  `msp.clients.manage` cannot touch them. See [Linking a
+  workspace](/msp/linking-a-workspace).
+</Warning>
+
+## The Clients table
+
+| Column | Meaning |
+| --- | --- |
+| **Client** | The workspace name. Rows with an unfinished setup (licence not yet issued, or no device enrolled) expand into a short getting-started checklist. |
+| **Protection** | **Protected** (every enrolled device is inspecting), **Gaps** (some are not), **Not deployed** (no device enrolled yet), or **Unknown** (your access is off, so nothing can be read). |
+| **Devices inspecting** | Inspecting of enrolled, e.g. "12 of 14". |
+| **AI to decide** | AI services discovered on the client's devices still awaiting a decision. |
+| **Licence** | **Licensed**, **Trial · N days left**, or **Waiting for a licence**. |
+| **Seats** | Seats given to the client. |
+| **Your access** | **On**, or **Off by client** when its own admins switched it off. |
+| **Last session** | When an account member last opened this client, or "never". |
+| *(actions)* | **Open**, when access is on and you hold `msp.clients.access`. |
+
+## Next
+
+<CardGroup cols={2}>
+  <Card title="Linking a workspace" icon="link" href="/msp/linking-a-workspace">
+    Ask a workspace the client already runs to become a client instead.
+  </Card>
+  <Card title="Opening a client" icon="door-open" href="/msp/opening-a-client">
+    The code step, the countdown band, and leaving.
+  </Card>
+  <Card title="Portfolio & billing" icon="chart-line" href="/msp/portfolio-and-billing">
+    The figures behind Overview, and the seat pool on Billing.
+  </Card>
+</CardGroup>

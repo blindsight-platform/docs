@@ -1,0 +1,86 @@
+---
+title: "MSP accounts"
+description: "What an MSP account is, how it differs from an organization workspace, what its clients see, and the security model behind opening one."
+---
+
+An MSP account is a workspace of type `msp`. It runs no product of its
+own: there are no datasets, no scans, no firewall apps that belong to
+the account itself. What it holds is a licence stating how many client
+workspaces it may create and a pool of seats it shares out among them,
+and the tools to create, license, and work inside those clients.
+
+Every client is an ordinary organization workspace with its own people,
+its own roles, and its own data. Nobody from the account becomes a
+member of a client. Instead, an account member **opens** a client for a
+limited window, works inside it as a fixed, restricted role, and
+leaves.
+
+## How this differs from an organization workspace
+
+| | Organization workspace | MSP account |
+| --- | --- | --- |
+| Runs its own product | Yes | No |
+| Has its own people doing the work | Yes | No, its clients do |
+| Menu | The product sidebar (Runtime Security, Data Security, DLP, Compliance...) | A purpose-built menu: Portfolio and Operations |
+| What you see when you sign in | Your own workspace's data | A roster of clients and their state, never a client's content |
+
+The account's own menu is:
+
+- **Portfolio**: **Overview** (what needs a person today, across every
+  client) and **Clients** (every client, its protection, licence and
+  your access).
+- **Operations**: **Billing** (the seat pool and what renews when),
+  **Team** (this account's own people, roles, keys and directory), and
+  **Settings**.
+
+<Note>
+  A client workspace never sees anything extra by having an MSP. Its
+  own console looks exactly like any other organization's, except for
+  the **Your MSP** setting described in [For clients](/msp/for-clients).
+</Note>
+
+## What clients see
+
+Nothing changes for a client's own people day to day. The one visible
+difference is the **Your MSP** setting. The operator working inside the
+workspace sees a band naming the account, the time left and a way to
+leave; the client's own people do not. Sessions show in the client's
+audit trail. See [Opening a client](/msp/opening-a-client).
+
+## The security model, in one list
+
+- An operator opens a client for a limited window at a time, never by
+  becoming a member of it.
+- Opening needs a fresh two-factor code from the operator's own
+  authenticator app, unless the client has switched that requirement
+  off for itself.
+- Everything an operator changes inside a client is recorded in the
+  **client's own audit trail** before the change runs. A change that
+  cannot be recorded is refused rather than made silently.
+- Operators can never, from inside a client: invite, create, edit or
+  remove people, assign roles, reset anyone's password or two-factor,
+  create API keys, configure directory or SSO, change the security
+  policy, decide whether the MSP itself may have access, or mint a
+  credential that would outlive the session. They also cannot change
+  their own account while a client is open. That lives with the MSP
+  account, and is reached by leaving first.
+- The client's own admins decide, at any time, whether their MSP may
+  open the workspace at all. Turning it off ends every session already
+  open, immediately.
+
+## Next
+
+<CardGroup cols={2}>
+  <Card title="Clients" icon="building" href="/msp/clients">
+    Creating a client workspace, its seats and licence, and the Clients table.
+  </Card>
+  <Card title="Linking a workspace" icon="link" href="/msp/linking-a-workspace">
+    Asking an existing workspace to become a client instead of creating one.
+  </Card>
+  <Card title="Opening a client" icon="door-open" href="/msp/opening-a-client">
+    The code step, the countdown band, and what happens when time runs out.
+  </Card>
+  <Card title="Team & permissions" icon="users" href="/msp/team-and-permissions">
+    The four `msp.clients.*` permissions and what each allows.
+  </Card>
+</CardGroup>

@@ -1,0 +1,108 @@
+---
+title: "Portfolio & billing"
+description: "The Overview figures and needs-attention queue, the Clients health columns, and the Billing page: seats, peak usage, plan and renewal."
+---
+
+Overview and Clients read the account's portfolio, cached for 60
+seconds. Billing is read fresh each time. Nothing from a client's own
+content (prompt text, file names, its people) ever crosses into this
+view. `msp.clients.view` is required for both.
+
+## Overview
+
+**Overview** (`/overview`) leads with a row of figures for the whole
+account:
+
+| Figure | Reads |
+| --- | --- |
+| **Clients protected** | Clients fully protected, of the total, with how many have gaps or nothing deployed. |
+| **Devices inspecting** | Inspecting, of enrolled, across every client, with how many are not inspecting or are outdated. |
+| **AI services to decide** | Discovered AI services still awaiting a decision, and in how many clients. |
+| **Open alerts** | Clients with devices stopped inspecting, AI services to decide, or an outdated agent (one alert per kind per client), with how many are critical. |
+| **Seats** | Active people across every client, of the pool, with the difference. |
+
+### Needs attention
+
+A queue of everything worth a look, worst first:
+
+| Severity | What it means | Suggested action |
+| --- | --- | --- |
+| Critical | Devices stopped inspecting | Open client |
+| High | New AI services awaiting a decision | Open client |
+| High | The client switched your access off | Contact client |
+| Medium | Desktop agent below the current version | Open client |
+| Medium | Licence not issued yet | Blindsight issues it |
+
+Within a severity, the oldest issue comes first. **Open client** takes
+you straight into opening that client (see [Opening a
+client](/msp/opening-a-client)); the other two are not something the
+account can resolve itself.
+
+<Note>
+  This queue is computed live from the same counts the figures and the
+  Clients table already show; there is no separate alert history yet,
+  so an issue that clears (a device starts inspecting again) simply
+  drops off the list rather than being recorded as resolved.
+</Note>
+
+### Clients with anything open
+
+A short list of every client with at least one open item, as a
+shortcut into the full Clients table.
+
+## Clients health columns
+
+See [Clients](/msp/clients#the-clients-table) for the full table.
+**Protection** is the headline health signal: **Protected** means every
+enrolled device is inspecting, **Gaps** means some are not, **Not
+deployed** means nothing is enrolled yet, and **Unknown** means your
+access to that client is off, so nothing can be read from it at all.
+
+## Billing
+
+**Billing** (`/msp/billing`) shows the seat pool and what each client
+used this month:
+
+| Figure | Reads |
+| --- | --- |
+| **Seat pool** | Seats given to clients, of the pool your licence sets, with how many are still free to give. |
+| **Client workspaces** | The total, with how many are on a trial (trials sit outside the pool and are not counted). |
+| **Billable this month** | Peak seats across every non-trial client this calendar month. |
+| **Renews** | Your account's own plan tier and renewal date. |
+
+<Note>
+  "Peak seats this month" is approximated today by the seats each
+  client is using right now, not a true running peak; there is no
+  usage-history table behind it yet. It is noted here rather than
+  hidden.
+</Note>
+
+### By client
+
+| Column | Meaning |
+| --- | --- |
+| **Client** | The workspace name. |
+| **Seats given** | Blank for a trial client. |
+| **Peak used** | This month, per the note above. |
+| **Plan** | "Trial" for a trial client, otherwise its plan tier. |
+| **Renews** | The client's own term end, or the account's renewal date when it follows the account. |
+
+A client that chose to keep its own licence at link approval does not
+appear in Billing at all: it is never billed by the account. Trial
+clients are left out of Billable this month, and show no seats in the
+table, though they are counted in "client workspaces".
+
+**Export as CSV** downloads the same by-client table
+(`msp-billing-YYYYMMDD.csv`). Any cell that could open as a spreadsheet
+formula is safely quoted first.
+
+## Next
+
+<CardGroup cols={2}>
+  <Card title="Clients" icon="building" href="/msp/clients">
+    Seats, licence, and what each column on the Clients table means.
+  </Card>
+  <Card title="Opening a client" icon="door-open" href="/msp/opening-a-client">
+    Act on a needs-attention item by opening the client it names.
+  </Card>
+</CardGroup>

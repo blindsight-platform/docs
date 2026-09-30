@@ -1,0 +1,74 @@
+---
+title: "Linking a workspace"
+description: "Asking an existing workspace to become a client instead of creating one: the request lifecycle, what it tells the account, and what happens on approval or decline."
+---
+
+If a prospective client already runs its own Blindsight workspace, ask
+it to become a client rather than creating a new one. **Clients → Link
+existing workspace** needs `msp.clients.manage`.
+
+## Sending the request
+
+You provide:
+
+- **The admin's email** you believe the workspace uses. While a
+  request is pending, the account is not told whether that address
+  administers a workspace; the response looks the same either way. The
+  address has to belong to an admin of the workspace.
+- **A note** to them, optional.
+- **Licence choice**: whether the workspace **keeps its own licence**
+  (it keeps paying Blindsight directly, and your account never changes
+  or bills it) or **moves to your seat pool** once approved.
+
+<Note>
+  This is the MSP's own choice at the time the request is sent. The
+  workspace that answers the request approves or declines it as a
+  whole; it is not offered a separate control to pick "keep" versus
+  "pool" itself when it responds.
+</Note>
+
+## Request lifecycle
+
+- **Expires** after 14 days if nobody answers.
+- **Resend** re-arms the same 14-day window and re-sends the email.
+- **Cancel** withdraws a still-pending request.
+- Creating requests is limited to 10 an hour and 30 a day per account,
+  shared by every admin in it. Resending has its own limit of the same
+  size.
+- A request answered (approved, declined, cancelled, or expired)
+  cannot be acted on again; send a new one.
+
+## What happens on approval
+
+The workspace's own admin approves from its side (see [For
+clients](/msp/for-clients)). Approval names your account as the parent
+and records the client's people and licence choices; no seats move. If
+the request's licence choice was "moves to your seat pool", the client
+no longer keeps its licence sealed off; you then set its seats and
+licence from [Clients](/msp/clients) as you would for any client,
+within your account's own allowance.
+
+Approval is refused if the workspace already answers to an MSP,
+whichever one. End that relationship first by contacting Blindsight
+support. Approval is also refused if your account has used all its
+client workspaces. Both your account's audit trail and the client's
+record the approval, but your account's own record never shows how the
+client proved itself; that is the client's own authentication detail,
+recorded only on the client's side, along with any refused attempt to
+approve.
+
+## What happens on decline
+
+The request is marked declined and you are notified. It cannot be
+approved after that; send a new request if you want to ask again.
+
+## Next
+
+<CardGroup cols={2}>
+  <Card title="Clients" icon="building" href="/msp/clients">
+    Seats, licence, and the Clients table once a workspace is yours.
+  </Card>
+  <Card title="For clients" icon="handshake" href="/msp/for-clients">
+    What the workspace being asked sees, and how it answers.
+  </Card>
+</CardGroup>

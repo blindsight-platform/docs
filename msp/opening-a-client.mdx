@@ -1,0 +1,89 @@
+---
+title: "Opening a client"
+description: "Opening a client workspace to work inside it: the code step, how long it lasts, the countdown band, and what happens when time runs out."
+---
+
+Opening a client is the only way an account member works inside it.
+Nobody from the account is ever a member of a client workspace; instead
+`msp.clients.access` lets you open one for a limited window.
+
+## Starting
+
+Open a client from either place:
+
+- **The top bar's "Open client"** control, anywhere in the account's
+  console: a searchable list of every client, each with its protection
+  dot. Clients whose access is off are greyed out and cannot be
+  selected.
+- **Clients → Open**, on a client's row, when access is on.
+
+## The code step
+
+Opening needs two-factor authentication turned on for **your own**
+account; if it is not, you are sent to turn it on in your profile
+first. Beyond that:
+
+- If the client requires a code (its default), enter the current code
+  from your authenticator app. Backup codes are not accepted for this:
+  they exist to get back into your own account, not into a client's. A
+  wrong code counts as a failed sign-in attempt on your account and
+  locks it after too many.
+- If the client switched off "Ask for a two-factor code every time"
+  for itself (see [For clients](/msp/for-clients)), opening skips the
+  code step: you open directly, on the strength of already being
+  signed in to your own account.
+
+Opening another client closes whichever one you had open before it;
+only one is open at a time.
+
+## How long it lasts
+
+Each client chooses how long one opening lasts: 15 minutes, 30 minutes
+(the default), 1 hour, 2 hours, 4 hours, or 8 hours. A change the
+client makes applies to the **next** opening only; it never shortens or
+lengthens a session already in progress.
+
+## The band across the top
+
+While a client is open, a filled band runs across every page: whose
+workspace it is, which account you are in it as, and a live countdown.
+In the last five minutes the dot turns amber and the band says how to
+continue. When time runs out, the page you are on stays exactly as it
+is (nothing more is sent), and the band offers **Back to clients**.
+
+**Leave workspace**, in the band, ends the session immediately and
+returns you to the account.
+
+## What ends a session early
+
+- The countdown reaching zero.
+- Choosing **Leave workspace**.
+- The client switching its own MSP access off, which ends every
+  session open into it at once.
+- Losing the permission, having two-factor turned off, having your
+  password changed or your sign-ins revoked, or leaving the MSP
+  account: each is checked again on every request inside the client.
+
+## What you can and cannot do inside
+
+See [Team & permissions](/msp/team-and-permissions) for the full list.
+In short: the products and settings a client's own admin can reach,
+minus anything that would outlive the session or hand the MSP lasting
+access: inviting, editing or removing people, roles, API keys,
+directory and SSO, the security policy, anyone's password or
+two-factor, and the client's own decision about whether its MSP may
+open it at all.
+
+Every change you make inside a client is written to that client's own
+audit trail before it runs.
+
+## Next
+
+<CardGroup cols={2}>
+  <Card title="Team & permissions" icon="users" href="/msp/team-and-permissions">
+    The four `msp.clients.*` permissions, and what an operator session can reach.
+  </Card>
+  <Card title="For clients" icon="handshake" href="/msp/for-clients">
+    The switches a client controls: access, the code, and how long an opening lasts.
+  </Card>
+</CardGroup>
