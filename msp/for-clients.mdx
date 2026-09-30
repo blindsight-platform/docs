@@ -26,8 +26,13 @@ works at your organization, no matter what they hold.
 
 **Approve** needs proof it is really you: the current code from your
 own authenticator app, or, if you have not set one up, your account
-password instead. **Decline** ends the request; they would need to
-send a new one to ask again.
+password instead, unless your workspace's own sign-in policy ([Access
+management](/administration/access) → Directory) requires two-factor
+authentication. Then the password is not accepted at all, and you set
+up an authenticator in your profile first. A wrong password or code
+counts toward the same lockout as signing in; a few failed attempts
+lock the account for a short time. **Decline** ends the request; they
+would need to send a new one to ask again.
 
 <Warning>
   Approval is refused if your workspace already has an MSP, whichever
@@ -71,6 +76,11 @@ session ended, and every change made inside it, is written to your
 [audit trail](/compliance/audit-trail), naming the account and the
 person. A change is recorded before it runs. Refused attempts to open
 are recorded on the MSP's side.
+
+A refused attempt to approve the request itself is written to your own
+audit trail too, whether the wrong proof was a password or a code: the
+reason it was refused, never the password or code itself. The MSP's
+own record of the approval never shows how you proved yourself.
 
 ## Turning access off
 
