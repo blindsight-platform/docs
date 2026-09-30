@@ -3,10 +3,10 @@ title: "Portfolio & billing"
 description: "The Overview figures and needs-attention queue, the Clients health columns, and the Billing page: seats, peak usage, plan and renewal."
 ---
 
-Both pages read from the account's portfolio: counts and states rolled
-up across every client, cached for 60 seconds. Nothing from a client's
-own content — prompt text, file names, its people — ever crosses into
-this view. `msp.clients.view` is required for both.
+Overview and Clients read the account's portfolio, cached for 60
+seconds. Billing is read fresh each time. Nothing from a client's own
+content (prompt text, file names, its people) ever crosses into this
+view. `msp.clients.view` is required for both.
 
 ## Overview
 
@@ -18,8 +18,8 @@ account:
 | **Clients protected** | Clients fully protected, of the total, with how many have gaps or nothing deployed. |
 | **Devices inspecting** | Inspecting, of enrolled, across every client, with how many are not inspecting or are outdated. |
 | **AI services to decide** | Discovered AI services still awaiting a decision, and in how many clients. |
-| **Open alerts** | The count below, with how many are critical. |
-| **Seats** | Used, of the pool, with what is still free. |
+| **Open alerts** | Clients with devices stopped inspecting, AI services to decide, or an outdated agent (one alert per kind per client), with how many are critical. |
+| **Seats** | Active people across every client, of the pool, with the difference. |
 
 ### Needs attention
 
@@ -40,7 +40,7 @@ account can resolve itself.
 
 <Note>
   This queue is computed live from the same counts the figures and the
-  Clients table already show — there is no separate alert history yet,
+  Clients table already show; there is no separate alert history yet,
   so an issue that clears (a device starts inspecting again) simply
   drops off the list rather than being recorded as resolved.
 </Note>
@@ -65,14 +65,14 @@ used this month:
 
 | Figure | Reads |
 | --- | --- |
-| **Seat pool** | Seats used, of the pool your licence sets (or simply "given" if the licence sets no pool), with what is free. |
+| **Seat pool** | Seats given to clients, of the pool your licence sets, with how many are still free to give. |
 | **Client workspaces** | The total, with how many are on a trial (trials sit outside the pool and are not counted). |
 | **Billable this month** | Peak seats across every non-trial client this calendar month. |
 | **Renews** | Your account's own plan tier and renewal date. |
 
 <Note>
   "Peak seats this month" is approximated today by the seats each
-  client is using right now, not a true running peak — there is no
+  client is using right now, not a true running peak; there is no
   usage-history table behind it yet. It is noted here rather than
   hidden.
 </Note>
@@ -85,12 +85,12 @@ used this month:
 | **Seats given** | Blank for a trial client. |
 | **Peak used** | This month, per the note above. |
 | **Plan** | "Trial" for a trial client, otherwise its plan tier. |
-| **Renews** | The client's own term end date. |
+| **Renews** | The client's own term end, or the account's renewal date when it follows the account. |
 
 A client that chose to keep its own licence at link approval does not
 appear in Billing at all: it is never billed by the account. Trial
-clients are excluded from the seat and peak-usage totals, though they
-are counted in "client workspaces".
+clients are left out of Billable this month, and show no seats in the
+table, though they are counted in "client workspaces".
 
 **Export as CSV** downloads the same by-client table
 (`msp-billing-YYYYMMDD.csv`). Any cell that could open as a spreadsheet

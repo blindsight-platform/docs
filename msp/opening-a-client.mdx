@@ -11,9 +11,10 @@ Nobody from the account is ever a member of a client workspace; instead
 
 Open a client from either place:
 
-- **The top bar's "Open client"** control, anywhere in the console: a
-  searchable list of every client, each with its protection dot.
-  Clients whose access is off are greyed out and cannot be selected.
+- **The top bar's "Open client"** control, anywhere in the account's
+  console: a searchable list of every client, each with its protection
+  dot. Clients whose access is off are greyed out and cannot be
+  selected.
 - **Clients → Open**, on a client's row, when access is on.
 
 ## The code step
@@ -23,7 +24,7 @@ account; if it is not, you are sent to turn it on in your profile
 first. Beyond that:
 
 - If the client requires a code (its default), enter the current code
-  from your authenticator app. Backup codes are not accepted for this —
+  from your authenticator app. Backup codes are not accepted for this:
   they exist to get back into your own account, not into a client's. A
   wrong code counts as a failed sign-in attempt on your account and
   locks it after too many.
@@ -32,7 +33,7 @@ first. Beyond that:
   code step: you open directly, on the strength of already being
   signed in to your own account.
 
-Opening another client closes whichever one you had open before it —
+Opening another client closes whichever one you had open before it;
 only one is open at a time.
 
 ## How long it lasts
@@ -48,7 +49,7 @@ While a client is open, a filled band runs across every page: whose
 workspace it is, which account you are in it as, and a live countdown.
 In the last five minutes the dot turns amber and the band says how to
 continue. When time runs out, the page you are on stays exactly as it
-is — nothing more is sent — and the band offers **Back to clients**.
+is (nothing more is sent), and the band offers **Back to clients**.
 
 **Leave workspace**, in the band, ends the session immediately and
 returns you to the account.
@@ -59,18 +60,19 @@ returns you to the account.
 - Choosing **Leave workspace**.
 - The client switching its own MSP access off, which ends every
   session open into it at once.
-- Losing the permission, having two-factor turned off, or being signed
-  out of your own account elsewhere — each is checked again on every
-  request inside the client.
+- Losing the permission, having two-factor turned off, having your
+  password changed or your sign-ins revoked, or leaving the MSP
+  account: each is checked again on every request inside the client.
 
 ## What you can and cannot do inside
 
 See [Team & permissions](/msp/team-and-permissions) for the full list.
 In short: the products and settings a client's own admin can reach,
 minus anything that would outlive the session or hand the MSP lasting
-access — inviting people, roles, API keys, directory and SSO, the
-security policy, anyone's password or two-factor, and the client's own
-decision about whether its MSP may open it at all.
+access: inviting, editing or removing people, roles, API keys,
+directory and SSO, the security policy, anyone's password or
+two-factor, and the client's own decision about whether its MSP may
+open it at all.
 
 Every change you make inside a client is written to that client's own
 audit trail before it runs.

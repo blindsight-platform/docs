@@ -19,14 +19,14 @@ client.
 | `msp.clients.people` | Inside a client you opened, see its people, their roles, invitations and access activity. Changing any of it stays with the client's own admins. |
 
 These are granted through custom roles exactly like any other
-permission — see [Access management](/administration/access).
+permission: see [Access management](/administration/access).
 
 ## Two-factor is required to open a client
 
 `msp.clients.access` is not enough on its own. Opening any client also
 needs two-factor authentication turned on for your **own** account,
-checked fresh every time. Without it, you are sent to turn it on in
-your profile before the option to open a client appears at all.
+checked fresh every time. Without it, the open dialog sends you to
+your profile to turn it on.
 
 ## Inside a client: a fixed operator role
 
@@ -36,13 +36,14 @@ configures. It is every permission an admin holds, minus what would
 outlive the session or take the workspace away from the people who own
 it:
 
-- Inviting or creating people, assigning roles, resetting anyone's
-  password, two-factor, or approving an email change.
+- Inviting, creating, editing or removing people, assigning roles,
+  resetting anyone's password, two-factor, or approving an email
+  change.
 - Revoking or sending invitations.
 - Managing roles, API keys, or directory and SSO.
 - Changing the security policy or licence settings.
 - `billing.checkout`.
-- Anything under `msp.clients.*` itself — an operator working inside a
+- Anything under `msp.clients.*` itself: an operator working inside a
   client cannot use that session to reach into the MSP account, or into
   another client.
 
@@ -54,12 +55,12 @@ it, and no role configuration is read for it.
 Seeing who the client's people are is gated separately, by
 `msp.clients.people` on your account. Without it, an operator session
 holds none of `users.view`, `users.view_activity`, or
-`invitations.view` inside the client — the roster is simply not there.
+`invitations.view` inside the client: the roster is simply not there.
 
-With it, the roster is read-only, and only if the client itself agreed
-to be seen. A client can choose, at the moment it links, to keep its
-people hidden from its MSP altogether; when it has, nobody at the
-account can see them regardless of what `msp.clients.people` grants.
+With it, the roster is read-only. A client the MSP created shows its
+people to holders of `msp.clients.people`. A workspace that linked
+chose at approval, and if it chose to hide them, nobody at the account
+sees them.
 
 ### What never runs inside a client, for anyone
 
@@ -67,14 +68,14 @@ account can see them regardless of what `msp.clients.people` grants.
   cookie being present, so a key's request always runs in the key's
   own workspace, never a client's.
 - **Your own account.** Changing your password, two-factor, email or
-  profile is refused while a client is open — that belongs to the MSP
+  profile is refused while a client is open: that belongs to the MSP
   account. Leave the client first.
-- **Minting the client's audit webhook token** — a credential that
+- **Minting the client's audit webhook token**, a credential that
   would outlive the session and write into the very trail that is
   supposed to be recording you.
 - **The client's own decision about its MSP.** Only the client's
   admins can switch access on or off, or change the code and duration
-  settings — never an operator working inside it.
+  settings, never an operator working inside it.
 
 ## Next
 

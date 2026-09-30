@@ -15,7 +15,7 @@ row. It needs `msp.clients.view`. Creating and changing clients needs
 - **Name** for the workspace.
 - **First admin**, invited by email. They receive an invitation to set
   a password, exactly as any invited admin would, and become the
-  client's own admin — not a member of your account.
+  client's own admin, not a member of your account.
 - **Seats**, taken from the account's own seat pool. The dialog shows
   how many are free and will not let you request more than that.
 - **Licence**, either the same as your account (it follows your
@@ -28,11 +28,12 @@ the invitation email cannot be sent, the dialog stays open with a
 one-time link you can hand the admin yourself.
 
 <Note>
-  A client cannot be created while the account's licence has no client
-  workspace or seat allowance at all — that is set on the account's own
-  licence. Once it is set, creation is refused only for running out of
-  client workspace slots or free seats in the pool, not for anything
-  else.
+  A client cannot be created when the account's own licence is missing
+  or expired, or has no client workspace or seat allowance at all.
+  Creation is also refused for running out of client workspace slots
+  or free seats in the pool, if the first admin's address already has
+  an account, or if the licence asks for something the account cannot
+  grant (including leaving a sold pool without a share).
 </Note>
 
 ## What a client is sold
@@ -48,7 +49,7 @@ state for it, it inherits live from your account.
   into, not one you assign).
 - **Pools**: seats, Runtime Security calls, and endpoint (DLP) devices
   are sold to your account as a shared budget. While a pool is sold,
-  every client that draws on it must carry a stated share — leaving it
+  every client that draws on it must carry a stated share. Leaving it
   unstated would give that client no cap at all. A pool your account
   was never sold is not yours to split; clients simply follow your
   account's own figure for it.
@@ -61,22 +62,24 @@ state for it, it inherits live from your account.
 
 ### Changing seats and licence
 
-From a client's row, change its seats or its licence. Seats cannot be
-set below the client's own number of active people, or above what the
-rest of your clients leave free in the pool. A licence change replaces
-your whole stated decision for that client; leaving a field out of the
-change puts it back on following the account.
+Seats and licence are changed through the API. Seats cannot be set
+below the client's own number of active people, or above what the
+rest of your clients leave free in the pool. When changing a client's
+licence, the change replaces your whole stated decision for that
+client; leaving a field out of the change puts it back on following
+the account.
 
 **Follow the account** drops your decision entirely. It is refused if
 the client would be left with no stated share of a pool your account
-sells — an unallocated pool is exactly the situation the pooled-limits
+sells: an unallocated pool is exactly the situation the pooled-limits
 rule above exists to prevent.
 
 <Warning>
   A client that chose, when it approved being linked, to keep its own
-  licence is never changed or billed by the account. Its seats and
-  licence stay its own to manage, and `msp.clients.manage` cannot touch
-  either. See [Linking a workspace](/msp/linking-a-workspace).
+  licence is never billed by the account and its licence cannot be
+  changed by it. Its seats stay its own to manage, and
+  `msp.clients.manage` cannot touch them. See [Linking a
+  workspace](/msp/linking-a-workspace).
 </Warning>
 
 ## The Clients table

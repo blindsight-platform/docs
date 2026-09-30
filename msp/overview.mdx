@@ -20,33 +20,32 @@ leaves.
 | | Organization workspace | MSP account |
 | --- | --- | --- |
 | Runs its own product | Yes | No |
-| Has its own people doing the work | Yes | No — its clients do |
+| Has its own people doing the work | Yes | No, its clients do |
 | Menu | The product sidebar (Runtime Security, Data Security, DLP, Compliance...) | A purpose-built menu: Portfolio and Operations |
-| What you see when you sign in | Your own workspace's data | A roster of clients and their state — never a client's content |
+| What you see when you sign in | Your own workspace's data | A roster of clients and their state, never a client's content |
 
 The account's own menu is:
 
-- **Portfolio** — **Overview** (what needs a person today, across every
+- **Portfolio**: **Overview** (what needs a person today, across every
   client) and **Clients** (every client, its protection, licence and
   your access).
-- **Operations** — **Billing** (the seat pool and what renews when),
+- **Operations**: **Billing** (the seat pool and what renews when),
   **Team** (this account's own people, roles, keys and directory), and
   **Settings**.
 
 <Note>
   A client workspace never sees anything extra by having an MSP. Its
   own console looks exactly like any other organization's, except for
-  the **Your MSP** setting described in [For clients](/msp/for-clients)
-  and, while an operator is inside it, a band across the top of every
-  page saying so.
+  the **Your MSP** setting described in [For clients](/msp/for-clients).
 </Note>
 
 ## What clients see
 
 Nothing changes for a client's own people day to day. The one visible
-difference is while an account member has the workspace open: a band
-across the top of the page names the account, says how long is left,
-and offers a way to leave. See [Opening a client](/msp/opening-a-client).
+difference is the **Your MSP** setting. The operator working inside the
+workspace sees a band naming the account, the time left and a way to
+leave; the client's own people do not. Sessions show in the client's
+audit trail. See [Opening a client](/msp/opening-a-client).
 
 ## The security model, in one list
 
@@ -58,13 +57,13 @@ and offers a way to leave. See [Opening a client](/msp/opening-a-client).
 - Everything an operator changes inside a client is recorded in the
   **client's own audit trail** before the change runs. A change that
   cannot be recorded is refused rather than made silently.
-- Operators can never, from inside a client: invite or create people,
-  assign roles, reset anyone's password or two-factor, create API
-  keys, configure directory or SSO, change the security policy,
-  decide whether the MSP itself may have access, or mint a credential
-  that would outlive the session. They also cannot change their own
-  account while a client is open — that lives with the MSP account,
-  and is reached by leaving first.
+- Operators can never, from inside a client: invite, create, edit or
+  remove people, assign roles, reset anyone's password or two-factor,
+  create API keys, configure directory or SSO, change the security
+  policy, decide whether the MSP itself may have access, or mint a
+  credential that would outlive the session. They also cannot change
+  their own account while a client is open. That lives with the MSP
+  account, and is reached by leaving first.
 - The client's own admins decide, at any time, whether their MSP may
   open the workspace at all. Turning it off ends every session already
   open, immediately.

@@ -7,7 +7,7 @@ If a managed service provider manages your workspace, or has asked to,
 **Settings → Your MSP** is where you answer that request and control
 what it can do afterward. It needs `settings.security.manage`, and
 nothing here is ever reachable by an operator working inside your
-workspace from that MSP — only your own admins can change it.
+workspace from that MSP: only your own admins can change it.
 
 ## Answering a request
 
@@ -31,22 +31,23 @@ send a new one to ask again.
 
 <Warning>
   Approval is refused if your workspace already has an MSP, whichever
-  one. End that relationship first.
+  one. End that relationship first by contacting Blindsight support.
 </Warning>
 
 ## Once you have an MSP
 
-Three switches control it, all disabled while access itself is off:
+Three settings control it. The code switch and the session length are
+disabled while access is off:
 
 - **Let `<MSP>` open this workspace.** On by default once approved.
   Turning it off ends every session an operator has open right now,
   immediately, and refuses new ones. Only your own admins can turn it
-  back on — the MSP never holds the permission to do that from inside
-  your workspace, even while it is open.
+  back on (the MSP never holds the permission to do that from inside
+  your workspace, even while it is open).
 - **Ask for a two-factor code every time.** On by default. While on,
   every opening needs a fresh code from the operator's own
   authenticator app. Turn it off and they open after simply being
-  signed in to their own account — weaker, and every use while it is
+  signed in to their own account (weaker), and every use while it is
   off is recorded in your audit trail like any other change here.
 - **How long one opening lasts.** 15 minutes, 30 minutes (the
   default), 1 hour, 2 hours, 4 hours, or 8 hours. A change applies to
@@ -57,18 +58,19 @@ Three switches control it, all disabled while access itself is off:
 
 The same operator limits described in [Team &
 permissions](/msp/team-and-permissions): the products and settings an
-admin could reach, minus inviting people, roles, API keys, directory,
-your security policy, anyone's password or two-factor, and this very
-setting. Your own account (password, two-factor, email, profile)
-cannot be changed by anyone signed in through a client session, on
-either side.
+admin could reach, minus inviting, editing or removing people, roles,
+API keys, directory, your security policy, anyone's password or
+two-factor, and this very setting. Your own account (password,
+two-factor, email, profile) cannot be changed by anyone signed in
+through a client session, on either side.
 
 ## Where to see what they changed
 
-Every time an operator opens your workspace, leaves it, is refused
-entry, or changes something while inside, it is written to your
-[audit trail](/compliance/audit-trail) before the change runs, naming
-the account and the person.
+Every time an operator opens your workspace, leaves it, or has a
+session ended, and every change made inside it, is written to your
+[audit trail](/compliance/audit-trail), naming the account and the
+person. A change is recorded before it runs. Refused attempts to open
+are recorded on the MSP's side.
 
 ## Turning access off
 
