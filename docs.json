@@ -87,6 +87,18 @@
             ]
           },
           {
+            "group": "MSP",
+            "pages": [
+              "msp/overview",
+              "msp/clients",
+              "msp/linking-a-workspace",
+              "msp/opening-a-client",
+              "msp/portfolio-and-billing",
+              "msp/team-and-permissions",
+              "msp/for-clients"
+            ]
+          },
+          {
             "group": "Administration",
             "pages": [
               "administration/access",
