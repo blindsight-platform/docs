@@ -216,6 +216,37 @@ The `attachment` object:
   populate `attachment`.
 </Warning>
 
+### Rows recorded without any text
+
+Some rows record that traffic happened and keep no words. They have the
+verdict `allow` and the status `local_only`, and they are not prompts,
+gaps or blocks: the prompt that asked is its own row.
+
+| Row                       | `scan_status_reason` | What it records                                                              |
+| ------------------------- | -------------------- | ------------------------------------------------------------------------------ |
+| **Answer recorded**       | `REPLY_OBSERVED`     | A model's answer, read on the device as it streamed. One row can stand for several answers, and then reads "N answers recorded". |
+| **File downloaded**       | `FILE_DOWNLOADED`    | A file the AI service sent to the device: its name, type and size.             |
+| **Refused by service**    | `PROVIDER_REFUSED`   | The AI service refused the request, such as through a content filter. The row carries the service's own code, never the prompt. |
+
+For an answer or a download, the counts are the device's own detection.
+The answer text and the file contents stay on the device and are not
+sent to the platform.
+
+### Files inside JSON bodies
+
+The agent also reads files that travel inside a request instead of as
+an upload: a base64 file embedded in a JSON body, and a file part with
+no name in a multipart body. A file embedded in a JSON body is scanned
+like any upload when it is text, PDF, `.docx`, `.xlsx` or `.pptx`. A
+file part with no name is scanned when its type is PDF, Word, Excel,
+PowerPoint or CSV.
+
+Everything else passes to the service: images, audio such as a voice
+note, archives and any other type the on-device reader cannot open. The
+event is recorded as **Not inspected** with the file's name, type and
+size and no content. The reason is `IMAGE_NOT_INSPECTED` for an image
+and `EMBEDDED_FILE_NOT_INSPECTED` for the rest.
+
 ## Device-scoped rules
 
 A person can carry detection rules that apply to **their machine

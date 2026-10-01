@@ -1,6 +1,6 @@
 ---
 title: "DLP permissions"
-description: "The permission keys that govern the desktop agent fleet, what each one grants, and the August 2026 rename off the runtime-security prefix."
+description: "The permission keys that govern the desktop agent fleet, what each one grants, what people see in the desktop app, and the August 2026 rename off the runtime-security prefix."
 ---
 
 Endpoint DLP is the desktop agent fleet on people's machines. Runtime
@@ -96,6 +96,60 @@ which AI services people use says nothing about the company's DLP
 policies, so it is granted to every role that can see Runtime
 Security at all, while `dlp.view` stays with the people who manage
 policy.
+
+## What people see in the desktop app
+
+What the desktop app shows the person using a device is decided in two
+layers, and both have to allow it.
+
+1. **The workspace switches.** **DLP → Configurations → Install → What people
+   see in the desktop app** has one switch per surface, **Shown** or **Hidden**.
+   A switch is the most any device in the workspace shows. Changing
+   them needs `dlp.device_ui.configure`, which only admin holds by
+   default, and every change is recorded in the audit trail.
+2. **The person's own permissions.** For the rest of the surfaces
+   below, the person who owns the device also needs the matching
+   `dlp.desktop.*` permission.
+
+The nine `dlp.desktop.*` permissions apply on a device the person owns.
+Admin holds all nine by default; no other built-in role holds any. Grant
+them to a role or to one person like any other permission.
+
+| Permission                      | On a device they own, the person can                                      |
+| ------------------------------- | -------------------------------------------------------------------------- |
+| `dlp.desktop.activity_text`     | See the text of the requests and replies behind each entry, not only that one happened. |
+| `dlp.desktop.vault`             | See which stand-in values the device holds in place of the real ones.     |
+| `dlp.desktop.vault_reveal`      | Read the real value a stand-in is hiding.                                  |
+| `dlp.desktop.protection`        | Open the Protection tab: its privacy settings, its stand-ins and the rules it enforces. |
+| `dlp.desktop.rules`             | See the detection rules in force.                                          |
+| `dlp.desktop.support`           | Open its logs, local endpoints and diagnostic bundle.                      |
+| `dlp.desktop.diagnostics`       | Open the Diagnostics tab: the checks on every layer, the flow trace, the log and the bundle. |
+| `dlp.desktop.updates`           | Install an agent update and change the automatic-update switch.            |
+| `dlp.desktop.sign_out`          | Sign the device out, or point it at another workspace.                     |
+
+The **Activity** tab has no permission. Every person sees it unless
+the workspace switch hides it for the whole fleet. Hiding it is a
+decision for the workspace, not something a person is granted.
+
+<Note>
+  **A device counts only with an owner that has been proved.** The owner
+  is the person the device is bound to, by the SSO sign-in or because an
+  admin confirmed it with **Confirm owner**. An `auto` match, a `pending`
+  device, a revoked binding, a device nobody has claimed, and a
+  deactivated owner all count as no owner, and then none of the nine
+  surfaces is shown. See [Identity binding](/dlp/identity).
+</Note>
+
+A person who is missing a surface is told that their organisation does
+not show it, never that something failed. An agent that predates
+person-level permissions applies only the workspace switches.
+
+Devices enrolled with a fleet token hide **Sign out** by default, because
+the organisation enrolled them. Devices a person signed in on show it.
+Set the switch explicitly to override either.
+
+An MSP operator working inside a client never holds the nine
+permissions. See [Team & permissions](/msp/team-and-permissions).
 
 ## Where each one is enforced
 
