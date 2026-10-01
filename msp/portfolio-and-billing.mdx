@@ -67,13 +67,13 @@ access to that client is off, so nothing can be read from it at all.
 
 **Billing** (`/msp/billing`) shows the seat pool and what each client
 used in one calendar month. Pick the month in the selector; it lists
-every month the account has usage recorded for, newest first. A line
+the current month and every month with recorded usage, newest first. A line
 under the figures says when recording began.
 
 | Figure | Reads |
 | --- | --- |
 | **Seat pool** | Seats given to clients, of the pool your licence sets, with how many are still free to give. |
-| **Client workspaces** | The total, with how many are on a trial (trials are not counted). |
+| **Client workspaces** | The total, with how many are on a trial (trials are not billed). |
 | **Billable this month** | The true peak seats across every client on your pool for the month. For a past month it reads **Billable that month**. |
 | **Renews** | Your account's own plan tier and renewal date. |
 
@@ -96,10 +96,10 @@ clients that kept their own licence are not in it.
 | --- | --- |
 | **Client** | The workspace name. |
 | **Seats given** | Blank for a trial client. |
-| **Peak this month** | The true peak for the month selected. |
+| **Peak this month** | The true peak for the month selected. For a past month it reads **Peak that month**. |
 | **Active now** | People active right now. Shown for the current month only. |
 | **Licence** | **Pool** (sold by your account), **Kept** (the client keeps its own licence) or **Trial**. |
-| **Plan** | **Trial** for a trial client, otherwise its plan tier. Blank for a kept licence. |
+| **Plan** | **Trial** for a trial client, otherwise its plan tier. Shows a **·** placeholder for a kept licence. |
 | **Linked until** | The date the link ended in that month, or **Still linked**. |
 
 A client you released during the month still appears for that month,

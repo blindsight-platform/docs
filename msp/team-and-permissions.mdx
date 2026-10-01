@@ -32,8 +32,8 @@ from a directory group. Give it to someone, such as a finance contact,
 who needs the numbers but not the clients.
 
 A member with only this role signs in to **Billing**. It is the only
-item in their menu, **Settings** is hidden, and every other page of the
-account answers with a refusal. Anyone who holds `msp.clients.view`
+item in their menu, every other page is hidden, **Settings** sends them
+to Billing, and the API refuses everything else. Anyone who holds `msp.clients.view`
 can read Billing too.
 
 ## Limiting an operator to some clients

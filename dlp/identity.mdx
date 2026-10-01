@@ -160,6 +160,11 @@ binding is never mistaken for one the identity provider proved. The
 person must be active. Like an SSO binding, a later re-enrollment that
 proves nothing returns it to `pending`.
 
+Until an owner is confirmed, a workspace with no identity provider has
+no identity to bind, and a pause request is refused with
+`identity_binding_unavailable`. See [Only a proved identity may
+pause](/dlp/devices#only-a-proved-identity-may-pause).
+
 Only a `bound` owner counts for pausing protection and for what the
 desktop app shows the person. See [DLP permissions](/dlp/permissions#what-people-see-in-the-desktop-app).
 

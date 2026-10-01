@@ -235,11 +235,12 @@ sent to the platform.
 ### Files inside JSON bodies
 
 The agent also reads files that travel inside a request instead of as
-an upload: a base64 file embedded in a JSON body, and a file part with
-no name in a multipart body. A file embedded in a JSON body is scanned
+an upload: a file embedded in a JSON body (as base64, a data URL or a
+list of bytes), and a file part with no name in a multipart body. A file embedded in a JSON body is scanned
 like any upload when it is text, PDF, `.docx`, `.xlsx` or `.pptx`. A
-file part with no name is scanned when its type is PDF, Word, Excel,
-PowerPoint or CSV.
+file part with no name is scanned when its type is PDF, CSV, `.doc` or a
+modern Office format (`.docx`, `.xlsx`, `.pptx`). The older `.xls` and
+`.ppt` formats are not read.
 
 Everything else passes to the service: images, audio such as a voice
 note, archives and any other type the on-device reader cannot open. The

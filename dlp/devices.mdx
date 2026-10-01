@@ -168,7 +168,8 @@ The device leaves this client and joins the one chosen, with nobody at
 the machine. Its history here stays, marked as moved. Open asks and
 requests stay behind. The new client's policy applies, and the owner has
 to be confirmed again. A move is refused if the device is revoked, if the
-other client already has this machine, is not licensed for the Endpoint
+other client already has this machine (a revoked copy left there by an
+earlier move is brought back instead), is not licensed for the Endpoint
 agent, or is at its device limit. See [Opening a
 client](/msp/opening-a-client).
 
@@ -196,6 +197,7 @@ the platform decides. A refusal comes back as `403` with a code:
 | Code                         | Why                                                              |
 | ---------------------------- | ----------------------------------------------------------------- |
 | `device_identity_unverified` | The device's identity is not `bound`. Only the SSO device-code flow, or an admin choosing **Confirm owner**, sets that. |
+| `identity_binding_unavailable` | The workspace has no SSO, so there is no identity to bind. Use **Confirm owner**. |
 | `device_unattributed`        | The device is not attached to a directory user.                   |
 | `owner_inactive`             | That user's account is deactivated.                               |
 | `permission_denied`          | That user does not hold `dlp.protection.pause`.                   |

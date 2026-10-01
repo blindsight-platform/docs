@@ -103,7 +103,8 @@ What the desktop app shows the person using a device is decided in two
 layers, and both have to allow it.
 
 1. **The workspace switches.** **DLP → Configurations → Install → What people
-   see in the desktop app** has one switch per surface, **Shown** or **Hidden**.
+   see in the desktop app** has one switch per surface, **Shown** or **Hidden**. The **Sign out**
+   switch also has **Default**, explained below.
    A switch is the most any device in the workspace shows. Changing
    them needs `dlp.device_ui.configure`, which only admin holds by
    default, and every change is recorded in the audit trail.
@@ -141,8 +142,7 @@ decision for the workspace, not something a person is granted.
 </Note>
 
 A person who is missing a surface is told that their organisation does
-not show it, never that something failed. An agent that predates
-person-level permissions applies only the workspace switches.
+not show it, never that something failed.
 
 Devices enrolled with a fleet token hide **Sign out** by default, because
 the organisation enrolled them. Devices a person signed in on show it.

@@ -98,7 +98,7 @@ clients since released, with these columns: **When**, **Operator**,
 **Client** and **What happened**.
 
 Three kinds of row appear, and the chips above the list filter between
-them:
+them. **All** shows every kind:
 
 | Filter | Shows |
 | --- | --- |
@@ -106,7 +106,9 @@ them:
 | **Refused to open** | An attempt to open a client that was refused. |
 | **Refused actions** | A change attempted inside a client that was refused. |
 
-You can also narrow the list to one client or one person. Open a row to
+You can also narrow the list to one client or one person. A row opens only
+when it has a reason or a refused request, so a session opened without
+a reason shows no start or expiry detail. Open a row to
 read the rest: for a session, the reason or ticket entered when it was
 opened, when it started and expired, and when and why it ended; for a
 refusal, the reason given and the request that was refused.
