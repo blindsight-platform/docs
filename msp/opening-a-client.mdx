@@ -17,6 +17,15 @@ Open a client from either place:
   selected.
 - **Clients → Open**, on a client's row, when access is on.
 
+If your account limits you to some clients (see [Limiting an operator
+to some clients](/msp/team-and-permissions#limiting-an-operator-to-some-clients)),
+only those appear. Any other client behaves as if it does not exist: it
+cannot be opened, and asking for it directly is answered as if it did not exist.
+
+The open dialog has an optional **Reason or ticket** field, up to 200
+characters. It is kept with the session and shown in
+[Activity](#activity).
+
 ## The code step
 
 Opening needs two-factor authentication turned on for **your own**
@@ -60,6 +69,8 @@ returns you to the account.
 - Choosing **Leave workspace**.
 - The client switching its own MSP access off, which ends every
   session open into it at once.
+- The client ending the link, or your account releasing the client,
+  which ends every session open into it at once.
 - Losing the permission, having two-factor turned off, having your
   password changed or your sign-ins revoked, or leaving the MSP
   account: each is checked again on every request inside the client.
@@ -77,11 +88,34 @@ open it at all.
 Every change you make inside a client is written to that client's own
 audit trail before it runs.
 
+## Activity
+
+**Activity** (Operations → Activity, `/msp/activity`) is your account's
+own record of openings. It needs `msp.clients.view`, and a scoped
+member sees only the clients in their scope. It lists, newest first,
+every client your account has opened now or in the past, including
+clients since released, with these columns: **When**, **Operator**,
+**Client** and **What happened**.
+
+Three kinds of row appear, and the chips above the list filter between
+them:
+
+| Filter | Shows |
+| --- | --- |
+| **Sessions** | An opening of a client. The row says whether it is still open or timed out without being ended, and counts the changes and refusals inside it. |
+| **Refused to open** | An attempt to open a client that was refused. |
+| **Refused actions** | A change attempted inside a client that was refused. |
+
+You can also narrow the list to one client or one person. Open a row to
+read the rest: for a session, the reason or ticket entered when it was
+opened, when it started and expired, and when and why it ended; for a
+refusal, the reason given and the request that was refused.
+
 ## Next
 
 <CardGroup cols={2}>
   <Card title="Team & permissions" icon="users" href="/msp/team-and-permissions">
-    The four `msp.clients.*` permissions, and what an operator session can reach.
+    The MSP permissions, client scopes, and what an operator session can reach.
   </Card>
   <Card title="For clients" icon="handshake" href="/msp/for-clients">
     The switches a client controls: access, the code, and how long an opening lasts.

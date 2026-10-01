@@ -1,15 +1,15 @@
 ---
 title: "Team & permissions"
-description: "The four msp.clients.* permissions, what an operator session inside a client can and cannot do, and why two-factor is required to open one."
+description: "The MSP permissions, limiting an operator to some clients, the billing-only role, what an operator session inside a client can and cannot do, and why two-factor is required to open one."
 ---
 
 An MSP account's own people, roles, and invitations live on **Team**
 (`/access`), the same Access management surface every workspace uses.
 What is specific to an MSP account is the `msp.clients.*` permission
-group and the fixed role an account member runs under once they open a
-client.
+group, the `msp.billing.view` permission, and the fixed role an account
+member runs under once they open a client.
 
-## The four permissions
+## The permissions
 
 | Permission | Lets the holder |
 | --- | --- |
@@ -18,8 +18,51 @@ client.
 | `msp.clients.access` | Work inside a client workspace for a limited time, after a fresh two-factor code (unless the client switched that off). Everything done there is recorded in the client's audit trail. Nothing that grants lasting access to the client can be done this way. |
 | `msp.clients.people` | Inside a client you opened, see its people, their roles, invitations and access activity. Changing any of it stays with the client's own admins. |
 
+| `msp.billing.view` | Read [Billing](/msp/portfolio-and-billing#billing) and its CSV, and nothing else in the account. |
+
 These are granted through custom roles exactly like any other
 permission: see [Access management](/administration/access).
+
+## The billing-only role
+
+`msp-billing` is a built-in role that holds `msp.billing.view` and
+nothing else. It exists only in an MSP account: in an organization
+workspace it is not listed and cannot be assigned, invited or mapped
+from a directory group. Give it to someone, such as a finance contact,
+who needs the numbers but not the clients.
+
+A member with only this role signs in to **Billing**. It is the only
+item in their menu, **Settings** is hidden, and every other page of the
+account answers with a refusal. Anyone who holds `msp.clients.view`
+can read Billing too.
+
+## Limiting an operator to some clients
+
+By default every member of the account sees every client. To limit an
+operator:
+
+1. Put [tags](/msp/clients#tags) on your clients.
+2. Open **Client access** (Operations → Client access, `/msp/operators`).
+   It lists the account's people with their roles and what each can open.
+3. Choose a person, turn off **See every client**, and enter the tags
+   in **Limit to tags**, separated by commas.
+
+A scoped operator sees and opens only clients that carry at least one
+of their tags. This applies to Overview, Clients, Billing and its CSV,
+Activity, and opening a client. A client outside the scope behaves as if
+it does not exist.
+
+- **Admins are never scoped.** An admin or owner always sees every
+  client, so an account cannot lock itself out of its own clients.
+- **A scoped member cannot change scopes**, their own included.
+  Otherwise the way out of a scope would be open to the person it
+  limits.
+- **A scope fails closed.** If no client carries any of a person's tags
+  any more, for example after the last one was released, they see no
+  clients.
+- Seeing the page needs `users.view`. Changing a scope needs
+  `users.assign_roles`. A scope needs at least one tag, or **See every
+  client**. Each change is recorded.
 
 ## Two-factor is required to open a client
 
@@ -62,6 +105,16 @@ people to holders of `msp.clients.people`. A workspace that linked
 chose at approval, and if it chose to hide them, nobody at the account
 sees them.
 
+Without people access an operator does not see names. The client's
+people and devices appear as coded identities: `Person` or `Device`
+followed by a six-character code, so the work can go on without naming
+anyone. A few
+surfaces cannot be coded and are refused: people search, the member
+list, the roles page (which names who holds each role), and rollout
+actions that take an email address. The audit trail can be read, but
+not searched by text or filtered by person, and its signed export is
+refused.
+
 ### What never runs inside a client, for anyone
 
 - **API keys.** A key authenticates without the person behind the
@@ -73,6 +126,10 @@ sees them.
 - **Minting the client's audit webhook token**, a credential that
   would outlive the session and write into the very trail that is
   supposed to be recording you.
+- **Creating a Runtime Security App token.** Like an API key, a token
+  works without anyone present in the client, so only the client's own
+  admins can create one. Enrollment tokens for devices are not
+  affected.
 - **The client's own decision about its MSP.** Only the client's
   admins can switch access on or off, or change the code and duration
   settings, never an operator working inside it.

@@ -1,6 +1,6 @@
 ---
 title: "Your MSP"
-description: "Approving or declining a request to be managed, and the switches that control what your MSP can do once it does: access, the two-factor code, and how long one opening lasts."
+description: "Approving or declining a request to be managed, the switches that control what your MSP can do once it does, and how to end the link."
 ---
 
 If a managed service provider manages your workspace, or has asked to,
@@ -36,7 +36,8 @@ would need to send a new one to ask again.
 
 <Warning>
   Approval is refused if your workspace already has an MSP, whichever
-  one. End that relationship first by contacting Blindsight support.
+  one. End that relationship first (see [Ending the
+  link](#ending-the-link)).
 </Warning>
 
 ## Once you have an MSP
@@ -86,5 +87,35 @@ own record of the approval never shows how you proved yourself.
 
 Turning the top switch off is immediate and does not require anything
 from the MSP. It ends their access, not the underlying relationship
-between your workspace and their account; if you want the relationship
-itself ended, contact Blindsight support.
+between your workspace and their account. To end the relationship, see
+below.
+
+## Ending the link
+
+**End the link with `<MSP>`**, at the bottom of **Settings → Your MSP**,
+ends the relationship for good. It needs `settings.security.manage`,
+and the same proof as approving a request: the current code from your
+own authenticator app, or your account password if you have not set one
+up. If your workspace's own sign-in policy requires two-factor
+authentication, the password is not accepted, and you set up an
+authenticator in your profile first.
+
+The dialog lists what happens before it asks for the proof:
+
+- The MSP can no longer open this workspace, and anyone from it working
+  here is signed out at once.
+- Nothing is deleted. Your workspace keeps its people, devices,
+  policies and audit trail, including the record of the MSP's work
+  here.
+- If you kept your own licence, it does not change. If the MSP provided
+  your licence from its seat pool, the seats go back to the pool and
+  Blindsight follows up with you about your licence.
+- Any request from that MSP that is still pending is cancelled, and the
+  settings on this page are cleared. If you link again later, you answer
+  a new request and choose again.
+
+The MSP's admins are emailed that the link has ended. The MSP
+can also release a client itself: see [Releasing a
+client](/msp/clients#releasing-a-client), in which case your admins
+are emailed. Either way, the end is recorded in the audit trail on both
+sides.
