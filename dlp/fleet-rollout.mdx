@@ -193,6 +193,23 @@ Tamper attempts (uninstall blocked by guardian, modified binary,
 disabled proxy) surface as high‑severity audit events under
 `POST /agent/tamper-events`.
 
+## Managed devices in the desktop app
+
+The desktop app treats a device you provisioned differently from one a
+person set up themselves, so a person cannot undo what you chose.
+
+- **Sign-in options are hidden.** On a managed device the sign-in screen
+  has no **Advanced** link for the workspace address, App ID and token,
+  and the device refuses a change to the workspace address. A Mac counts
+  as managed when an MDM configuration profile is present. A Windows
+  device counts when the installer or policy sets the platform address
+  or an enrolment token.
+- **Start at Login stays on.** Where the machine starts the app at every
+  sign-in, the **Start at Login** item is not offered, and an earlier
+  choice of off is recorded as on so the app does start. That is a
+  macOS MDM profile, or the machine-wide startup entry the Windows
+  installer writes.
+
 ## Out-of-repo signing
 
 Certain steps **cannot** be done inside Blindsight's source tree.

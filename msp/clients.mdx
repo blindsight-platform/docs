@@ -5,7 +5,8 @@ description: "Creating a client workspace, what it is sold, changing its seats a
 
 **Clients** (`/clients`) lists every client workspace the account runs,
 with its protection, licence, seats and your own access to it in one
-row. It needs `msp.clients.view`. Creating and changing clients needs
+row. It needs `msp.clients.view`. If your account limits you to some
+clients, you see only those. Creating and changing clients needs
 `msp.clients.manage`; opening one needs `msp.clients.access`.
 
 ## Creating a client workspace
@@ -26,6 +27,10 @@ row. It needs `msp.clients.view`. Creating and changing clients needs
 The workspace is created and its first admin invited in one step. If
 the invitation email cannot be sent, the dialog stays open with a
 one-time link you can hand the admin yourself.
+
+Creating clients is limited to 20 an hour and 60 a day per account,
+shared by every admin in it. Attempts that are refused for missing
+permission or for invalid input do not count against it.
 
 <Note>
   A client cannot be created when the account's own licence is missing
@@ -62,39 +67,88 @@ state for it, it inherits live from your account.
 
 ### Changing seats and licence
 
-Seats and licence are changed through the API. Seats cannot be set
-below the client's own number of active people, or above what the
-rest of your clients leave free in the pool. When changing a client's
-licence, the change replaces your whole stated decision for that
-client; leaving a field out of the change puts it back on following
-the account.
+Choose **Change** on a client's row. Seats and licence are saved in one
+request. Seats cannot be set below the client's own active people and pending
+invitations, or above what the rest of your clients leave free in the
+pool. The change replaces your whole stated decision for that client;
+leaving a licence field out puts it back on following the account. A
+seats value you leave out is kept as it is.
 
 **Follow the account** drops your decision entirely. It is refused if
 the client would be left with no stated share of a pool your account
 sells: an unallocated pool is exactly the situation the pooled-limits
 rule above exists to prevent.
 
-<Warning>
-  A client that chose, when it approved being linked, to keep its own
-  licence is never billed by the account and its licence cannot be
-  changed by it. Its seats stay its own to manage, and
-  `msp.clients.manage` cannot touch them. See [Linking a
-  workspace](/msp/linking-a-workspace).
-</Warning>
+### Clients waiting for seats
+
+A client that was approved for your seat pool but holds no seats yet
+shows **Waiting for seats** in the **Licence** column. It is waiting
+for you, not for Blindsight. **Overview** lists it under Needs
+attention as **Give it seats**, and its action opens that client's
+**Change** dialog.
+
+### Clients that keep their own licence
+
+A client that chose, when it approved being linked, to keep its own
+licence pays Blindsight directly. Its row shows **Own licence** where
+**Change** would be, because its seats and licence are its own and
+`msp.clients.manage` cannot touch them. It is never billed by the
+account and takes no seats from the pool. It is still listed in
+[Billing](/msp/portfolio-and-billing#billing) with **Kept** as its
+licence, so you can see it. See [Linking a
+workspace](/msp/linking-a-workspace).
+
+## Tags
+
+Tags are short labels you put on your own clients, such as `dental` or
+`emea`. They filter the **Clients** table, and they decide which clients
+a scoped operator can see (see [Limiting an operator to some
+clients](/msp/team-and-permissions#limiting-an-operator-to-some-clients)).
+
+Choose **Tags** on a client's row to edit them; it needs
+`msp.clients.manage`. A tag is letters, numbers, spaces,
+underscores or hyphens, up to 40 characters, starting with a letter or
+number. Tags are saved in lowercase, so `Dental` is accepted and kept
+as `dental`. A client carries at most 10 tags and the account uses at most
+100 distinct tags. Tag changes are recorded with who made them. A client that is released loses its tags, so linking it again
+starts it untagged.
+
+## Releasing a client
+
+**Release** on a client's row ends the link from your side. It needs
+`msp.clients.manage`, and two-factor authentication turned on for your
+own account. You prove it with a current code from your authenticator
+app and by typing the client's name. There is no password option.
+
+Releasing a client:
+
+- Ends every session open into it, at once.
+- Returns the seats it held to your pool, unless it kept its own
+  licence, in which case its licence is unaffected.
+- Flags a pool client's licence for Blindsight to resolve with the
+  client.
+- Deletes nothing. The client keeps its workspace, people, devices,
+  policies and audit trail, and your past sessions stay in
+  [Activity](/msp/opening-a-client#activity).
+- Emails the client's admins to tell them.
+
+You can later send the workspace a new link request. A client can also
+end the link itself: see [For clients](/msp/for-clients#ending-the-link).
 
 ## The Clients table
 
 | Column | Meaning |
 | --- | --- |
 | **Client** | The workspace name. Rows with an unfinished setup (licence not yet issued, or no device enrolled) expand into a short getting-started checklist. |
+| **Tags** | The labels you put on the client. |
 | **Protection** | **Protected** (every enrolled device is inspecting), **Gaps** (some are not), **Not deployed** (no device enrolled yet), or **Unknown** (your access is off, so nothing can be read). |
 | **Devices inspecting** | Inspecting of enrolled, e.g. "12 of 14". |
 | **AI to decide** | AI services discovered on the client's devices still awaiting a decision. |
-| **Licence** | **Licensed**, **Trial · N days left**, or **Waiting for a licence**. |
+| **Licence** | **Licensed**, **Trial · N days left**, **Waiting for seats** (approved for your pool, no seats given yet), or **Waiting for a licence**. |
 | **Seats** | Seats given to the client. |
 | **Your access** | **On**, or **Off by client** when its own admins switched it off. |
 | **Last session** | When an account member last opened this client, or "never". |
-| *(actions)* | **Open**, when access is on and you hold `msp.clients.access`. |
+| *(actions)* | **Change** (or **Own licence** for a client that keeps its own), **Tags** and **Release**, with `msp.clients.manage`; **Open**, when access is on and you hold `msp.clients.access`. |
 
 ## Next
 

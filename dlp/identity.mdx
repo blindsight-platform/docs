@@ -150,6 +150,24 @@ A device can be re‑bound to a different directory user:
 
 Re‑binding triggers a new device‑code flow on the agent.
 
+### Confirming an owner without SSO
+
+A workspace with no identity provider can still give a device a proved
+owner. An admin chooses **Confirm owner** on the device, in **DLP →
+Endpoints**, and names a person in the workspace. The device flips to
+`bound`, and the platform records which admin vouched, so a confirmed
+binding is never mistaken for one the identity provider proved. The
+person must be active. Like an SSO binding, a later re-enrollment that
+proves nothing returns it to `pending`.
+
+Until an owner is confirmed, a workspace with no identity provider has
+no identity to bind, and a pause request is refused with
+`identity_binding_unavailable`. See [Only a proved identity may
+pause](/dlp/devices#only-a-proved-identity-may-pause).
+
+Only a `bound` owner counts for pausing protection and for what the
+desktop app shows the person. See [DLP permissions](/dlp/permissions#what-people-see-in-the-desktop-app).
+
 ## Auto identity for non‑user devices
 
 For devices that don't have a human user (lab machines, build

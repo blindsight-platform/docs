@@ -122,6 +122,56 @@ Click any device row to open the detail panel.
 | **Resume protection**   | Lifts a pause the person set on their own machine. See [Pausing protection](#pausing-protection). |
 | **Push policy**         | Forces the agent to re‑fetch `/agent/policy` immediately, useful for urgent rollouts.       |
 | **Reveal CA**           | Downloads the org root CA bundle the agent installed, in case IT needs to verify it.        |
+| **Confirm owner**       | States that this machine belongs to a named person in your workspace, so a device without SSO can have a proved owner. It is recorded against the admin who confirmed it. |
+| **Release**             | Lets a Mac pinned to this workspace join another one. See [Which workspace a Mac answers to](#which-workspace-a-mac-answers-to). |
+| **Keep pinned**         | Withdraws a release that is still standing.                                                 |
+| **Move to another client** | MSP operators only: moves the device to another client of the same account. See below. |
+
+## Which workspace a Mac answers to
+
+Enforcement on a Mac answers to one workspace at a time. The device
+page says which, in a state next to the device:
+
+| State                              | What it means                                                                                   |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------ |
+| **Pinned to this workspace**       | Enforcement on the device answers to this workspace only.                                        |
+| **Not pinned yet**                 | It pins to the first workspace that answers. Until then nothing here stops it joining another.   |
+| **Held by another workspace**      | The device answers to a different workspace, so this workspace's pause does not reach it.        |
+| **Signed in at another address**   | The device is signed in somewhere other than where it is managed from, so it is not asking this workspace for enforcement. |
+| **Released · until `<date>`**      | An admin released it. See below.                                                                 |
+| **Moving in**                      | It is moving here from another client.                                                          |
+
+### Release a device
+
+**Release** lets a pinned Mac join another workspace. It needs
+`runtime_security.apps.manage`. The release lasts seven days; after that
+it reads as no release at all. **Keep pinned** withdraws it sooner.
+Release is on the fleet table and on the device page.
+
+<Warning>
+  While a release stands, the Mac is open to being pinned by whichever
+  workspace it signs in to next. Release it only when it is meant to
+  leave. Releasing does not lift a pause: this workspace's pause still
+  applies until the device actually joins elsewhere. Every release and
+  withdrawal is written to the audit trail.
+</Warning>
+
+### Move a device between clients
+
+An MSP operator working inside a client can use **Move to another
+client** on the device page to send the device to another client of the
+same MSP account. It appears only inside an open client session, and
+lists only the account's other clients that have not switched off its
+access.
+
+The device leaves this client and joins the one chosen, with nobody at
+the machine. Its history here stays, marked as moved. Open asks and
+requests stay behind. The new client's policy applies, and the owner has
+to be confirmed again. A move is refused if the device is revoked, if the
+other client already has this machine (a revoked copy left there by an
+earlier move is brought back instead), is not licensed for the Endpoint
+agent, or is at its device limit. See [Opening a
+client](/msp/opening-a-client).
 
 ## Pausing protection
 
@@ -146,7 +196,8 @@ the platform decides. A refusal comes back as `403` with a code:
 
 | Code                         | Why                                                              |
 | ---------------------------- | ----------------------------------------------------------------- |
-| `device_identity_unverified` | The device's identity is not `bound`. Only the SSO device-code flow sets that. |
+| `device_identity_unverified` | The device's identity is not `bound`. Only the SSO device-code flow, or an admin choosing **Confirm owner**, sets that. |
+| `identity_binding_unavailable` | The workspace has no SSO, so there is no identity to bind. Use **Confirm owner**. |
 | `device_unattributed`        | The device is not attached to a directory user.                   |
 | `owner_inactive`             | That user's account is deactivated.                               |
 | `permission_denied`          | That user does not hold `dlp.protection.pause`.                   |

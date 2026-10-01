@@ -29,9 +29,14 @@ The account's own menu is:
 - **Portfolio**: **Overview** (what needs a person today, across every
   client) and **Clients** (every client, its protection, licence and
   your access).
-- **Operations**: **Billing** (the seat pool and what renews when),
-  **Team** (this account's own people, roles, keys and directory), and
-  **Settings**.
+- **Operations**: **Billing** (the seat pool, what each client used by
+  month, and what renews when), **Activity** (every opening of a client
+  and every refusal), **Team** (this account's own people, roles, keys
+  and directory), **Client access** (which clients each of your people
+  can open), and **Settings**.
+
+A member who holds only the billing role sees **Billing** and nothing
+else. See [Team & permissions](/msp/team-and-permissions#the-billing-only-role).
 
 <Note>
   A client workspace never sees anything extra by having an MSP. Its
@@ -67,6 +72,11 @@ audit trail. See [Opening a client](/msp/opening-a-client).
 - The client's own admins decide, at any time, whether their MSP may
   open the workspace at all. Turning it off ends every session already
   open, immediately.
+- Either side can end the relationship. The client ends the link from
+  its own **Your MSP** setting, and the account releases a client from
+  **Clients**. Each needs a fresh proof, and neither deletes anything in
+  the client. See [For clients](/msp/for-clients#ending-the-link) and
+  [Clients](/msp/clients#releasing-a-client).
 
 ## Next
 
@@ -81,6 +91,6 @@ audit trail. See [Opening a client](/msp/opening-a-client).
     The code step, the countdown band, and what happens when time runs out.
   </Card>
   <Card title="Team & permissions" icon="users" href="/msp/team-and-permissions">
-    The four `msp.clients.*` permissions and what each allows.
+    The MSP permissions, limiting people to some clients, and the billing-only role.
   </Card>
 </CardGroup>
