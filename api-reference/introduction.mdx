@@ -128,9 +128,9 @@ scans or datasets rows it might otherwise fall into.
   The catch-all row used to return the read scope whatever the method,
   so a key issued for telemetry could also mint and revoke enrollment
   tokens, revoke and rebind devices, create and delete Apps, and
-  rewrite DLP policy. Writes on that surface now require
+  rewrite endpoint policy. Writes on that surface now require
   `runtime:config:write`. Audit any automation that mutates devices,
-  Apps, enrollment tokens or DLP policy with a `runtime:events:read`
+  Apps, enrollment tokens or endpoint policy with a `runtime:events:read`
   key: it will start returning `403` with
   `API key missing required scope: runtime:config:write`.
 </Warning>

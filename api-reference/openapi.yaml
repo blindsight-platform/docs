@@ -5196,7 +5196,7 @@ paths:
       description: 'Workspace-level compliance report.
 
 
-        Combines runtime DLP evidence (PII/injection blocks) with the semantic
+        Combines runtime endpoint evidence (PII/injection blocks) with the semantic
 
         finding->regulation control mapping and the tamper-evident audit-chain
 
@@ -7648,7 +7648,7 @@ paths:
       tags:
       - invitations
       summary: Agent Rollout Invite
-      description: 'Invite/notify the workforce to install the desktop agent (DLP rollout).
+      description: 'Invite/notify the workforce to install the desktop agent (endpoint rollout).
 
 
         A new email address gets a real account invitation whose email also carries the
@@ -11136,7 +11136,7 @@ paths:
       tags:
       - runtime-security
       summary: Get Firewall Flow
-      description: 'Platform-wide firewall flow: every inspected source (apps, DLP agents,
+      description: 'Platform-wide firewall flow: every inspected source (apps, endpoint agents,
 
         direct API) → firewall → verdicts, plus a separate Shadow-AI observed lane.'
       operationId: get_firewall_flow_api_runtime_security_firewall_flow_get
@@ -11238,11 +11238,11 @@ paths:
           - type: 'null'
           description: Filter to events from devices belonging to this user, matches the bound directory
             email, or the OS account / hostname for devices that haven't completed SSO binding (the same
-            labels the DLP Users tab shows).
+            labels the Workforce tab shows).
           title: User
         description: Filter to events from devices belonging to this user, matches the bound directory
           email, or the OS account / hostname for devices that haven't completed SSO binding (the same
-          labels the DLP Users tab shows).
+          labels the Workforce tab shows).
       - name: provider
         in: query
         required: false
@@ -11281,10 +11281,10 @@ paths:
         required: false
         schema:
           type: boolean
-          description: Only events from enrolled DLP desktop agents (device_id set)
+          description: Only events from enrolled endpoint desktop agents (device_id set)
           default: false
           title: Device Only
-        description: Only events from enrolled DLP desktop agents (device_id set)
+        description: Only events from enrolled endpoint desktop agents (device_id set)
       - name: include_facets
         in: query
         required: false
@@ -13832,7 +13832,7 @@ paths:
 
         so the desktop agent is attributed to a real ``device -> user`` pair in
 
-        DLP reporting without any enrollment token. Idempotent per
+        endpoint reporting without any enrollment token. Idempotent per
 
         ``(workspace, hardware_id)`` like ``/enroll``: a machine the installer
 
@@ -15045,7 +15045,7 @@ paths:
 
         The entitlement is NOT re-checked here. ``resolve_agent_device`` already
 
-        refuses any device-authenticated request from a workspace without the DLP
+        refuses any device-authenticated request from a workspace without the
 
         endpoint entitlement, with a structured 403 that names the reason -- which
 
@@ -15699,7 +15699,7 @@ paths:
 
         server + its tools) and ``discovered`` tools, the distinct tool names
 
-        the DLP agents have actually seen in ``tool_call`` events, with hit
+        the endpoint agents have actually seen in ``tool_call`` events, with hit
 
         counts so the most-used tools sort first.'
       operationId: tool_catalog_api_runtime_security_dlp_tool_catalog_get
@@ -25608,7 +25608,7 @@ components:
       title: FirewallFlowSource
       description: 'One inspected traffic source feeding the firewall: an RS App, the pooled
 
-        DLP desktop agents, or direct/untagged API calls. Carries the verdict split
+        endpoint desktop agents, or direct/untagged API calls. Carries the verdict split
 
         so the Sankey can draw source → firewall → verdict in one pass.'
     FirewallFlowVerdicts:

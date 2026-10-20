@@ -56,22 +56,24 @@
             ]
           },
           {
-            "group": "DLP (endpoint)",
+            "group": "Endpoint",
             "pages": [
-              "dlp/overview",
-              "dlp/install",
-              "dlp/uninstall",
-              "dlp/fleet-rollout",
-              "dlp/identity",
-              "dlp/devices",
-              "dlp/policies",
-              "dlp/permissions",
+              "endpoint/overview",
+              "endpoint/install",
+              "endpoint/uninstall",
+              "endpoint/fleet-rollout",
+              "endpoint/identity",
+              "endpoint/who-is-named",
+              "endpoint/devices",
+              "endpoint/protections",
+              "endpoint/policies",
+              "endpoint/permissions",
               {
                 "group": "Shadow AI",
                 "pages": [
-                  "dlp/shadow-ai/overview",
-                  "dlp/shadow-ai/setup",
-                  "dlp/shadow-ai/triage"
+                  "endpoint/shadow-ai/overview",
+                  "endpoint/shadow-ai/setup",
+                  "endpoint/shadow-ai/triage"
                 ]
               }
             ]
@@ -129,6 +131,11 @@
     ]
   },
   "redirects": [
+    {
+      "source": "/dlp/:slug*",
+      "destination": "/endpoint/:slug*",
+      "permanent": true
+    },
     {
       "source": "/data-integrity/compliance",
       "destination": "/compliance/reports",

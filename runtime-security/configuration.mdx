@@ -24,10 +24,10 @@ override.
 
 <Note>
   This used to be documented as `runtime_security.manage`. That key
-  was an umbrella covering Apps, the firewall, and DLP policy at once;
+  was an umbrella covering Apps, the firewall, and endpoint policy at once;
   it has been split. The old name still resolves, so existing roles
   keep working, but grant the narrow key on new roles. See
-  [DLP permissions](/dlp/permissions).
+  [Endpoint permissions](/endpoint/permissions).
 </Note>
 
 A `PUT` merges: it updates the fields it names and leaves the rest
@@ -72,8 +72,8 @@ document. `agentic` merges the same way one level down.
 | `agentic.allow_private_network`| bool                                 | Disable SSRF blocks for RFC1918 / loopback. Use only for on‑prem agents.            |
 | `dlp_fail_mode`                | `open` / `closed`                     | What a device agent does when an AI destination cannot be inspected. `open` lets it through, `closed` refuses the connection. |
 | `dlp_fail_mode_locked`         | bool                                 | When true, a device must honour the workspace `dlp_fail_mode` over any local override. |
-| `dlp_protect_unsanctioned`     | bool                                 | The posture towards AI nobody approved. See [Shadow AI](/dlp/shadow-ai/overview).    |
-| `dlp_host_rule_overrides`      | array                                | Admin additions to the AI host classifier. See [Policies](/dlp/policies).            |
+| `dlp_protect_unsanctioned`     | bool                                 | The posture towards AI nobody approved. See [Shadow AI](/endpoint/shadow-ai/overview).    |
+| `dlp_host_rule_overrides`      | array                                | Admin additions to the AI host classifier. See [Policies](/endpoint/policies).            |
 | `file_scanning_enabled`        | bool                                 | Master switch for inspecting file and image attachments.                             |
 | `file_unredactable_action`     | `block` / `allow`                     | What to do when a file carries PII but its format has no in-file redactor.           |
 | `pseudonymize_enabled`         | bool                                 | Swap detected values for realistic surrogates before a prompt leaves the device, and restore them in the reply. |

@@ -1,6 +1,6 @@
 ---
 title: "Uninstalling the agent"
-description: "Remove the DLP agent from a device or a fleet, and know exactly what is reverted, what is wiped, and what an uninstall reports to the console."
+description: "Remove the endpoint agent from a device or a fleet, and know exactly what is reverted, what is wiped, and what an uninstall reports to the console."
 ---
 
 Uninstalling is deliberately a **full reset**, not a "leave it lying
@@ -8,7 +8,7 @@ around" removal. The agent reverses every system change it made, drops
 the enrollment, and removes the local state, so a later reinstall
 starts clean rather than silently resurrecting an old device identity.
 
-This is the mirror of [Installing the agent](/dlp/install).
+This is the mirror of [Installing the agent](/endpoint/install).
 
 <Warning>
   A device that is uninstalled stops being protected the moment the
@@ -29,13 +29,65 @@ Attempts that do reach the machine (the root CA removed, the proxy
 configuration reverted, the interceptor killed) are recorded as
 high-severity, hash-chained entries in the
 [audit trail](/compliance/audit-trail) and surface on the device row in
-**DLP → Endpoints**.
+**Endpoint → Devices**.
+
+## Uninstall codes
+
+A workspace decides whether removing the agent needs permission. The
+setting is the **uninstall mode**, and it applies to every device:
+
+| Mode        | What a removal does                                                                                              |
+| ----------- | ----------------------------------------------------------------------------------------------------------------- |
+| **off**     | Anyone with administrator rights on the machine can remove the agent. Nothing is asked for.                       |
+| **observe** | Removal is allowed without a code, and the device reports that it removed itself.                                 |
+| **enforce** | Removal is refused unless the person or the MDM job presents a code or an authorization. The device keeps running and stays protected. |
+
+Under **enforce**, a plain `msiexec /x` exits with `1603` and the agent
+stays in place. There are two ways to allow a removal:
+
+- **A code.** Issue a one-time code for one machine, or a code that
+  works on every machine in the workspace, and pass it to the
+  uninstall:
+
+  ```text
+  msiexec /x {ProductCode} /qn /norestart UNINSTALL_CODE=<code>
+  ```
+
+  A code is shown once when it is issued and is not written to the
+  installer log. A per-machine code works once. An unused code can be
+  withdrawn.
+- **An authorization pushed to chosen machines.** The platform tells
+  those devices that a removal is approved, so the uninstall command
+  needs no code. This is the one to use from an MDM. Pushing an
+  authorization is an API call today
+  (`POST /api/runtime-security/agent/devices/uninstall-authorizations`).
+
+Issuing a code for one machine needs
+`endpoint.devices.uninstall_code`. Issuing a workspace-wide code, pushing
+an authorization, and changing the mode need
+`endpoint.devices.uninstall_code_workspace`. Admin holds both by
+default. Every issue, withdrawal and mode change is recorded in the audit
+trail, and a mode change takes about three minutes to reach the devices.
+See [Endpoint permissions](/endpoint/permissions).
+
+<Note>
+  The mode only takes effect once the platform has a signing key for
+  codes. Without one the devices are told the mode is **off**, because a
+  device must never be told to demand a code that nobody can issue. Going
+  to **enforce** adds an "Update MDM uninstall scripts" item to your
+  Pending actions.
+</Note>
+
+A removal under **enforce**, or any removal that used a code or an
+authorization, reports itself to the console, marks the device as
+uninstalled, and frees its seat. Under **off** the console is not told:
+the row stays active and keeps its seat until you revoke it.
 
 ## Uninstall on Windows
 
 ### Interactively
 
-**Settings → Apps → Installed apps → Blindsight DLP → Uninstall**, or
+**Settings → Apps → Installed apps →** the Blindsight entry **→ Uninstall**, or
 the same entry in **Programs and Features**. Run it as an
 administrator.
 
@@ -46,13 +98,15 @@ msiexec /x Blindsight-<version>.msi /qn /norestart
 ```
 
 If you no longer have the original MSI, uninstall by product code.
-The code is regenerated on every build, so look it up rather than
-hardcoding it:
+The product code changes whenever the agent updates itself, so look it
+up from the stable UpgradeCode rather than hardcoding it. A stale code
+fails with `1605`.
 
 ```powershell
-$p = Get-ChildItem HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall |
-     Where-Object { $_.GetValue('DisplayName') -eq 'Blindsight DLP' }
-Start-Process msiexec.exe -Wait -ArgumentList '/x', $p.PSChildName, '/qn', '/norestart'
+$installer = New-Object -ComObject WindowsInstaller.Installer
+$code = $installer.RelatedProducts('{1B8032BE-2978-4F43-802A-3A10B186515F}') |
+        Select-Object -First 1
+Start-Process msiexec.exe -Wait -ArgumentList '/x', $code, '/qn', '/norestart'
 ```
 
 Push either form through Intune, GPO, or SCCM the same way you pushed
@@ -152,7 +206,7 @@ Uninstalling clears the device end. It does not remove the row.
 
 <Steps>
   <Step title="Revoke the device">
-    **DLP → Endpoints**, find the machine, revoke it. Its enrollment
+    **Endpoint → Devices**, find the machine, revoke it. Its enrollment
     credential stops being accepted, so a copied credential file cannot
     be used to impersonate the device.
   </Step>
@@ -165,7 +219,7 @@ Uninstalling clears the device end. It does not remove the row.
   <Step title="Rotate the token if the machine was lost">
     If the device was lost rather than decommissioned, mint a new
     enrollment token and revoke the old one. See
-    [Fleet rollout](/dlp/fleet-rollout).
+    [Fleet rollout](/endpoint/fleet-rollout).
   </Step>
 </Steps>
 
@@ -198,13 +252,13 @@ Also gone from the device, and not recoverable from it:
   <Accordion title="Decommission a laptop">
     1. Resolve anything you still need from the vault.
     2. Uninstall on the device (`msiexec /x`, or the macOS teardown).
-    3. Revoke the device row in **DLP → Endpoints**.
+    3. Revoke the device row in **Endpoint → Devices**.
     4. Leave its events in place. They stay as evidence.
   </Accordion>
 
   <Accordion title="Roll the agent back off a pilot group">
     1. Point the MDM's uninstall command at the pilot smart group.
-    2. Watch **DLP → Endpoints** until every device in the group stops
+    2. Watch **Endpoint → Devices** until every device in the group stops
        reporting.
     3. Revoke the pilot enrollment token so nothing re-enrols against
        it.
@@ -232,10 +286,10 @@ Also gone from the device, and not recoverable from it:
 ## See also
 
 <Columns cols={2}>
-  <Card title="Installing the agent" icon="download" href="/dlp/install">
+  <Card title="Installing the agent" icon="download" href="/endpoint/install">
     Packages, silent install, and what it changes on the device.
   </Card>
-  <Card title="Devices" icon="laptop" href="/dlp/devices">
+  <Card title="Devices" icon="laptop" href="/endpoint/devices">
     Revoking a device, health, and tamper events.
   </Card>
 </Columns>

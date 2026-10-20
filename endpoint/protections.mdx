@@ -1,0 +1,120 @@
+---
+title: "Protections"
+description: "Choose which of the three endpoint protections devices run: prompt injection detection, personal data protection and Shadow AI. Each works on its own."
+---
+
+A workspace decides what its devices do with AI traffic by switching
+three protections on or off. They are independent: any combination
+works, so you can run Shadow AI alone, or protect personal data without
+looking for injection.
+
+Open **Endpoint → Configurations → Protections**. It is the first item
+in the rail, and the only place the three are switched.
+
+## The three protections
+
+| Protection                    | When it is on                                                                                              | When it is off                                                   |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| **Prompt injection detection** | A redacted copy of each prompt is checked for injection and jailbreak attempts.                             | Those attempts go undetected.                                    |
+| **Personal data protection**   | Personal data is redacted or pseudonymized before prompts and uploads leave the device.                     | Prompts and uploads reach AI services unchanged.                 |
+| **Shadow AI**                  | Devices record which AI services people use, including ones nobody approved.                                | Unapproved AI services are not seen.                             |
+
+A new workspace starts with all three on. Existing workspaces keep all
+three on until you change them.
+
+At least one protection stays on. The last switch that is on cannot be
+turned off; to stop all of them, remove the agent. See
+[Uninstalling the agent](/endpoint/uninstall).
+
+### Choices under each switch
+
+Sub-choices appear only under a switch that is on.
+
+- **Personal data protection**
+  - **Redact** removes the value. **Pseudonymize** swaps it for a
+    stand-in the person can get back, with the mapping kept on the
+    device.
+  - **Find names on the device** runs the names model locally. Labels,
+    retention and scope are under **Personal data details**.
+- **Shadow AI**
+  - **Unapproved AI** is **Record only**, **Protect** or **Block**.
+    This is the posture towards services nobody has decided on. See
+    [Shadow AI triage](/endpoint/shadow-ai/triage). **Protect** needs
+    injection detection or personal data protection on, because it
+    reads prompts.
+
+A sentence under the switches describes the combination you have chosen,
+so you read the outcome and not only the switches.
+
+## What each combination does
+
+| Combination                                   | What a device does                                                                                             |
+| --------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| All three                                     | Reads prompts to approved services, protects personal data, flags injection, and records every AI service in use. |
+| Injection and personal data, no Shadow AI     | Reads prompts, protects and flags, and does not record which services people use.                              |
+| Shadow AI only                                | Records which AI services people use. **Prompts are never read.**                                              |
+| Personal data only                            | Protects personal data in prompts and uploads. Nothing is checked for injection.                               |
+| Injection only                                | Checks a redacted copy of each prompt for injection. Personal data is not changed.                             |
+
+### Shadow AI only means no prompt is read
+
+With injection and personal data both off, a device decrypts nothing. It
+sees which AI services people connect to and nothing they send. The one
+exception is a site you set to **Block**: the connection is ended only to
+show the block page, and the request is never read or forwarded.
+
+### Turning personal data off covers everything
+
+With **Personal data protection** off, secrets and your custom rules stop
+redacting too, not just personal data. The prompt reaches the AI service
+unchanged. The copy sent to Blindsight for injection scoring is still
+redacted on the device, so turning this off never sends raw personal data
+to Blindsight.
+
+## Confirm before turning one off
+
+Saving a change that turns a protection off asks you to confirm, and
+lists in plain words what will stop. The change is recorded in the audit
+trail, one record per changed field. Turning a protection off is recorded
+as high severity.
+
+## Devices that do not honour a switch yet
+
+A device on an older agent version follows what the platform tells it for
+Shadow AI and for injection detection. An older agent keeps redacting
+personal data whatever you choose, which is the safe direction. The page
+shows how many devices are in that state, and they follow your choice
+after they update.
+
+## Licence
+
+A protection your licence does not include shows **Not in your plan**
+instead of a switch, and the platform refuses a request to turn it on.
+
+## Who can change it
+
+Changing protections needs `endpoint.protections.configure`. Admin and
+`endpoint-admin` hold it by default. See
+[Endpoint permissions](/endpoint/permissions).
+
+## Setting it during Getting Started
+
+The first question of **Connect people's devices** in Getting Started is
+**What should devices do?**, with the same three switches. All three
+start ticked. It saves as you go and shows the same page as above, so the
+two cannot disagree. The rest of the steps follow your choice: with
+Shadow AI off, the first-AI-service milestone is replaced by the first
+protected prompt.
+
+## The API
+
+```bash
+curl $API_BASE/api/runtime-security/dlp/protections \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+`GET` returns the three protections, their sub-choices, which are
+licensed, and how many devices do not yet honour a switch. `PUT` takes
+any of them and saves in one transaction. It refuses turning all three
+off, refuses **Protect** when both prompt-reading protections are off,
+and refuses turning on a protection your licence lacks.
