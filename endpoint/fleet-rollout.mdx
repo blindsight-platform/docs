@@ -66,8 +66,8 @@ package takes. Both are 64‑bit, per‑machine, x64 only.
 Deploy via:
 
 - **Intune** as a Win32 app. See [Deploying with Intune](#deploying-with-intune).
-- **GPO** software installation.
-- **SCCM** package deployment.
+- **Group Policy** as a startup script. See [Deploying with Group Policy](#deploying-with-group-policy).
+- **Configuration Manager (SCCM)** and other tools. See [Configuration Manager and other tools](#configuration-manager-and-other-tools).
 
 The MSI writes `HKLM\SOFTWARE\Blindsight` (`CloudBaseURL`,
 `EnrollmentToken`, `SSOLoginBase`), generates a **per-machine**
@@ -117,60 +117,76 @@ was validated on Windows Server 2022 and Windows Server 2025.
 
 ### Create the app
 
+The console walks through these same steps one at a time: open
+**Endpoint → Configurations → Install**, choose **Windows**, then **Intune**.
+It shows the install command with a **Generate token** button, so the
+command you copy already holds a token.
+
 <Steps>
-  <Step title="Wrap the MSI as a Win32 app">
-    Download `Blindsight-<version>.msi` from the console's Downloads page
-    or **Endpoint → Configurations → Install**. Add it to Intune as a
-    **Windows app (Win32)**. Set **Install behavior** to **System** and
-    the architecture to **x64**.
+  <Step title="Package the MSI">
+    From **Endpoint → Configurations → Install**, download
+    `Blindsight-<version>.msi` (**Download MSI**) and the install kit
+    (**Download kit**). Put the MSI and the kit's `uninstall.ps1` in one
+    folder and package it with the Microsoft Win32 Content Prep Tool
+    (`IntuneWinAppUtil.exe`). Set the setup file to the MSI. Add it to
+    Intune as a **Windows app (Win32)**, with **Install behavior** set to
+    **System** and the architecture set to **x64**.
   </Step>
 
   <Step title="Set the install command">
-    Run `msiexec` directly. Do not go through the `install.ps1` or
-    `install.bat` in the kit: they do not pass the exit code back to
-    Intune, and `install.bat` needs the MSI in its working directory.
+    On the **Install** step, select **Generate token**. The console puts the
+    token into the command and shows it once, so copy the command before you
+    leave the page.
 
     ```text
     msiexec /i Blindsight-<version>.msi CLOUD_BASE="https://api.blindsight.example.com" ENROLL_TOKEN="antde_xxxxxxxxxxxxxxxxxxxx" /qn /norestart
     ```
+
+    This command was validated running as SYSTEM in a 32-bit process, which
+    is how Intune runs it.
   </Step>
 
   <Step title="Set the detection rule">
-    Detect by the product's **UpgradeCode**, not its ProductCode:
+    Add a rule manually, with rule type **File**:
 
-    ```text
-    {1B8032BE-2978-4F43-802A-3A10B186515F}
-    ```
+    | Field | Value |
+    | ----- | ----- |
+    | Path | `C:\Program Files\Blindsight` |
+    | File or folder | `BlindsightAgent.exe` |
+    | Detection method | File or folder exists |
+    | Associated with a 32-bit app on 64-bit clients | No |
 
-    Use a custom script detection rule that looks the UpgradeCode up
-    through `WindowsInstaller.Installer.RelatedProducts`, or a **File**
-    rule on the file version of `BlindsightAgent.exe`. Intune's built-in
-    MSI rule pins the ProductCode, so it is the wrong choice here. The
-    agent updates itself, and an
-    update installs a new ProductCode, so a rule that pins the
-    ProductCode starts reporting "not detected" within minutes of the
-    first update.
+    The agent updates itself and keeps this file, so the rule keeps working
+    after an update. Never detect on the ProductCode. An update installs a
+    new ProductCode, so a rule that pins it starts reporting "not detected"
+    within minutes of the first update, and Intune's built-in MSI rule pins
+    it. A custom script that looks up the UpgradeCode
+    `{1B8032BE-2978-4F43-802A-3A10B186515F}` through
+    `WindowsInstaller.Installer.RelatedProducts` also works. The kit's
+    `detect.ps1` is that script.
   </Step>
 
   <Step title="Set the uninstall command">
-    Because the ProductCode changes, an uninstall needs to look it up.
-    Use a script that finds the installed ProductCode through the
-    UpgradeCode, then runs:
+    The ProductCode changes with every version, so the uninstall command runs
+    the kit's script, which finds the installed product through the
+    UpgradeCode:
 
     ```text
-    msiexec /x {ProductCode} /qn /norestart
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\uninstall.ps1
     ```
 
-    A stale ProductCode returns 1605. When uninstall codes are required
-    on the workspace, also pass `UNINSTALL_CODE=...` or push an
-    authorization first. See [Uninstalling the agent](/endpoint/uninstall).
+    `uninstall.ps1` has to be inside the `.intunewin` package. If you leave
+    it out, uninstalling from Intune fails. The script treats `1605` (the
+    product is already gone) as success. When uninstall codes are required on
+    the workspace, authorize the devices first or pass `-UninstallCode`. See
+    [Uninstalling the agent](/endpoint/uninstall).
   </Step>
 
   <Step title="Leave the return codes at their defaults">
-    Expect `1603` for a downgrade, or when the workspace requires an
-    uninstall code and none was given. `1618` means another install was
-    already running. A re-run of a failed install, with a
-    corrected token or address, enrolls normally.
+    `0` and `1707` are success, `3010` is a soft reboot, `1641` a hard
+    reboot, and `1618` retries. Expect `1603` for a downgrade, or when the
+    workspace requires an uninstall code and none was given. A re-run of a
+    failed install, with a corrected token or address, enrolls normally.
   </Step>
 
   <Step title="Assign it to a device group">
@@ -180,6 +196,24 @@ was validated on Windows Server 2022 and Windows Server 2025.
     below.
   </Step>
 </Steps>
+
+### Package the kit instead
+
+If you prefer scripts to a bare MSI, package the whole kit folder with the
+MSI and set the setup file to `install.ps1`. `install.ps1` carries the
+token and exits with `msiexec`'s own exit code, so Intune reads the result
+correctly.
+
+| Field | Value |
+| ----- | ----- |
+| Install command | `powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\install.ps1` |
+| Uninstall command | `powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\uninstall.ps1` |
+| Detection | Custom script, upload `detect.ps1`, run as 32-bit process: No |
+
+The kit's `README.txt` lists the same fields, and both are generated from
+one place, so the console and the README always agree. The kit holds a live
+enrollment token in `install.ps1` and `install.bat`, so treat the zip as a
+secret.
 
 ### Updates
 
@@ -250,6 +284,51 @@ See [Uninstall codes](/endpoint/uninstall#uninstall-codes).
 
 The uninstall mode takes about three minutes to apply after you change it,
 and an uninstall attempted in that window can return `1603`. Retry it.
+
+## Deploying with Group Policy
+
+Use a computer startup script that runs the kit's `install.bat`. Startup
+scripts run as SYSTEM before anyone signs in.
+
+<Steps>
+  <Step title="Stage the files">
+    Put `install.bat` and `Blindsight-<version>.msi` together in a folder
+    every computer can read, for example the GPO's own **Startup** scripts
+    folder. `install.bat` holds the enrollment token, so keep that folder
+    readable by computers only.
+  </Step>
+  <Step title="Add the startup script">
+    In Group Policy Management, open the GPO and go to **Computer
+    Configuration → Policies → Windows Settings → Scripts (Startup/Shutdown)
+    → Startup**. Add `install.bat`.
+  </Step>
+  <Step title="Skip devices that already have the agent">
+    Startup scripts run at every boot, and reinstalling the same version over
+    a running agent is not harmless. Add this as the first line of
+    `install.bat`:
+
+    ```text
+    if exist "%ProgramFiles%\Blindsight\BlindsightAgent.exe" exit /b 0
+    ```
+  </Step>
+  <Step title="Link the GPO">
+    Link it to the OU that holds the computers. They install at the next
+    restart, or run `gpupdate /force` and restart.
+  </Step>
+</Steps>
+
+`install.bat` also suits fleets whose policy enforces the `AllSigned`
+PowerShell execution policy, because it runs no unsigned script.
+
+## Configuration Manager and other tools
+
+For Configuration Manager (SCCM), create an application or package with
+`install.bat` and the MSI as its content. Set the install command to
+`install.bat`, run it as the system account whether or not a user is signed
+in, and detect by the file `C:\Program Files\Blindsight\BlindsightAgent.exe`
+existing. For an RMM tool or a one-off install, run the `msiexec` command
+from **Endpoint → Configurations → Install → Command line** from an
+elevated prompt, with the MSI in the same folder.
 
 ## 2b. macOS push
 
