@@ -3,7 +3,7 @@ title: "Policies & agent API"
 description: "Centrally‑managed AI host rules, per‑App configuration that flows to the agent, and the backend endpoints the agent calls."
 ---
 
-The DLP agent is a thin enforcement point. Every meaningful decision
+The endpoint agent is a thin enforcement point. Every meaningful decision
 is made centrally in your Blindsight workspace and pushed to the agent
 via `/agent/policy`. This page covers what that policy looks like and
 which backend endpoints the agent talks to.
@@ -28,10 +28,11 @@ Policy comes from two places, and the difference matters.
 
 | Where | What it sets |
 | ----- | ------------ |
-| **DLP → Configurations → Default policy** | The floor every device in the workspace starts from: fail mode, pseudonymization, on-device detection, the posture towards unapproved and newly discovered AI. |
-| **DLP → Policies** | Named policies layered on top of that floor, each assigned to people, groups or specific devices. |
+| **Endpoint → Configurations → Protections** | Which of the three protections devices run: prompt injection detection, personal data protection and Shadow AI, and how each behaves. See [Protections](/endpoint/protections). |
+| **Endpoint → Configurations → Default policy** | The floor every device in the workspace starts from, such as fail mode. The unapproved AI posture is set under Shadow AI on Protections, and this page shows it read-only. |
+| **Endpoint → Policies** | Named policies layered on top of that floor, each assigned to people, groups or specific devices. |
 
-**Policies has its own page in the DLP menu.** It used to sit inside
+**Policies has its own page in the Endpoint menu.** It used to sit inside
 Configurations alongside the settings; it is a thing you come to manage
 rather than a setting you adjust once, so it now stands on its own. The
 old link still works and lands on the new page.
@@ -81,7 +82,7 @@ other connection passes through untouched.
 ### Built-in host pack
 
 Blindsight maintains a default host pack covering every supported
-provider. **DLP policy → Use default host pack** toggles it on; you
+provider. **Endpoint policy → Use default host pack** toggles it on; you
 can layer your own overrides on top.
 
 ### Rule actions
@@ -93,7 +94,7 @@ decides how far the agent goes on that connection.
 | --------- | ------------------------------------------------------------------------------------ |
 | `inspect` | TLS MITM with the org root CA, scan, enforce the verdict.                             |
 | `protect` | TLS MITM and scan, pseudonymize personal data before the prompt leaves the device, score and log injection, and **never block**. |
-| `observe` | Record the destination hostname only. Feeds [Shadow AI](/dlp/shadow-ai/overview).      |
+| `observe` | Record the destination hostname only. Feeds [Shadow AI](/endpoint/shadow-ai/overview).      |
 | `tunnel`  | Pass through opaque and record nothing.                                               |
 | `block`   | Refuse the connection on the device.                                                  |
 
@@ -141,8 +142,8 @@ event store as in‑app Runtime Security.
 | `POST /api/runtime-security/agent/scan-file`              | Submit an intercepted file attachment and get back a verdict.                                   |
 | `POST /api/runtime-security/agent/tamper-events`         | Drain the local tamper log to the cloud.                                                        |
 | `POST /api/runtime-security/agent/heartbeat`             | Liveness ping. Drives the `Last seen` column on the fleet view.                                  |
-| `POST /api/runtime-security/agent/discovery`             | Report the per-host rollup that feeds [Shadow AI](/dlp/shadow-ai/overview).                      |
-| `GET` / `POST /api/runtime-security/agent/protection/pause` | Read and set the per-device protection pause. See [Devices](/dlp/devices#pausing-protection).  |
+| `POST /api/runtime-security/agent/discovery`             | Report the per-host rollup that feeds [Shadow AI](/endpoint/shadow-ai/overview).                      |
+| `GET` / `POST /api/runtime-security/agent/protection/pause` | Read and set the per-device protection pause. See [Devices](/endpoint/devices#pausing-protection).  |
 | `GET` / `PUT` / `POST` / `DELETE /api/runtime-security/agent/rules[/{name}]` | Device-scoped detection rules. See [Device rules](#device-scoped-rules).       |
 
 All of these authenticate with the per-device token, sent as
@@ -150,22 +151,22 @@ All of these authenticate with the per-device token, sent as
 
 These endpoints share Apps, thresholds, and the event log with
 `/scan/input`, `/scan/output`, and the proxy routes. Dashboards do
-not distinguish DLP events from SDK events except via the `source`
+not distinguish endpoint events from SDK events except via the `source`
 attribute on the event row.
 
 ### Event source
 
-Events from the DLP agent carry:
+Events from the endpoint agent carry:
 
 - `source = "agent"`.
-- `device_id = "<uuid>"` referencing the row in **DLP → Endpoints**.
+- `device_id = "<uuid>"` referencing the row in **Endpoint → Devices**.
 - `user_id = "<directory_user>"` once identity is bound.
 - `host = "api.openai.com"` (or whatever was intercepted).
 - The usual `verdict`, `injection`, `pii`, `redacted_text`,
   `blocked_reason` fields.
 
 Filter on `source=agent` in [Observability](/runtime-security/observability)
-to slice DLP traffic separately.
+to slice endpoint traffic separately.
 
 ### Direction and attachment on the event row
 
@@ -293,7 +294,7 @@ off, on that machine only.
   **A personal rule cannot switch the company's detection off by
   default.** Before a device rule is allowed to shadow a workspace
   rule, or one of the agent's built-in detectors, the server checks
-  that the person holds `dlp.rules.override_workspace`. Without it the
+  that the person holds `endpoint.rules.override_workspace`. Without it the
   device rule is dropped and the workspace rule ships instead. Only
   admin holds that permission by default, and every use is audited.
 </Warning>
@@ -304,7 +305,7 @@ stored when the rule was written, and it requires all of:
 - the device belongs to that workspace,
 - its identity is `bound`, which only the SSO device-code flow sets,
 - it is attached to a user, and that account is active,
-- that user currently holds `dlp.rules.override_workspace`.
+- that user currently holds `endpoint.rules.override_workspace`.
 
 The built-in detector names a device rule can collide with are
 `email_address`, `ipv4_address`, `ipv6_address`, `us_ssn`,
@@ -320,8 +321,8 @@ The built-in detector names a device rule can collide with are
 </Note>
 
 Admins can list device rules across the whole fleet with
-`GET /api/custom-rules?scope=device` (needs `dlp.view` or
-`dlp.manage`) and delete one with `dlp.manage`. Authoring a device
+`GET /api/custom-rules?scope=device` (needs `endpoint.view` or
+`endpoint.manage`) and delete one with `endpoint.manage`. Authoring a device
 rule from the console is not offered: they belong to the device.
 
 ## Keeping prompts on the machine
@@ -330,12 +331,14 @@ Injection scoring is the one reason prompt text leaves a device at
 all. Personal data is matched and redacted **on** the endpoint, and
 only what is left is sent to be scored. A workspace that will not
 have prompts leave its people's computers can switch that scoring
-off.
+off. Switch **Prompt injection detection** off in
+[Protections](/endpoint/protections).
 
 | Route                                          | Permission                |
 | ------------------------------------------------ | ------------------------- |
-| `GET /api/runtime-security/dlp/settings`         | `dlp.view`                |
-| `PUT /api/runtime-security/dlp/settings`         | `dlp.injection.configure` |
+| `GET /api/runtime-security/dlp/protections`      | `endpoint.view`                |
+| `PUT /api/runtime-security/dlp/protections`      | `endpoint.protections.configure` |
+| `GET` / `PUT /api/runtime-security/dlp/settings` | Kept for existing integrations; same permissions and the same refusals |
 
 ```bash
 curl -X PUT $API_BASE/api/runtime-security/dlp/settings \
@@ -352,8 +355,8 @@ the permission that authors policies is a different and wider one.
 
 <Warning>
   It buys privacy with detection. Those devices stop detecting
-  injection and jailbreak attempts entirely. `dlp.injection.configure`
-  is held by admin only, is never implied by an older umbrella
+  injection and jailbreak attempts entirely. `endpoint.protections.configure`
+  is held by admin and `endpoint-admin`, is never implied by an older umbrella
   permission, and every change is audited at high severity.
 </Warning>
 
@@ -380,13 +383,13 @@ out a tightening change safely:
 
 <Steps>
   <Step title="Note the current policy version">
-    The DLP policy page shows the active version number. Bookmark it
+    The endpoint policy page shows the active version number. Bookmark it
     in case you need to roll back.
   </Step>
 
   <Step title="Apply the change to a pilot App">
     Clone the App, apply the change to the clone, point a pilot
-    device group at the cloned App via **DLP policy → App
+    device group at the cloned App via **Endpoint policy → App
     attribution**.
   </Step>
 
@@ -398,7 +401,7 @@ out a tightening change safely:
 
   <Step title="Promote to the full fleet">
     Apply the change to the production App and push policy from
-    **DLP → Endpoints** for an immediate refresh, or wait the
+    **Endpoint → Devices** for an immediate refresh, or wait the
     cache TTL.
   </Step>
 </Steps>
@@ -428,14 +431,14 @@ out a tightening change safely:
 
 <AccordionGroup>
   <Accordion title="Add a new LLM provider to coverage">
-    1. **DLP policy → AI hosts → Add.** Enter the provider's API
+    1. **Endpoint policy → AI hosts → Add.** Enter the provider's API
        hostname.
     2. Pick which App owns the traffic.
     3. Toggle `enforce=true` once you're confident.
   </Accordion>
 
   <Accordion title="Exempt a sensitive internal site">
-    1. **DLP policy → Exclude hosts → Add.** Add the hostname.
+    1. **Endpoint policy → Exclude hosts → Add.** Add the hostname.
     2. The agent passes through it without MITM. Useful for sites
        that pin certs or are otherwise sensitive to inspection.
   </Accordion>

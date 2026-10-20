@@ -1,12 +1,18 @@
 ---
 title: "Devices & enrollment"
-description: "The fleet view: device status, identity binding, tamper events, and lifecycle actions for every laptop running the DLP agent."
+description: "The fleet view: device status, identity binding, tamper events, and lifecycle actions for every laptop running the endpoint agent."
 ---
 
-**DLP → Endpoints** is the operational
-console for the DLP agent fleet. Every laptop with the agent
+**Endpoint → Devices** is the operational
+console for the endpoint agent fleet. Every laptop with the agent
 installed shows up here, with identity status, last seen, traffic
 volume, and tamper history.
+
+Seeing the fleet needs `endpoint.devices.view`. Enrolling, revoking,
+pausing, moving and removing devices, and downloading the install
+bundle, need `endpoint.devices.manage`. The built-in `endpoint-viewer`
+role holds the first and `endpoint-admin` holds both. See
+[Endpoint permissions](/endpoint/permissions).
 
 ## The fleet table
 
@@ -14,7 +20,7 @@ volume, and tamper history.
 | ---------------- | -------------------------------------------------------------------------------------------- |
 | **Device name**  | Hostname reported by the agent. Editable for clarity (`design-lead-laptop`).                  |
 | **OS**           | `macOS 14.5`, `Windows 11 Pro 23H2`, etc.                                                     |
-| **Identity**     | `bound` / `auto` / `pending` / `service`. See [Identity binding](/dlp/identity).               |
+| **Identity**     | `bound` / `auto` / `pending` / `service`. See [Identity binding](/endpoint/identity).               |
 | **User**         | Directory user attached to the device, when identity is `bound` or `auto`.                    |
 | **Agent version**| Version of the installed agent (`1.0.29` at the time of writing).                             |
 | **Status**       | `online`, `idle`, `offline`, `tampered`.                                                      |
@@ -60,7 +66,7 @@ The same page houses the workspace's enrollment tokens. Click
     **Tokens → New.** Give it a name. The plaintext is shown once.
   </Step>
   <Step title="Distribute">
-    Embed in your MDM payload (see [Fleet rollout](/dlp/fleet-rollout)).
+    Embed in your MDM payload (see [Fleet rollout](/endpoint/fleet-rollout)).
   </Step>
   <Step title="Rotate">
     Mint a new token, update MDM, then revoke the previous token.
@@ -86,9 +92,9 @@ way.
 
 | Route                                                    | Permission                     |
 | ---------------------------------------------------------- | ------------------------------ |
-| `POST /api/runtime-security/agent/enrollment-tokens`       | `runtime_security.apps.manage` |
-| `GET /api/runtime-security/agent/enrollment-tokens`        | `runtime_security.apps.manage` |
-| `POST /api/runtime-security/agent/enrollment-tokens/{uuid}/revoke` | `runtime_security.apps.manage` |
+| `POST /api/runtime-security/agent/enrollment-tokens`       | `endpoint.devices.manage` |
+| `GET /api/runtime-security/agent/enrollment-tokens`        | `endpoint.devices.manage` |
+| `POST /api/runtime-security/agent/enrollment-tokens/{uuid}/revoke` | `endpoint.devices.manage` |
 
 ```bash
 curl -X POST $API_BASE/api/runtime-security/agent/enrollment-tokens \
@@ -144,7 +150,7 @@ page says which, in a state next to the device:
 ### Release a device
 
 **Release** lets a pinned Mac join another workspace. It needs
-`runtime_security.apps.manage`. The release lasts seven days; after that
+`endpoint.devices.manage`. The release lasts seven days; after that
 it reads as no release at all. **Keep pinned** withdraws it sooner.
 Release is on the fleet table and on the device page.
 
@@ -183,7 +189,7 @@ on a machine they are responsible for, on the record.
 <Warning>
   While a device is paused it is **not inspected at all**. This is not
   observe‑only mode: prompts pass through untouched and no prompt text
-  is stored. Nobody holds `dlp.protection.pause` by default, and every
+  is stored. Nobody holds `endpoint.protection.pause` by default, and every
   pause and resume is written to the audit trail, at high severity for
   the pause.
 </Warning>
@@ -200,7 +206,7 @@ the platform decides. A refusal comes back as `403` with a code:
 | `identity_binding_unavailable` | The workspace has no SSO, so there is no identity to bind. Use **Confirm owner**. |
 | `device_unattributed`        | The device is not attached to a directory user.                   |
 | `owner_inactive`             | That user's account is deactivated.                               |
-| `permission_denied`          | That user does not hold `dlp.protection.pause`.                   |
+| `permission_denied`          | That user does not hold `endpoint.protection.pause`.                   |
 
 An `auto` identity is **not** enough. `auto` means the agent asserted
 an OS user name that happened to match a directory account, and
@@ -217,7 +223,7 @@ toggle at all rather than guessing yes.
 | -------------------------------------------------------------- | --------------------------- |
 | `GET /api/runtime-security/agent/protection/pause`             | Device token                |
 | `POST /api/runtime-security/agent/protection/pause`            | Device token                |
-| `POST /api/runtime-security/agent/devices/{uuid}/resume`       | Dashboard, `runtime_security.apps.manage` |
+| `POST /api/runtime-security/agent/devices/{uuid}/resume`       | Dashboard, `endpoint.devices.manage` |
 
 `POST` takes `{"paused": true | false}` plus an optional `reason`
 (free text, up to 280 characters, recorded in the audit trail) and
@@ -247,12 +253,12 @@ admin opens a window for it.
 
 | Route                                                                  | Permission                                    |
 | ------------------------------------------------------------------------ | --------------------------------------------- |
-| `POST /api/runtime-security/agent/devices/{uuid}/revoke`                 | `runtime_security.apps.manage`                |
-| `POST /api/runtime-security/agent/devices/{uuid}/allow-reenrollment`     | `runtime_security.apps.manage` **and** `dlp.manage` |
+| `POST /api/runtime-security/agent/devices/{uuid}/revoke`                 | `endpoint.devices.manage`                |
+| `POST /api/runtime-security/agent/devices/{uuid}/allow-reenrollment`     | `endpoint.devices.manage` **and** `endpoint.manage` |
 
 The asymmetry is deliberate: revoking only ever takes a credential
 away, so the broader key is enough. Handing one back is a bigger
-decision and needs `dlp.manage` as well. Without it you get `403
+decision and needs `endpoint.manage` as well. Without it you get `403
 reenrollment_not_permitted`.
 
 Authorising re-enrollment on a device that is not revoked returns
@@ -356,7 +362,7 @@ Bulk actions are audited. The audit row records every device id touched.
     3. Re‑push the MDM payload from your console.
   </Accordion>
 
-  <Accordion title="Audit DLP coverage for a team">
+  <Accordion title="Audit endpoint coverage for a team">
     1. Filter by **User → directory group**.
     2. Confirm every team member has at least one `bound` device.
     3. Anyone with zero bound devices is either a non‑agent user or

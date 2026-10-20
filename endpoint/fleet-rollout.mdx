@@ -1,9 +1,9 @@
 ---
 title: "Fleet rollout"
-description: "Push the DLP agent to every employee laptop. Windows enrols silently with one fleet token; a Mac enrols when its user signs in."
+description: "Push the endpoint agent to every employee laptop. Windows enrols silently with one fleet token; a Mac enrols when its user signs in."
 ---
 
-This is how a company rolls Blindsight DLP out "like AD": one silent
+This is how a company rolls Blindsight Endpoint out "like AD": one silent
 push from the MDM, the directory auto-provisions every employee, and
 every device binds to a real identity.
 
@@ -25,21 +25,23 @@ automatically by the agent. On macOS the two happen together: the
 sign-in that binds the identity is the one that enrols the device.
 Either way, the employee signs in once.
 
-See [Identity binding](/dlp/identity) for the directory and SSO side,
-and [Installing the agent](/dlp/install) for what an install changes on
+See [Identity binding](/endpoint/identity) for the directory and SSO side,
+and [Installing the agent](/endpoint/install) for what an install changes on
 a single machine. This page is the IT‑side rollout.
 
 ## 1. Create the fleet enrollment token
 
 <Steps>
-  <Step title="Open DLP → Endpoints">
-    **DLP → Endpoints → create token.** The copy-paste install command
+  <Step title="Open Endpoint → Devices">
+    **Endpoint → Devices → create token.** The copy-paste install command
     with the token already baked in is on
-    **DLP → Configurations → Install**.
+    **Endpoint → Configurations → Install**.
   </Step>
   <Step title="Copy the token">
-    Shown exactly once. Store it in your MDM secret vault. One token
-    covers the entire Windows fleet. Macs do not use it.
+    Shown when it is minted. Store it in your MDM secret vault. One
+    token covers the entire Windows fleet. Macs do not use it. An admin
+    who holds `endpoint.enrollment.reveal` can show it again later, so
+    an MDM job can reuse it without minting another.
   </Step>
   <Step title="(Optional) Restrict the token">
     Token settings let you cap the number of activations, set an
@@ -63,7 +65,7 @@ package takes. Both are 64‑bit, per‑machine, x64 only.
 
 Deploy via:
 
-- **Intune** as a line‑of‑business app.
+- **Intune** as a Win32 app. See [Deploying with Intune](#deploying-with-intune).
 - **GPO** software installation.
 - **SCCM** package deployment.
 
@@ -102,8 +104,152 @@ On Windows 11 the stock vulnerable-driver blocklist refuses the
 bundled capture driver and the agent falls back to its explicit-proxy
 engine, which covers less. This is expected and needs no action from
 you, but it does change coverage. See
-[Windows 11 and the network driver](/dlp/install) for what is and is
+[Windows 11 and the network driver](/endpoint/install) for what is and is
 not covered, and how the device reports it.
+
+## Deploying with Intune
+
+This is the configuration that enrolled a test fleet of Windows
+machines cleanly and silently, with no sign-in and no reboot. The install
+ran as SYSTEM and finished in under a minute. A machine that installed
+during boot, before anyone signed in, enrolled about a minute later. It
+was validated on Windows Server 2022 and Windows Server 2025.
+
+### Create the app
+
+<Steps>
+  <Step title="Wrap the MSI as a Win32 app">
+    Download `Blindsight-<version>.msi` from the console's Downloads page
+    or **Endpoint → Configurations → Install**. Add it to Intune as a
+    **Windows app (Win32)**. Set **Install behavior** to **System** and
+    the architecture to **x64**.
+  </Step>
+
+  <Step title="Set the install command">
+    Run `msiexec` directly. Do not go through the `install.ps1` or
+    `install.bat` in the kit: they do not pass the exit code back to
+    Intune, and `install.bat` needs the MSI in its working directory.
+
+    ```text
+    msiexec /i Blindsight-<version>.msi CLOUD_BASE="https://api.blindsight.example.com" ENROLL_TOKEN="antde_xxxxxxxxxxxxxxxxxxxx" /qn /norestart
+    ```
+  </Step>
+
+  <Step title="Set the detection rule">
+    Detect by the product's **UpgradeCode**, not its ProductCode:
+
+    ```text
+    {1B8032BE-2978-4F43-802A-3A10B186515F}
+    ```
+
+    Use a custom script detection rule that looks the UpgradeCode up
+    through `WindowsInstaller.Installer.RelatedProducts`, or a **File**
+    rule on the file version of `BlindsightAgent.exe`. Intune's built-in
+    MSI rule pins the ProductCode, so it is the wrong choice here. The
+    agent updates itself, and an
+    update installs a new ProductCode, so a rule that pins the
+    ProductCode starts reporting "not detected" within minutes of the
+    first update.
+  </Step>
+
+  <Step title="Set the uninstall command">
+    Because the ProductCode changes, an uninstall needs to look it up.
+    Use a script that finds the installed ProductCode through the
+    UpgradeCode, then runs:
+
+    ```text
+    msiexec /x {ProductCode} /qn /norestart
+    ```
+
+    A stale ProductCode returns 1605. When uninstall codes are required
+    on the workspace, also pass `UNINSTALL_CODE=...` or push an
+    authorization first. See [Uninstalling the agent](/endpoint/uninstall).
+  </Step>
+
+  <Step title="Leave the return codes at their defaults">
+    Expect `1603` for a downgrade, or when the workspace requires an
+    uninstall code and none was given. `1618` means another install was
+    already running. A re-run of a failed install, with a
+    corrected token or address, enrolls normally.
+  </Step>
+
+  <Step title="Assign it to a device group">
+    Target **devices**, not users. The install needs no one signed in.
+    For a pilot, scope the assignment to one group and use a token
+    limited to the matching directory group. See the pilot workflow
+    below.
+  </Step>
+</Steps>
+
+### Updates
+
+The agent keeps itself up to date, so leave **auto-update** on and detect
+by the UpgradeCode or file version. If Intune must be the only thing that
+changes the version, set the machine environment variable
+`BLINDSIGHT_AUTO_UPDATE=0` before the install. The service reads it only
+after a reboot.
+
+An upgrade restarts the service, and during the restart the device is
+not inspected for roughly 40 to 55 seconds, with the posture reading
+`bypassed` until it restores. Schedule updates accordingly.
+
+### Tokens
+
+- Use a separate named kit, and therefore a separate token, for each wave
+  of devices.
+- Revoke an old token only after every device enrolled with it is stable.
+- Do not turn on verbose Windows Installer logging (`/l*v`) on a
+  production fleet. A verbose log records the install command line. If a
+  token reaches a log, revoke it and mint another.
+
+### Golden images
+
+Always run **sysprep** on an image before you clone it. Two machines
+cloned without it share one machine identity and merge into one device
+row. The agents then swap the token between them every minute, the row's
+hostname flips back and forth, the posture stays `bypassed`, and no error
+is shown. Machines cloned with sysprep get their own identities and their
+own rows. If you find a row like this, sysprep the image and revoke the
+row.
+
+### What shows up in the console
+
+- **Identity is `pending` on every Windows device.** The service runs as
+  SYSTEM, so it reports the machine account (`HOST$`) as the device's
+  operating system user and never learns who signs in. The devices are
+  fully protected while they are pending. To attribute traffic to a
+  person, bind each device through
+  [single sign-on](/endpoint/identity), or
+  an admin chooses **Confirm owner**. A confirmation is lost on a clean
+  re-enrolment, so it has to be made again after a reinstall.
+- **A device appears when it first enrolls.** There is no expected-versus-
+  enrolled count. A machine that never enrolled is not in the console, so
+  check Intune for its install status. `1603`, `1618`, `1605` and "not
+  detected" are all visible only in Intune.
+- **An offline machine installs and then enrolls.** The install returns
+  `0` and the agent retries until it can reach the platform, typically
+  within a few minutes of the network returning, including after a reboot
+  while offline.
+- **A bad token or address leaves no row.** The device log shows `401`, an
+  unresolvable host, or a `405` for a wrong path. Rerun the install with
+  the right values.
+- **Seats.** At the seat limit, a new device gets `429` and no row. Free a
+  seat by revoking a row in **Endpoint → Devices**.
+- **A device that stops reporting** shows as offline after about five
+  minutes, but its status stays `active` and its posture `protected`
+  until you act. Nothing is raised for it.
+
+### Retiring devices
+
+Revoke the device row in **Endpoint → Devices**. That releases its seat
+and ends its token. An uninstall pushed from Intune while the workspace's
+uninstall mode is **off** removes the agent but leaves the row active and
+the seat held, so revoke the row too. Under **enforce**, an authorized
+or coded uninstall frees the seat and records the device as uninstalled.
+See [Uninstall codes](/endpoint/uninstall#uninstall-codes).
+
+The uninstall mode takes about three minutes to apply after you change it,
+and an uninstall attempted in that window can return `1603`. Retry it.
 
 ## 2b. macOS push
 
@@ -121,7 +267,7 @@ their work account, which enrols the device and binds their identity,
 then approves the inspection certificate and the protection service
 when macOS asks.
 
-**DLP → Configurations → Install** offers a macOS install kit: a
+**Endpoint → Configurations → Install** offers a macOS install kit: a
 README with the download links, checksums and steps for both builds on
 your release channel. It holds no secret and can be shared freely.
 
@@ -140,12 +286,12 @@ Interception on macOS uses an automatic proxy configuration (PAC) on
 every network service plus a local inspection proxy, with the
 inspection root CA in the login keychain and a root guardian daemon
 that restores the configuration if it is disturbed. See
-[What the install actually changes](/dlp/install) for the full list.
+[What the install actually changes](/endpoint/install) for the full list.
 
 <Note>
   A macOS build older than 1.0.29 reports its bundle version as
   `0.1.0` to Finder and to inventory tools, whatever the agent
-  actually is. Read the version from **DLP → Endpoints** instead,
+  actually is. Read the version from **Endpoint → Devices** instead,
   which is reported by the agent itself.
 </Note>
 
@@ -176,11 +322,11 @@ Never delete `%ProgramData%\Blindsight\pseudonym_vault.db` or
 `vault.key`. They hold the only mapping from a surrogate back to what
 the person actually wrote, and losing them is permanent and visible
 to the user. A genuine uninstall wipes them; an upgrade does not. See
-[Uninstalling the agent](/dlp/uninstall).
+[Uninstalling the agent](/endpoint/uninstall).
 
 ## 3. Verify rollout
 
-Open **DLP → Endpoints** in the dashboard. Each machine appears
+Open **Endpoint → Devices** in the dashboard. Each machine appears
 with an **Identity** column.
 
 | Identity status | What it means                                                              |
@@ -235,7 +381,7 @@ a SAML‑only IdP.
 
 <AccordionGroup>
   <Accordion title="Pilot a small group before fleet rollout">
-    1. Create a token in **DLP → Endpoints** restricted to one
+    1. Create a token in **Endpoint → Devices** restricted to one
        directory group (`engineering-pilot`).
     2. Push the agent to that group via your MDM's smart‑group
        scoping.
@@ -245,7 +391,7 @@ a SAML‑only IdP.
   </Accordion>
 
   <Accordion title="Rotate the enrollment token">
-    1. Mint a new token in **DLP → Endpoints**.
+    1. Mint a new token in **Endpoint → Devices**.
     2. Update the MDM payload to embed the new token. Existing
        devices are unaffected; rotation only matters for new
        enrollments.
@@ -254,14 +400,14 @@ a SAML‑only IdP.
   </Accordion>
 
   <Accordion title="Replace a lost laptop">
-    1. Revoke the device row in **DLP → Endpoints**.
+    1. Revoke the device row in **Endpoint → Devices**.
     2. Ship the replacement with the same MDM policy as the rest of
        the fleet. The new device self‑enrolls and binds to the same
        directory user.
   </Accordion>
 
   <Accordion title="Roll the agent back off a group">
-    See [Uninstalling the agent](/dlp/uninstall), which covers the
+    See [Uninstalling the agent](/endpoint/uninstall), which covers the
     silent uninstall command, what it reverts, and what it destroys.
   </Accordion>
 </AccordionGroup>
@@ -269,10 +415,10 @@ a SAML‑only IdP.
 ## See also
 
 <Columns cols={2}>
-  <Card title="Installing the agent" icon="download" href="/dlp/install">
+  <Card title="Installing the agent" icon="download" href="/endpoint/install">
     Single-machine install, what it changes, and how to verify it.
   </Card>
-  <Card title="Uninstalling the agent" icon="trash" href="/dlp/uninstall">
+  <Card title="Uninstalling the agent" icon="trash" href="/endpoint/uninstall">
     Silent removal, the macOS teardown, and retiring the device row.
   </Card>
 </Columns>

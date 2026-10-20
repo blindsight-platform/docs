@@ -8,7 +8,7 @@ personal ChatGPT tab, the AI writing assistant someone expensed, the
 inference host a team wired into a side project, the automation
 platform quietly relaying customer records through an LLM step.
 
-The DLP agent already sits on the network path of every managed
+The endpoint agent already sits on the network path of every managed
 laptop. Shadow AI discovery uses that position to answer a question
 that comes *before* enforcement: **which AI services is this company
 actually using?**
@@ -18,7 +18,7 @@ outbound TLS connection (the SNI) and report a per-host rollup. They
 do not decrypt, and they never see the prompt.
 
 <Note>
-  Discovery is usually the opening wedge of a DLP rollout. Run the
+  Discovery is usually the opening wedge of an Endpoint rollout. Run the
   agents in observe mode for a week, look at the inventory, and you
   have an evidence-backed list of what to sanction, what to block, and
   what to onboard, before you enforce anything.
@@ -27,7 +27,7 @@ do not decrypt, and they never see the prompt.
 ## Discovery vs inspection
 
 The agent handles two classes of AI host differently. Both are driven
-by the same [host rules](/dlp/policies), which carry an `action`.
+by the same [host rules](/endpoint/policies), which carry an `action`.
 A third action, `protect`, sits between them and is covered under
 [Protect unapproved AI](#protect-unapproved-ai).
 
@@ -189,7 +189,7 @@ credentials. Discovery cannot see them, because nothing is decrypted.
   </Step>
   <Step title="Ranked">
     Risk is derived from recognition, capability, and exposure, so the
-    worklist orders itself. See [Triage and governance](/dlp/shadow-ai/triage).
+    worklist orders itself. See [Triage and governance](/endpoint/shadow-ai/triage).
   </Step>
   <Step title="Protected, optionally">
     At any point you can **protect** it: agents start inspecting the
@@ -262,13 +262,13 @@ Requires `runtime_security.firewall.configure`. See
 <Note>
   You can also protect a single service without turning the posture on
   for everything, from the row itself. See
-  [Triage](/dlp/shadow-ai/triage#protect-inspect-without-deciding).
+  [Triage](/endpoint/shadow-ai/triage#protect-inspect-without-deciding).
 </Note>
 
 ## What it covers, and what it doesn't
 
 Discovery sees AI traffic from **enrolled devices only**, so it covers
-the same surface as the rest of DLP: browser tabs, IDE plugins, native
+the same surface as the rest of Endpoint: browser tabs, IDE plugins, native
 desktop apps, and CLI tools on managed laptops.
 
 It does not cover:
@@ -285,32 +285,32 @@ It does not cover:
 
 ## Prerequisites
 
-- The DLP agent enrolled on at least one device. See
-  [Fleet rollout](/dlp/fleet-rollout).
+- The endpoint agent enrolled on at least one device. See
+  [Fleet rollout](/endpoint/fleet-rollout).
 - Runtime Security with the endpoint component enabled on your
   workspace.
-- `dlp.discovery.view` to read the inventory,
-  `dlp.ai_services.manage` to protect, sanction, block, or onboard.
-  See [DLP permissions](/dlp/permissions).
-- Optional but recommended: [identity binding](/dlp/identity) and
+- `endpoint.discovery.view` to read the inventory,
+  `endpoint.ai_services.manage` to protect, sanction, block, or onboard.
+  See [Endpoint permissions](/endpoint/permissions).
+- Optional but recommended: [identity binding](/endpoint/identity) and
   directory groups, so discovery can attribute services to real users
   and departments instead of OS user names.
 
 ## Where to next
 
 <CardGroup cols={2}>
-  <Card title="Set up discovery" icon="radar" href="/dlp/shadow-ai/setup">
+  <Card title="Set up discovery" icon="radar" href="/endpoint/shadow-ai/setup">
     Turn it on, verify the first observations, and tune what the
     agents observe, inspect, or ignore.
   </Card>
-  <Card title="Triage & governance" icon="list-check" href="/dlp/shadow-ai/triage">
+  <Card title="Triage & governance" icon="list-check" href="/endpoint/shadow-ai/triage">
     The worklist, the risk model, the sanction / block / onboard
     decisions, insights, and the PDF report.
   </Card>
-  <Card title="Policies & agent API" icon="shield-halved" href="/dlp/policies">
+  <Card title="Policies & agent API" icon="shield-halved" href="/endpoint/policies">
     Host rules, actions, and the endpoints the agent calls.
   </Card>
-  <Card title="Devices & enrollment" icon="laptop" href="/dlp/devices">
+  <Card title="Devices & enrollment" icon="laptop" href="/endpoint/devices">
     The fleet that feeds discovery. No enrolled agents, no inventory.
   </Card>
 </CardGroup>

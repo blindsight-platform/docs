@@ -1,0 +1,261 @@
+---
+title: "Endpoint permissions"
+description: "The permission keys that govern the endpoint agent fleet, what each one grants, the two built-in endpoint roles, what people see in the desktop app, and the renames since August 2026."
+---
+
+Endpoint is the desktop agent fleet on people's machines. Runtime
+Security is the API firewall that sits in front of your models. They
+are different products with different blast radiuses, so they have
+different permission namespaces: `endpoint.` for the fleet and
+`runtime_security.` for the firewall.
+
+Roles are composed from these keys in **Settings → Roles &
+permissions**.
+
+## Built-in endpoint roles
+
+Two roles exist for a workspace that runs the device fleet apart from
+everything else. Both can read Runtime Security (Apps, events,
+analytics) without changing it, and neither holds any write outside
+Endpoint.
+
+| Role                | What it is for                                                                                                  |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `endpoint-viewer`   | Sees the fleet and changes nothing: devices, device errors, policies and the Shadow AI inventory.               |
+| `endpoint-admin`    | Runs the fleet: policies, devices, enrolment, AI services, requests, exceptions, policy import, which protections devices run, and what the desktop app shows. |
+
+The viewer holds `runtime_security.view`, `endpoint.view`,
+`endpoint.discovery.view`, `endpoint.devices.view` and
+`endpoint.device_errors.view`. Diagnostics bundles stay out of its
+reach because they name hosts, accounts and infrastructure, and so do
+requests, because that key both sees and decides.
+
+`endpoint-admin` holds every endpoint key except five groups, which stay
+with the workspace admin because each one lets inspection stop or widens
+who may stop it:
+
+- Which devices may be paused at all (`endpoint.protection.pause_policy`).
+- Switching a workspace rule off on one device (`endpoint.rules.override_workspace`).
+- Uninstall codes, for one machine or the whole workspace.
+- Which roles count as a device's owner (`endpoint.device_owner_trust.configure`).
+- Identity reveals, which are granted to a named person and never to a role.
+
+The `endpoint.desktop.*` keys belong to the person who owns a device,
+not to whoever runs the fleet. See
+[What people see in the desktop app](#what-people-see-in-the-desktop-app).
+
+## Devices have their own keys
+
+Reading the fleet and changing it are separate grants.
+
+| Permission                | Lets the user                                                                                                   |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `endpoint.devices.view`   | See the devices in the fleet, who each belongs to, its state and timeline, and the outage summary.               |
+| `endpoint.devices.manage` | Enrol machines and revoke their tokens, pause and resume a device, move it, confirm or change its owner, revoke, release or remove it, and download the install bundle. |
+
+These two used to ride on `runtime_security.apps.manage`. A migration
+copied them once to everyone who held that key, so nobody lost access.
+New roles should grant them directly. The `developer` role holds both
+by default.
+
+## The rename
+
+The endpoint permissions have been renamed twice, and every older name
+still resolves to the current one.
+
+1. **August 2026.** Six permissions moved off the `runtime_security.`
+   prefix, which named the wrong product, to a `dlp.` prefix.
+2. **October 2026.** The whole namespace became `endpoint.`, to match
+   the product name. A migration rewrote every stored role definition
+   and per-person override in place.
+
+| Original name                                 | Current name                          |
+| --------------------------------------------- | ------------------------------------- |
+| `runtime_security.dlp.view`                   | `endpoint.view`                       |
+| `runtime_security.dlp.manage`                 | `endpoint.manage`                     |
+| `runtime_security.ai_services.manage`         | `endpoint.ai_services.manage`         |
+| `runtime_security.rules.manage_own_device`    | `endpoint.rules.manage_own_device`    |
+| `runtime_security.protection.pause`           | `endpoint.protection.pause`           |
+| `runtime_security.rules.override_workspace`   | `endpoint.rules.override_workspace`   |
+| `dlp.injection.configure`                     | `endpoint.protections.configure`      |
+
+Every other key that began with `dlp.` now begins with `endpoint.` and
+keeps the rest of its name.
+
+<Note>
+  **You do not have to do anything.** Nobody gained or lost a
+  capability. What changed is the name you write when you define a
+  *new* role, or when you read a key out of the audit trail. The API
+  returns both spellings from `/me/permissions` for one release, so
+  existing integrations keep working while they move over.
+</Note>
+
+The firewall keys did **not** move. `runtime_security.scan`,
+`runtime_security.view`, `runtime_security.view_latency`,
+`runtime_security.apps.manage`,
+`runtime_security.firewall.configure`, `runtime_security.mcp.manage`,
+`runtime_security.label`, and `runtime_security.delete` keep their
+names.
+
+### One key became two
+
+`endpoint.manage` used to cover the MCP tool profiles devices obey as
+well as the policies themselves. Approving a tool for laptops and
+accepting a changed tool definition on the firewall are not the same
+decision, so the device-side half is now `endpoint.mcp.manage`, split
+out of `endpoint.manage`.
+
+Anyone who held `endpoint.manage` (under any of its names) kept the
+split-out key, so nothing was taken away. New roles should grant the two
+separately if you want them separate.
+
+## The catalog
+
+| Permission                              | Lets the user                                                                                              |
+| --------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `endpoint.view`                         | Read the named policies, groups, and assignments that decide what each device enforces, and the effective policy resolved for one person. |
+| `endpoint.manage`                       | Create, edit, and delete those policies, groups, and assignments.                                            |
+| `endpoint.import.manage`                | Upload the document that says who may use which AI tools, have it read once, and review the policies it proposes. Applying them also needs `endpoint.manage`. |
+| `endpoint.mcp.manage`                   | Create, edit, and delete the MCP tool profiles devices obey. Reading them stays with `endpoint.view`.        |
+| `endpoint.protections.configure`        | Switch the three [protections](/endpoint/protections) on or off for the devices in this workspace.           |
+| `endpoint.device_ui.configure`          | Decide what the desktop app shows the person using a protected device.                                       |
+| `endpoint.device_owner_trust.configure` | Decide which roles count as the owner of a device they signed in on, without anyone confirming it.           |
+| `endpoint.devices.view`                 | See the devices in the fleet and their timelines.                                                            |
+| `endpoint.devices.manage`               | Enrol, revoke, pause, move, release and remove devices, and download the install bundle.                     |
+| `endpoint.enrollment.reveal`            | Show a full enrollment token again after it was minted, so an MDM or RMM job can use it without minting another. |
+| `endpoint.device_diagnostics.view`      | Read what a device found when it checked its own layers, its timeline, its traced flows and its diagnostic bundle, and download that bundle. |
+| `endpoint.device_diagnostics.act`       | Ask one device to run its self-check, upload a bundle, raise its logging for a bounded window, refresh its policy, restart its interceptor, or apply an update. Each ask names a device and a reason. |
+| `endpoint.device_errors.view`           | See the errors agents report: failed provisioning, enrollment and policy fetches, and what each device last stopped on. |
+| `endpoint.discovery.view`               | Read the [Shadow AI](/endpoint/shadow-ai/overview) inventory: which AI services are in use, on how many devices, and whether each has a decision. |
+| `endpoint.ai_services.manage`           | Approve, protect, block, or onboard a discovered AI service.                                                 |
+| `endpoint.ai_services.add`              | Add an AI service by its domain so devices intercept and inspect traffic to it.                              |
+| `endpoint.requests.review`              | See and decide every access, pause and install-link request in the workspace.                                |
+| `endpoint.requests.review_team`         | See and decide requests from the people who report to you. Approvals longer than seven days, or permanent, are forwarded to a workspace reviewer. |
+| `endpoint.exceptions.manage`            | Create and end a per-person loosening or tightening of policy.                                               |
+| `endpoint.workforce.view_team`          | See the Workforce roster limited to the people who report to you, and yourself.                              |
+| `endpoint.identity.reveal.request`      | Ask to see who a code is, on a recorded occasion and with a reason.                                          |
+| `endpoint.identity.reveal.approve`      | Decide another person's reveal request. Never one's own.                                                     |
+| `endpoint.rules.manage_own_device`      | Add and deactivate detection rules from the desktop app, on that device alone.                               |
+| `endpoint.rules.override_workspace`     | Deactivate a rule the *workspace* set, on one device.                                                        |
+| `endpoint.protection.pause`             | Turn inspection off from the desktop app and back on again, on that device alone.                            |
+| `endpoint.protection.pause_policy`      | Allow or bar pausing on a machine, for everyone who holds it.                                                |
+| `endpoint.devices.uninstall_code`       | Issue a one-time code that lets IT remove the agent from one managed machine, and withdraw an unused code.   |
+| `endpoint.devices.uninstall_code_workspace` | Issue a code that removes the agent from every machine, push a removal authorization to chosen machines, and choose whether uninstall codes are off, observed or required. |
+
+The nine `endpoint.desktop.*` keys are listed
+[below](#what-people-see-in-the-desktop-app).
+
+### The ones that lower a floor
+
+Several keys let someone reduce protection rather than configure it, so
+none of them is implied by the older umbrella grants and each writes an
+audit record on every use.
+
+| Permission                              | What it costs you                                                                                                  |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `endpoint.protection.pause`             | While a device is paused, AI requests from that machine are not checked at all. Nobody holds this by default.        |
+| `endpoint.protection.pause_policy`      | Allowing pause widens who can switch inspection off. Only admin holds it by default.                                 |
+| `endpoint.rules.override_workspace`     | Switches off a rule the company set, on one machine. Only admin holds it by default.                                 |
+| `endpoint.protections.configure`         | Turning a protection off buys privacy or quiet with detection: those devices stop looking for that kind of risk. Admin and `endpoint-admin` hold it by default. |
+| `endpoint.devices.uninstall_code` and `endpoint.devices.uninstall_code_workspace` | Once the agent is removed the machine is no longer protected. Only admin holds them by default. |
+
+<Warning>
+  The pause, override and uninstall keys were deliberately left out of
+  the alias expansion for `runtime_security.policy.manage` and
+  `runtime_security.manage`. Folding them in would have handed every
+  existing policy editor the ability to switch protection off, which is
+  a hole opened by a refactor rather than a decision anyone made. If you
+  want someone to hold them, grant them explicitly.
+</Warning>
+
+### Reading the inventory is not reading the policies
+
+`endpoint.discovery.view` is separate from `endpoint.view` on purpose.
+Seeing which AI services people use says nothing about the company's
+endpoint policies, so it is granted to every role that can see Runtime
+Security at all, while `endpoint.view` stays with the people who manage
+policy.
+
+## What people see in the desktop app
+
+What the desktop app shows the person using a device is decided in two
+layers, and both have to allow it.
+
+1. **The workspace switches.** **Endpoint → Configurations → Install → What people
+   see in the desktop app** has one switch per surface, **Shown** or **Hidden**. The **Sign out**
+   switch also has **Default**, explained below.
+   A switch is the most any device in the workspace shows. Changing
+   them needs `endpoint.device_ui.configure`, which only admin holds by
+   default, and every change is recorded in the audit trail.
+2. **The person's own permissions.** For the rest of the surfaces
+   below, the person who owns the device also needs the matching
+   `endpoint.desktop.*` permission.
+
+The nine `endpoint.desktop.*` permissions apply on a device the person owns.
+Admin holds all nine by default; no other built-in role holds any. Grant
+them to a role or to one person like any other permission.
+
+| Permission                      | On a device they own, the person can                                      |
+| ------------------------------- | -------------------------------------------------------------------------- |
+| `endpoint.desktop.activity_text`     | See the text of the requests and replies behind each entry, not only that one happened. |
+| `endpoint.desktop.vault`             | See which stand-in values the device holds in place of the real ones.     |
+| `endpoint.desktop.vault_reveal`      | Read the real value a stand-in is hiding.                                  |
+| `endpoint.desktop.protection`        | Open the Protection tab: its privacy settings, its stand-ins and the rules it enforces. |
+| `endpoint.desktop.rules`             | See the detection rules in force.                                          |
+| `endpoint.desktop.support`           | Open its logs, local endpoints and diagnostic bundle.                      |
+| `endpoint.desktop.diagnostics`       | Open the Diagnostics tab: the checks on every layer, the flow trace, the log and the bundle. |
+| `endpoint.desktop.updates`           | Install an agent update and change the automatic-update switch.            |
+| `endpoint.desktop.sign_out`          | Sign the device out, or point it at another workspace.                     |
+
+The **Activity** tab has no permission. Every person sees it unless
+the workspace switch hides it for the whole fleet. Hiding it is a
+decision for the workspace, not something a person is granted.
+
+<Note>
+  **A device counts only with an owner that has been proved.** The owner
+  is the person the device is bound to, by the SSO sign-in or because an
+  admin confirmed it with **Confirm owner**. An `auto` match, a `pending`
+  device, a revoked binding, a device nobody has claimed, and a
+  deactivated owner all count as no owner, and then none of the nine
+  surfaces is shown. See [Identity binding](/endpoint/identity).
+</Note>
+
+A person who is missing a surface is told that their organisation does
+not show it, never that something failed.
+
+Devices enrolled with a fleet token hide **Sign out** by default, because
+the organisation enrolled them. Devices a person signed in on show it.
+Set the switch explicitly to override either.
+
+An MSP operator working inside a client never holds the nine
+permissions. See [Team & permissions](/msp/team-and-permissions).
+
+## Where each one is enforced
+
+| Surface                                                    | Permission                |
+| ---------------------------------------------------------- | ------------------------- |
+| `GET /api/runtime-security/discovery` and its sub-routes    | `endpoint.discovery.view`      |
+| `POST /api/runtime-security/discovery/{id}/protect`, `/unprotect`, `/sanction`, `/block`, `/promote` | `endpoint.ai_services.manage`  |
+| `GET /api/runtime-security/dlp/protections`                 | `endpoint.view`           |
+| `PUT /api/runtime-security/dlp/protections`                 | `endpoint.protections.configure` |
+| `GET /api/runtime-security/agent/devices` and the device reads  | `endpoint.devices.view`   |
+| Enrolment tokens, the install bundle, and every device action  | `endpoint.devices.manage` |
+| `PUT /api/runtime-security/config`                          | `runtime_security.firewall.configure` |
+
+## Where to next
+
+<CardGroup cols={2}>
+  <Card title="Policies & agent API" icon="shield-halved" href="/endpoint/policies">
+    What a policy controls, host rules and their actions, and the
+    endpoints the agent calls.
+  </Card>
+  <Card title="Shadow AI triage" icon="list-check" href="/endpoint/shadow-ai/triage">
+    The four decisions you can reach for on a discovered service.
+  </Card>
+  <Card title="Devices & enrollment" icon="laptop" href="/endpoint/devices">
+    The fleet console, enrollment tokens, and per-device actions.
+  </Card>
+  <Card title="Access management" icon="users" href="/administration/access">
+    Roles, invitations, keys, and the permission catalog.
+  </Card>
+</CardGroup>

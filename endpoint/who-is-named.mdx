@@ -1,0 +1,108 @@
+---
+title: "Who is named in the console"
+description: "Choose whether Endpoint shows people by name, by a stable code, or only as weekly totals. What each mode shows, what it hides, and what leaving counts only involves."
+---
+
+Endpoint sees which AI services people use and what happens to their
+prompts. A workspace decides how much of that is tied to a person in the
+console. There are three choices, and the same choice applies to the
+whole workspace.
+
+| Mode            | What the console shows                                                                                                  |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| **Named**       | People and machines are shown by name.                                                                                  |
+| **Coded**       | Each person and machine carries a stable code. A name is shown only under a recorded reveal that a second person approves. Recommended. |
+| **Counts only** | Nobody is named or coded. The console shows weekly totals by AI service and department, and any figure under 5 people is folded into **Other**. Single events, devices and requests are not listed, and nobody can be revealed. |
+
+You choose it first when you connect devices in Getting Started, and you
+can change it later in **Settings → Privacy**. Pages that depend on it
+show a small line, such as **People: Coded**, with a **Change** link.
+
+## Coded
+
+In coded mode every list shows a code in place of the name. Codes are
+stable, so you can follow one device or person across events without
+knowing who it is.
+
+To see who a code is, a person with `endpoint.identity.reveal.request`
+asks for a time-boxed reveal on a recorded occasion and gives a reason.
+A second person with `endpoint.identity.reveal.approve` decides it, and
+never their own request. The name is shown to the requester alone, for
+the window, and every read is in the audit trail. Where the works
+council module is on, the approver must also hold the works council role.
+See [Endpoint permissions](/endpoint/permissions).
+
+## Counts only
+
+Counts only keeps the evidence and removes the people. The platform
+enforces it, not just the console: the API refuses a request that would
+return a person or a device.
+
+### What you see
+
+- Weekly totals by AI service and by department, over the last 4, 12 or
+  26 weeks.
+- The Shadow AI inventory, for services seen by at least 5 people.
+- Fleet counts by protection state, operating system and agent version.
+- Policies, group definitions, alerts without identity, the audit trail
+  with every monitored person shown generically, enrollment and installs.
+
+### What you do not see
+
+- The events feed and event detail.
+- The device list, the device page and per-device actions.
+- The person page and Workforce rows, and per-person requests and
+  exceptions.
+- Any per-person or per-device export, report, search result, alert or
+  email.
+- Live charts, which are replaced by the weekly figures.
+
+### The cohort floor
+
+Every breakdown follows one rule: a group is shown only when it has at
+least **5** people in it. Groups under 5 are merged into **Other**, and
+if **Other** would itself be under 5, the smallest shown groups join it.
+If a whole breakdown is under 5, nothing in it is shown. A single count
+that falls under the floor reads **fewer than 5**.
+
+Only closed weeks are published, and a published week is computed once
+and never changes. The current week is never shown, so reloading cannot
+reveal what one person did in the last hour, and later deletions or
+department moves cannot be subtracted from a week that is already out.
+
+Because overlapping groups could be subtracted to isolate one person,
+breakdowns are by department and AI service only. There is no breakdown
+by directory group, no cross-tab, and no free filter by user or device.
+
+## Leaving counts only
+
+Moving from counts only to coded or named is a **request**, not a save,
+because it would show people a workspace had promised not to show.
+
+- It takes effect after a **30-day notice period**. The workspace stays
+  in counts only until then, and the request can be cancelled.
+- Where the works council module is on, a works council member must
+  approve the request before the notice period starts.
+- People are told on their devices before any new data is coded or named,
+  and the notice says from which date.
+- The request is recorded in the audit trail at high severity.
+- Everything recorded while counts only was on stays totals only, for
+  good. It is never shown per person in any later mode: events, device
+  timelines, per-person counts, exports and reports all use the weekly
+  figures for those weeks.
+
+The other changes (named to coded, or coded to named) start immediately
+after a confirmation that says how many more people will be shown.
+Moving toward naming more people is recorded in the audit trail at high
+severity.
+
+## Where to next
+
+<CardGroup cols={2}>
+  <Card title="Protections" icon="shield-halved" href="/endpoint/protections">
+    Choose which of the three protections devices run.
+  </Card>
+  <Card title="Endpoint permissions" icon="key" href="/endpoint/permissions">
+    The reveal keys and who holds them.
+  </Card>
+</CardGroup>

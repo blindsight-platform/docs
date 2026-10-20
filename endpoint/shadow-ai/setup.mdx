@@ -3,19 +3,24 @@ title: "Set up discovery"
 description: "Turn on Shadow AI discovery, verify the first observations, attribute them to real users and departments, and tune what the agents observe, inspect, or ignore."
 ---
 
-There is nothing extra to install. Discovery rides on the DLP agent
+There is nothing extra to install. Discovery rides on the endpoint agent
 you already push through your MDM: once a device is enrolled, it
 starts classifying the destinations it sees and reporting a rollup.
 
+Discovery is the **Shadow AI** protection, one of three switches on
+[Protections](/endpoint/protections). It is on by default. If it has been
+switched off for the workspace, devices record nothing and the Shadow AI
+pages say so.
+
 This page is the setup and tuning path. For the concepts behind it,
-read [Shadow AI overview](/dlp/shadow-ai/overview) first.
+read [Shadow AI overview](/endpoint/shadow-ai/overview) first.
 
 ## 1. Enroll the agents
 
 Discovery has exactly one hard prerequisite: at least one enrolled
-device. Follow [Fleet rollout](/dlp/fleet-rollout) to push the agent
+device. Follow [Fleet rollout](/endpoint/fleet-rollout) to push the agent
 and mint an enrollment token, then confirm the device appears in
-**DLP → Endpoints** with a recent **Last
+**Endpoint → Devices** with a recent **Last
 seen**.
 
 Two useful properties of discovery during a rollout:
@@ -38,7 +43,7 @@ Two useful properties of discovery during a rollout:
 The AI catalog is merged into the host rules the agent fetches from
 `/agent/policy` by default, so a freshly enrolled device already knows
 which hosts to observe. Confirm it under **Runtime Security → Apps →
-\[your DLP App\] → DLP policy**:
+\[your Endpoint App\] → endpoint policy**:
 
 - **Use default host pack** is on. This is the inspected provider set.
 - The discovery catalog is layered on top of it automatically, as
@@ -95,7 +100,7 @@ optional steps make the reports far more useful.
 
 A "user" in the Shadow AI breakdowns is the device's **bound directory
 email**, and falls back to its **OS user name** when there is no
-binding. Set up [identity binding](/dlp/identity) and the top-users
+binding. Set up [identity binding](/endpoint/identity) and the top-users
 list becomes real names instead of `jsmith` and `admin`.
 
 Identity binding also drives the **Account type** split on the
@@ -119,7 +124,7 @@ department breakdown is simply empty; nothing else is affected.
 ## 5. Tune what gets observed
 
 Coverage is host rules, the same mechanism described in
-[Policies & agent API](/dlp/policies). Each rule carries a `match` and
+[Policies & agent API](/endpoint/policies). Each rule carries a `match` and
 an `action`:
 
 ```json
@@ -174,7 +179,7 @@ QUIC on port 443 rather than passing it, so nothing leaves uninspected over
 HTTP/3; services that advertise HTTP/3 are asked not to, so a browser does
 not sit waiting for a route the lane cannot answer.
 
-It is a per-workspace decision, in **DLP → Configurations → Default
+It is a per-workspace decision, in **Endpoint → Configurations → Default
 policy**.
 
 ### Common tuning tasks
@@ -269,7 +274,7 @@ observations it accepted.
 <AccordionGroup>
   <Accordion title="The page shows the empty state">
     1. Confirm at least one device is enrolled and **Last seen** is
-       recent, in **DLP → Endpoints**.
+       recent, in **Endpoint → Devices**.
     2. Confirm the device has actually reached an AI host that is *not*
        inspected. Traffic to inspected hosts is scanned, not
        discovered, so it never appears here.
@@ -287,8 +292,8 @@ observations it accepted.
 
   <Accordion title="Everything shows as off-SSO or an OS user name">
     Identity binding has not completed on those devices. Filter
-    **DLP → Endpoints** by identity `pending` and use **Force
-    re-bind**. See [Identity binding](/dlp/identity).
+    **Endpoint → Devices** by identity `pending` and use **Force
+    re-bind**. See [Identity binding](/endpoint/identity).
   </Accordion>
 
   <Accordion title="The department breakdown is empty">
@@ -316,11 +321,11 @@ observations it accepted.
 ## Next
 
 <CardGroup cols={2}>
-  <Card title="Triage & governance" icon="list-check" href="/dlp/shadow-ai/triage">
+  <Card title="Triage & governance" icon="list-check" href="/endpoint/shadow-ai/triage">
     Work the inventory: risk ranking, the three decisions, insights,
     and the exportable report.
   </Card>
-  <Card title="Policies & agent API" icon="shield-halved" href="/dlp/policies">
+  <Card title="Policies & agent API" icon="shield-halved" href="/endpoint/policies">
     The full host-rule reference and the agent-to-cloud endpoints.
   </Card>
 </CardGroup>

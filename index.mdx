@@ -1,6 +1,6 @@
 ---
 title: "Blindsight Platform"
-description: "Four coordinated surfaces for AI safety: data security, an LLM‑traffic firewall, endpoint DLP, and the compliance evidence they produce. One managed cloud workspace."
+description: "Four coordinated surfaces for AI safety: data security, an LLM‑traffic firewall, endpoint protection, and the compliance evidence they produce. One managed cloud workspace."
 ---
 
 ## What Blindsight does
@@ -27,7 +27,7 @@ evidence. Use whichever fit your stack.
     A drop‑in firewall for LLM traffic. Scan prompts before they reach the model
     and responses before they reach the user.
   </Card>
-  <Card title="DLP (endpoint)" icon="laptop" href="/dlp/overview">
+  <Card title="Endpoint" icon="laptop" href="/endpoint/overview">
     A signed desktop agent that intercepts LLM traffic at the OS network layer
     on every managed laptop. No application code changes.
   </Card>
@@ -59,7 +59,7 @@ rest, and Compliance reads whichever of them you run.
   <Card title="Compliance overview" icon="scale-balanced" href="/compliance/overview">
     The six frameworks, what a mapping claims, and how to generate a report.
   </Card>
-  <Card title="Install the DLP agent" icon="download" href="/dlp/install">
+  <Card title="Install the endpoint agent" icon="download" href="/endpoint/install">
     Put the agent on one machine or a whole fleet, and know what it changes.
   </Card>
   <Card
@@ -69,14 +69,14 @@ rest, and Compliance reads whichever of them you run.
   >
     Three ways to integrate the LLM‑traffic firewall, plus authentication.
   </Card>
-  <Card title="DLP overview" icon="laptop" href="/dlp/overview">
+  <Card title="Endpoint overview" icon="laptop" href="/endpoint/overview">
     Endpoint coverage for shadow‑IT AI traffic across the whole workforce.
   </Card>
 </Columns>
 
 ## How the surfaces relate
 
-|                      | Data Security                                    | Runtime Security                                            | DLP (endpoint)                                                  |
+|                      | Data Security                                    | Runtime Security                                            | Endpoint                                                  |
 | -------------------- | ------------------------------------------------- | ----------------------------------------------------------- | --------------------------------------------------------------- |
 | **What it inspects** | Datasets at rest and RAG corpora (images, text, NIfTI, detection) | Live LLM prompts and responses from instrumented apps       | Live LLM prompts and responses from any app on a managed device |
 | **When it runs**     | On upload, on schedule, on demand                 | On every request, inline                                    | On every request, on the device                                 |

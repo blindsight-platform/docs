@@ -1,9 +1,9 @@
 ---
 title: "Overview"
-description: "Endpoint DLP for AI traffic. A signed desktop agent intercepts LLM calls at the OS network layer and routes them through Blindsight so nothing reaches a public model unscanned."
+description: "Protect AI traffic on the device. A signed desktop agent intercepts LLM calls at the OS network layer and routes them through Blindsight so nothing reaches a public model unscanned."
 ---
 
-Blindsight DLP is the **endpoint** half of the runtime story. A
+Blindsight Endpoint is the **device** half of the runtime story. A
 desktop agent runs on every employee laptop (Windows and macOS),
 intercepts outbound LLM traffic on the device, and routes every
 prompt through Blindsight for verdict and policy enforcement before
@@ -14,7 +14,7 @@ the bytes leave the machine.
   page publishes installers for both. They enrol differently: the
   Windows MSI carries a fleet token and enrols silently, while a Mac
   enrols when its user signs in. The macOS coverage model also differs.
-  Read [Installing the agent](/dlp/install) before committing to a Mac
+  Read [Installing the agent](/endpoint/install) before committing to a Mac
   fleet.
 </Note>
 
@@ -24,12 +24,12 @@ pushed by your MDM, every prompt to every public model on every
 managed device is covered, automatically, without changing a line of
 application code.
 
-## DLP vs Runtime Security
+## Endpoint vs Runtime Security
 
 The two surfaces share the same scanners, the same Apps, the same
 event store. They differ in **where the traffic is intercepted**.
 
-| Dimension                  | Runtime Security (SDK)                                              | DLP (endpoint)                                                             |
+| Dimension                  | Runtime Security (SDK)                                              | Endpoint                                                             |
 | -------------------------- | ------------------------------------------------------------------- | -------------------------------------------------------------------------- |
 | **Where it intercepts**     | In your application code (proxy `base_url`, scan API, tool calls).  | At the OS network stack on every managed laptop.                            |
 | **Who deploys it**          | The application team that owns the LLM call.                         | IT, once, via MDM (Jamf, Kandji, Intune, GPO, SCCM).                       |
@@ -39,12 +39,12 @@ event store. They differ in **where the traffic is intercepted**.
 | **Best for**                | Apps you own and want fine-grained policies on.                      | Shadow-IT AI traffic from tools you don't control.                          |
 
 You usually want **both**. Runtime Security gives the application
-team tight control over its own LLM surface; DLP catches everything
+team tight control over its own LLM surface; Endpoint catches everything
 else.
 
 ## Why endpoint, not just network
 
-A network-perimeter DLP (a SWG or CASB) can route HTTPS through an
+A network-perimeter tool (a SWG or CASB) can route HTTPS through an
 inspection point, but it cannot:
 
 - **See identity per session.** Every prompt from your fleet looks
@@ -76,7 +76,7 @@ reports its own integrity events to the cloud (`/agent/tamper-events`).
 
 The backend integration uses dedicated `agent/*` endpoints that share
 the same scanners, the same App config, and the same event log as
-in-app Runtime Security. Dashboards show DLP traffic alongside SDK
+in-app Runtime Security. Dashboards show endpoint traffic alongside SDK
 traffic, attributed to the device's directory user.
 
 ## Inspection and discovery
@@ -93,16 +93,21 @@ The agent does two different jobs, and it's worth keeping them apart.
 - **Protection.** A third posture in between: the agent inspects and
   pseudonymizes traffic to a service nobody has approved, and never
   blocks the person for using it. See
-  [Protect unapproved AI](/dlp/shadow-ai/overview#protect-unapproved-ai).
+  [Protect unapproved AI](/endpoint/shadow-ai/overview#protect-unapproved-ai).
+
+Which of these a workspace runs is its own choice, made in
+[Protections](/endpoint/protections): prompt injection detection,
+personal data protection and Shadow AI each switch on or off
+independently.
 
 Discovery is what you run first. It answers "which AI is this company
 actually using?" without touching anyone's traffic, and it produces
 the list that tells you what is worth inspecting. See
-[Shadow AI](/dlp/shadow-ai/overview).
+[Shadow AI](/endpoint/shadow-ai/overview).
 
 ## What it covers, what it doesn't
 
-DLP catches LLM traffic from any managed device, including:
+Endpoint catches LLM traffic from any managed device, including:
 
 - Browser tabs (ChatGPT, Claude, Gemini, Perplexity, ...).
 - IDE plugins (Copilot Chat, Cursor, Continue, ...).
@@ -119,35 +124,43 @@ It does not cover:
 ## Where to next
 
 <CardGroup cols={2}>
-  <Card title="Installing the agent" icon="download" href="/dlp/install">
+  <Card title="Installing the agent" icon="download" href="/endpoint/install">
     Packages, silent install, what it changes on the machine, and how
     to verify it landed.
   </Card>
-  <Card title="Uninstalling the agent" icon="trash" href="/dlp/uninstall">
+  <Card title="Uninstalling the agent" icon="trash" href="/endpoint/uninstall">
     Clean removal on Windows and macOS, and what an uninstall
     permanently destroys.
   </Card>
-  <Card title="Shadow AI" icon="radar" href="/dlp/shadow-ai/overview">
+  <Card title="Shadow AI" icon="radar" href="/endpoint/shadow-ai/overview">
     Passive discovery of every AI service your workforce reaches, and
     a sanction / block / onboard decision for each one.
   </Card>
-  <Card title="Fleet rollout" icon="rocket" href="/dlp/fleet-rollout">
+  <Card title="Fleet rollout" icon="rocket" href="/endpoint/fleet-rollout">
     MDM push for macOS and Windows. One enrollment token, the agent
     self-enrolls on every device.
   </Card>
-  <Card title="Identity binding" icon="user-shield" href="/dlp/identity">
+  <Card title="Identity binding" icon="user-shield" href="/endpoint/identity">
     SCIM directory sync, OIDC SSO, and the device-code flow that
     binds each laptop to a directory user.
   </Card>
-  <Card title="Endpoints" icon="laptop" href="/dlp/devices">
+  <Card title="Devices & enrollment" icon="laptop" href="/endpoint/devices">
     The fleet view: device status, identity binding, tamper events.
   </Card>
-  <Card title="Policies & agent API" icon="shield-halved" href="/dlp/policies">
+  <Card title="Protections" icon="toggle-on" href="/endpoint/protections">
+    Choose which of injection detection, personal data protection and
+    Shadow AI devices run.
+  </Card>
+  <Card title="Who is named in the console" icon="eye-slash" href="/endpoint/who-is-named">
+    Named, coded, or counts only: how much of what devices see is tied
+    to a person.
+  </Card>
+  <Card title="Policies & agent API" icon="shield-halved" href="/endpoint/policies">
     Centrally-managed AI host rules and the backend endpoints the
     agent calls.
   </Card>
-  <Card title="DLP permissions" icon="key" href="/dlp/permissions">
-    The `dlp.` permission keys, what each grants, and the rename off
-    the runtime-security prefix.
+  <Card title="Endpoint permissions" icon="key" href="/endpoint/permissions">
+    The `endpoint.` permission keys, the two endpoint roles, and what
+    each key grants.
   </Card>
 </CardGroup>

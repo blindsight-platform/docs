@@ -3,7 +3,7 @@ title: "Identity binding"
 description: "Connect your IdP via SCIM and OIDC so every employee is provisioned automatically and every device binds to a real directory user."
 ---
 
-The DLP agent is installed by IT as SYSTEM / root. It cannot know
+The endpoint agent is installed by IT as SYSTEM / root. It cannot know
 which employee is using the machine on its own. Identity is bound
 **after** enrollment, using your IdP's directory and SSO flows.
 
@@ -70,7 +70,7 @@ Blindsight roles. Common pattern:
 
 | IdP group              | Blindsight role | Reason                                            |
 | ---------------------- | ------------- | ------------------------------------------------- |
-| `eng-leads`            | `Admin`       | Manage Apps and DLP policies.                      |
+| `eng-leads`            | `Admin`       | Manage Apps and endpoint policies.                      |
 | `compliance-team`      | `Reviewer`    | Triage findings, no destructive actions.           |
 | `all-employees`        | `Viewer`      | Read‑only access to dashboards.                    |
 | `engineering`          | `Member`      | Standard contributor inside Data Security.        |
@@ -80,7 +80,7 @@ A user with multiple matching groups gets the **highest** role.
 ## OIDC single sign‑on
 
 OIDC is how employees sign into the Blindsight dashboard and how the
-DLP agent binds a device to a directory user.
+endpoint agent binds a device to a directory user.
 
 ### Configure your provider
 
@@ -134,7 +134,7 @@ device‑code flow (RFC 8628):
 3. The employee signs in with their normal corporate credentials.
 4. The agent polls `/agent/identity/status` until the IdP confirms
    the binding.
-5. The device row in **DLP → Endpoints** flips from `pending` to
+5. The device row in **Endpoint → Devices** flips from `pending` to
    `bound`, with the directory user attached.
 
 The flow is one‑click for the employee. They sign in once on first
@@ -145,7 +145,7 @@ boot; the binding persists for the lifetime of the device.
 A device can be re‑bound to a different directory user:
 
 - **Automatically** when SCIM marks the previous user inactive.
-- **Manually** by an admin from **DLP → Endpoints** → device
+- **Manually** by an admin from **Endpoint → Devices** → device
   row → **Force re‑bind**.
 
 Re‑binding triggers a new device‑code flow on the agent.
@@ -153,8 +153,8 @@ Re‑binding triggers a new device‑code flow on the agent.
 ### Confirming an owner without SSO
 
 A workspace with no identity provider can still give a device a proved
-owner. An admin chooses **Confirm owner** on the device, in **DLP →
-Endpoints**, and names a person in the workspace. The device flips to
+owner. An admin chooses **Confirm owner** on the device, in **Endpoint →
+Devices**, and names a person in the workspace. The device flips to
 `bound`, and the platform records which admin vouched, so a confirmed
 binding is never mistaken for one the identity provider proved. The
 person must be active. Like an SSO binding, a later re-enrollment that
@@ -163,10 +163,22 @@ proves nothing returns it to `pending`.
 Until an owner is confirmed, a workspace with no identity provider has
 no identity to bind, and a pause request is refused with
 `identity_binding_unavailable`. See [Only a proved identity may
-pause](/dlp/devices#only-a-proved-identity-may-pause).
+pause](/endpoint/devices#only-a-proved-identity-may-pause).
 
 Only a `bound` owner counts for pausing protection and for what the
-desktop app shows the person. See [DLP permissions](/dlp/permissions#what-people-see-in-the-desktop-app).
+desktop app shows the person. See [Endpoint permissions](/endpoint/permissions#what-people-see-in-the-desktop-app).
+
+### Devices pushed by an MDM start as pending
+
+The Windows agent installs as SYSTEM, so at enrollment it reports the
+machine account (`HOST$`) as the device's operating system user. It never
+learns who signs in. A fleet pushed through Intune, GPO or SCCM therefore
+starts with every device `pending`, and `auto` matching cannot apply to
+it. The devices are protected and intercepted while they wait.
+
+To attribute a device's traffic to a person, bind it through the SSO
+device-code flow above, or confirm its owner. A confirmed owner is lost if
+the device is cleanly re-enrolled, so confirm it again after a reinstall.
 
 ## Auto identity for non‑user devices
 
@@ -176,7 +188,7 @@ servers), the agent sets `Identity = auto` when:
 - The OS username matches a directory user email's local part, and
 - SCIM has already provisioned that user.
 
-Mark these devices in **DLP → Endpoints** as `service` so they're
+Mark these devices in **Endpoint → Devices** as `service` so they're
 filtered out of the regular user fleet view.
 
 ## Common workflows

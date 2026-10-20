@@ -121,13 +121,13 @@ enforces. A representative sample:
 | `playground.access`              | Open the playgrounds.                                          |
 | `custom_rules.manage`            | Create and edit detection rules.                               |
 
-The endpoint DLP permissions live in their own `dlp.` namespace and are
-listed in [DLP permissions](/dlp/permissions).
+The endpoint permissions live in their own `endpoint.` namespace and are
+listed in [Endpoint permissions](/endpoint/permissions).
 
 <Note>
   `runtime_security.manage` and `runtime_security.policy.manage` were
   broad umbrellas that have been split into the narrower keys above and
-  the `dlp.` keys. Both still resolve to everything they used to grant,
+  the `endpoint.` keys. Both still resolve to everything they used to grant,
   so no existing role loses access, but define new roles from the
   narrow keys.
 </Note>
@@ -204,8 +204,8 @@ next to it controls the workspace's own authentication rules.
 SAML is schema-ready in the backend but not enabled in this build.
 OIDC covers Entra, Okta, Google, and Ping.
 
-See [Identity binding](/dlp/identity) for how the same directory binds
-DLP devices to people.
+See [Identity binding](/endpoint/identity) for how the same directory binds
+endpoint devices to people.
 
 ## API keys
 
@@ -285,8 +285,8 @@ type and channel, and their active sessions.
   <Card title="Settings & licensing" icon="sliders" href="/administration/settings">
     Workspace-level configuration, quotas, and the license model.
   </Card>
-  <Card title="DLP permissions" icon="key" href="/dlp/permissions">
-    The `dlp.` namespace and what each key grants.
+  <Card title="Endpoint permissions" icon="key" href="/endpoint/permissions">
+    The `endpoint.` namespace and what each key grants.
   </Card>
   <Card title="Audit trail" icon="scroll" href="/compliance/audit-trail">
     Every access change, recorded and hash-chained.

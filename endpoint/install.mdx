@@ -1,13 +1,13 @@
 ---
 title: "Installing the agent"
-description: "Install the Blindsight DLP agent on a single machine or across a fleet, and know exactly what it changes on the device."
+description: "Install the Blindsight Endpoint agent on a single machine or across a fleet, and know exactly what it changes on the device."
 ---
 
-The DLP agent is a desktop application plus a background service that
+The endpoint agent is a desktop application plus a background service that
 inspects AI traffic leaving the device. This page covers installing it.
-To remove it, see [Uninstalling the agent](/dlp/uninstall). For the
+To remove it, see [Uninstalling the agent](/endpoint/uninstall). For the
 MDM-driven rollout across a whole company, see
-[Fleet rollout](/dlp/fleet-rollout).
+[Fleet rollout](/endpoint/fleet-rollout).
 
 ## What ships today
 
@@ -39,14 +39,14 @@ The two platforms enrol differently:
 ## Before you start
 
 <Steps>
-  <Step title="Check you have a license for DLP">
+  <Step title="Check you have a license for Endpoint">
     The agent enrols against a workspace whose license includes the
-    endpoint DLP capability. Without it, enrollment is refused.
+    endpoint capability. Without it, enrollment is refused.
   </Step>
   <Step title="Windows: have the two values ready">
     A Windows install needs a **cloud base URL** (your workspace's API
     host) and an **enrollment token**. Both come from
-    **DLP → Configurations → Install** in the console. A Mac needs
+    **Endpoint → Configurations → Install** in the console. A Mac needs
     neither: the person's work account is what enrols it.
   </Step>
   <Step title="Allowlist the agent in your AV / EDR">
@@ -84,7 +84,7 @@ The two platforms enrol differently:
     Sign in with your work account. The device binds to your directory
     identity, and traffic from then on is attributed to you rather
     than to a bare hostname. See
-    [Identity binding](/dlp/identity).
+    [Identity binding](/endpoint/identity).
   </Step>
 </Steps>
 
@@ -99,7 +99,7 @@ msiexec /i Blindsight-<version>.msi CLOUD_BASE="https://api.blindsight.example.c
 
 The console generates this exact line for your workspace, with a
 freshly minted token baked in, under
-**DLP → Configurations → Install**. The same screen streams a `.zip`
+**Endpoint → Configurations → Install**. The same screen streams a `.zip`
 containing `install.bat` and `install.ps1` if you would rather push a
 script.
 
@@ -165,7 +165,7 @@ one screen.
     Sign in with the work account inside the app. That sign-in enrols
     the device into your workspace and binds it to the person's
     identity. There is no code or token to enter. See
-    [Identity binding](/dlp/identity).
+    [Identity binding](/endpoint/identity).
   </Step>
 
   <Step title="Approve protection">
@@ -186,7 +186,7 @@ one screen.
 
 ### The macOS install kit
 
-**DLP → Configurations → Install** also offers a macOS install kit: a
+**Endpoint → Configurations → Install** also offers a macOS install kit: a
 `.zip` holding a README with the download links for both disk images on
 your release channel, their SHA-256 checksums and sizes, and the install
 and uninstall steps above. The kit and the disk images carry **no
@@ -211,7 +211,7 @@ happens through the person's sign-in.
 ## What the install actually changes
 
 Knowing this up front makes the security review shorter, and it is the
-same list [uninstall](/dlp/uninstall) reverses.
+same list [uninstall](/endpoint/uninstall) reverses.
 
 ### Windows
 
@@ -306,7 +306,7 @@ spool all survive. Sign-in and settings survive too.
 
 ## Verify the install
 
-Open **DLP → Endpoints** in the console. A healthy device shows up
+Open **Endpoint → Devices** in the console. A healthy device shows up
 within a minute or two with a version, a protection state, and an
 identity.
 
@@ -323,16 +323,16 @@ at all.
 ## See also
 
 <Columns cols={2}>
-  <Card title="Uninstalling the agent" icon="trash" href="/dlp/uninstall">
+  <Card title="Uninstalling the agent" icon="trash" href="/endpoint/uninstall">
     Remove it cleanly, and what gets wiped when you do.
   </Card>
-  <Card title="Fleet rollout" icon="server" href="/dlp/fleet-rollout">
+  <Card title="Fleet rollout" icon="server" href="/endpoint/fleet-rollout">
     Enrollment tokens, MDM push, and pilot-then-promote.
   </Card>
-  <Card title="Identity binding" icon="id-badge" href="/dlp/identity">
+  <Card title="Identity binding" icon="id-badge" href="/endpoint/identity">
     SCIM provisioning and the SSO device-code flow.
   </Card>
-  <Card title="Devices" icon="laptop" href="/dlp/devices">
+  <Card title="Devices" icon="laptop" href="/endpoint/devices">
     The fleet view, health, and tamper events.
   </Card>
 </Columns>

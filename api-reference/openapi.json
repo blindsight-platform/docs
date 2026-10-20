@@ -8229,7 +8229,7 @@
           "compliance"
         ],
         "summary": "Generate Workspace Compliance Report",
-        "description": "Workspace-level compliance report.\n\nCombines runtime DLP evidence (PII/injection blocks) with the semantic\nfinding->regulation control mapping and the tamper-evident audit-chain\nstatus. Returns the structured summary as JSON (or streams CSV); PDF\nrendering remains dataset-scoped and falls back to JSON.",
+        "description": "Workspace-level compliance report.\n\nCombines runtime endpoint evidence (PII/injection blocks) with the semantic\nfinding->regulation control mapping and the tamper-evident audit-chain\nstatus. Returns the structured summary as JSON (or streams CSV); PDF\nrendering remains dataset-scoped and falls back to JSON.",
         "operationId": "generate_workspace_compliance_report_api_compliance_report_post",
         "requestBody": {
           "content": {
@@ -12068,7 +12068,7 @@
           "invitations"
         ],
         "summary": "Agent Rollout Invite",
-        "description": "Invite/notify the workforce to install the desktop agent (DLP rollout).\n\nA new email address gets a real account invitation whose email also carries the\nagent download link + install guide. Someone who already has an account in this\nworkspace gets an install nudge instead (no second account). ``all_users`` expands\nto every active user in the caller's workspace.",
+        "description": "Invite/notify the workforce to install the desktop agent (endpoint rollout).\n\nA new email address gets a real account invitation whose email also carries the\nagent download link + install guide. Someone who already has an account in this\nworkspace gets an install nudge instead (no second account). ``all_users`` expands\nto every active user in the caller's workspace.",
         "operationId": "agent_rollout_invite_api_invitations_agent_rollout_post",
         "requestBody": {
           "content": {
@@ -17463,7 +17463,7 @@
           "runtime-security"
         ],
         "summary": "Get Firewall Flow",
-        "description": "Platform-wide firewall flow: every inspected source (apps, DLP agents,\ndirect API) \u2192 firewall \u2192 verdicts, plus a separate Shadow-AI observed lane.",
+        "description": "Platform-wide firewall flow: every inspected source (apps, endpoint agents,\ndirect API) \u2192 firewall \u2192 verdicts, plus a separate Shadow-AI observed lane.",
         "operationId": "get_firewall_flow_api_runtime_security_firewall_flow_get",
         "parameters": [
           {
@@ -17613,10 +17613,10 @@
                   "type": "null"
                 }
               ],
-              "description": "Filter to events from devices belonging to this user, matches the bound directory email, or the OS account / hostname for devices that haven't completed SSO binding (the same labels the DLP Users tab shows).",
+              "description": "Filter to events from devices belonging to this user, matches the bound directory email, or the OS account / hostname for devices that haven't completed SSO binding (the same labels the Workforce tab shows).",
               "title": "User"
             },
-            "description": "Filter to events from devices belonging to this user, matches the bound directory email, or the OS account / hostname for devices that haven't completed SSO binding (the same labels the DLP Users tab shows)."
+            "description": "Filter to events from devices belonging to this user, matches the bound directory email, or the OS account / hostname for devices that haven't completed SSO binding (the same labels the Workforce tab shows)."
           },
           {
             "name": "provider",
@@ -17677,11 +17677,11 @@
             "required": false,
             "schema": {
               "type": "boolean",
-              "description": "Only events from enrolled DLP desktop agents (device_id set)",
+              "description": "Only events from enrolled endpoint desktop agents (device_id set)",
               "default": false,
               "title": "Device Only"
             },
-            "description": "Only events from enrolled DLP desktop agents (device_id set)"
+            "description": "Only events from enrolled endpoint desktop agents (device_id set)"
           },
           {
             "name": "include_facets",
@@ -21757,7 +21757,7 @@
           "runtime-security-agent"
         ],
         "summary": "Enroll Session",
-        "description": "Enroll the machine using the desktop app's logged-in account session\ninstead of an MDM-pushed enrollment token.\n\nCreates (or rotates) a per-device token bound to the authenticated user\nso the desktop agent is attributed to a real ``device -> user`` pair in\nDLP reporting without any enrollment token. Idempotent per\n``(workspace, hardware_id)`` like ``/enroll``: a machine the installer\nalready enrolled is ATTACHED to, never duplicated, so one laptop is one\nrow in the console and a pause applied to it reaches the machine in front\nof the admin. What that reconciliation may and may not carry over is\ndecided below.",
+        "description": "Enroll the machine using the desktop app's logged-in account session\ninstead of an MDM-pushed enrollment token.\n\nCreates (or rotates) a per-device token bound to the authenticated user\nso the desktop agent is attributed to a real ``device -> user`` pair in\nendpoint reporting without any enrollment token. Idempotent per\n``(workspace, hardware_id)`` like ``/enroll``: a machine the installer\nalready enrolled is ATTACHED to, never duplicated, so one laptop is one\nrow in the console and a pause applied to it reaches the machine in front\nof the admin. What that reconciliation may and may not carry over is\ndecided below.",
         "operationId": "enroll_session_api_runtime_security_agent_enroll_session_post",
         "requestBody": {
           "content": {
@@ -23347,7 +23347,7 @@
           "runtime-security-discovery"
         ],
         "summary": "Ingest Discovery",
-        "description": "Agent batch-reports observed AI destinations (host + counts, no content).\n\nThe entitlement is NOT re-checked here. ``resolve_agent_device`` already\nrefuses any device-authenticated request from a workspace without the DLP\nendpoint entitlement, with a structured 403 that names the reason -- which\nis the right check for this caller, and the right status code. A second\ngate would only be another thing to drift.",
+        "description": "Agent batch-reports observed AI destinations (host + counts, no content).\n\nThe entitlement is NOT re-checked here. ``resolve_agent_device`` already\nrefuses any device-authenticated request from a workspace without the endpoint\nentitlement, with a structured 403 that names the reason -- which\nis the right check for this caller, and the right status code. A second\ngate would only be another thing to drift.",
         "operationId": "ingest_discovery_api_runtime_security_agent_discovery_post",
         "parameters": [
           {
@@ -24380,7 +24380,7 @@
           "dlp-admin"
         ],
         "summary": "Tool Catalog",
-        "description": "The searchable MCP-tool catalog for the policy editor.\n\nTwo sources, merged client-side: admin-curated ``profiles`` (each an MCP\nserver + its tools) and ``discovered`` tools, the distinct tool names\nthe DLP agents have actually seen in ``tool_call`` events, with hit\ncounts so the most-used tools sort first.",
+        "description": "The searchable MCP-tool catalog for the policy editor.\n\nTwo sources, merged client-side: admin-curated ``profiles`` (each an MCP\nserver + its tools) and ``discovered`` tools, the distinct tool names\nthe endpoint agents have actually seen in ``tool_call`` events, with hit\ncounts so the most-used tools sort first.",
         "operationId": "tool_catalog_api_runtime_security_dlp_tool_catalog_get",
         "parameters": [
           {
@@ -40124,7 +40124,7 @@
           "name"
         ],
         "title": "FirewallFlowSource",
-        "description": "One inspected traffic source feeding the firewall: an RS App, the pooled\nDLP desktop agents, or direct/untagged API calls. Carries the verdict split\nso the Sankey can draw source \u2192 firewall \u2192 verdict in one pass."
+        "description": "One inspected traffic source feeding the firewall: an RS App, the pooled\nendpoint desktop agents, or direct/untagged API calls. Carries the verdict split\nso the Sankey can draw source \u2192 firewall \u2192 verdict in one pass."
       },
       "FirewallFlowVerdicts": {
         "properties": {

@@ -104,9 +104,9 @@ click; the automation simply will not decide for you.
 
 ## The decisions
 
-All of these require the `dlp.ai_services.manage` permission (formerly
+All of these require the `endpoint.ai_services.manage` permission (formerly
 `runtime_security.ai_services.manage`, see
-[DLP permissions](/dlp/permissions)) and write an audit record.
+[Endpoint permissions](/endpoint/permissions)) and write an audit record.
 
 Three of them are **decisions about the service**, and they move
 `status`:
@@ -191,7 +191,7 @@ vetted, without breaking anybody's day while you decide.
   <Step title="Confirm the block landed">
     Blocked services push a host rule to the fleet. Policy propagates
     within about 30 seconds, or immediately if you **Push policy**
-    from **DLP → Endpoints**.
+    from **Endpoint → Devices**.
   </Step>
 </Steps>
 
@@ -245,14 +245,14 @@ into an evidence folder.
 
 The discovery routes live under `/api/runtime-security/` and use the
 same workspace authentication as the rest of the dashboard API.
-`dlp.discovery.view` reads; `dlp.ai_services.manage` acts.
+`endpoint.discovery.view` reads; `endpoint.ai_services.manage` acts.
 
 <Note>
   Both permissions were renamed in August 2026. Reading the inventory
-  used to require the DLP policy key, which took Shadow AI away from
+  used to require the endpoint policy key, which took Shadow AI away from
   roles that could see Runtime Security but were never given policy
   read, so the inventory now has a permission of its own. See
-  [DLP permissions](/dlp/permissions).
+  [Endpoint permissions](/endpoint/permissions).
 </Note>
 
 | Endpoint                                                    | What it does                                                                 |
@@ -337,7 +337,7 @@ are part of your control evidence.
     2. Configure thresholds, custom PII rules, and tool policy on the
        new App, see [Apps](/runtime-security/apps).
     3. Add an `inspect` host rule for the hostname pointing at that
-       App, in **DLP policy → AI host rules**.
+       App, in **Endpoint policy → AI host rules**.
     4. Confirm events start arriving with `source=agent` in
        [Observability](/runtime-security/observability).
   </Accordion>
