@@ -144,6 +144,19 @@ command you copy already holds a token.
 
     This command was validated running as SYSTEM in a 32-bit process, which
     is how Intune runs it.
+
+    <Warning>
+      The file name in the command must match the MSI inside your
+      `.intunewin` package, letter for letter. Each release is named after
+      its version, so a package built from an earlier download holds an
+      older name. If the command names a file the package does not hold,
+      `msiexec` fails with 1619 and Intune reports `0x80070653`. In the
+      console, type your packaged file name into **MSI file in your package**
+      and the command follows it.
+    </Warning>
+
+    The agent updates itself after it installs, so the packaged version can
+    stay old. You do not need to rebuild the package for every release.
   </Step>
 
   <Step title="Set the detection rule">
@@ -202,7 +215,10 @@ command you copy already holds a token.
 If you prefer scripts to a bare MSI, package the whole kit folder with the
 MSI and set the setup file to `install.ps1`. `install.ps1` carries the
 token and exits with `msiexec`'s own exit code, so Intune reads the result
-correctly.
+correctly. `install.ps1` finds the Blindsight MSI in its own folder, so it
+installs whichever version you packaged and the file name needs no matching.
+The agent updates itself afterwards. If the folder holds no MSI, it exits
+with 1619.
 
 | Field | Value |
 | ----- | ----- |
