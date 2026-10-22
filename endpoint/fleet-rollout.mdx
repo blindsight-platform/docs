@@ -306,8 +306,8 @@ Allow one of these, narrowest first:
 | Allow installation of devices that match any of these device IDs | `Wintun` |
 | Allow installation of devices using drivers that match these device setup classes | `{4d36e972-e325-11ce-bfc1-08002be10318}` (Net) |
 
-In Intune this is the **Device Installation** administrative template (the
-`DeviceInstallation` policy area). If **Prevent installation of devices not
+In Intune these are the **System → Device Installation → Device Installation
+Restrictions** settings in the settings catalog or the administrative templates. If **Prevent installation of devices not
 described by other policy settings** is on, one of the two allow rules above
 is required. If a **Prevent installation of devices that match any of these
 device IDs** or **setup classes** rule would match `Wintun` or the Net class,
