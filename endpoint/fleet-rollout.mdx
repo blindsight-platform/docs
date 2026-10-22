@@ -289,6 +289,34 @@ row.
   minutes, but its status stays `active` and its posture `protected`
   until you act. Nothing is raised for it.
 
+### Device installation restrictions
+
+Whole-device protection on Windows runs through a small network adapter, the
+Wintun virtual adapter, which Windows installs the first time the lane starts.
+If your Intune or Group Policy settings restrict which devices Windows may
+install, allow this one. Without it, the agent keeps protecting browsers and
+apps that use the system proxy, and the device row reads **Device
+installation is blocked by policy**. The agent stops retrying and looks
+again when the policy changes, or after an hour.
+
+Allow one of these, narrowest first:
+
+| Policy setting | Value |
+| --- | --- |
+| Allow installation of devices that match any of these device IDs | `Wintun` |
+| Allow installation of devices using drivers that match these device setup classes | `{4d36e972-e325-11ce-bfc1-08002be10318}` (Net) |
+
+In Intune this is the **Device Installation** administrative template (the
+`DeviceInstallation` policy area). If **Prevent installation of devices not
+described by other policy settings** is on, one of the two allow rules above
+is required. If a **Prevent installation of devices that match any of these
+device IDs** or **setup classes** rule would match `Wintun` or the Net class,
+add an exception for it. Rules for other adapters, such as GlobalProtect or a
+VPN client, are not affected and the agent never touches those adapters.
+
+The device's diagnostics bundle shows which restriction keys Windows read
+and the Windows log lines for this device, under `network/`.
+
 ### Retiring devices
 
 Revoke the device row in **Endpoint → Devices**. That releases its seat
