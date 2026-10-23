@@ -228,6 +228,25 @@ command you copy already holds a token.
     failed install, with a corrected token or address, enrolls normally.
   </Step>
 
+  <Step title="Add the refused-token return code (ready-made package)">
+    The ready-made package's `install.cmd` does not stop at the installer. After
+    `msiexec` returns `0` it waits up to 120 seconds for the agent to say
+    whether it enrolled. If the platform refused the token because it is
+    expired, revoked or unknown, `install.cmd` exits with `7001`. Add this
+    return code in Intune:
+
+    | Return code | Type | Meaning |
+    | ----------- | ---- | ------- |
+    | `7001` | Failed | Enrolment token refused: build a new package |
+
+    The checklist next to the download lists it. Without it the install would
+    read **Installed** on a device that never enrolled. An agent that is too old
+    to say, or one that has not decided in 120 seconds, leaves the result at
+    `0`, so the install can still take up to two minutes to finish on a device
+    that is slow to enrol. The kit's `install.bat` does the same and exits `7001`.
+    Revoke the old token and build a new package.
+  </Step>
+
   <Step title="Assign it to a device group">
     Target **devices**, not users. The install needs no one signed in.
     For a pilot, scope the assignment to one group and use a token
