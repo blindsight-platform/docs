@@ -97,20 +97,21 @@ administrator.
 msiexec /x Blindsight-<version>.msi /qn /norestart
 ```
 
-If you no longer have the original MSI, uninstall by product code.
-The product code changes whenever the agent updates itself, so look it
-up from the stable UpgradeCode rather than hardcoding it. A stale code
-fails with `1605`.
+If you no longer have the original MSI, use the kit's `uninstall.cmd`. It
+finds the installed product from the stable UpgradeCode, so it needs no product
+code and no PowerShell. The product code
+changes whenever the agent updates itself, and a stale code fails with `1605`.
 
-```powershell
-$installer = New-Object -ComObject WindowsInstaller.Installer
-$code = $installer.RelatedProducts('{1B8032BE-2978-4F43-802A-3A10B186515F}') |
-        Select-Object -First 1
-Start-Process msiexec.exe -Wait -ArgumentList '/x', $code, '/qn', '/norestart'
+```text
+uninstall.cmd
 ```
 
-Push either form through Intune, GPO, or SCCM the same way you pushed
-the install.
+When the workspace asks for uninstall codes, authorize the device in the
+console first. For a one-off manual run you can pass the code as the first
+argument: `uninstall.cmd <code>`.
+
+Push the `msiexec` command or `uninstall.cmd` through Intune, GPO, or SCCM
+the same way you pushed the install.
 
 <Note>
   An **upgrade** is not an uninstall, even though the MSI technically

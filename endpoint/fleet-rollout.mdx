@@ -117,7 +117,7 @@ was validated on Windows Server 2022 and Windows Server 2025.
 
 ### Pick how to build the app
 
-There are three ways. They end in the same Intune app.
+There are two ways to build the app. They end in the same Intune app.
 
 - **The ready-made package.** In **Install → Windows → Intune**, download the
   `.intunewin` file. It holds the MSI, `install.cmd`, `uninstall.cmd` and a
@@ -126,9 +126,10 @@ There are three ways. They end in the same Intune app.
   package, never in the install command.
 - **By hand.** Package the MSI and `uninstall.cmd` yourself. The steps below
   show this way.
-- **Connect Intune.** The console reads your Intune tenant, matches its devices
-  to Blindsight devices and shows which ones have the agent. See
-  [Connect Intune](#connect-intune).
+
+Connect Intune is separate. It does not build the app. It shows how far the
+rollout has got and can deploy the agent to a group. See
+[Connect Intune](#connect-intune).
 
 ### Create the app
 
@@ -212,8 +213,12 @@ command you copy already holds a token.
     it out, uninstalling from Intune fails. It is a plain cmd file, so it runs
     where PowerShell is locked down. It treats `1605` (the product is already
     gone) as success. When uninstall codes are required on the workspace,
-    authorize the devices first, or pass the code as the first argument:
-    `uninstall.cmd <code>`. See [Uninstalling the agent](/endpoint/uninstall).
+    authorize the devices first: in **Endpoint → Devices**, select them and
+    choose **Authorize removal**. Do not put an uninstall code in the Intune
+    uninstall command. Intune stores the command in plain sight and logs it on
+    every device. For a one-off manual or RMM run you can pass the code as the
+    first argument: `uninstall.cmd <code>`. See
+    [Uninstalling the agent](/endpoint/uninstall).
   </Step>
 
   <Step title="Leave the return codes at their defaults">
@@ -346,8 +351,8 @@ and the Windows log lines for this device, under `network/`.
 The ready-made package and the kit's `uninstall.cmd` and `install.bat` are
 plain cmd files. They run where PowerShell is locked down.
 
-- **AllSigned.** This policy refuses an unsigned `.ps1` even with
-  `-ExecutionPolicy Bypass`. The kit's `install.ps1` and `detect.ps1` are
+- **AllSigned.** When Group Policy sets this policy, it refuses an unsigned
+  `.ps1` even with `-ExecutionPolicy Bypass`. The kit's `install.ps1` and `detect.ps1` are
   unsigned, and Blindsight cannot sign them for you. Use `install.bat` or the
   package, the File or Registry detection rule, and `uninstall.cmd`. Or sign
   the scripts with your own certificate.
@@ -356,7 +361,10 @@ plain cmd files. They run where PowerShell is locked down.
   Test one device first, because an install under constrained language mode
   can still fail with `1603` on agent version 1.6.3.
 - **App Control (WDAC) and AppLocker.** Allow the Blindsight publisher
-  (`Blindsight Technologies AG`), and also add a path rule for
+  (`Blindsight Technologies AG`) at the **Publisher** or **FilePublisher** rule
+  level. Never use a leaf certificate rule or a hash rule. The signing
+  certificate is replaced every few days and the file hashes change with each
+  release, so either one breaks at the next update. Also add a path rule for
   `%ProgramFiles%\Blindsight\*`. The publisher rule alone is not enough,
   because part of the agent's runtime files are unsigned or signed by others.
   With the publisher rule only, an App Control install can hang and then
@@ -375,10 +383,11 @@ allow these:
 | What | Where |
 | ---- | ----- |
 | The agent program | `C:\Program Files\Blindsight\BlindsightAgent.exe`, outbound |
+| The tray app | `C:\Program Files\Blindsight\Blindsight.exe`, outbound. It makes the person's sign-in call itself. |
 | Your Blindsight cloud address | port 443 |
 | The download host | `downloads.blindsight.io`, port 443 |
 
-Without the program rule, whole-device protection stays down and the device row
+Without the `BlindsightAgent.exe` rule, whole-device protection stays down and the device row
 reads "traffic into the tunnel is blocked (firewall rule, error 10013)". The
 explicit-proxy fallback cannot inspect either, because the agent's own
 traffic is blocked. After you add the rule the device comes up in about two
@@ -390,10 +399,18 @@ or `HTTPS_PROXY`. Allow direct outbound port 443 to the two hosts above, or
 the device cannot enrol. Browsers and apps that go through your proxy are
 not affected.
 
-**TLS inspection.** On the same version the agent trusts its bundled
-certificate authorities for the cloud address and the download host. If your
-gateway re-signs that traffic, enrolment fails with `CERTIFICATE_VERIFY_FAILED`.
-Exempt both hosts from inspection.
+**TLS inspection.** Exempt the Blindsight cloud address and the download host
+from TLS inspection wherever your policy allows. A gateway whose root
+certificate the machine trusts can read the agent's control-plane traffic. That
+includes the device token, the policy, and the pause, revoke and uninstall
+decisions, and a gateway can change them in transit. Platform-signed decisions
+are planned. They would let the agent refuse a changed answer.
+
+On agent version 1.6.3 the agent trusts only its bundled certificate
+authorities for these two hosts. If your gateway re-signs that traffic,
+enrolment fails with `CERTIFICATE_VERIFY_FAILED`. The next build accepts
+inspector roots that are in the machine certificate store, so inspection will
+then work. That does not remove the reason to exempt the hosts.
 
 **A failed enrolment.** A device that cannot enrol can be left with a machine
 proxy setting that points at a local port nothing listens on. Programs such as
@@ -404,27 +421,30 @@ service resets it. Fix the network path first, then rerun the install.
 
 Connect Intune lets the console read your Intune tenant. It lists the managed
 Windows and Mac devices, matches each to a Blindsight device, and shows which
-ones do not have the agent yet.
+ones do not have the agent yet. From there it can also deploy the agent to an
+Intune group.
 
-1. Open **Endpoint → Configurations → Install**, choose **Windows**, then
-   **Intune**, and select **Connect Intune**.
+1. Open **Endpoint → Configurations → Intune** and select **Connect Intune**.
 2. Sign in with an account from your tenant and approve the read access the
    console asks for. Your tenant's rules for app consent apply.
 3. Wait for the first sync. It reads the device list every four hours. You can
    also start one from the console.
 
 A device matches strongly by its Entra device ID or its serial number, and by
-host name only when the name is unique on both sides. A device in Intune with no
-match reads **Not in Intune** until the agent enrols. Reading changes nothing in
-your tenant.
+host name only when the name is unique on both sides. A device that Intune
+manages and that has no Blindsight match reads **Missing**: it is in Intune and
+not running Blindsight. **Not in Intune** is the other way round, a Blindsight
+device that Intune does not list. Reading changes nothing in your tenant.
 
 ### Retiring devices
 
 Revoke the device row in **Endpoint → Devices**. That releases its seat
 and ends its token.
 
-An uninstall pushed from Intune tells the platform as the agent goes. The
-row then reads **Uninstalled**, and the seat is freed once the machine has
+An uninstall pushed from Intune tells the platform as the agent goes, when the
+device can reach the platform at that moment. If it cannot, the row stays active
+and the seat stays held, so revoke the row. When the notice arrives, the row
+then reads **Uninstalled**, and the seat is freed once the machine has
 been quiet for 30 minutes. A machine that keeps reporting keeps its seat.
 This holds in every uninstall mode except **enforce**, where an uninstall
 with no code is recorded as tamper. Under **enforce**, an authorized or
@@ -463,8 +483,13 @@ scripts run as SYSTEM before anyone signs in.
     with this line, so a device that has the agent is skipped:
 
     ```text
-    if exist "%ProgramFiles%\Blindsight\BlindsightAgent.exe" exit /b 0
+    if exist "%ProgramW6432%\Blindsight\BlindsightAgent.exe" exit /b 0
     ```
+
+    `%ProgramW6432%` is the 64-bit Program Files folder in a 32-bit and a
+    64-bit command shell alike. It also means `install.bat` does not upgrade
+    an installed agent. A newer MSI on the share is skipped, and the agent
+    updates itself.
   </Step>
   <Step title="Link the GPO">
     Link it to the OU that holds the computers. They install at the next
