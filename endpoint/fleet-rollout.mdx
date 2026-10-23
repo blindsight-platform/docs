@@ -242,8 +242,8 @@ command you copy already holds a token.
     The checklist next to the download lists it. Without it the install would
     read **Installed** on a device that never enrolled. An agent that is too old
     to say, or one that has not decided in 120 seconds, leaves the result at
-    `0`, so the install can still take up to two minutes to finish on a device
-    that is slow to enrol. The kit's `install.bat` does the same and exits `7001`.
+    `0` after the full wait, so the install takes up to two minutes longer
+    than the installer alone. The kit's `install.bat` does the same and exits `7001`.
     Revoke the old token and build a new package.
   </Step>
 
