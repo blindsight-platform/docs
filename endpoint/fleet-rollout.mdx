@@ -411,6 +411,10 @@ authorities for these two hosts. If your gateway re-signs that traffic,
 enrolment fails with `CERTIFICATE_VERIFY_FAILED`. The next build accepts
 inspector roots that are in the machine certificate store, so inspection will
 then work. That does not remove the reason to exempt the hosts.
+When the agent's own traffic goes through an inspector, the device page says so
+and names the issuer. A device whose AI sites are sent around Blindsight by a
+company proxy, or are re-signed by an issuer nobody trusts, reads as not
+inspected, with the reason and what to do.
 
 **A failed enrolment.** A device that cannot enrol can be left with a machine
 proxy setting that points at a local port nothing listens on. Programs such as
