@@ -115,6 +115,21 @@ ran as SYSTEM and finished in under a minute. A machine that installed
 during boot, before anyone signed in, enrolled about a minute later. It
 was validated on Windows Server 2022 and Windows Server 2025.
 
+### Pick how to build the app
+
+There are three ways. They end in the same Intune app.
+
+- **The ready-made package.** In **Install → Windows → Intune**, download the
+  `.intunewin` file. It holds the MSI, `install.cmd`, `uninstall.cmd` and a
+  file with the enrollment token. You upload it to Intune and copy the
+  settings from the checklist the console shows beside it. The token is in the
+  package, never in the install command.
+- **By hand.** Package the MSI and `uninstall.cmd` yourself. The steps below
+  show this way.
+- **Connect Intune.** The console reads your Intune tenant, matches its devices
+  to Blindsight devices and shows which ones have the agent. See
+  [Connect Intune](#connect-intune).
+
 ### Create the app
 
 The console walks through these same steps one at a time: open
@@ -126,7 +141,7 @@ command you copy already holds a token.
   <Step title="Package the MSI">
     From **Endpoint → Configurations → Install**, download
     `Blindsight-<version>.msi` (**Download MSI**) and the install kit
-    (**Download kit**). Put the MSI and the kit's `uninstall.ps1` in one
+    (**Download kit**). Put the MSI and the kit's `uninstall.cmd` in one
     folder and package it with the Microsoft Win32 Content Prep Tool
     (`IntuneWinAppUtil.exe`). Set the setup file to the MSI. Add it to
     Intune as a **Windows app (Win32)**, with **Install behavior** set to
@@ -173,10 +188,15 @@ command you copy already holds a token.
     after an update. Never detect on the ProductCode. An update installs a
     new ProductCode, so a rule that pins it starts reporting "not detected"
     within minutes of the first update, and Intune's built-in MSI rule pins
-    it. A custom script that looks up the UpgradeCode
-    `{1B8032BE-2978-4F43-802A-3A10B186515F}` through
-    `WindowsInstaller.Installer.RelatedProducts` also works. The kit's
-    `detect.ps1` is that script.
+    it.
+
+    You can also detect on the UpgradeCode
+    `{1B8032BE-2978-4F43-802A-3A10B186515F}` with no script. Add a rule of
+    type **Registry**, with key
+    `HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Installer\UpgradeCodes\EB2308B1879234F408A2A3011B6815F5`,
+    detection method **Key exists**, and **Associated with a 32-bit app on
+    64-bit clients** set to **No**. The kit's `detect.ps1` does the same with a
+    script. Use a rule, not the script, where PowerShell is locked down.
   </Step>
 
   <Step title="Set the uninstall command">
@@ -185,14 +205,15 @@ command you copy already holds a token.
     UpgradeCode:
 
     ```text
-    powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\uninstall.ps1
+    uninstall.cmd
     ```
 
-    `uninstall.ps1` has to be inside the `.intunewin` package. If you leave
-    it out, uninstalling from Intune fails. The script treats `1605` (the
-    product is already gone) as success. When uninstall codes are required on
-    the workspace, authorize the devices first or pass `-UninstallCode`. See
-    [Uninstalling the agent](/endpoint/uninstall).
+    `uninstall.cmd` has to be inside the `.intunewin` package. If you leave
+    it out, uninstalling from Intune fails. It is a plain cmd file, so it runs
+    where PowerShell is locked down. It treats `1605` (the product is already
+    gone) as success. When uninstall codes are required on the workspace,
+    authorize the devices first, or pass the code as the first argument:
+    `uninstall.cmd <code>`. See [Uninstalling the agent](/endpoint/uninstall).
   </Step>
 
   <Step title="Leave the return codes at their defaults">
@@ -223,8 +244,8 @@ with 1619.
 | Field | Value |
 | ----- | ----- |
 | Install command | `powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\install.ps1` |
-| Uninstall command | `powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\uninstall.ps1` |
-| Detection | Custom script, upload `detect.ps1`, run as 32-bit process: No |
+| Uninstall command | `uninstall.cmd` |
+| Detection | The File rule above, or custom script `detect.ps1`, run as 32-bit process: No |
 
 The kit's `README.txt` lists the same fields, and both are generated from
 one place, so the console and the README always agree. The kit holds a live
@@ -256,11 +277,14 @@ not inspected for roughly 40 to 55 seconds, with the posture reading
 
 Always run **sysprep** on an image before you clone it. Two machines
 cloned without it share one machine identity and merge into one device
-row. The agents then swap the token between them every minute, the row's
-hostname flips back and forth, the posture stays `bypassed`, and no error
-is shown. Machines cloned with sysprep get their own identities and their
-own rows. If you find a row like this, sysprep the image and revoke the
-row.
+row. The agents then swap the token between them every few minutes and the
+posture stays `bypassed`. The row shows **Shared machine identity**, and an
+audit record, "Two machines are enrolling as one device", is written once.
+This holds when the clones keep the same host name too. Machines cloned
+with sysprep get their own identities and their own rows. If you find a row
+like this, sysprep the image and re-install the agent on the clones. Allow
+re-enrollment before you revoke the row, or the machine that kept it cannot
+enrol again.
 
 ### What shows up in the console
 
@@ -317,14 +341,99 @@ VPN client, are not affected and the agent never touches those adapters.
 The device's diagnostics bundle shows which restriction keys Windows read
 and the Windows log lines for this device, under `network/`.
 
+### Locked-down PowerShell and App Control
+
+The ready-made package and the kit's `uninstall.cmd` and `install.bat` are
+plain cmd files. They run where PowerShell is locked down.
+
+- **AllSigned.** This policy refuses an unsigned `.ps1` even with
+  `-ExecutionPolicy Bypass`. The kit's `install.ps1` and `detect.ps1` are
+  unsigned, and Blindsight cannot sign them for you. Use `install.bat` or the
+  package, the File or Registry detection rule, and `uninstall.cmd`. Or sign
+  the scripts with your own certificate.
+- **Constrained language mode.** App Control script enforcement turns it on.
+  Scripts that create COM objects fail in it. The kit's scripts use none.
+  Test one device first, because an install under constrained language mode
+  can still fail with `1603` on agent version 1.6.3.
+- **App Control (WDAC) and AppLocker.** Allow the Blindsight publisher
+  (`Blindsight Technologies AG`), and also add a path rule for
+  `%ProgramFiles%\Blindsight\*`. The publisher rule alone is not enough,
+  because part of the agent's runtime files are unsigned or signed by others.
+  With the publisher rule only, an App Control install can hang and then
+  fail with `1603`, and under AppLocker DLL rules the tray does not start for
+  standard users. Protection by the service still runs in that case. The
+  AppLocker default rules work.
+- **Controlled Folder Access.** Only matters if you add
+  `C:\ProgramData\Blindsight` as a protected folder. Then add
+  `BlindsightAgent.exe` to the allowed apps, or the install fails with `1603`.
+
+### Firewalls, proxies and TLS inspection
+
+**Outbound allow list.** If your firewall blocks outbound traffic by default,
+allow these:
+
+| What | Where |
+| ---- | ----- |
+| The agent program | `C:\Program Files\Blindsight\BlindsightAgent.exe`, outbound |
+| Your Blindsight cloud address | port 443 |
+| The download host | `downloads.blindsight.io`, port 443 |
+
+Without the program rule, whole-device protection stays down and the device row
+reads "traffic into the tunnel is blocked (firewall rule, error 10013)". The
+explicit-proxy fallback cannot inspect either, because the agent's own
+traffic is blocked. After you add the rule the device comes up in about two
+minutes.
+
+**Proxy servers.** On agent version 1.6.3, enrolment, sign-in, updates and the
+uninstall check connect directly. They do not use the machine proxy, a PAC file
+or `HTTPS_PROXY`. Allow direct outbound port 443 to the two hosts above, or
+the device cannot enrol. Browsers and apps that go through your proxy are
+not affected.
+
+**TLS inspection.** On the same version the agent trusts its bundled
+certificate authorities for the cloud address and the download host. If your
+gateway re-signs that traffic, enrolment fails with `CERTIFICATE_VERIFY_FAILED`.
+Exempt both hosts from inspection.
+
+**A failed enrolment.** A device that cannot enrol can be left with a machine
+proxy setting that points at a local port nothing listens on. Programs such as
+`curl`, `git` and `npm` then fail on that machine. Restarting the Blindsight
+service resets it. Fix the network path first, then rerun the install.
+
+### Connect Intune
+
+Connect Intune lets the console read your Intune tenant. It lists the managed
+Windows and Mac devices, matches each to a Blindsight device, and shows which
+ones do not have the agent yet.
+
+1. Open **Endpoint → Configurations → Install**, choose **Windows**, then
+   **Intune**, and select **Connect Intune**.
+2. Sign in with an account from your tenant and approve the read access the
+   console asks for. Your tenant's rules for app consent apply.
+3. Wait for the first sync. It reads the device list every four hours. You can
+   also start one from the console.
+
+A device matches strongly by its Entra device ID or its serial number, and by
+host name only when the name is unique on both sides. A device in Intune with no
+match reads **Not in Intune** until the agent enrols. Reading changes nothing in
+your tenant.
+
 ### Retiring devices
 
 Revoke the device row in **Endpoint → Devices**. That releases its seat
-and ends its token. An uninstall pushed from Intune while the workspace's
-uninstall mode is **off** removes the agent but leaves the row active and
-the seat held, so revoke the row too. Under **enforce**, an authorized
-or coded uninstall frees the seat and records the device as uninstalled.
-See [Uninstall codes](/endpoint/uninstall#uninstall-codes).
+and ends its token.
+
+An uninstall pushed from Intune tells the platform as the agent goes. The
+row then reads **Uninstalled**, and the seat is freed once the machine has
+been quiet for 30 minutes. A machine that keeps reporting keeps its seat.
+This holds in every uninstall mode except **enforce**, where an uninstall
+with no code is recorded as tamper. Under **enforce**, an authorized or
+coded uninstall frees the seat and records the device as uninstalled. See
+[Uninstall codes](/endpoint/uninstall#uninstall-codes).
+
+An uninstall leaves one thing behind on purpose: the Windows port
+exclusion for ports 47324 to 47327. It is harmless and a reinstall reuses
+it. Do not treat it as a failed uninstall.
 
 The uninstall mode takes about three minutes to apply after you change it,
 and an uninstall attempted in that window can return `1603`. Retry it.
@@ -336,20 +445,22 @@ scripts run as SYSTEM before anyone signs in.
 
 <Steps>
   <Step title="Stage the files">
-    Put `install.bat` and `Blindsight-<version>.msi` together in a folder
-    every computer can read, for example the GPO's own **Startup** scripts
-    folder. `install.bat` holds the enrollment token, so keep that folder
-    readable by computers only.
+    Put `install.bat` and `Blindsight-<version>.msi` together in a network
+    share that only computer accounts can read. Give **Domain Computers**
+    read access and remove **Authenticated Users**. Do not use the GPO's own
+    **Startup** scripts folder or any other part of SYSVOL. Every domain user
+    can read SYSVOL, and `install.bat` holds the enrollment token.
   </Step>
   <Step title="Add the startup script">
     In Group Policy Management, open the GPO and go to **Computer
     Configuration → Policies → Windows Settings → Scripts (Startup/Shutdown)
-    → Startup**. Add `install.bat`.
+    → Startup**. Add `install.bat` by its share path, for example
+    `\\server\share\install.bat`.
   </Step>
   <Step title="Skip devices that already have the agent">
     Startup scripts run at every boot, and reinstalling the same version over
-    a running agent is not harmless. Add this as the first line of
-    `install.bat`:
+    a running agent is not harmless. The kit's `install.bat` already starts
+    with this line, so a device that has the agent is skipped:
 
     ```text
     if exist "%ProgramFiles%\Blindsight\BlindsightAgent.exe" exit /b 0
@@ -363,6 +474,16 @@ scripts run as SYSTEM before anyone signs in.
 
 `install.bat` also suits fleets whose policy enforces the `AllSigned`
 PowerShell execution policy, because it runs no unsigned script.
+
+<Warning>
+  Do not use **Group Policy Software Installation** (Computer
+  Configuration → Policies → Software Settings) with the MSI alone. It
+  cannot pass `CLOUD_BASE` or `ENROLL_TOKEN`, so it installs an agent that
+  never enrols. The service stays stopped and the device never appears in
+  the console. If you must use it, give it a transform (`.mst`) that sets both
+  properties, and keep the transform on the same restricted share, because
+  it holds the token.
+</Warning>
 
 ## Configuration Manager and other tools
 
