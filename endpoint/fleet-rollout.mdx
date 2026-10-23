@@ -197,7 +197,15 @@ command you copy already holds a token.
     `HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Installer\UpgradeCodes\EB2308B1879234F408A2A3011B6815F5`,
     detection method **Key exists**, and **Associated with a 32-bit app on
     64-bit clients** set to **No**. The kit's `detect.ps1` does the same with a
-    script. Use a rule, not the script, where PowerShell is locked down.
+    script.
+
+    Use the File or the Registry rule, not `detect.ps1`. Under the PowerShell
+    execution policy **AllSigned**, Intune cannot run `detect.ps1` at all: it is
+    unsigned, and the policy refuses it even with `-ExecutionPolicy Bypass`, in
+    32-bit and 64-bit alike. The two rules above need no script and are not
+    affected by AllSigned. Both were
+    checked on a machine under AllSigned: the key exists exactly while the agent
+    is installed, and it survives an update.
   </Step>
 
   <Step title="Set the uninstall command">
@@ -245,6 +253,10 @@ command you copy already holds a token.
     `0` after the full wait, so the install takes up to two minutes longer
     than the installer alone. The kit's `install.bat` does the same and exits `7001`.
     Revoke the old token and build a new package.
+
+    A device that is already enrolled does not wait: the script sees that and
+    exits `0` at once. Any other `msiexec` failure code (`1603`, `1618`,
+    `1619`) passes straight through without the wait.
   </Step>
 
   <Step title="Assign it to a device group">
@@ -269,7 +281,7 @@ with 1619.
 | ----- | ----- |
 | Install command | `powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\install.ps1` |
 | Uninstall command | `uninstall.cmd` |
-| Detection | The File rule above, or custom script `detect.ps1`, run as 32-bit process: No |
+| Detection | The File or the Registry rule above. Use `detect.ps1` only where PowerShell is not under AllSigned. |
 
 The kit's `README.txt` lists the same fields, and both are generated from
 one place, so the console and the README always agree. The kit holds a live
@@ -383,13 +395,42 @@ plain cmd files. They run where PowerShell is locked down.
   (`Blindsight Technologies AG`) at the **Publisher** or **FilePublisher** rule
   level. Never use a leaf certificate rule or a hash rule. The signing
   certificate is replaced every few days and the file hashes change with each
-  release, so either one breaks at the next update. Also add a path rule for
-  `%ProgramFiles%\Blindsight\*`. The publisher rule alone is not enough,
-  because part of the agent's runtime files are unsigned or signed by others.
-  With the publisher rule only, an App Control install can hang and then
-  fail with `1603`, and under AppLocker DLL rules the tray does not start for
-  standard users. Protection by the service still runs in that case. The
-  AppLocker default rules work.
+  release, so either one breaks at the next update. The agent also ships files
+  signed by other vendors, and a publisher rule for the Blindsight name does
+  not cover them. Without them an App Control install fails with `1603` within
+  seconds (Windows logs CodeIntegrity event 3077 for the file it refused), or
+  hangs and then fails. Allow each vendor below too, or add a path rule for
+  `%ProgramFiles%\Blindsight\*` instead. Under AppLocker DLL rules the tray does
+  not start for standard users without them. Protection by the service still
+  runs in that case. The AppLocker default rules work.
+
+  Allow each signer **and the certificate authority that issued it**. A
+  vendor can sign different files under different authorities. A rule made
+  from one Python Software Foundation file does not cover `libffi-8.dll`,
+  which is signed under a different authority from the rest, and App Control
+  refuses that one file. These are the ten signer and authority pairs on the
+  agent files signed by other vendors, as of agent version 1.6.51:
+
+  | Signer | Issuing authority | Files |
+  | ------ | ----------------- | ----- |
+  | Microsoft Corporation | Microsoft Code Signing PCA 2010 | 44 |
+  | Microsoft Corporation | Microsoft Code Signing PCA 2011 | 5 |
+  | Microsoft Corporation | Microsoft Code Signing PCA 2024 | 3 |
+  | Microsoft Windows Software Compatibility Publisher | Microsoft Windows Third Party Component CA 2013 | 5 |
+  | Python Software Foundation | Microsoft ID Verified Code Signing PCA 2021 | 24 |
+  | Python Software Foundation | DigiCert Trusted G4 Code Signing RSA4096 SHA384 2021 CA1 | 1 (`libffi-8.dll`) |
+  | WireGuard LLC | DigiCert EV Code Signing CA (SHA2) | 2 (`wintun.dll`) |
+  | Ars Nova Systems | DigiCert EV Code Signing CA (SHA2) | 1 (`WinDivert32.sys`) |
+  | The WinDivert signer (a name in non-Latin characters) | Sectigo Public Code Signing CA EV R36 | 1 (`WinDivert64.sys`) |
+  | The WinDivert signer (same name) | Sectigo Public Code Signing Root R46 | 1 (`WinDivert64.sys`) |
+
+  The list can change with a release. To be sure, build the rules from an
+  installed agent instead of copying the table: scan
+  `C:\Program Files\Blindsight` with `New-CIPolicy -Level Publisher` and read
+  the signer and authority of every file, or run `Get-AuthenticodeSignature` on
+  the files. Rules built from the Blindsight publisher plus these ten pairs, with
+  no path rule, were enough for an install, an update and an uninstall on a
+  machine with App Control enforced.
 - **Controlled Folder Access.** Only matters if you add
   `C:\ProgramData\Blindsight` as a protected folder. Then add
   `BlindsightAgent.exe` to the allowed apps, or the install fails with `1603`.
@@ -458,6 +499,18 @@ host name only when the name is unique on both sides. A device that Intune
 manages and that has no Blindsight match reads **Missing**: it is in Intune and
 not running Blindsight. **Not in Intune** is the other way round, a Blindsight
 device that Intune does not list. Reading changes nothing in your tenant.
+
+After you deploy the agent from Connect Intune to a group, the console shows
+how far the rollout has got: how many devices are targeted, and how many are
+installing, installed, failed in Intune, enrolled and protected. Enrolled and
+Protected count the devices that enrolled with this deployment's token.
+A device that was already enrolled and protected before the deployment, which
+Intune lists and Blindsight already knows, is counted as **Already protected**
+in the heading line ("6 devices targeted, 2 already protected") and reads
+**Already protected** on its row. It is not counted as enrolled by the
+deployment, and it is not left out. A device that was enrolled before but is
+paused, offline or revoked is not counted as already protected. It reads as
+Intune reports it.
 
 ### Retiring devices
 
