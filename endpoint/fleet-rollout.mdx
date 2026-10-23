@@ -270,22 +270,25 @@ command you copy already holds a token.
 ### Package the kit instead
 
 If you prefer scripts to a bare MSI, package the whole kit folder with the
-MSI and set the setup file to `install.ps1`. `install.ps1` carries the
-token and exits with `msiexec`'s own exit code, so Intune reads the result
-correctly. `install.ps1` finds the Blindsight MSI in its own folder, so it
-installs whichever version you packaged and the file name needs no matching.
-The agent updates itself afterwards. If the folder holds no MSI, it exits
-with 1619.
+MSI and set the setup file to `install.bat`. It is plain cmd, so it runs
+where PowerShell is locked down (AllSigned, constrained language mode). It
+carries the token and exits with `msiexec`'s own exit code, so Intune reads
+the result correctly. It names the MSI file the kit was built for, so
+package the MSI under that exact name; the agent updates itself afterwards,
+so the packaged version can stay old.
 
 | Field | Value |
 | ----- | ----- |
-| Install command | `powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\install.ps1` |
+| Install command | `install.bat` |
 | Uninstall command | `uninstall.cmd` |
-| Detection | The File or the Registry rule above. Use `detect.ps1` only where PowerShell is not under AllSigned. |
+| Detection | The File or the Registry rule above. No detection script. |
 
-The kit's `README.txt` lists the same fields, and both are generated from
-one place, so the console and the README always agree. The kit holds a live
-enrollment token in `install.ps1` and `install.bat`, so treat the zip as a
+The kit also holds `install.ps1` and `detect.ps1` for fleets that run
+unsigned PowerShell. Under AllSigned they are refused, so the console and
+the `README.txt` recommend `install.bat` and the File or Registry rule. The
+kit's `README.txt` lists the same fields, and both are generated from one
+place, so the console and the README always agree. The kit holds a live
+enrollment token in `install.bat` and `install.ps1`, so treat the zip as a
 secret.
 
 ### Updates
