@@ -127,9 +127,10 @@ There are two ways to build the app. They end in the same Intune app.
 - **By hand.** Package the MSI and `uninstall.cmd` yourself. The steps below
   show this way.
 
-Connect Intune is separate. It does not build the app. It shows how far the
-rollout has got and can deploy the agent to a group. See
-[Connect Intune](#connect-intune).
+[Connect Intune](/endpoint/connect-intune) is separate. It reads your tenant to
+show how far the rollout has got, and it can create the app for you and deploy
+it to a group. The app it creates uses the same settings as this page, and
+[Connect Intune](/endpoint/connect-intune#the-app-blindsight-creates) lists them.
 
 ### Create the app
 
@@ -146,7 +147,9 @@ command you copy already holds a token.
     folder and package it with the Microsoft Win32 Content Prep Tool
     (`IntuneWinAppUtil.exe`). Set the setup file to the MSI. Add it to
     Intune as a **Windows app (Win32)**, with **Install behavior** set to
-    **System** and the architecture set to **x64**.
+    **System**, the architecture set to **x64**, and a minimum of 2 GB free
+    disk space. The x64 package also installs on Windows 11 on ARM64, which runs
+    x64 programs.
   </Step>
 
   <Step title="Set the install command">
@@ -182,22 +185,30 @@ command you copy already holds a token.
     | ----- | ----- |
     | Path | `C:\Program Files\Blindsight` |
     | File or folder | `BlindsightAgent.exe` |
-    | Detection method | File or folder exists |
+    | Detection method | **String (version)** |
+    | Operator | **Greater than or equal to** |
+    | Value | The version of the MSI in your package, for example `1.6.4`. The console and the kit's `README.txt` print it. |
     | Associated with a 32-bit app on 64-bit clients | No |
 
-    The agent updates itself and keeps this file, so the rule keeps working
-    after an update. Never detect on the ProductCode. An update installs a
-    new ProductCode, so a rule that pins it starts reporting "not detected"
-    within minutes of the first update, and Intune's built-in MSI rule pins
-    it.
+    The rule checks the version of the agent's own file. An agent that updated
+    itself passes, because a newer version is greater than or equal to yours. An
+    older agent, or a half-updated install, reads as not installed and Intune
+    runs the install again, which repairs it. Use **File or folder exists** if
+    you want Intune to ignore the version.
+
+    Never detect on the ProductCode. An update installs a new ProductCode, so a
+    rule that pins it starts reporting "not detected" within minutes of the first
+    update, and Intune's built-in MSI rule pins it.
 
     You can also detect on the UpgradeCode
     `{1B8032BE-2978-4F43-802A-3A10B186515F}` with no script. Add a rule of
     type **Registry**, with key
     `HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Installer\UpgradeCodes\EB2308B1879234F408A2A3011B6815F5`,
     detection method **Key exists**, and **Associated with a 32-bit app on
-    64-bit clients** set to **No**. The kit's `detect.ps1` does the same with a
-    script.
+    64-bit clients** set to **No**. Intune requires every manual rule to be met,
+    so adding both rules means the agent file at that version and the key. That
+    is what [Connect Intune](/endpoint/connect-intune#detection) creates. The
+    kit's `detect.ps1` does the same as the registry rule with a script.
 
     Use the File or the Registry rule, not `detect.ps1`. Under the PowerShell
     execution policy **AllSigned**, Intune cannot run `detect.ps1` at all: it is
@@ -229,19 +240,29 @@ command you copy already holds a token.
     [Uninstalling the agent](/endpoint/uninstall).
   </Step>
 
-  <Step title="Leave the return codes at their defaults">
-    `0` and `1707` are success, `3010` is a soft reboot, `1641` a hard
-    reboot, and `1618` retries. Expect `1603` for a downgrade, or when the
-    workspace requires an uninstall code and none was given. A re-run of a
-    failed install, with a corrected token or address, enrolls normally.
+  <Step title="Set the return codes">
+    Keep Intune's defaults and check them against this table:
+
+    | Code | Type | What it means |
+    | ---- | ---- | ------------- |
+    | `0` | Success | Installed or removed. |
+    | `1707` | Success | Windows Installer reports success. |
+    | `3010` | Soft reboot | The install is done and Windows reports a restart as pending. Nothing is forced. Some upgrades with files held open return it although the install is complete. |
+    | `1641` | Hard reboot | The installer started a restart. With `/norestart` this is rare. |
+    | `1618` | Retry | Another installation was running. Intune tries again. |
+    | `1603` | Failed | A fatal error. Also a downgrade, a full disk, an uninstall that needs an uninstall code, or an uninstall attempted in the three minutes a new uninstall mode takes to apply. |
+
+    A re-run of a failed install, with a corrected token or address, enrolls
+    normally. A full disk fails the install with `1603`. The app Connect Intune creates
+    asks for 2 GB free, and you can add the same requirement.
   </Step>
 
   <Step title="Add the refused-token return code (ready-made package)">
     The ready-made package's `install.cmd` does not stop at the installer. After
     `msiexec` returns `0` it waits up to 120 seconds for the agent to say
     whether it enrolled. If the platform refused the token because it is
-    expired, revoked or unknown, `install.cmd` exits with `7001`. Add this
-    return code in Intune:
+    expired, revoked or unknown, `install.cmd` exits with `7001`, in about 40
+    seconds. Add this return code in Intune:
 
     | Return code | Type | Meaning |
     | ----------- | ---- | ------- |
@@ -299,9 +320,9 @@ changes the version, set the machine environment variable
 `BLINDSIGHT_AUTO_UPDATE=0` before the install. The service reads it only
 after a reboot.
 
-An upgrade restarts the service, and during the restart the device is
-not inspected for roughly 40 to 55 seconds, with the posture reading
-`bypassed` until it restores. Schedule updates accordingly.
+An upgrade restarts the protection for a short while. Prompts sent in that time
+reach AI sites uninspected. Read [Upgrades](/endpoint/install#upgrades) for how
+long and how to plan around it.
 
 ### Tokens
 
@@ -392,10 +413,14 @@ plain cmd files. They run where PowerShell is locked down.
   the scripts with your own certificate.
 - **Constrained language mode.** App Control script enforcement turns it on.
   Scripts that create COM objects fail in it. The kit's scripts use none.
-  Test one device first, because an install under constrained language mode
-  can still fail with `1603` on agent version 1.6.3.
+  Installs of agent version 1.6.4 were checked under constrained language
+  mode, AllSigned, App Control with publisher and path rules, attack surface
+  reduction rules and Controlled Folder Access. On agent version 1.6.3 an
+  install under constrained language mode can still fail with `1603`. Test one
+  device first.
 - **App Control (WDAC) and AppLocker.** Allow the Blindsight publisher
-  (`Blindsight Technologies AG`) at the **Publisher** or **FilePublisher** rule
+  (`Blindsight Technologies AG`, issued under `Microsoft ID Verified Code
+  Signing PCA 2021`) at the **Publisher** or **FilePublisher** rule
   level. Never use a leaf certificate rule or a hash rule. The signing
   certificate is replaced every few days and the file hashes change with each
   release, so either one breaks at the next update. The agent also ships files
@@ -412,7 +437,7 @@ plain cmd files. They run where PowerShell is locked down.
   from one Python Software Foundation file does not cover `libffi-8.dll`,
   which is signed under a different authority from the rest, and App Control
   refuses that one file. These are the ten signer and authority pairs on the
-  agent files signed by other vendors, as of agent version 1.6.51:
+  agent files signed by other vendors, as of agent version 1.6.4:
 
   | Signer | Issuing authority | Files |
   | ------ | ----------------- | ----- |
@@ -456,11 +481,50 @@ explicit-proxy fallback cannot inspect either, because the agent's own
 traffic is blocked. After you add the rule the device comes up in about two
 minutes.
 
-**Proxy servers.** On agent version 1.6.3, enrolment, sign-in, updates and the
-uninstall check connect directly. They do not use the machine proxy, a PAC file
-or `HTTPS_PROXY`. Allow direct outbound port 443 to the two hosts above, or
-the device cannot enrol. Browsers and apps that go through your proxy are
-not affected.
+### Proxies
+
+Agent version 1.6.4 follows your proxy. Enrolment, sign-in, updates and prompt
+scans all use the proxy the machine is set to, and they trust the Windows
+certificate store. Static proxy, PAC file and WPAD
+auto-detect all work. Agent version 1.6.3 and earlier connect directly for
+enrolment, sign-in, updates and the uninstall check, so a device on 1.6.3 needs
+direct outbound port 443 to the two hosts above.
+
+| Network | What to know |
+| ------- | ------------ |
+| Static proxy | Works. NTLM and Kerberos proxies work on a domain-joined machine. Proxy credentials are never written to a file. |
+| PAC file | Works. |
+| WPAD | Works, and a WPAD-only machine enrols at install. Before 1.6.4 it waited about ten minutes. |
+| TLS-inspecting proxy | Works when the inspection root sits in the **machine** certificate store. A root in the current user's store is refused on purpose. |
+
+**Inspect traffic through a company proxy.** AI traffic that a device sends
+through your proxy is inspected only when this switch is on. It is on by default
+from this release. Change it at **Endpoint → Configurations → Default policy**,
+under **Visibility**. The change is written to the audit trail.
+
+- **On.** Inspected AI traffic follows the proxy or PAC file the device uses, so
+  a network that allows only its proxy still reaches AI services through
+  Blindsight.
+- **Off.** The agent tries a direct connection first and uses the proxy only when
+  that fails. AI traffic that goes through the proxy is not inspected. The device
+  row reads **degraded** and names the reason, about 20 seconds after the agent
+  finds the proxy when nobody is signed in and about a minute when someone is.
+  No alert or pending action is raised. A WPAD answer of `DIRECT` stays protected.
+- **Workspaces that switched it off themselves keep it off.** One that never chose
+  a value now reads on. The release migration removed a stored off value that no
+  administrator had set.
+
+<Warning>
+  On a WPAD-only network where the proxy is the only way out, the first prompt
+  after each agent start can pass unchecked, because the agent has not yet seen
+  the proxy. Set the fail mode to closed, or give the machines a static proxy or a
+  PAC file.
+</Warning>
+
+Two limits to know. The agent does not repair or report an administrator's edit of
+the hosts file or the machine proxy. And a device whose heartbeat itself needs a
+proxy that asks for credentials the agent does not have shows as **not reporting**,
+not with the reason.
 
 **TLS inspection.** Exempt the Blindsight cloud address and the download host
 from TLS inspection wherever your policy allows. A gateway whose root
@@ -469,51 +533,43 @@ includes the device token, the policy, and the pause, revoke and uninstall
 decisions, and a gateway can change them in transit. Platform-signed decisions
 are planned. They would let the agent refuse a changed answer.
 
-On agent version 1.6.3 the agent trusts only its bundled certificate
-authorities for these two hosts. If your gateway re-signs that traffic,
-enrolment fails with `CERTIFICATE_VERIFY_FAILED`. The next build accepts
-inspector roots that are in the machine certificate store, so inspection will
-then work. That does not remove the reason to exempt the hosts.
+Agent version 1.6.4 accepts inspector roots that are in the machine certificate
+store, so inspection of the agent's own traffic works. On 1.6.3 the agent trusts
+only its bundled certificate authorities for these two hosts, and a gateway that
+re-signs that traffic makes enrolment fail with `CERTIFICATE_VERIFY_FAILED`.
+Accepting an inspector does not remove the reason to exempt the hosts.
 When the agent's own traffic goes through an inspector, the device page says so
 and names the issuer. A device whose AI sites are sent around Blindsight by a
 company proxy, or are re-signed by an issuer nobody trusts, reads as not
 inspected, with the reason and what to do.
+
+An uninstall puts the machine's proxy settings back exactly as they were,
+including a PAC file set by Group Policy.
 
 **A failed enrolment.** A device that cannot enrol can be left with a machine
 proxy setting that points at a local port nothing listens on. Programs such as
 `curl`, `git` and `npm` then fail on that machine. Restarting the Blindsight
 service resets it. Fix the network path first, then rerun the install.
 
-### Connect Intune
+### VPNs, cloud machines and virtual desktops
 
-Connect Intune lets the console read your Intune tenant. It lists the managed
-Windows and Mac devices, matches each to a Blindsight device, and shows which
-ones do not have the agent yet. From there it can also deploy the agent to an
-Intune group.
+**VPN clients.** Whole-device protection runs through the Wintun adapter and does
+not touch the adapters of a VPN client. The agent sets its routes to win over a
+VPN's default route, which was checked with OpenVPN. A VPN that installs a kill switch
+can refuse the agent's traffic, as WireGuard does with `AllowedIPs = 0.0.0.0/0`.
+The agent then stops its network helper after one refused probe, falls back to the
+explicit-proxy engine and the device reads **degraded** with the cause.
 
-1. Open **Endpoint → Configurations → Intune** and select **Connect Intune**.
-2. Sign in with an account from your tenant and approve the read access the
-   console asks for. Your tenant's rules for app consent apply.
-3. Wait for the first sync. It reads the device list every four hours. You can
-   also start one from the console.
+**Cloud machines.** On Amazon EC2, Azure virtual machines, Windows 365 and Azure
+Virtual Desktop, the whole-device lane always leaves the link-local address
+`169.254.169.254` alone. The machine keeps its instance metadata after a network
+reset, which agent version 1.6.3 could cut off until the next reboot.
 
-A device matches strongly by its Entra device ID or its serial number, and by
-host name only when the name is unique on both sides. A device that Intune
-manages and that has no Blindsight match reads **Missing**: it is in Intune and
-not running Blindsight. **Not in Intune** is the other way round, a Blindsight
-device that Intune does not list. Reading changes nothing in your tenant.
-
-After you deploy the agent from Connect Intune to a group, the console shows
-how far the rollout has got: how many devices are targeted, and how many are
-installing, installed, failed in Intune, enrolled and protected. Enrolled and
-Protected count the devices that enrolled with this deployment's token.
-A device that was already enrolled and protected before the deployment, which
-Intune lists and Blindsight already knows, is counted as **Already protected**
-in the heading line ("6 devices targeted, 2 already protected") and reads
-**Already protected** on its row. It is not counted as enrolled by the
-deployment, and it is not left out. A device that was enrolled before but is
-paused, offline or revoked is not counted as already protected. It reads as
-Intune reports it.
+**Virtual desktops and clones.** Two machines cloned without sysprep share one
+identity. They raise one audit record, "Two machines are enrolling as one device",
+even when the host name is the same. Run sysprep first. See
+[Golden images](#golden-images). A sysprep clone pair has not been walked
+end to end.
 
 ### Retiring devices
 
@@ -765,6 +821,9 @@ a SAML‑only IdP.
 <Columns cols={2}>
   <Card title="Installing the agent" icon="download" href="/endpoint/install">
     Single-machine install, what it changes, and how to verify it.
+  </Card>
+  <Card title="Connect Intune" icon="plug" href="/endpoint/connect-intune">
+    Read your tenant, deploy to a pilot group, update and remove.
   </Card>
   <Card title="Uninstalling the agent" icon="trash" href="/endpoint/uninstall">
     Silent removal, the macOS teardown, and retiring the device row.
