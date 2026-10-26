@@ -70,6 +70,36 @@ two-factor, and this very setting. Your own account (password,
 two-factor, email, profile) cannot be changed by anyone signed in
 through a client session, on either side.
 
+## Intune and the Microsoft consent screen
+
+If your MSP rolls the agent out through your Microsoft Intune, your workspace links
+your Microsoft tenant with two Blindsight applications, **Blindsight Endpoint for
+Intune** and **Blindsight Endpoint for Intune (deploy)**. Both are publisher-verified,
+so Microsoft's screen shows a verified publisher.
+
+- **Who approves.** A Global Administrator or Privileged Role Administrator of your
+  tenant. Intune Administrator, Application Administrator and Cloud Application
+  Administrator cannot grant this consent.
+- **What the read application does.** It reads the device list, compliance, the
+  assigned user and whether the Blindsight app is installed. It changes nothing.
+- **What the deploy application does.** It creates one app, **Blindsight Endpoint**,
+  assigns it to the groups chosen, and later updates or removes it. It touches no
+  other app.
+- **Your MSP needs no access of its own to your tenant** for any of this.
+- **Removing it.** Disconnect in Blindsight, then delete the Blindsight application
+  under **Enterprise applications** in your Microsoft tenant.
+
+See [Connect Intune](/endpoint/connect-intune) for the full list.
+
+## What is installed on a managed computer
+
+On each Windows computer the agent adds a service named `BlindsightDLP`, an
+inspection root certificate in the machine certificate store, a small network
+adapter (Wintun) and a tray app. It uses one seat of your workspace. An upgrade
+pauses protection for 2 to 4 minutes, so ask for upgrades outside working hours.
+[Installing the agent](/endpoint/install#what-the-install-actually-changes) lists
+every change.
+
 ## Where to see what they changed
 
 Every time an operator opens your workspace, leaves it, or has a
