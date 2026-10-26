@@ -176,6 +176,10 @@ learns who signs in. A fleet pushed through Intune, GPO or SCCM therefore
 starts with every device `pending`, and `auto` matching cannot apply to
 it. The devices are protected and intercepted while they wait.
 
+Until then, traffic from a standard user's session on Windows is attributed to
+the machine account, not to the person who typed the prompt. The protections apply
+in full. Only the name on the event differs.
+
 To attribute a device's traffic to a person, bind it through the SSO
 device-code flow above, or confirm its owner. A confirmed owner is lost if
 the device is cleanly re-enrolled, so confirm it again after a reinstall.

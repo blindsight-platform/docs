@@ -123,6 +123,12 @@ enforces. A representative sample:
 
 The endpoint permissions live in their own `endpoint.` namespace and are
 listed in [Endpoint permissions](/endpoint/permissions).
+Connecting a Microsoft Intune tenant and deploying through it have their own
+keys, `endpoint.intune.manage` and `endpoint.intune.deploy`. The `admin` and
+`endpoint-admin` roles hold both. See [Connect Intune](/endpoint/connect-intune).
+
+The console shows a role only the menus it can open. **Configurations**,
+**Settings** and **Profile** are in the main sidebar.
 
 <Note>
   `runtime_security.manage` and `runtime_security.policy.manage` were

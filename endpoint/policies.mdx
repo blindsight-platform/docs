@@ -53,6 +53,23 @@ attributed to (see [Apps](/runtime-security/apps)).
   answer while a device enforces another.
 </Note>
 
+### Inspect traffic through a company proxy
+
+**Endpoint → Configurations → Default policy → Visibility → Inspect traffic
+through a company proxy** decides what a device does with AI traffic when the
+machine is set to use a proxy, a PAC file or WPAD.
+
+| Setting | What devices do |
+| ------- | --------------- |
+| **On** (the default) | Inspected AI traffic follows the proxy or PAC file the device uses, so a network that allows only its proxy still reaches AI services through Blindsight. |
+| **Off** | The device tries a direct connection first and uses the proxy only when that fails. AI traffic that goes through the proxy is not inspected, and the device reads **degraded** with the reason. |
+
+A workspace that never chose a value reads on. A value an administrator set is
+kept, whichever way it points. The October 2026 release removed an off value
+that was stored but that nobody had set, so those workspaces now read on. Each
+change is written to the [audit trail](/compliance/audit-trail). See
+[Proxies](/endpoint/fleet-rollout#proxies) for the network cases.
+
 ## AI host rules
 
 The agent only intercepts traffic to hosts on the AI host list. Every

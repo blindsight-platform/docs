@@ -78,6 +78,26 @@ lists in plain words what will stop. The change is recorded in the audit
 trail, one record per changed field. Turning a protection off is recorded
 as high severity.
 
+## What a person sees on their device
+
+- **A blocked request.** A browser that is sent to a blocked AI service gets a
+  block page with a reference. The block page writes no event in the console.
+- **Large uploads are slow.** Inspecting a 50 MB upload takes about two and a half
+  minutes. The upload completes.
+- **An upgrade pauses protection for a few minutes.** For 2 to 4 minutes during
+  an upgrade, prompts are not inspected. See [Upgrades](/endpoint/install#what-an-upgrade-costs).
+- **An uninstall that is refused.** When the workspace requires an uninstall code
+  and none is given, the agent stays in place and keeps protecting. The refusal
+  appears in the console within seconds as a tamper alert.
+- **The tray app on a locked-down machine.** Where AppLocker rules block the
+  agent's DLLs, the tray app does not start for a standard user. The service keeps
+  protecting. The allow rules are on
+  [Fleet rollout](/endpoint/fleet-rollout#locked-down-powershell-and-app-control).
+- **What is on the computer.** A Windows service named `BlindsightDLP`, an
+  inspection root certificate in the machine store, a small network adapter
+  (Wintun) and the tray app. [Installing the agent](/endpoint/install#what-the-install-actually-changes)
+  lists every change.
+
 ## Devices that do not honour a switch yet
 
 A device on an older agent version follows what the platform tells it for
