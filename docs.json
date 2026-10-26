@@ -62,12 +62,14 @@
               "endpoint/install",
               "endpoint/uninstall",
               "endpoint/fleet-rollout",
+              "endpoint/connect-intune",
               "endpoint/identity",
               "endpoint/who-is-named",
               "endpoint/devices",
               "endpoint/protections",
               "endpoint/policies",
               "endpoint/permissions",
+              "endpoint/release-notes",
               {
                 "group": "Shadow AI",
                 "pages": [

@@ -1,0 +1,330 @@
+---
+title: "Connect Intune"
+description: "Let the console read your Microsoft Intune tenant to see which devices run the agent, and optionally deploy, update and remove the agent from the console."
+---
+
+Connect Intune links a Microsoft Intune tenant to your workspace. It does two
+separate things, each behind its own approval in Microsoft:
+
+| Tier | What it does | Who approves it in Microsoft |
+| ---- | ------------ | ---------------------------- |
+| **Read** | Lists the Windows and Mac devices Intune manages, matches each to a Blindsight device, and shows which ones do not run the agent yet. Changes nothing in your tenant. | A Global Administrator or Privileged Role Administrator |
+| **Deploy** | Creates one app in your Intune, assigns it to groups you choose, and later updates it or sets it to uninstall. Needs read first. | A Global Administrator or Privileged Role Administrator |
+
+You find it at **Endpoint → Configurations → Intune**. The page has two tabs,
+**Devices** and **Configuration**. Deploy lives on the **Configuration** tab.
+
+For the same rollout without the connection, see
+[Deploying with Intune](/endpoint/fleet-rollout#deploying-with-intune), which
+covers the `.intunewin` package and the manual app.
+
+## Who can do what
+
+| Permission | Lets the user |
+| ---------- | ------------- |
+| `endpoint.devices.view` | See the Intune page, the device list and the rollout figures. |
+| `endpoint.intune.manage` | Connect and disconnect the tenant, ask for a sync, change how the tenant is read, and build the `.intunewin` package. The package carries an enrollment token, so building it also needs `endpoint.devices.manage`. |
+| `endpoint.intune.deploy` | Approve deploy access, search groups, and deploy, update, retry or remove the app. |
+
+The `admin` and `endpoint-admin` roles hold both Intune permissions. See
+[Endpoint permissions](/endpoint/permissions).
+
+<Note>
+  Connecting and deploying do not ask for a two-factor code in Blindsight.
+  Access is the signed-in session and the permission. Connecting, setting
+  changes, deploys, updates and removals are written to the
+  [audit trail](/compliance/audit-trail).
+</Note>
+
+## The two Microsoft applications
+
+Blindsight reaches your tenant through two Microsoft Entra applications that
+Blindsight owns. Both are multitenant and **publisher-verified**, so Microsoft's
+consent screen shows a verified publisher and no "unverified" warning.
+
+| Application | Graph application permissions |
+| ----------- | ----------------------------- |
+| **Blindsight Endpoint for Intune** (read) | `DeviceManagementManagedDevices.Read.All`, `DeviceManagementApps.Read.All` |
+| **Blindsight Endpoint for Intune (deploy)** | `DeviceManagementApps.ReadWrite.All`, `GroupMember.Read.All` |
+
+- **No client secret exists.** Blindsight proves itself to Microsoft with a
+  certificate. The private key is held in AWS KMS and only the separate runner
+  service can use it. The API never signs.
+- **One tenant per workspace.** Consent is pinned to the tenant that signed in,
+  and a tenant can be linked to one Blindsight workspace at a time. If yours is
+  already linked to another workspace, the page says so and gives a support
+  reference.
+- **The deploy application only ever touches the app it created.** It cannot
+  list, change or delete any other app.
+
+Install status needs `DeviceManagementApps.Read.All`. Without it the device list
+still works and the install column reads **Not read yet**.
+
+### What Blindsight reads
+
+- Device name, operating system and version.
+- Serial number and Entra device ID, to match a device to its Blindsight agent.
+- The user assigned to the device, only where the workspace names its people.
+- When the device last checked in with Intune.
+- Whether the Blindsight app is installed on each device, from Intune's app
+  install status. Blindsight lists your Win32 apps by name and publisher and
+  keeps only its own.
+
+## Connect the tenant
+
+<Steps>
+  <Step title="Open the Intune page">
+    **Endpoint → Configurations → Intune**, then **Connect Intune**. You need
+    `endpoint.intune.manage`.
+  </Step>
+  <Step title="Sign in with an account from your tenant">
+    This proves which tenant you are connecting. Use an account that belongs to
+    the tenant, not a personal Microsoft account.
+  </Step>
+  <Step title="Approve read access in Microsoft">
+    A Global Administrator or Privileged Role Administrator approves the read
+    application once. The page shows **Waiting for a Microsoft administrator to
+    approve** and continues by itself when Microsoft reports back.
+  </Step>
+  <Step title="Wait for the first sync">
+    The page shows the steps as they run: **Permissions verified**, **First
+    sync**, **Matching**, **Install status**, **Ready**.
+  </Step>
+</Steps>
+
+<Warning>
+  **Only two Microsoft roles can approve.** Microsoft lets a Global
+  Administrator or a Privileged Role Administrator grant tenant-wide consent
+  for Microsoft Graph application permissions. An Intune Administrator, an
+  Application Administrator or a Cloud Application Administrator cannot, and
+  Microsoft's screen then asks for an administrator.
+</Warning>
+
+### Approval by email
+
+Approval by email is not available yet. Today the person who connects approves in
+the same session, with an account that holds one of the two roles.
+
+When it is switched on, it will let you send the approval request to a Global
+Administrator or Privileged Role Administrator who does not use Blindsight:
+
+- The approver needs no Blindsight account and no two-factor code in Blindsight.
+- The address must be on your tenant's verified domain or on a domain your
+  workspace already uses. Free mailbox domains do not count.
+- The link works once and expires after 24 hours.
+
+## Read the tenant
+
+### Sync
+
+Blindsight reads the device list every four hours by default. Choose 1, 4, 12 or
+24 hours on the **Configuration** tab, or start a sync from the page. While a
+deployment is running the page reads every 15 minutes.
+
+### Settings under Reading devices
+
+| Setting | Choices | What it does |
+| ------- | ------- | ------------ |
+| **Devices** | Every managed device, or devices matching a filter | The filter is an OData expression, for example `startswith(deviceName,'LT-')`. Microsoft checks it before Blindsight uses it. |
+| **Sync interval** | 1, 4, 12, 24 hours | How often Blindsight reads Intune. |
+| **Device owner** | Primary user, Last signed-in user, Not matched | How a device is linked to a person. Last signed-in user needs one more Microsoft permission and is unavailable until then. |
+| **Removed devices** | Delete after 30 days, Delete right away, Keep until disconnect | What happens to a device Intune no longer lists. Applies at the next complete sync. |
+| **Include personal devices** | Off or on | Off by default: only company-owned devices are expected to run Blindsight. |
+
+### Matching and the figures
+
+A device matches strongly by its Entra device ID or its serial number. It matches
+by host name only when the name is unique on both sides, and the match then reads
+**Weak, by hostname only**.
+
+| Figure | Meaning |
+| ------ | ------- |
+| **Intune devices** | Windows and Mac devices Intune manages. |
+| **Running the agent** | Intune devices with Blindsight protecting them now. |
+| **Missing the agent** | In Intune, not running Blindsight. |
+| **Not in Intune** | Blindsight devices that Intune does not list. |
+
+The **Devices** tab filters by **Running**, **Missing**, **Not reporting**,
+**Removed** and **Personal**, and sorts by device name or last check-in. In a
+workspace that shows only counts, a figure for a group of fewer than five is
+withheld. See [Who is named in the console](/endpoint/who-is-named).
+
+<Note>
+  Reading changes nothing in your tenant. Disconnecting removes access on the
+  Blindsight side. To finish, delete the Blindsight application under
+  **Enterprise applications** in your own Microsoft tenant. The page links
+  there.
+</Note>
+
+## Deploy the agent
+
+Deploying is a second approval, shown only when read access works. It lets
+Blindsight create, assign, update and remove one app in your Intune.
+
+<Steps>
+  <Step title="Approve deploy access">
+    On the **Configuration** tab, under **Deploy with Intune**, select **Approve
+    deploy access**. A Global Administrator or Privileged Role Administrator
+    approves the deploy application in Microsoft. Needs `endpoint.intune.deploy`.
+  </Step>
+  <Step title="Choose a pilot group">
+    Search your security groups by name (two letters or more). The list shows
+    each group's device and user counts. Pick a **device** group: the install
+    needs no one signed in, and shared hosts such as multi-session Azure Virtual
+    Desktop take device assignments only. Start with a small pilot group.
+  </Step>
+  <Step title="Confirm">
+    The dialog names the group and its device count. Confirming creates the app
+    **Blindsight Endpoint** in your Intune and assigns it as **Required**. The
+    agent enrols with a token of its own, named `Intune deploy, <group>` in the
+    token list, where you can revoke it.
+  </Step>
+  <Step title="Watch the rollout">
+    The page follows each step as it runs, then every device in the group.
+  </Step>
+</Steps>
+
+Each device reads one of these words:
+
+| Word | Meaning |
+| ---- | ------- |
+| **Waiting for Intune** | Targeted, Intune has not started. |
+| **Installing** | Intune is running the installer. |
+| **Installed, not enrolled** | The app is on the device and the agent has not enrolled yet. |
+| **Enrolled** | The agent enrolled with this deployment's token. |
+| **Protected** | Enrolled and inspecting. |
+| **Already protected** | The device ran Blindsight before the deployment. It is counted in the heading line (for example "6 devices targeted, 2 already protected") and is not counted as enrolled by the deployment. |
+| **Failed** | Intune reports an error. The row gives the code and its meaning. |
+| **Removed as intended** | Uninstalled by an undeploy. |
+
+### Update
+
+**Update** publishes the current installer as a new content version of the same
+app, refreshes its detection rules and description, and assigns it again. Tick
+**Also issue a new enrollment token** to replace the token. The old one is revoked
+once the update is live.
+
+The agent also updates itself, so Update is not what keeps the fleet current. It
+raises the version the detection rule asks for. A device on an older agent reads
+as not installed and Intune updates it. A device that already updated itself stays
+detected and is left alone.
+
+<Note>
+  An app created before the October 2026 release keeps its old return codes,
+  disk-space floor and information links until you remove it and deploy again.
+  Update refreshes only the detection rules, the description and the content.
+</Note>
+
+### Uninstall or remove
+
+Select **Uninstall or remove**. There are two choices:
+
+- **Uninstall from devices.** Changes the assignment to **Uninstall** for the
+  group. Intune runs `uninstall.cmd` on each device. The app stays in Intune
+  until you remove it. For this assignment the detection rule becomes the
+  registry key alone, so a device on an old agent, or with a half-old install, is
+  uninstalled too.
+- **Remove the app only.** Deletes the app Blindsight created. Devices that
+  already have the agent keep it. The deployment's enrollment token is revoked.
+
+When the workspace [requires an uninstall code](/endpoint/uninstall#uninstall-codes),
+Intune cannot supply one and every device would report the uninstall as failed.
+Authorize the devices first (**Endpoint → Devices**, select them, **Authorize
+removal**), then tick the box in the dialog to confirm you understand.
+
+**Withdraw deploy access** stops Blindsight from deploying, updating or removing
+anything. Reading stays connected. A Microsoft administrator then deletes the
+deploy application from the tenant.
+
+### Assignments you added in Intune are kept
+
+Intune's assign call replaces every assignment of an app, so Blindsight reads the
+current assignments first and sends them all back. On deploy, update and undeploy
+it changes only the groups you chose in Blindsight:
+
+- Other include groups, exclusion groups, all-devices assignments and their own
+  settings go back as they were.
+- Assignment filters are kept when Blindsight reads the assignments through the
+  Microsoft Graph beta endpoint. Where that is not available, a filter you added
+  in Intune is neither seen nor kept. Check the assignment in Intune after the
+  first update if you rely on filters.
+- If Blindsight cannot read the assignments, the step stops with
+  `assignments_unreadable` and sends nothing.
+- If you change the intent of the group Blindsight manages, Blindsight sets it
+  back to **Required**, or to **Uninstall** on an undeploy. An exclusion of the
+  same group Blindsight includes is refused by Intune, and the step fails with
+  Intune's message.
+
+## The app Blindsight creates
+
+| Field | Value |
+| ----- | ----- |
+| Name and publisher | **Blindsight Endpoint**, publisher `Blindsight` |
+| Install command | `install.cmd`, a plain cmd script in the package |
+| Uninstall command | `uninstall.cmd` |
+| Install behavior | **System** |
+| Device restart behavior | Determine behavior based on return codes. The install uses `/norestart`. |
+| Operating system | Windows 10 version 1809 or later |
+| Architecture | x64. The same app installs on Windows 11 on ARM64, which runs x64 programs. It was applicable and installed on a real ARM64 device. |
+| Free disk space | 2 GB (2048 MB). A device with less reads **Not applicable** in Intune. |
+| Information and privacy links | `https://docs.blindsight.io` and `https://blindsight.io/privacy` |
+| Enrollment token | Inside the package, never in the install command |
+
+### Detection
+
+Intune requires every manual detection rule to be met. The app has two:
+
+1. File `C:\Program Files\Blindsight\BlindsightAgent.exe`, **String (version)**,
+   greater than or equal to the version being deployed, not associated with a
+   32-bit app on 64-bit clients.
+2. Registry key
+   `HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Installer\UpgradeCodes\EB2308B1879234F408A2A3011B6815F5`
+   exists, not associated with a 32-bit app.
+
+The version rule means a broken or half-updated install reads as not detected and
+Intune runs the install again, which repairs it. The key rule means files left by a
+broken uninstall do not read as installed. Detection never uses the ProductCode,
+which changes with every version.
+
+### Return codes
+
+| Code | Intune treats it as | What it means |
+| ---- | ------------------- | ------------- |
+| `0` | Success | Installed or removed. |
+| `1707` | Success | Windows Installer reports success. |
+| `3010` | Soft reboot | The install is done and Windows reports a restart as pending. No restart is forced. Some upgrades with files held open return it although the install is complete. |
+| `1641` | Hard reboot | The installer started a restart. The command line uses `/norestart`, so this is rare. |
+| `1618` | Retry | Another installation was running. Intune tries again. |
+| `7001` | Failed | The platform refused the enrollment token (expired, revoked or unknown). `install.cmd` waits up to 120 seconds after the installer returns for the agent to say whether it enrolled, and exits `7001` in about 40 seconds when it was refused. Update with **Also issue a new enrollment token**. |
+
+Any other code is a failure, because Intune treats a code it has no rule for as one.
+The usual one is `1603`: a downgrade, a disk that is full, an uninstall that needs a
+code, or an uninstall attempted in the three minutes a new uninstall mode takes to
+apply. See [Uninstalling the agent](/endpoint/uninstall).
+
+## Before you deploy
+
+On managed machines, prepare these first. Each is covered on
+[Fleet rollout](/endpoint/fleet-rollout):
+
+- [App Control and AppLocker allow rules](/endpoint/fleet-rollout#locked-down-powershell-and-app-control)
+  for the Blindsight signer and its issuing authority.
+- [Device installation restrictions](/endpoint/fleet-rollout#device-installation-restrictions)
+  that allow the Wintun adapter.
+- [Outbound access and proxies](/endpoint/fleet-rollout#firewalls-proxies-and-tls-inspection),
+  including the switch **Inspect traffic through a company proxy** on proxy networks.
+- [Upgrades](/endpoint/install#upgrades) briefly pause protection, so deploy
+  outside working hours.
+
+## Known limits
+
+- The deploy tier installs on Windows only. A Mac enrols when its user signs in
+  and is not deployed from here.
+- Golden images and sysprep clones should not carry an enrolled agent. See
+  [Golden images](/endpoint/fleet-rollout#golden-images).
+- A seat stays used after an uninstall from Intune until the device has been quiet
+  for 30 minutes, or until you revoke it. See
+  [Retiring devices](/endpoint/fleet-rollout#retiring-devices).
+- Deploy options such as exclusion groups, an install deadline and user
+  notifications are not set from the console yet. Set them in Intune. Exclusions
+  and settings you add there are kept.
