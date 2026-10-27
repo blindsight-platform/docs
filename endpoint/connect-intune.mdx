@@ -366,14 +366,52 @@ On managed machines, prepare these first. Each is covered on
 | Devices missing or figures look low | Personal devices are left out by default, or a device filter excludes them. | Turn on **Include personal devices** or mark them corporate in Intune, check the filter, then start a sync. |
 | Deploy access is not offered | Read access is not working yet, or your role lacks `endpoint.intune.deploy`. | Fix read access first, or ask an owner or admin. |
 | Deploy fails with return code `7001` | The enrollment token in the app was refused: expired, revoked or unknown. | Select **Update** with **Also issue a new enrollment token**. |
-| Agent installed but the device reads degraded | A network or policy issue on the device, not Intune. | See [Before you deploy](#before-you-deploy). |
+| Agent installed but the device is not **protected** | A network or policy issue on the device, not Intune. | Read the reason on the device row and find it in [Device states](#device-states). |
+
+### Device states
+
+The **Intune** column on **Endpoint → Devices**:
+
+| State | What it means | What to do |
+| ----- | ------------- | ---------- |
+| **Managed and installed** | Intune reports the Blindsight app installed. | Nothing. |
+| **Pending** | Intune is still installing. | Wait. To speed it up, sync the device from Intune. |
+| **Install failed** | Intune reports an error, with its code. The detail panel gives the meaning. | `7001`: select **Update** with **Also issue a new enrollment token**. `1618`: another install was running; Intune retries by itself. Other codes: check free disk space (2048 MB) and [Before you deploy](#before-you-deploy), then retry from the page. |
+| **Managed** | Intune manages the device but reports nothing for the app. | Check the device is in an assigned group, then wait for the next sync. |
+| **Not in Intune** | Intune lists no device with this Entra device ID or serial number. | Enroll the device in Intune, or start a sync if it enrolled recently. |
+
+The **Protection** column:
+
+| State | What it means | What to do |
+| ----- | ------------- | ---------- |
+| **protected** | Every AI request on the device is inspected. | Nothing. |
+| **degraded** | Some AI traffic is inspected, some is not. The row gives the reason. | Find the reason in the table below. |
+| **bypassed** | AI traffic goes around Blindsight. The row gives the reason. | Find the reason in the table below. |
+| **offline** | No heartbeat for five minutes. | Check the device is on and can reach the Blindsight hosts on port 443. |
+| **tampered** | The service was stopped, disabled or removed, or agent files changed. | Review the tamper event, then reinstall with **Update**. |
+
+### Why a device is not protected
+
+The reason on the device row starts with one of these:
+
+| Reason on the row | What it means | What to do |
+| ----------------- | ------------- | ---------- |
+| Device installation is blocked by policy | An Intune or Group Policy device installation restriction refuses the Wintun network adapter. Browsers and apps that use the system proxy are still inspected; other apps are not. | Allow the device ID `Wintun`. If a Prevent rule also matches it, turn on the layered order setting. See [Device installation restrictions](/endpoint/fleet-rollout#device-installation-restrictions). The agent checks again when the policy changes, or within an hour. |
+| AI sites are sent around Blindsight by a company proxy | A proxy is in the path and **Inspect traffic through a company proxy** is off. | Turn it on at **Endpoint → Configurations → Default policy**. See [Proxies](/endpoint/fleet-rollout#proxies). |
+| A TLS inspector re-signs AI sites and its root is not trusted | A TLS inspection product sits in the path. The row names its issuer. | Put the inspector's root in the machine certificate store, or exempt the AI hosts from inspection. |
+| Traffic into the tunnel is blocked (firewall rule, error 10013) | A firewall rule or a VPN kill switch refuses the agent's traffic. | Allow `BlindsightAgent.exe` in the firewall policy, or exclude it from the kill switch. |
+| Windows will not load the network driver | Microsoft's vulnerable-driver blocklist, on by default in Windows 11, refuses the packet driver. Browsers and system-proxy apps are still inspected. | Keep the blocklist on. Allow the Wintun adapter so the whole-device lane covers the rest. |
+| Network adapter driver needed repair; restart the device | The agent repaired the Wintun adapter. | Restart the device. |
+| Network adapter driver needs repair, another product is using it | Another VPN or product holds the adapter. | Disconnect that product, then restart the device. |
+| Network adapter driver needed repair and the repair did not hold | The repair failed. | Reinstall with **Update**. If it returns, send the device's diagnostics to support. |
+| the whole-device tunnel helper is not running | Only apps that use the proxy settings are inspected until it restarts. | It restarts by itself. If the reason stays, restart the device. |
+| the interceptor is not accepting on 127.0.0.1:47325 | The agent cannot listen on its local port. | Check no other program uses port 47325, then restart the device. |
+| nothing is intercepting on this device | The agent is running but inspecting nothing. | Restart the device. If it stays, reinstall with **Update**. |
+| agent files were modified on this device | Something changed the agent's installed files. | Review the tamper event, then reinstall with **Update**. |
+| Scans are rate limited | The platform limited the device's scans. | Wait. If it continues, contact support. |
 
 ## Known limits
 
-- The deploy tier installs on Windows only. A Mac enrols when its user signs in
-  and is not deployed from here.
-- Golden images and sysprep clones should not carry an enrolled agent. See
-  [Golden images](/endpoint/fleet-rollout#golden-images).
 - A seat stays used after an uninstall from Intune until the device has been quiet
   for 30 minutes, or until you revoke it. See
   [Retiring devices](/endpoint/fleet-rollout#retiring-devices).
