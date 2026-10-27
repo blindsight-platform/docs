@@ -436,8 +436,9 @@ plain cmd files. They run where PowerShell is locked down.
   vendor can sign different files under different authorities. A rule made
   from one Python Software Foundation file does not cover `libffi-8.dll`,
   which is signed under a different authority from the rest, and App Control
-  refuses that one file. These are the ten signer and authority pairs on the
-  agent files signed by other vendors, as of agent version 1.6.4:
+  refuses that one file. The signed agent 1.6.4 installer carries 161 program
+  files. Blindsight Technologies AG signed 74. These are the ten signer and
+  authority pairs on the other 87:
 
   | Signer | Issuing authority | Files |
   | ------ | ----------------- | ----- |
@@ -449,8 +450,17 @@ plain cmd files. They run where PowerShell is locked down.
   | Python Software Foundation | DigiCert Trusted G4 Code Signing RSA4096 SHA384 2021 CA1 | 1 (`libffi-8.dll`) |
   | WireGuard LLC | DigiCert EV Code Signing CA (SHA2) | 2 (`wintun.dll`) |
   | Ars Nova Systems | DigiCert EV Code Signing CA (SHA2) | 1 (`WinDivert32.sys`) |
-  | The WinDivert signer (a name in non-Latin characters) | Sectigo Public Code Signing CA EV R36 | 1 (`WinDivert64.sys`) |
-  | The WinDivert signer (same name) | Sectigo Public Code Signing Root R46 | 1 (`WinDivert64.sys`) |
+  | The WinDivert signer (a name in non-Latin characters) | Sectigo Public Code Signing CA EV R36 | 2 (`WinDivert64.sys`, two copies) |
+  | The WinDivert signer (same name) | Sectigo Public Code Signing Root R46 | The same two files |
+
+  Two rows need a word. For `Microsoft ID Verified Code Signing PCA 2021`, the
+  certificate that signs a file comes from a lower authority of that family
+  (`Microsoft ID Verified CS EOC CA 03` for the Blindsight files, `CS AOC CA 01`
+  or `CS EOC CA 01` for the Python files). Those lower authorities are replaced
+  often. Allow the `PCA 2021` level, which does not change. The two
+  `WinDivert64.sys` files have two authorities in their chain: R36 issued the
+  signer and R46 issued R36. The last two rows are those same two files, and a
+  rule built from a file lists both.
 
   The list can change with a release. To be sure, build the rules from an
   installed agent instead of copying the table: scan
