@@ -353,51 +353,20 @@ On managed machines, prepare these first. Each is covered on
 
 ## Troubleshooting
 
-Each entry is what you see, why, and what to do.
-
-**Approval needed from a Microsoft administrator.** Your account cannot grant
-tenant-wide consent. Nothing is connected. Select **Send the request** or **Copy
-the link** for a Global Administrator or Privileged Role Administrator, or
-select **Try again with another account** and sign in as one.
-
-**This Microsoft tenant is already linked to another Blindsight workspace.** A
-tenant connects to one workspace only. Disconnect it in the other workspace
-first, or contact support if you cannot reach it.
-
-**Microsoft asks you to pick an account twice.** Expected. Microsoft shows its
-account picker again on the approval step. Pick the same account both times.
-
-**Sign-in not finished.** The Microsoft tab was left open or closed. Select
-**Continue in Microsoft** or **Start again**. An unfinished attempt expires by
-itself and connects nothing.
-
-**Sign-in was cancelled. Nothing was connected.** Someone selected Cancel at
-Microsoft. Select **Connect Intune** to start again.
-
-**Someone else is connecting Intune.** Another administrator has an attempt in
-progress. Wait for it, or select **Take over** to replace it with yours.
-
-**The approval link no longer works.** It was already used, it is older than 24
-hours, or the request was cancelled. Send a new request from the Intune page.
-
-**Devices are missing or the figures look low.** Personal devices are left out by
-default. Turn on **Include personal devices**, or mark the devices as corporate
-in Intune. If a filter is set under **Devices**, check that it matches them.
-Then start a sync from the page instead of waiting for the next one.
-
-**The request cannot be sent to that address.** The address is not on your tenant's
-verified domain or on a domain your workspace uses. Use the administrator's
-work address on one of those domains.
-
-**Deploy access is not offered.** Read access must work first, and your role
-needs the `endpoint.intune.deploy` permission. Ask an owner or admin.
-
-**Deploy fails with return code 7001.** The enrollment token in the app was
-refused: expired, revoked or unknown. Select **Update** with **Also issue a new
-enrollment token**.
-
-**The agent installs but the device reads degraded.** Usually a network or policy
-issue on the device, not Intune. See [Before you deploy](#before-you-deploy).
+| What you see | Why | What to do |
+| ------------ | --- | ---------- |
+| **Approval needed from a Microsoft administrator** | Your account cannot grant tenant-wide consent. Nothing is connected. | Select **Send the request** or **Copy the link** for a Global Administrator or Privileged Role Administrator, or **Try again with another account**. |
+| **This Microsoft tenant is already linked to another Blindsight workspace** | A tenant connects to one workspace only. | Disconnect it in the other workspace first, or contact support. |
+| Microsoft asks you to pick an account twice | Microsoft shows its picker again on the approval step. Expected. | Pick the same account both times. |
+| **Sign-in not finished** | The Microsoft tab was left open or closed. | Select **Continue in Microsoft** or **Start again**. An unfinished attempt expires by itself. |
+| **Sign-in was cancelled. Nothing was connected.** | Cancel was selected at Microsoft. | Select **Connect Intune** again. |
+| Someone else is connecting Intune | Another administrator has an attempt in progress. | Wait, or select **Take over**. |
+| The approval link no longer works | It was used, is older than 24 hours, or the request was cancelled. | Send a new request from the Intune page. |
+| The request cannot be sent to that address | The address is not on your tenant's verified domain or a domain your workspace uses. | Use the administrator's work address on one of those domains. |
+| Devices missing or figures look low | Personal devices are left out by default, or a device filter excludes them. | Turn on **Include personal devices** or mark them corporate in Intune, check the filter, then start a sync. |
+| Deploy access is not offered | Read access is not working yet, or your role lacks `endpoint.intune.deploy`. | Fix read access first, or ask an owner or admin. |
+| Deploy fails with return code `7001` | The enrollment token in the app was refused: expired, revoked or unknown. | Select **Update** with **Also issue a new enrollment token**. |
+| Agent installed but the device reads degraded | A network or policy issue on the device, not Intune. | See [Before you deploy](#before-you-deploy). |
 
 ## Known limits
 
