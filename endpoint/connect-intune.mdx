@@ -353,58 +353,65 @@ On managed machines, prepare these first. Each is covered on
 
 ## Troubleshooting
 
-Each entry is what you see, why, and what to do.
+| What you see | Why | What to do |
+| ------------ | --- | ---------- |
+| **Approval needed from a Microsoft administrator** | Your account cannot grant tenant-wide consent. Nothing is connected. | Select **Send the request** or **Copy the link** for a Global Administrator or Privileged Role Administrator, or **Try again with another account**. |
+| **This Microsoft tenant is already linked to another Blindsight workspace** | A tenant connects to one workspace only. | Disconnect it in the other workspace first, or contact support. |
+| Microsoft asks you to pick an account twice | Microsoft shows its picker again on the approval step. Expected. | Pick the same account both times. |
+| **Sign-in not finished** | The Microsoft tab was left open or closed. | Select **Continue in Microsoft** or **Start again**. An unfinished attempt expires by itself. |
+| **Sign-in was cancelled. Nothing was connected.** | Cancel was selected at Microsoft. | Select **Connect Intune** again. |
+| Someone else is connecting Intune | Another administrator has an attempt in progress. | Wait, or select **Take over**. |
+| The approval link no longer works | It was used, is older than 24 hours, or the request was cancelled. | Send a new request from the Intune page. |
+| The request cannot be sent to that address | The address is not on your tenant's verified domain or a domain your workspace uses. | Use the administrator's work address on one of those domains. |
+| Devices missing or figures look low | Personal devices are left out by default, or a device filter excludes them. | Turn on **Include personal devices** or mark them corporate in Intune, check the filter, then start a sync. |
+| Deploy access is not offered | Read access is not working yet, or your role lacks `endpoint.intune.deploy`. | Fix read access first, or ask an owner or admin. |
+| Deploy fails with return code `7001` | The enrollment token in the app was refused: expired, revoked or unknown. | Select **Update** with **Also issue a new enrollment token**. |
+| Agent installed but the device is not **protected** | A network or policy issue on the device, not Intune. | Read the reason on the device row and find it in [Device states](#device-states). |
 
-**Approval needed from a Microsoft administrator.** Your account cannot grant
-tenant-wide consent. Nothing is connected. Select **Send the request** or **Copy
-the link** for a Global Administrator or Privileged Role Administrator, or
-select **Try again with another account** and sign in as one.
+### Device states
 
-**This Microsoft tenant is already linked to another Blindsight workspace.** A
-tenant connects to one workspace only. Disconnect it in the other workspace
-first, or contact support if you cannot reach it.
+The **Intune** column on **Endpoint → Devices**:
 
-**Microsoft asks you to pick an account twice.** Expected. Microsoft shows its
-account picker again on the approval step. Pick the same account both times.
+| State | What it means | What to do |
+| ----- | ------------- | ---------- |
+| **Managed and installed** | Intune reports the Blindsight app installed. | Nothing. |
+| **Pending** | Intune is still installing. | Wait. To speed it up, sync the device from Intune. |
+| **Install failed** | Intune reports an error, with its code. The detail panel gives the meaning. | `7001`: select **Update** with **Also issue a new enrollment token**. `1618`: another install was running; Intune retries by itself. Other codes: check free disk space (2048 MB) and [Before you deploy](#before-you-deploy), then retry from the page. |
+| **Managed** | Intune manages the device but reports nothing for the app. | Check the device is in an assigned group, then wait for the next sync. |
+| **Not in Intune** | Intune lists no device with this Entra device ID or serial number. | Enroll the device in Intune, or start a sync if it enrolled recently. |
 
-**Sign-in not finished.** The Microsoft tab was left open or closed. Select
-**Continue in Microsoft** or **Start again**. An unfinished attempt expires by
-itself and connects nothing.
+The **Protection** column:
 
-**Sign-in was cancelled. Nothing was connected.** Someone selected Cancel at
-Microsoft. Select **Connect Intune** to start again.
+| State | What it means | What to do |
+| ----- | ------------- | ---------- |
+| **protected** | Every AI request on the device is inspected. | Nothing. |
+| **degraded** | Some AI traffic is inspected, some is not. The row gives the reason. | Find the reason in the table below. |
+| **bypassed** | AI traffic goes around Blindsight. The row gives the reason. | Find the reason in the table below. |
+| **offline** | No heartbeat for five minutes. | Check the device is on and can reach the Blindsight hosts on port 443. |
+| **tampered** | The service was stopped, disabled or removed, or agent files changed. | Review the tamper event, then reinstall with **Update**. |
 
-**Someone else is connecting Intune.** Another administrator has an attempt in
-progress. Wait for it, or select **Take over** to replace it with yours.
+### Why a device is not protected
 
-**The approval link no longer works.** It was already used, it is older than 24
-hours, or the request was cancelled. Send a new request from the Intune page.
+The reason on the device row starts with one of these:
 
-**Devices are missing or the figures look low.** Personal devices are left out by
-default. Turn on **Include personal devices**, or mark the devices as corporate
-in Intune. If a filter is set under **Devices**, check that it matches them.
-Then start a sync from the page instead of waiting for the next one.
-
-**The request cannot be sent to that address.** The address is not on your tenant's
-verified domain or on a domain your workspace uses. Use the administrator's
-work address on one of those domains.
-
-**Deploy access is not offered.** Read access must work first, and your role
-needs the `endpoint.intune.deploy` permission. Ask an owner or admin.
-
-**Deploy fails with return code 7001.** The enrollment token in the app was
-refused: expired, revoked or unknown. Select **Update** with **Also issue a new
-enrollment token**.
-
-**The agent installs but the device reads degraded.** Usually a network or policy
-issue on the device, not Intune. See [Before you deploy](#before-you-deploy).
+| Reason on the row | What it means | What to do |
+| ----------------- | ------------- | ---------- |
+| Device installation is blocked by policy | An Intune or Group Policy device installation restriction refuses the Wintun network adapter. Browsers and apps that use the system proxy are still inspected; other apps are not. | Allow the device ID `Wintun`. If a Prevent rule also matches it, turn on the layered order setting. See [Device installation restrictions](/endpoint/fleet-rollout#device-installation-restrictions). The agent checks again when the policy changes, or within an hour. |
+| AI sites are sent around Blindsight by a company proxy | A proxy is in the path and **Inspect traffic through a company proxy** is off. | Turn it on at **Endpoint → Configurations → Default policy**. See [Proxies](/endpoint/fleet-rollout#proxies). |
+| A TLS inspector re-signs AI sites and its root is not trusted | A TLS inspection product sits in the path. The row names its issuer. | Put the inspector's root in the machine certificate store, or exempt the AI hosts from inspection. |
+| Traffic into the tunnel is blocked (firewall rule, error 10013) | A firewall rule or a VPN kill switch refuses the agent's traffic. | Allow `BlindsightAgent.exe` in the firewall policy, or exclude it from the kill switch. |
+| Windows will not load the network driver | Microsoft's vulnerable-driver blocklist, on by default in Windows 11, refuses the packet driver. Browsers and system-proxy apps are still inspected. | Keep the blocklist on. Allow the Wintun adapter so the whole-device lane covers the rest. |
+| Network adapter driver needed repair; restart the device | The agent repaired the Wintun adapter. | Restart the device. |
+| Network adapter driver needs repair, another product is using it | Another VPN or product holds the adapter. | Disconnect that product, then restart the device. |
+| Network adapter driver needed repair and the repair did not hold | The repair failed. | Reinstall with **Update**. If it returns, send the device's diagnostics to support. |
+| the whole-device tunnel helper is not running | Only apps that use the proxy settings are inspected until it restarts. | It restarts by itself. If the reason stays, restart the device. |
+| the interceptor is not accepting on 127.0.0.1:47325 | The agent cannot listen on its local port. | Check no other program uses port 47325, then restart the device. |
+| nothing is intercepting on this device | The agent is running but inspecting nothing. | Restart the device. If it stays, reinstall with **Update**. |
+| agent files were modified on this device | Something changed the agent's installed files. | Review the tamper event, then reinstall with **Update**. |
+| Scans are rate limited | The platform limited the device's scans. | Wait. If it continues, contact support. |
 
 ## Known limits
 
-- The deploy tier installs on Windows only. A Mac enrols when its user signs in
-  and is not deployed from here.
-- Golden images and sysprep clones should not carry an enrolled agent. See
-  [Golden images](/endpoint/fleet-rollout#golden-images).
 - A seat stays used after an uninstall from Intune until the device has been quiet
   for 30 minutes, or until you revoke it. See
   [Retiring devices](/endpoint/fleet-rollout#retiring-devices).
