@@ -72,23 +72,35 @@ still works and the install column reads **Not read yet**.
 
 ## Connect the tenant
 
+The whole connection runs in one browser tab. You go to Microsoft to sign in,
+then to Microsoft's permissions page, and come back to the Intune page, which
+shows the result. Nothing opens in a second window.
+
 <Steps>
   <Step title="Open the Intune page">
     **Endpoint → Configurations → Intune**, then **Connect Intune**. You need
     `endpoint.intune.manage`.
   </Step>
   <Step title="Sign in with an account from your tenant">
-    This proves which tenant you are connecting. Use an account that belongs to
-    the tenant, not a personal Microsoft account.
+    Microsoft's sign-in opens in the same tab. This proves which tenant you are
+    connecting. Use an account that belongs to the tenant, not a personal
+    Microsoft account.
   </Step>
-  <Step title="Approve read access in Microsoft">
+  <Step title="Wait a few seconds">
+    Blindsight shows **Checking your Microsoft sign-in** and then sends you on to
+    Microsoft's permissions page for the tenant you signed in to. You are not
+    asked to sign in again.
+  </Step>
+  <Step title="Approve read access">
     A Global Administrator or Privileged Role Administrator approves the read
-    application once. The page shows **Waiting for a Microsoft administrator to
-    approve** and continues by itself when Microsoft reports back.
+    application once. Blindsight shows **Recording the approval** and returns to
+    the Intune page.
   </Step>
   <Step title="Wait for the first sync">
-    The page shows the steps as they run: **Permissions verified**, **First
-    sync**, **Matching**, **Install status**, **Ready**.
+    The Intune page shows the four stops, **Sign in**, **Approve**, **Read
+    devices** and **Roll out**, and the steps of the first read: **Permissions
+    verified**, **First sync**, **Matching**, **Install status**, **Ready**. You
+    can leave the page. It continues by itself.
   </Step>
 </Steps>
 
@@ -100,13 +112,38 @@ still works and the install column reads **Not read yet**.
   Microsoft's screen then asks for an administrator.
 </Warning>
 
+### If you are not one of the two roles
+
+Sign in with your own account anyway. Blindsight proves the tenant, and
+Microsoft refuses the approval for your account. The page then shows **Approval
+needed from a Microsoft administrator** and says that a Global Administrator or
+Privileged Role Administrator approves it once. Nothing is connected. Select
+**Try again with another account**, or ask an administrator to connect.
+
+### A sign-in that does not finish
+
+- **You left Microsoft's page open or closed the tab.** The Intune page shows
+  **Finish signing in to Microsoft**, and after two minutes **Sign-in not
+  finished**. Select **Continue in Microsoft** or **Start again**. A person
+  without the Intune permission is told that someone who manages Intune can
+  continue it.
+- **You selected Cancel at Microsoft.** The page reads **Sign-in was cancelled.
+  Nothing was connected.** and offers **Connect Intune**.
+- **You approved in a different tenant than you signed in to.** Nothing is
+  connected. Select **Start again**.
+- **The connection took longer than 10 minutes.** Nothing is connected. Select
+  **Start again**.
+- **Another administrator started a connection.** The page says who and when.
+  Select **Take over** to replace their attempt with yours.
+
 ### Approval by email
 
 Approval by email is not available yet. Today the person who connects approves in
-the same session, with an account that holds one of the two roles.
+the same tab, with an account that holds one of the two roles.
 
-When it is switched on, it will let you send the approval request to a Global
-Administrator or Privileged Role Administrator who does not use Blindsight:
+When it is switched on, **Approval needed** will also offer **Send the request**
+and **Copy the link**. They let you pass the approval to a Global Administrator
+or Privileged Role Administrator who does not use Blindsight:
 
 - The approver needs no Blindsight account and no two-factor code in Blindsight.
 - The address must be on your tenant's verified domain or on a domain your
@@ -150,10 +187,11 @@ workspace that shows only counts, a figure for a group of fewer than five is
 withheld. See [Who is named in the console](/endpoint/who-is-named).
 
 <Note>
-  Reading changes nothing in your tenant. Disconnecting removes access on the
-  Blindsight side. To finish, delete the Blindsight application under
-  **Enterprise applications** in your own Microsoft tenant. The page links
-  there.
+  Reading changes nothing in your tenant. **Disconnect** sits at the top of the
+  Intune page, in the status line of the connection, and asks you to confirm. It
+  removes access on the Blindsight side. To finish, delete the Blindsight
+  application under **Enterprise applications** in your own Microsoft tenant. The
+  page links there.
 </Note>
 
 ## Deploy the agent
@@ -164,8 +202,11 @@ Blindsight create, assign, update and remove one app in your Intune.
 <Steps>
   <Step title="Approve deploy access">
     On the **Configuration** tab, under **Deploy with Intune**, select **Approve
-    deploy access**. A Global Administrator or Privileged Role Administrator
-    approves the deploy application in Microsoft. Needs `endpoint.intune.deploy`.
+    deploy access**. Like connecting, it runs in the same tab: Microsoft's sign-in,
+    then its permissions page, then back to the deploy section of the
+    **Configuration** tab. A Global Administrator or Privileged Role Administrator
+    approves the deploy application in Microsoft. If Microsoft does not give
+    approval, the section says so. Needs `endpoint.intune.deploy`.
   </Step>
   <Step title="Choose a pilot group">
     Search your security groups by name (two letters or more). The list shows
@@ -242,12 +283,12 @@ Intune's assign call replaces every assignment of an app, so Blindsight reads th
 current assignments first and sends them all back. On deploy, update and undeploy
 it changes only the groups you chose in Blindsight:
 
-- Other include groups, exclusion groups, all-devices assignments and their own
-  settings go back as they were.
-- Assignment filters are kept when Blindsight reads the assignments through the
-  Microsoft Graph beta endpoint. Where that is not available, a filter you added
-  in Intune is neither seen nor kept. Check the assignment in Intune after the
-  first update if you rely on filters.
+- Groups you added in Intune, exclusion groups, all-devices assignments and their
+  own settings go back as they were.
+- Assignment filters are kept. Blindsight reads the assignments through the
+  Microsoft Graph beta endpoint for this, and that is switched on. If the beta
+  endpoint is ever off, a filter you added in Intune is neither seen nor kept, so
+  check the assignment in Intune after an update if you rely on filters.
 - If Blindsight cannot read the assignments, the step stops with
   `assignments_unreadable` and sends nothing.
 - If you change the intent of the group Blindsight manages, Blindsight sets it

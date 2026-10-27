@@ -4,7 +4,9 @@ description: "What changed in the endpoint agent 1.6.4 and the console in Octobe
 ---
 
 This page covers the Windows agent **1.6.4**, the platform release it ships with,
-and the console. Read **Before you update** first.
+and the console. Agent 1.6.4 is on the `stable` channel, published on 26 October
+2026. A Windows device on 1.6.3 took it from `stable` by itself in a production
+check. Read **Before you update** first.
 
 ## Before you update
 
@@ -87,12 +89,20 @@ and the console. Read **Before you update** first.
 ## Connect Intune
 
 - Connect a client's tenant, read its devices, and see which devices run the agent.
+- Connecting is one trip in one tab: Microsoft sign-in, then permissions, then back
+  on the Intune page with the result. A sign-in that was not finished can be
+  continued or started again.
+- Someone who is not a Global Administrator or Privileged Role Administrator reads
+  **Approval needed from a Microsoft administrator** and can try again with another
+  account.
+- **Disconnect** is at the top of the Intune page.
 - Deploy, update and remove the agent from the console, with live progress by device.
 - The two Microsoft applications are publisher-verified. A Global Administrator or
   Privileged Role Administrator approves. No two-factor code is asked in Blindsight.
 - Approval by email is not available yet.
-- Detection is the agent's file version plus the product registry key. The app asks
-  for 2 GB of free disk. Assignments you add in Intune are kept.
+- The app Blindsight creates detects the agent by its file version and the product
+  registry key, treats `7001` as a failed install, and asks for 2 GB of free disk.
+- Groups, exclusions and filters you add to the app in Intune are kept.
 
 See [Connect Intune](/endpoint/connect-intune).
 
