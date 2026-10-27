@@ -39,6 +39,41 @@ Filter the table by:
 - **Tamper status** (find devices where the agent isn't running clean).
 - **Last‑seen window** (find dormant laptops the agent isn't reaching).
 
+### Why a device reads degraded
+
+A degraded device is protecting, but not everything. The row names the cause and
+what to do. The causes you meet in a fleet rollout:
+
+| Reason on the row | What it means |
+| ----------------- | ------------- |
+| AI sites are sent around Blindsight by a company proxy | A proxy is in the path and the switch **Inspect traffic through a company proxy** is off. Turn it on at **Endpoint → Configurations → Default policy**. See [Proxies](/endpoint/fleet-rollout#proxies). |
+| A TLS inspector re-signs AI sites and its root is not trusted | The row names the issuer. Put the inspector's root in the machine certificate store, or exempt the AI hosts. |
+| Device installation is blocked by policy | A device installation restriction refuses the Wintun adapter. See [Device installation restrictions](/endpoint/fleet-rollout#device-installation-restrictions). |
+| Traffic into the tunnel is blocked (firewall rule, error 10013) | A firewall rule blocks `BlindsightAgent.exe`, or a VPN kill switch refuses the agent's traffic. |
+| Scans are rate limited | The platform limited the device's scans. The row and the console show the reason. |
+
+### Intune state
+
+When an Intune tenant is [connected](/endpoint/connect-intune), the table gains an
+**Intune** column and a filter, and a device's detail panel gains an **Intune**
+group. The column reads one of:
+
+| State | Meaning |
+| ----- | ------- |
+| **Managed and installed** | Intune manages the device and reports the Blindsight app installed. |
+| **Install failed** | Intune reports an error for the install, with its code. |
+| **Pending** | Intune is installing. |
+| **Managed** | Intune manages the device and does not report the app's status. |
+| **Not in Intune** | Intune lists no device with this Entra device ID or serial number. The device may be unmanaged, or Intune has not been read since it enrolled. |
+
+The detail panel adds the device's name in Intune, compliance, last check-in, the
+install state with the meaning of any error code, the primary user, and how sure
+the match is.
+
+Viewers see all of this. Minting an enrollment token and downloading the install
+kit or the `.intunewin` package need `endpoint.devices.manage`, which the
+`endpoint-viewer` role does not hold.
+
 ## Enrollment tokens
 
 The same page houses the workspace's enrollment tokens. Click

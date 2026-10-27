@@ -13,7 +13,7 @@ MDM-driven rollout across a whole company, see
 
 | Platform    | Package                     | How you get it                                              |
 | ----------- | --------------------------- | ------------------------------------------------------------ |
-| **Windows** | `Blindsight-<version>.msi`, x64 | The **Downloads** page in the console, or your MDM.     |
+| **Windows** | `Blindsight-<version>.msi`, x64. It also installs on Windows 11 on ARM64, which runs x64 programs. | The **Downloads** page in the console, or your MDM.     |
 | **macOS**   | `Blindsight Mac.app` in a `.dmg`, one per processor | The **Downloads** page in the console, or your MDM. |
 
 Both platforms are published on the console's Downloads page, with the
@@ -206,7 +206,8 @@ first opened:
 | `SSOLoginBase` | `<CloudBaseURL>/api/auth/sso`          |
 
 A per-user profile is read before the device-wide one. Enrolment still
-happens through the person's sign-in.
+happens through the person's sign-in. The Mac app does not read an enrollment
+token from the profile, so a Mac has no zero-touch enrolment.
 
 ## What the install actually changes
 
@@ -297,12 +298,48 @@ spool all survive. Sign-in and settings survive too.
 | `stable`  | Promoted production builds.                                            |
 | `staging` | Internal and pre-release builds. `beta` is an alias for this.           |
 
+Agent 1.6.4 is the current `stable` release. See [Release notes](/endpoint/release-notes).
+
 <Warning>
   On a managed fleet, set `auto_update = false` (under `[update]` in
   the agent's config, or `BLINDSIGHT_AUTO_UPDATE=0`) and push builds
   through your MDM instead, so version rollout stays on your change
   calendar.
 </Warning>
+
+### What an upgrade costs
+
+An upgrade restarts protection. The whole-device lane is down for **2 to 4
+minutes**, and prompts sent to AI sites in that window are not inspected. Schedule
+upgrades outside working hours, especially when an MDM pushes them to a whole
+group at once.
+
+- **From 1.6.3 to 1.6.4.** The 1.6.4 installer quiets the old agent first: it
+  takes the agent's routes off and stops its network helper before the old
+  version is removed. Upgrades from 1.6.3 were run 37 times with Driver Verifier
+  switched on, with no crash and no half-updated install.
+- **A half-updated install is repaired by a plain install.** If a program held a
+  file open during an upgrade, files can be left from two versions. Running
+  `msiexec /i` again, or letting Intune run the install again because the
+  detection rule reads the machine as not installed, puts it right.
+- **Exit code `3010` on an upgrade is success.** Some upgrades with files held
+  open return it although the install is complete. Windows reports a restart as
+  pending, and nothing is forced.
+
+## Where the agent has been walked
+
+| Walked | Not walked |
+| ------ | ---------- |
+| Windows Server 2022 and 2025, in a fleet of ten with a static proxy, a WPAD proxy, standard users and IPv4-only networks | Windows 11 x64 at fleet scale |
+| Windows 11 on ARM64, through a real Intune tenant | Spanish display language |
+| Standard users and administrators | A second RDP session |
+| Direct, static proxy, PAC, WPAD, NTLM and Kerberos proxy, proxy-only, TLS inspection and VPN networks | NAT64, 24 hours offline, a sysprep clone pair |
+| App Control, AppLocker, constrained language mode, AllSigned, attack surface reduction and Controlled Folder Access | Credential Guard, HVCI and BitLocker |
+
+On macOS, three things were not exercised: the self-update from 1.6.3 to 1.6.4,
+the person's sign-in screen, and per-person attribution. The Mac whole-device lane
+does not yet report AI services it does not know, and a block of a whole host
+leaves no event in the console.
 
 ## Verify the install
 

@@ -88,6 +88,16 @@ open it at all.
 Every change you make inside a client is written to that client's own
 audit trail before it runs.
 
+## Connecting a client's Intune
+
+Each client workspace links its own Microsoft Intune tenant, so a client that runs
+Intune is connected inside that client's workspace. A tenant can be linked to one
+Blindsight workspace at a time. The sign-in that proves the tenant, and the consent
+to Blindsight's read application, are given with an account from the client's own
+tenant by a Global Administrator or Privileged Role Administrator of that tenant.
+Your MSP needs no access of its own to the client's Microsoft tenant for this. See
+[Connect Intune](/endpoint/connect-intune).
+
 ## Activity
 
 **Activity** (Operations → Activity, `/msp/activity`) is your account's

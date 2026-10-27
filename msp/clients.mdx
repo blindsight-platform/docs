@@ -135,6 +135,15 @@ Releasing a client:
 You can later send the workspace a new link request. A client can also
 end the link itself: see [For clients](/msp/for-clients#ending-the-link).
 
+## Rolling out the agent to a client
+
+A client that manages its Windows machines with Intune can be rolled out from the
+console. Follow the order in [Connect Intune](/endpoint/connect-intune): connect
+the client's tenant for reading first, then deploy to a small pilot group, watch
+the live progress, and widen the group once the pilot devices read **Protected**.
+Prepare the client's App Control, device installation and proxy settings first.
+They are listed under [Fleet rollout](/endpoint/fleet-rollout).
+
 ## The Clients table
 
 | Column | Meaning |

@@ -1,0 +1,151 @@
+---
+title: "Release notes"
+description: "What changed in the endpoint agent 1.6.4 and the console in October 2026: install and upgrade, networks, enforcement, discovery, Connect Intune, security, and the known limits."
+---
+
+This page covers the Windows agent **1.6.4**, the platform release it ships with,
+and the console. Agent 1.6.4 is on the `stable` channel, published on 26 October
+2026. A Windows device on 1.6.3 took it from `stable` by itself in a production
+check. Read **Before you update** first.
+
+## Before you update
+
+<Warning>
+  **Replace your alert destination URLs.** Slack, Teams, webhook and Splunk
+  destination URLs created before this release were readable in full in the alerts
+  list, the MSP list and the audit trail. The release masks them everywhere, but a
+  URL that was exposed stays exposed. Create new ones at the provider and edit each
+  destination to use them. See [Alert destinations](/administration/settings#alert-destinations).
+</Warning>
+
+- **Detection by file version needs an update of the Intune app.** Apps built by
+  hand, or created before this release, detect the agent by the file existing or by
+  the ProductCode. Change the rule to the file version of `BlindsightAgent.exe`,
+  greater than or equal to `1.6.4`, or select **Update** in
+  [Connect Intune](/endpoint/connect-intune), which writes the new rules. See
+  [Detection](/endpoint/fleet-rollout#deploying-with-intune).
+- **Inspection through a company proxy is now on by default.** A workspace that
+  never chose a value now reads on. One that switched it off keeps it off. See
+  [Proxies](/endpoint/fleet-rollout#proxies).
+- **An upgrade pauses protection for 2 to 4 minutes.** Schedule it outside working
+  hours. See [Upgrades](/endpoint/install#what-an-upgrade-costs).
+- **Add the 1.6.4 allow rules** if you use App Control or AppLocker, and allow the
+  Wintun adapter if you restrict device installation. See
+  [Fleet rollout](/endpoint/fleet-rollout#locked-down-powershell-and-app-control).
+
+## Install and upgrade
+
+- The package and the kit return the right exit code on a real command prompt. A
+  refused enrollment token now exits `7001` in about 40 seconds. Before, it returned
+  `0` after 120 seconds.
+- Upgrading from 1.6.3 no longer crashes Windows. On Windows Server 2022 two of ten
+  upgrades stopped the machine in the network driver, because the old agent removed
+  its network helper while traffic was flowing. The routes now come off first and the
+  helper stops gently. 37 upgrades under Driver Verifier ran with no crash.
+- A held file no longer leaves a half-updated install. The installer settles the file
+  swap itself, and a plain `msiexec /i` repairs a machine that was left half-updated.
+- A revoked device no longer keeps inspecting after an upgrade, and re-enrollment
+  works after a restart.
+- A failed or full-disk install leaves nothing behind. An install without a network
+  enrolls when the network returns.
+- Installs work under constrained language mode, AllSigned, App Control with
+  publisher and path rules, attack surface reduction rules and Controlled Folder
+  Access.
+- Uninstall puts the machine's proxy settings back exactly, including a PAC file set
+  by Group Policy.
+
+## Networks and proxies
+
+- Enrollment, sign-in, updates and scans follow the company proxy: static, PAC and
+  WPAD. NTLM and Kerberos proxies work on a domain-joined machine. TLS inspection
+  works with a root in the machine store.
+- A WPAD-only network enrolls at install. It used to take about ten minutes.
+- Prompt scans no longer go around the company proxy.
+- A device whose proxy is found but not inspected reads **degraded** with the
+  reason, within about a minute.
+- On cloud machines, Amazon EC2, Azure virtual machines, Windows 365 and Azure
+  Virtual Desktop, a network reset no longer cuts off the metadata address.
+- The reason shown when the firewall blocks the agent now names the program and the
+  hosts to allow.
+
+## Enforcement and tamper
+
+- A service that is disabled or deleted, or an executable that is renamed, raises a
+  tamper alert in 1 to 5 seconds.
+- A deleted inspection root certificate is restored from the protected copy and
+  reported. Repeats fold into one alert.
+- A standard user can no longer stop the network lane by creating a file.
+- An uninstall refused in enforce mode appears in the console within seconds.
+- Two machines that enroll as one device raise one audit record.
+
+## Discovery
+
+- The whole-device lane reports new AI services on Windows. Before, it missed them.
+- Known non-AI hosts are never stored or shown. Unknown hosts stay hidden until there
+  is evidence. Cloud AI services are recognised at once. See
+  [the Shadow AI overview](/endpoint/shadow-ai/overview#what-the-agent-and-the-platform-keep-out-of-the-inventory).
+- Switching a service to inspect and back no longer leaves it lowered.
+
+## Connect Intune
+
+- Connect a client's tenant, read its devices, and see which devices run the agent.
+- Connecting is one trip in one tab: Microsoft sign-in, then permissions, then back
+  on the Intune page with the result. A sign-in that was not finished can be
+  continued or started again.
+- Someone who is not a Global Administrator or Privileged Role Administrator reads
+  **Approval needed from a Microsoft administrator** and can try again with another
+  account.
+- **Disconnect** is at the top of the Intune page.
+- Deploy, update and remove the agent from the console, with live progress by device.
+- The two Microsoft applications are publisher-verified. A Global Administrator or
+  Privileged Role Administrator approves. No two-factor code is asked in Blindsight.
+- Approval by email is not available yet.
+- The app Blindsight creates detects the agent by its file version and the product
+  registry key, treats `7001` as a failed install, and asks for 2 GB of free disk.
+- Groups, exclusions and filters you add to the app in Intune are kept.
+
+See [Connect Intune](/endpoint/connect-intune).
+
+## Security
+
+- Slack, Teams, webhook and Splunk destination URLs are masked everywhere, including
+  old audit entries. Editing a destination keeps the stored URL.
+- Proxy credentials are never written to files. The release checks that every
+  shipped file is signed and timestamped.
+
+## Console
+
+- Text contrast meets AA across the console. Dates use one format. States read as a
+  dot and a word.
+- **Configurations**, **Settings** and **Profile** are in the main sidebar. A menu
+  hides a page the role cannot open.
+- The Intune device table sorts by name and last check-in.
+- A viewer cannot mint an enrollment token or download the install kit.
+
+## Known limits
+
+- **WPAD-only, proxy-only networks.** The first prompt after each agent start can
+  pass unchecked. Use fail closed, or a static proxy or a PAC file.
+- **Upgrades.** Protection is off for 2 to 4 minutes. Some upgrades with files held
+  open exit `3010` although the install is complete.
+- **After a second network block**, the lane can wait up to 30 minutes before it
+  inspects again.
+- **A platform outage.** Fail open sends locally detected personal data unmasked.
+  Fail closed blocks and writes no event rows.
+- **Cloud engine.** About 0.8 percent of normal prompts were blocked in testing.
+- **Seats.** A seat stays used after a coded uninstall until the device has been
+  quiet for 30 minutes, or until you revoke it.
+- **Discovery.** About 3 or 4 ordinary hosts per device per day still appear.
+- **Large uploads.** A 50 MB upload takes about two and a half minutes.
+- **A browser block page** writes no event in the console.
+- **Edits of the hosts file or the machine proxy** by an administrator are neither
+  repaired nor reported.
+- **A device behind a proxy that needs credentials the agent lacks** reads **not
+  reporting**, not with the reason.
+- **macOS.** The Mac whole-device lane does not report AI services that are not in
+  the catalog. A host-level block leaves no console event. The self-update from 1.6.3
+  and the person's sign-in screen were not exercised. A Mac has no zero-touch
+  enrolment, and the managed-preferences enrollment token is not read.
+- **Not run:** Windows 11 x64 at fleet scale, Spanish display language, a second RDP
+  session, a sysprep clone pair, NAT64, 24 hours offline, Credential Guard, HVCI and
+  BitLocker.

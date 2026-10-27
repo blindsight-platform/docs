@@ -155,6 +155,24 @@ Substring matching alone never qualifies. `email.example.com` and
 `domain.example.com` do not become candidates, while
 `my-llm-proxy.example.com` does.
 
+### What the agent and the platform keep out of the inventory
+
+Windows agent 1.6.4 reports the AI services it sees on the whole-device lane, not
+only the ones in the catalog. To keep ordinary traffic out of the inventory:
+
+- **Known non-AI hosts are never stored.** Known infrastructure and telemetry
+  hosts are dropped before the agent reports them and again when the platform
+  receives them, and they are never shown.
+- **Unknown hosts stay hidden until there is evidence.** A host the platform cannot
+  place is held out of the inventory and appears only when there is evidence that
+  it is an AI service.
+- **Cloud AI services are recognised at once.** Azure OpenAI and Azure AI
+  Services, Amazon Bedrock, SageMaker, Comprehend and Translate, Google AI and
+  the Cloudflare AI gateway need no evidence step.
+
+Some ordinary hosts still appear, about 3 or 4 per device per day, for example the
+redirect targets of a vendor's website.
+
 <Note>
   The heuristic is a net, not a verdict. A candidate means "worth a
   look", which is exactly why unknown hosts rank as high risk in the
@@ -273,6 +291,9 @@ desktop apps, and CLI tools on managed laptops.
 
 It does not cover:
 
+- **New AI services on a Mac.** The Mac whole-device lane does not report hosts
+  that are not in the catalog yet, so a Mac discovers only the services the
+  catalog already names.
 - **Unmanaged devices.** Personal phones and contractor laptops
   without the agent are invisible to discovery. Use SSO and
   conditional access there.

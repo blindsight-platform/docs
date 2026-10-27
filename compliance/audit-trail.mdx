@@ -25,8 +25,18 @@ breaks every record after it. The chain head is tracked separately, and
 | **Healing**        | Trigger, toggle set, output target, completion.                                 |
 | **Compliance**     | Framework selection changes, ePHI scope declarations, report generation.        |
 | **Endpoints**      | Device enrollment, tamper events, enrollment-token mints and downloads.         |
-| **Settings**       | Workspace settings, integration credential changes, security policy updates.    |
+| **Settings**       | Workspace settings, integration credential changes, security policy updates, and Connect Intune: connect, disconnect, setting changes, package builds, deploy, update and removal. |
 | **Custom rules**   | Create, edit, archive, enable, disable, per scope.                              |
+
+<Note>
+  Records about alert and MSP integration destinations (Slack, Teams, webhook and
+  Splunk) show the destination URL masked: the host and the last four characters of
+  the path. That holds for entries written before the change too, because the
+  masking happens when a record is read. The integrity export and the audit bundle
+  keep older rows as stored so their hashes still verify, and those rows can hold
+  the full URL. Searching the trail never reads inside a URL. See
+  [Alert destinations](/administration/settings#alert-destinations).
+</Note>
 
 ## Records
 

@@ -44,6 +44,16 @@ The `endpoint.desktop.*` keys belong to the person who owns a device,
 not to whoever runs the fleet. See
 [What people see in the desktop app](#what-people-see-in-the-desktop-app).
 
+## What each role sees in the menus
+
+The console hides a page that a role cannot open, so a viewer does not meet a
+button that answers "forbidden". **Configurations**, **Settings** and
+**Profile** sit in the main sidebar, and **Configurations** expands inside the
+Endpoint menu. A person who reads the fleet but cannot change it sees the
+Intune page and the device list, and does not see **Connect Intune** or **Deploy**
+as actions. Only a holder of `endpoint.devices.manage` can mint an enrollment
+token or download the install kit.
+
 ## Devices have their own keys
 
 Reading the fleet and changing it are separate grants.
@@ -122,6 +132,8 @@ separately if you want them separate.
 | `endpoint.device_owner_trust.configure` | Decide which roles count as the owner of a device they signed in on, without anyone confirming it.           |
 | `endpoint.devices.view`                 | See the devices in the fleet and their timelines.                                                            |
 | `endpoint.devices.manage`               | Enrol, revoke, pause, move, release and remove devices, and download the install bundle.                     |
+| `endpoint.intune.manage`                | Connect and disconnect a Microsoft Intune tenant, ask for a sync, choose what the connection reads, and build the `.intunewin` package. The package carries an enrollment token, so building it also needs `endpoint.devices.manage`. See [Connect Intune](/endpoint/connect-intune). |
+| `endpoint.intune.deploy`                | Approve the separate deploy access, search the tenant's groups, and deploy, update, retry or remove the Blindsight app that Blindsight creates in Intune. This installs software on the group's devices. Revoking it wins over the admin default. |
 | `endpoint.enrollment.reveal`            | Show a full enrollment token again after it was minted, so an MDM or RMM job can use it without minting another. |
 | `endpoint.device_diagnostics.view`      | Read what a device found when it checked its own layers, its timeline, its traced flows and its diagnostic bundle, and download that bundle. |
 | `endpoint.device_diagnostics.act`       | Ask one device to run its self-check, upload a bundle, raise its logging for a bounded window, refresh its policy, restart its interceptor, or apply an update. Each ask names a device and a reason. |
@@ -240,6 +252,10 @@ permissions. See [Team & permissions](/msp/team-and-permissions).
 | `PUT /api/runtime-security/dlp/protections`                 | `endpoint.protections.configure` |
 | `GET /api/runtime-security/agent/devices` and the device reads  | `endpoint.devices.view`   |
 | Enrolment tokens, the install bundle, and every device action  | `endpoint.devices.manage` |
+| The Intune page, its device list and rollout figures        | `endpoint.devices.view`   |
+| Connecting Intune, syncing, and the read settings           | `endpoint.intune.manage`  |
+| The `.intunewin` package                                    | `endpoint.intune.manage` and `endpoint.devices.manage` |
+| Approving deploy access, deploy, update and remove          | `endpoint.intune.deploy`  |
 | `PUT /api/runtime-security/config`                          | `runtime_security.firewall.configure` |
 
 ## Where to next

@@ -81,6 +81,38 @@ workspace**:
 | 2FA               | Enable TOTP per user. When enforced workspace‑wide, users without 2FA cannot sign in.        |
 | IP allowlist      | Restrict console / API access to a list of CIDR ranges.                                       |
 
+## Alert destinations
+
+Alerts are sent to destinations you add at **Endpoint → Configurations → Alerts**:
+a webhook, Slack, Microsoft Teams, Splunk, Sentinel, a mailbox or a syslog
+collector. A rule then decides which events reach which destination.
+
+A Slack, Teams, webhook or Splunk URL is itself the credential, because whoever
+holds it can post to the channel. Blindsight keeps it in full only where the alert
+is sent from, and shows it masked everywhere else: the host and the last four
+characters of the path, for example `hooks.slack.com/...a1b2`. A short path shows
+no tail. This applies in the alerts list, the MSP integrations list, delivery
+errors and the [audit trail](/compliance/audit-trail), old entries included.
+
+- **Editing keeps the stored URL.** The edit form starts empty and shows the masked
+  value as a placeholder. Leave the field empty, or send the masked form, and the
+  stored URL stays. Type a new URL to replace it.
+- **Audit search does not read URLs.** Searching by the entity, the actor or the
+  event type still finds a destination's records. Searching for text inside a URL
+  finds nothing.
+- **Exports keep old rows as stored.** The integrity export and the audit bundle
+  keep rows written before the masking as they were, so their hashes still verify.
+  Those old rows can hold a full URL.
+
+<Warning>
+  **Replace every Slack, Teams, webhook and Splunk URL that was created before this
+  release.** Before the release, Blindsight returned these URLs in full in the
+  alerts list, the MSP list and the audit trail, and wrote them into audit entries,
+  to roles that include **user** and **viewer**. Create a new incoming webhook at
+  the provider, edit the destination to use it, then delete the old one at the
+  provider. A URL created after the release is not exposed this way.
+</Warning>
+
 ## Licensing
 
 Some features are gated behind license flags. The License tab shows

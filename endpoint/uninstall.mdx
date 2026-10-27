@@ -97,20 +97,36 @@ administrator.
 msiexec /x Blindsight-<version>.msi /qn /norestart
 ```
 
-If you no longer have the original MSI, uninstall by product code.
-The product code changes whenever the agent updates itself, so look it
-up from the stable UpgradeCode rather than hardcoding it. A stale code
-fails with `1605`.
+If you no longer have the original MSI, use the kit's `uninstall.cmd`. It
+finds the installed product from the stable UpgradeCode, so it needs no product
+code and no PowerShell. The product code
+changes whenever the agent updates itself, and a stale code fails with `1605`.
 
-```powershell
-$installer = New-Object -ComObject WindowsInstaller.Installer
-$code = $installer.RelatedProducts('{1B8032BE-2978-4F43-802A-3A10B186515F}') |
-        Select-Object -First 1
-Start-Process msiexec.exe -Wait -ArgumentList '/x', $code, '/qn', '/norestart'
+```text
+uninstall.cmd
 ```
 
-Push either form through Intune, GPO, or SCCM the same way you pushed
-the install.
+When the workspace asks for uninstall codes, authorize the device in the
+console first. For a one-off manual run you can pass the code as the first
+argument: `uninstall.cmd <code>`.
+
+Push the `msiexec` command or `uninstall.cmd` through Intune, GPO, or SCCM
+the same way you pushed the install.
+
+From Intune the uninstall command is `uninstall.cmd`, and it must be inside the
+`.intunewin` package. Do not put an uninstall code in the Intune command, because
+Intune stores it in plain sight. Authorize the devices in the console instead.
+The script returns `0` when it removed the agent and when the agent was already
+gone, and `1603` when the workspace asks for a code and none was given, or while a
+new uninstall mode, which takes about three minutes to apply, is still arriving.
+Retry the second case.
+
+<Note>
+  A damaged install takes longer to remove, about two minutes, and can leave the
+  empty `ROOT\WINTUN\0000` device entry behind. It is harmless. Allow the Wintun
+  device in [Device installation restrictions](/endpoint/fleet-rollout#device-installation-restrictions)
+  so a reinstall can use it.
+</Note>
 
 <Note>
   An **upgrade** is not an uninstall, even though the MSI technically
@@ -171,6 +187,27 @@ the supported way to remove the agent.
     that no agent process is left running.
   </Step>
 </Steps>
+
+### From an MDM
+
+An MDM job runs as root with nobody signed in, so it does not know whose files to
+clean. Name the person with `--for-user`:
+
+```bash
+sudo "/Applications/Blindsight Mac.app/Contents/Resources/uninstall" --unattended --for-user <account name>
+```
+
+Without it, the job removes the system parts and leaves the person's
+`~/.blindsight` (the device token, policy and events), `~/.mitmproxy` (the
+inspection CA's private key) and the user login item `dev.blindsight.mac.plist`
+on the Mac. A second run with `--for-user` removes all three. When the workspace
+asks for uninstall codes, pass the code with `--code-file <path>` or
+`--code-stdin`, not on the command line, where every process on the Mac can read
+it. The script exits `0` when it removed the agent, `2` when the code was missing
+or wrong, and `3` when the check could not finish.
+
+macOS keeps a Background Items record for the removed daemon. That is the system's
+own bookkeeping, with no file behind it, and it is not a failed uninstall.
 
 <Warning>
   Dragging the app to the Trash is **not** an uninstall. It leaves the
