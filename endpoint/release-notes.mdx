@@ -1,19 +1,15 @@
 ---
 title: "Release notes"
-description: "What changed in the 2026-10-31 platform release and the endpoint agent 1.7.0: Intune figures, Wintun, licence lifecycle, AI services, custom AI services, the Settings menu, and the earlier 1.6.4 notes."
+description: "What changed in the 2026-10-31 platform release: Intune figures, Wintun, licence lifecycle, AI services, custom AI services, the Settings menu, and the earlier 1.6.4 notes."
 ---
 
-## 2026-10-31 release and agent 1.7.0
+## 2026-10-31 release
 
-This release changes the console and the platform, and ships the Windows and Mac
-agent **1.7.0**. Agent 1.7.0 works on a platform with or without this release, and
-the platform works with every agent from 1.6.1. The new agent behaviours below say
-which agent version they need.
+This release changes the console and the platform. The platform works with every
+agent from 1.6.1. Some features need a newer agent; each one says which version.
 
 ### Before you update
 
-- **Update every Mac.** Agent 1.7.0 contains a security fix for macOS. See
-  the Agent 1.7.0 section below.
 - **Allow the Wintun adapter** if you restrict device installation. Devices that
   are blocked now show one notice in the console. See
   [Device installation restrictions](/endpoint/fleet-rollout#device-installation-restrictions).
@@ -30,8 +26,6 @@ which agent version they need.
   devices in that group with the reason on each row.
 - **Deploy to N devices without Blindsight** reaches only the devices with no agent.
   A silent agent is never called "no agent".
-- The words **Fully protected** and **Not fully protected** replace the earlier
-  **Running the agent** and **Missing the agent**.
 - A figure that could not be read says so, with the date. It is never shown as 0.
 
 ### Wintun policy block and device words
@@ -89,40 +83,6 @@ which agent version they need.
   [The Partly protected alert](/endpoint/devices#the-partly-protected-alert).
 - MSP alerts say "start not known" when only the time the alert opened is known.
   See [Alerts](/msp/portfolio-and-billing#alerts).
-
-### Agent 1.7.0
-
-- **The agent's window and tray use the console's words.** **Protected** says
-  "Every AI request from this machine is checked before it leaves." **Partly
-  protected** says "Some AI requests from this machine are not being checked." and
-  gives the reason. **Not protected** says "AI requests are not being checked." and
-  points to **Protection**, or to your IT team when the person has no such tab.
-  **Starting** says "Protection is starting up. This takes a minute or two."
-  Before, the Windows tray said **Protected** for a device the console called
-  partly protected or not protected.
-- **The first 60 seconds read Not protected.** When the whole-device lane fails
-  for a reason other than a policy block, the agent waits up to 60 seconds before
-  it falls back to the proxy layers. In that window nothing is inspected, so the
-  window reads **Not protected**. It ends when the fallback is applied or the
-  tunnel comes up, whichever comes first. A policy block skips the wait.
-- **The Wintun fallback now covers command-line tools.** When Windows refuses the
-  Wintun adapter by policy, the agent sets the machine `HTTPS_PROXY` variable and
-  the WinHTTP proxy to its local address, as well as the browser settings.
-  Command-line tools that honour HTTPS_PROXY or the WinHTTP proxy, such as curl,
-  pip and git, are inspected when started after the change. Node needs its own
-  proxy setting. The agent takes both settings back
-  when the tunnel comes up, and keeps the certificate trust variables. A device
-  on the browser-only fallback says "Command-line tools are not covered."
-- **Mac security fix.** 1.7.0 fixes a local security issue in the Mac agent. Update every Mac to 1.7.0.
-- **A licence that ended hands the machine back.** Agent 1.7.0 and later. An older
-  agent keeps its settings until it is uninstalled with a code. The agent removes its proxy
-  settings and its root certificate, stops inspecting, and releases the uninstall
-  requirement. See [When a licence ends](/administration/licence-lifecycle#what-happens-to-the-devices).
-- **A platform that stays silent for 14 days** can make the agent step aside. This
-  is off by default.
-- **Custom AI services:** path scope, the reply verdict and per-service
-  pseudonymization and injection settings apply on 1.7.0 and later. An older agent
-  reads every path and follows the workspace settings.
 
 ### Known limits of this release
 
