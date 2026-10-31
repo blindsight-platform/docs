@@ -50,6 +50,30 @@ other two are not something the account can resolve itself.
   drops off the list rather than being recorded as resolved.
 </Note>
 
+### Alerts
+
+**Alerts** lists every alert across your clients in one queue. Acknowledge what
+you are working on and resolve what is done. The alert kinds are:
+
+| Kind | Raised when |
+| ---- | ----------- |
+| **Devices not inspecting** | One or more enrolled devices are not inspecting AI traffic. It clears by itself once every enrolled device inspects again. |
+| **Partly protected** | One or more devices are only partly protected: browser traffic is inspected but the rest of the device is not, usually because the device installation policy blocks the whole-device tunnel. It clears by itself once every device is fully protected again. |
+| **AI services awaiting a decision** | AI services the client's people reached are waiting for a decision. |
+| **Agent out of date** | One or more devices run an agent below the version the update channel publishes. |
+| **Devices silent for days** | One or more enrolled devices have not been heard from for days. |
+
+A device that is partly protected counts under **Partly protected** and not under
+**Devices not inspecting**, so the same device is not raised twice.
+
+The **First seen** column shows when an alert began. Sometimes Blindsight knows
+only when the alert opened, not when the drop began. The cell then reads **Opened**
+and the time, and its tooltip says "When the drop began is not known". The
+alerts summary does the same: "Oldest open:" followed by "opened" and the time,
+then ", start not known". When some alerts have a known start and others do not, it reads **Oldest
+known start**, followed by ", at least one start not known". Blindsight never
+moves an opened time back to a start it finds later.
+
 ### Clients with anything open
 
 A short list of every client with at least one open item, as a

@@ -216,7 +216,7 @@ credentials. Discovery cannot see them, because nothing is decrypted.
     the review queue.
   </Step>
   <Step title="Decided">
-    You **sanction** it (approved tool), **block** it (agents refuse
+    You **approve** it (approved tool), **block** it (agents refuse
     the connection), or **onboard** it as a managed App so its traffic
     can be inspected like any other App.
   </Step>
@@ -231,9 +231,15 @@ credentials. Discovery cannot see them, because nothing is decrypted.
 | ----------- | ---------------- | ---------------------------------------------------------------------------- |
 | `new`       | **Needs review** | Discovered, no decision recorded. This is the shadow AI number.              |
 | `new` + `protected` | **Protected** | Still undecided, but agents are inspecting and pseudonymizing it.        |
-| `sanctioned`| **Sanctioned**   | Approved for use. No longer shadow AI; excluded from the report.             |
+| `sanctioned`| **Approved**     | Approved for use. No longer shadow AI; excluded from the report. Prompts are still inspected whenever inspection is on. |
 | `blocked`   | **Blocked**      | A `block` host rule is pushed to every agent.                                |
 | `promoted`  | **Managed**      | Onboarded as an App, with an `inspect` rule, so it is fully inspected.        |
+
+<Note>
+  **Shadow AI lists unapproved services only.** An approved or managed service
+  leaves this page and is listed under **Endpoint → AI services**. Approving
+  does not turn inspection off. See [AI services](/endpoint/ai-services).
+</Note>
 
 <Note>
   Decision and protection are two independent axes, deliberately kept

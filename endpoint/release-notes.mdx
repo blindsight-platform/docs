@@ -1,7 +1,138 @@
 ---
 title: "Release notes"
-description: "What changed in the endpoint agent 1.6.4 and the console in October 2026: install and upgrade, networks, enforcement, discovery, Connect Intune, security, and the known limits."
+description: "What changed in the 2026-10-31 platform release and the endpoint agent 1.7.0: Intune figures, Wintun, licence lifecycle, AI services, custom AI services, the Settings menu, and the earlier 1.6.4 notes."
 ---
+
+## 2026-10-31 release and agent 1.7.0
+
+This release changes the console and the platform, and ships the Windows and Mac
+agent **1.7.0**. Agent 1.7.0 works on a platform with or without this release, and
+the platform works with every agent from 1.6.1. The new agent behaviours below say
+which agent version they need.
+
+### Before you update
+
+- **Update every Mac.** Agent 1.7.0 contains a security fix for macOS. See
+  the Agent 1.7.0 section below.
+- **Allow the Wintun adapter** if you restrict device installation. Devices that
+  are blocked now show one notice in the console. See
+  [Device installation restrictions](/endpoint/fleet-rollout#device-installation-restrictions).
+- **Expect some counts to move on the day.** The most-used AI services are
+  inspected by default, so the numbers on **Overview** and **Waiting on you** can
+  change with no action from you. See [AI services](/endpoint/ai-services#what-is-inspected-by-default).
+
+### Intune
+
+- The Intune page shows three figures instead of two: **Fully protected**,
+  **Protection reduced** and **No agent or not reporting**. They add up to the
+  devices in scope. See [Matching and the figures](/endpoint/connect-intune#matching-and-the-figures).
+- The page offers **Review N devices with reduced protection**, which opens the
+  devices in that group with the reason on each row.
+- **Deploy to N devices without Blindsight** reaches only the devices with no agent.
+  A silent agent is never called "no agent".
+- The words **Fully protected** and **Not fully protected** replace the earlier
+  **Running the agent** and **Missing the agent**.
+- A figure that could not be read says so, with the date. It is never shown as 0.
+
+### Wintun policy block and device words
+
+- One notice lists the devices where a device installation policy blocks the
+  Wintun adapter, with the exact Intune setting and the hardware ID `Wintun`. See
+  [The Wintun policy block notice](/endpoint/connect-intune#the-wintun-policy-block-notice).
+- A device now reads **Protected**, **Partly protected**, **Not protected** or
+  **Starting**. **Partly protected** and **Not protected** carry a one-line reason,
+  for example **Wintun blocked by policy**. These replace the words `degraded` and
+  `bypassed` in the console.
+- A device reads **Starting** for up to 3 minutes after an enrollment, and on
+  Windows after a restart, reboot or upgrade. Before, a normal restart read as not
+  protected for one to two minutes.
+
+### Licence lifecycle
+
+- A licence that ends now gives 7 days of notice, then 30 days read-only, then the
+  **Your licence has ended** page. Export stays open for 60 days after the end and
+  data is due for deletion after 90 days. See
+  [When a licence ends](/administration/licence-lifecycle).
+- An administrator can get an uninstall code from the licence-ended page.
+- Administrators get an email when each phase begins.
+
+### Settings and Access menus
+
+- **Settings**, **Access management** and **Profile** put their sections in the
+  main sidebar, like **Configurations**. See [Settings](/administration/settings#the-settings-menu).
+- **Requests used** on **Plan and usage** reads **Not reported** when the meter
+  could not be read, instead of 0.
+
+### AI services
+
+- **Endpoint → AI services** has two tabs, **Catalogue** and **Observed**. See
+  [AI services](/endpoint/ai-services).
+- **Shadow AI** lists unapproved services only. Approved and managed services are
+  on **AI services**.
+- **Approving a service keeps it inspected.** Approve no longer ends inspection.
+- Each service has per-service **Pseudonymization** and **Prompt-injection
+  detection** settings: **Inherit**, **On** or **Off**.
+- Microsoft 365 Copilot is decided as one family of hosts.
+
+### Custom AI services
+
+- Add a service by its domain, with the paths to read, the format of its requests,
+  who may use it, and which detectors run. A test prompt proves it works. See
+  [Custom AI services](/endpoint/custom-ai-services).
+- A new permission, `endpoint.ai_services.teach`, controls teaching a format.
+
+### Alerts
+
+- A device that is **Partly protected** raises the **Protection lost on a device**
+  alert at medium severity, with the title **Partly protected**. See
+  [The Partly protected alert](/endpoint/devices#the-partly-protected-alert).
+- MSP alerts say "start not known" when only the time the alert opened is known.
+  See [Alerts](/msp/portfolio-and-billing#alerts).
+
+### Agent 1.7.0
+
+- **The agent's window and tray use the console's words.** **Protected** says
+  "Every AI request from this machine is checked before it leaves." **Partly
+  protected** says "Some AI requests from this machine are not being checked." and
+  gives the reason. **Not protected** says "AI requests are not being checked." and
+  points to **Protection**, or to your IT team when the person has no such tab.
+  **Starting** says "Protection is starting up. This takes a minute or two."
+  Before, the Windows tray said **Protected** for a device the console called
+  partly protected or not protected.
+- **The first 60 seconds read Not protected.** When the whole-device lane fails
+  for a reason other than a policy block, the agent waits up to 60 seconds before
+  it falls back to the proxy layers. In that window nothing is inspected, so the
+  window reads **Not protected**. It ends when the fallback is applied or the
+  tunnel comes up, whichever comes first. A policy block skips the wait.
+- **The Wintun fallback now covers command-line tools.** When Windows refuses the
+  Wintun adapter by policy, the agent sets the machine `HTTPS_PROXY` variable and
+  the WinHTTP proxy to its local address, as well as the browser settings. `curl`,
+  `pip`, `git`, Node and Python are inspected. The agent takes both settings back
+  when the tunnel comes up, and keeps the certificate trust variables. A device
+  on the browser-only fallback says "Command-line tools are not covered."
+- **Mac security fix.** The part of the Mac agent that runs with administrator
+  rights no longer works from a folder that the signed-in person can write to. It
+  uses a protected folder of its own, and it does not follow links in a person's
+  home folder. Update every Mac to 1.7.0.
+- **A licence that ended hands the machine back.** The agent removes its proxy
+  settings and its root certificate, stops inspecting, and releases the uninstall
+  requirement. See [When a licence ends](/administration/licence-lifecycle#what-happens-to-the-devices).
+- **A platform that stays silent for 14 days** can make the agent step aside. This
+  is off by default.
+- **Custom AI services:** path scope, the reply verdict and per-service
+  pseudonymization and injection settings apply on 1.7.0 and later. An older agent
+  reads every path and follows the workspace settings.
+
+### Known limits of this release
+
+- **Policy-level AI service settings** are not in this release. The service-level
+  setting is.
+- **A restart loop.** A service that is killed and restarted again and again can
+  read **Starting** for about 3 minutes of each cycle.
+- **Deletion.** The platform shows the date data is due for deletion and sends the
+  warning. Deletion itself is a separate step that is not part of this release.
+
+## Earlier release: agent 1.6.4 and the October 2026 console
 
 This page covers the Windows agent **1.6.4**, the platform release it ships with,
 and the console. Agent 1.6.4 is on the `stable` channel, published on 26 October

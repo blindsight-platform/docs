@@ -1,0 +1,145 @@
+---
+title: "When a licence ends"
+description: "What happens to a workspace, its people and its devices after a licence ends: the notice, the read-only period, the licence-ended page, exporting your data, and when it is deleted."
+---
+
+A licence that ends does not lock a workspace in one step. The workspace moves
+through four phases, and each one has a clear date. You keep your data readable
+and exportable for most of that time.
+
+<Note>
+  These steps apply once Blindsight has switched the licence lifecycle on for the
+  platform your workspace runs on. Until then, a workspace behaves as before.
+</Note>
+
+## The phases
+
+The dates count from the day the licence ended.
+
+| Phase | When | What works |
+| ----- | ---- | ---------- |
+| **Notice** | The first 7 days. | Everything. A banner says the licence ended and when the workspace becomes read-only. |
+| **Read-only** | The next 30 days. | You can read and export. Changes are refused. Protection on your devices stops. |
+| **Ended** | From day 37. | Sign-in, the licence-ended page and export only. |
+| **Export closes** | Day 60. | Export stops. Sign-in and the licence-ended page still open. |
+| **Deletion** | Day 90, about 3 months. | Your data is due for deletion. |
+
+When a Blindsight administrator revokes or suspends a licence on purpose, the
+notice is 5 days instead of 7. The read-only and later dates move with it, except
+that export always closes 60 days after the end and deletion falls due 90 days
+after it.
+
+Renewing the licence puts the workspace back to normal. Devices that stopped
+protecting come back by themselves.
+
+## The notice
+
+During the notice the whole console works. A banner at the top of the page says:
+
+- **Your licence has expired**, when it ran out on its date. It names that date.
+- **Your licence has ended**, when it was taken away. It says whether the licence
+  was suspended, removed or withdrawn.
+
+The banner also names the date the workspace becomes read-only, and tells you to
+contact your Blindsight representative to renew.
+
+Administrators of the workspace also get an email when each phase begins:
+the notice, the read-only period, the closing of the workspace, and a last
+warning in the 14 days before deletion. Each email goes out once per phase.
+
+## Read-only
+
+The banner reads **This workspace is read-only**. It says:
+
+- Changes are blocked and protection on your devices has stopped.
+- Until when you can read your data.
+- Until when you can export it.
+
+In this phase an API key or app token that tries to change something gets
+`403 LICENSE_READ_ONLY`.
+
+A few changes stay open, because they reduce exposure. You can still:
+
+- delete an API key, an app token or an integration token;
+- remove a person, or end an MSP's access to the workspace;
+- revoke or delete a device and revoke an enrollment token;
+- revoke a SCIM token;
+- get an [uninstall code](/endpoint/uninstall#uninstall-codes) or turn the
+  uninstall requirement off.
+
+## The licence-ended page
+
+From day 37 every page of the console opens the **Your licence has ended** page.
+It is the only page, apart from sign-in and the links people arrive through
+(password reset, invitations, email change and unsubscribe).
+
+The page offers:
+
+- **Export data**, while the export window is open. The page says, for example,
+  "You can export your data until 30 December 2026. To use Blindsight again, renew
+  or contact us." After day 60 it says "The export window has closed. To use
+  Blindsight again, renew or contact us." and the button is gone.
+- **Renew or contact us**.
+- **Get an uninstall code**, for an administrator. See below.
+- **Leave workspace**, for an MSP member working inside a client workspace.
+- **Log out**.
+
+## Export your data
+
+**Export data** downloads the audit trail as a CSV file. It is open for 60 days
+after the licence ended, in the read-only phase and after it. After that date the
+export is refused too.
+
+## What happens to the devices
+
+When the read-only phase begins, the workspace tells each enrolled agent that the
+licence ended. An agent acts only on that exact answer, and only after it has
+seen it twice, at least a minute apart. A network error, a timeout or an outage
+at the platform never counts.
+
+The agent then hands the machine back:
+
+- It removes its proxy settings and the Blindsight root certificate it installed.
+- It stops inspecting AI traffic.
+- It releases the uninstall requirement, so the agent can be removed without a
+  code.
+- It shows the person a notice: "Your organisation's Blindsight licence ended".
+
+A Mac agent is handed back the same way. If the licence is renewed, the agent
+comes back by itself. A Mac makes a new root certificate and waits for its
+approval before it inspects again.
+
+### Uninstall code from the ended page
+
+An older agent may still ask for a code before it lets itself be removed. An
+administrator can issue one from the licence-ended page:
+
+1. Select **Get an uninstall code**.
+2. Copy the code. It works on every device for 72 hours.
+3. Enter it where the agent asks to be removed.
+
+If the code cannot be issued, the page says "The code could not be issued. Try
+again."
+
+## When the platform goes silent
+
+Separately from a licence ending, an agent can step aside when the platform has
+not answered for a long time. After 14 days without any answer, plus awake time
+and failed attempts to reach the platform, the agent hands the machine back
+in the same way. It returns by itself when the platform answers again. This
+removes nothing.
+
+This is off by default in agent 1.7.0. An administrator of the device turns it on
+with the managed configuration value `SilenceRelease`, and changes the number of
+days with `SilenceDays`. On Windows these live under `HKLM\SOFTWARE\Blindsight`.
+On a Mac they are the `dev.blindsight` managed preferences.
+
+## Deletion
+
+The workspace shows the date the data is due for deletion. The platform sends the
+last warning email in the 14 days before it.
+
+## See also
+
+- [Settings and licensing](/administration/settings#licensing)
+- [Uninstalling the agent](/endpoint/uninstall)

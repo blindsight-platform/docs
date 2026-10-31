@@ -11,19 +11,23 @@ API keys sit beside the people on purpose: a key authenticates as the
 person who created it, so a page about who can do what is wrong without
 them.
 
-## The tabs
+## The sections
 
-| Tab                       | What it covers                                                     | Needs                         |
+Access management lists its sections in the main sidebar, with an icon on each
+row, the way **Configurations** does. The page has no tab strip of its own. An
+MSP account that opens Access management keeps its own menu and the strip.
+
+| Section | What it covers | Needs |
 | ------------------------- | -------------------------------------------------------------------- | ----------------------------- |
-| **People**                | The roster, roles per person, invitations.                          | `users.view`                  |
-| **Roles and permissions** | The role to permission matrix, and custom roles.                    | `roles.view`                  |
-| **Keys**                  | Every API key in the workspace.                                     | `settings.security.manage`    |
-| **Resource access**       | Dataset and project sharing.                                        | Admin or owner                |
-| **Explain access**        | Why a given person can or cannot do a given thing.                  | `users.view` + `roles.view`   |
-| **Directory**             | SCIM provisioning, OIDC SSO, and the sign-in policy.                | `directory.view`              |
-| **Activity**              | Access-relevant activity per person.                                | `users.view_activity`         |
+| **People** | The roster, roles per person, invitations. | `users.view` |
+| **Roles and permissions** | The role to permission matrix, and custom roles. | `roles.view` |
+| **Keys** | Every API key in the workspace. | `settings.security.manage` |
+| **Resource access** | Dataset and project sharing. | Admin or owner |
+| **Explain access** | Why a given person can or cannot do a given thing. | `users.view` + `roles.view` |
+| **Directory** | SCIM provisioning, OIDC SSO, and the sign-in policy. | `directory.view` |
+| **Activity** | Access-relevant activity per person. | `users.view_activity` |
 
-A tab you cannot read is not shown. That is deliberate: an entry that
+A section you cannot read is not shown. That is deliberate: an entry that
 leads only to a refusal is worse than no entry.
 
 <Note>
