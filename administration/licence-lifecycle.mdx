@@ -8,8 +8,8 @@ through four phases, and each one has a clear date. You keep your data readable
 and exportable for most of that time.
 
 <Note>
-  These steps apply once Blindsight has switched the licence lifecycle on for the
-  platform your workspace runs on. Until then, a workspace behaves as before.
+  Once Blindsight switches the licence lifecycle on for your platform, these steps
+  apply. Until then, a workspace behaves as before.
 </Note>
 
 ## The phases
@@ -51,7 +51,7 @@ warning in the 14 days before deletion. Each email goes out once per phase.
 
 The banner reads **This workspace is read-only**. It says:
 
-- Changes are blocked and protection on your devices has stopped.
+- Changes are blocked and protection on your devices has stopped. (Agent 1.7.0 and later. An older agent keeps its settings until it is uninstalled with a code.)
 - Until when you can read your data.
 - Until when you can export it.
 
@@ -92,6 +92,8 @@ export is refused too.
 
 ## What happens to the devices
 
+Agent 1.7.0 and later. An older agent keeps its settings until it is uninstalled with a code.
+
 When the read-only phase begins, the workspace tells each enrolled agent that the
 licence ended. An agent acts only on that exact answer, and only after it has
 seen it twice, at least a minute apart. A network error, a timeout or an outage
@@ -111,7 +113,7 @@ approval before it inspects again.
 
 ### Uninstall code from the ended page
 
-An older agent may still ask for a code before it lets itself be removed. An
+Agent 1.7.0 and later. An older agent keeps its settings until it is uninstalled with a code. An older agent may still ask for a code before it lets itself be removed. An
 administrator can issue one from the licence-ended page:
 
 1. Select **Get an uninstall code**.
@@ -129,7 +131,7 @@ and failed attempts to reach the platform, the agent hands the machine back
 in the same way. It returns by itself when the platform answers again. This
 removes nothing.
 
-This is off by default in agent 1.7.0. An administrator of the device turns it on
+Agent 1.7.0 and later. An older agent keeps its settings until it is uninstalled with a code. This is off by default in agent 1.7.0. An administrator of the device turns it on
 with the managed configuration value `SilenceRelease`, and changes the number of
 days with `SilenceDays`. On Windows these live under `HKLM\SOFTWARE\Blindsight`.
 On a Mac they are the `dev.blindsight` managed preferences.

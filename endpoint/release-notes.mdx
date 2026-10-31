@@ -44,12 +44,12 @@ which agent version they need.
   for example **Wintun blocked by policy**. These replace the words `degraded` and
   `bypassed` in the console.
 - A device reads **Starting** for up to 3 minutes after an enrollment, and on
-  Windows after a restart, reboot or upgrade. Before, a normal restart read as not
+  Windows after a restart, reboot or upgrade (agent 1.7.0 and later). Before, a normal restart read as not
   protected for one to two minutes.
 
 ### Licence lifecycle
 
-- A licence that ends now gives 7 days of notice, then 30 days read-only, then the
+- Once Blindsight switches the licence lifecycle on for your platform, a licence that ends gives 7 days of notice, then 30 days read-only, then the
   **Your licence has ended** page. Export stays open for 60 days after the end and
   data is due for deletion after 90 days. See
   [When a licence ends](/administration/licence-lifecycle).
@@ -107,15 +107,15 @@ which agent version they need.
   tunnel comes up, whichever comes first. A policy block skips the wait.
 - **The Wintun fallback now covers command-line tools.** When Windows refuses the
   Wintun adapter by policy, the agent sets the machine `HTTPS_PROXY` variable and
-  the WinHTTP proxy to its local address, as well as the browser settings. `curl`,
-  `pip`, `git`, Node and Python are inspected. The agent takes both settings back
+  the WinHTTP proxy to its local address, as well as the browser settings.
+  Command-line tools that honour HTTPS_PROXY or the WinHTTP proxy, such as curl,
+  pip and git, are inspected when started after the change. Node needs its own
+  proxy setting. The agent takes both settings back
   when the tunnel comes up, and keeps the certificate trust variables. A device
   on the browser-only fallback says "Command-line tools are not covered."
-- **Mac security fix.** The part of the Mac agent that runs with administrator
-  rights no longer works from a folder that the signed-in person can write to. It
-  uses a protected folder of its own, and it does not follow links in a person's
-  home folder. Update every Mac to 1.7.0.
-- **A licence that ended hands the machine back.** The agent removes its proxy
+- **Mac security fix.** 1.7.0 fixes a local security issue in the Mac agent. Update every Mac to 1.7.0.
+- **A licence that ended hands the machine back.** Agent 1.7.0 and later. An older
+  agent keeps its settings until it is uninstalled with a code. The agent removes its proxy
   settings and its root certificate, stops inspecting, and releases the uninstall
   requirement. See [When a licence ends](/administration/licence-lifecycle#what-happens-to-the-devices).
 - **A platform that stays silent for 14 days** can make the agent step aside. This

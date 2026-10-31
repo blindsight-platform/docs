@@ -385,8 +385,7 @@ again when the policy changes, or after an hour.
 
 From agent 1.7.0, a device in this state also points command-line tools at the
 agent. The agent sets the machine's `HTTPS_PROXY` variable and the WinHTTP proxy
-to its local address, so `curl`, `pip`, `git`, Node and Python inspect AI
-traffic too. When the policy lets Wintun in, the whole-device lane takes over and
+to its local address. Command-line tools that honour `HTTPS_PROXY` or the WinHTTP proxy, such as curl, pip and git, are inspected when started after the change. Node needs its own proxy setting. When the policy lets Wintun in, the whole-device lane takes over and
 the agent takes those two settings back. It keeps the certificate trust variables
 (`SSL_CERT_FILE`, `NODE_EXTRA_CA_CERTS` and the like). On an older agent, or when
 those two settings did not take, the device reason ends with "Command-line tools
