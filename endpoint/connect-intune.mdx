@@ -170,13 +170,42 @@ by host name only when the name is unique on both sides, and the match then read
 
 | Figure | Meaning |
 | ------ | ------- |
-| **Intune devices** | Windows and Mac devices Intune manages. |
-| **Running the agent** | Intune devices with Blindsight protecting them now. |
-| **Missing the agent** | In Intune, not running Blindsight. |
-| **Not in Intune** | Blindsight devices that Intune does not list. |
+| **Devices** | Windows and Mac devices Intune manages. |
+| **Matched to people** | Devices Blindsight can link to a person. |
+| **Fully protected** | Blindsight is running with full protection now. |
+| **Protection reduced** | The Blindsight agent is running, but part of its protection is off. The reason is on each device. |
+| **No agent or not reporting** | In Intune, with no Blindsight agent, or an agent that is not reporting. |
 
-The **Devices** tab filters by **Running**, **Missing**, **Not reporting**,
-**Removed** and **Personal**, and sorts by device name or last check-in. In a
+The three lower figures add up to **Devices**. A device is counted once.
+
+The sentence at the top of the page says which group needs you first. For example
+"2 devices in Intune have no agent or are not reporting." If every device is fine
+it reads "Every device Intune lists is fully protected." Under it, a line puts the
+groups in words: "7 of 10 devices are fully protected. 1 has reduced protection
+(device installation is blocked by policy). 2 have no agent or are not reporting
+(1 is offline, 1 of those last reported full protection)."
+
+The group of devices with no agent or not reporting includes agents that are
+offline. An offline agent is never called "no agent". **Deploy to N devices
+without Blindsight** reaches only the devices that have no agent. When the exact
+targets are not known, the button reads **Deploy to N devices with no agent or not
+reporting**.
+
+When there are devices with reduced protection, the page offers **Review N devices
+with reduced protection**. It opens the **Devices** tab on that group, with the
+reason on each row.
+
+A workspace that has not received the three-way split from the platform yet shows
+two figures, **Fully protected** and **Not fully protected**, in place of the three.
+**Not fully protected** is everything that is not fully protected.
+
+A figure that cannot be read reads as withheld, or as unavailable with a date,
+never as 0.
+
+The **Devices** tab filters by **All**, **Fully protected**, **Protection reduced**,
+**No agent or not reporting**, **Not fully protected**, **Not reporting**,
+**Removed** and **Personal**, and sorts by device name or last check-in. The agent
+column reads **Running**, **Protection reduced**, **Not reporting** or **Missing**. In a
 workspace that shows only counts, a figure for a group of fewer than five is
 withheld. See [Who is named in the console](/endpoint/who-is-named).
 
@@ -384,11 +413,31 @@ The **Protection** column:
 
 | State | What it means | What to do |
 | ----- | ------------- | ---------- |
-| **protected** | Every AI request on the device is inspected. | Nothing. |
-| **degraded** | Some AI traffic is inspected, some is not. The row gives the reason. | Find the reason in the table below. |
-| **bypassed** | AI traffic goes around Blindsight. The row gives the reason. | Find the reason in the table below. |
+| **Protected** | Every AI request on the device is inspected. | Nothing. |
+| **Partly protected** | Some AI traffic is inspected, some is not. The row gives a one-line reason. | Find the reason in the table below. |
+| **Not protected** | AI traffic goes around Blindsight. The row gives a one-line reason. | Find the reason in the table below. |
+| **Starting** | The agent just enrolled or restarted and has not reported yet. | Wait a few minutes. |
 | **offline** | No heartbeat for five minutes. | Check the device is on and can reach the Blindsight hosts on port 443. |
 | **tampered** | The service was stopped, disabled or removed, or agent files changed. | Review the tamper event, then reinstall with **Update**. |
+
+The words **Partly protected** and **Not protected** replace **degraded** and
+**bypassed**. They are the same words the agent's own window shows.
+
+The one-line reason on the row is short. The full sentence is in the row's
+detail, in its tooltip and in the notices on the page. The reasons that have a
+line of their own:
+
+| Line on the row | Full reason |
+| --------------- | ----------- |
+| **Wintun blocked by policy** | Device installation is blocked by policy, so the network adapter whole-device protection needs cannot be installed. |
+| **Adapter driver needed repair** | The agent tried to repair the network adapter driver. |
+| **Whole-device protection down** | Whole-device protection is down, most likely because of VPN or other network software on the device. |
+| **Company proxy bypasses inspection** | A company proxy setting sends AI sites around Blindsight. |
+| **Unknown certificate issuer** | AI sites are re-signed by an issuer neither the device nor Blindsight trusts. |
+| **Issuer not accepted yet** | AI sites are re-signed by an issuer the device trusts but Blindsight does not accept yet. |
+| **Installed, not inspecting** | The agent reported it is installed but not inspecting, with no reason given. |
+| **Protection impaired** | The agent reported impaired protection, with no reason given. |
+| **Report out of date** | The agent claims protected, but the claim is older than the reachability window. |
 
 ### Why a device is not protected
 
@@ -396,7 +445,7 @@ The reason on the device row starts with one of these:
 
 | Reason on the row | What it means | What to do |
 | ----------------- | ------------- | ---------- |
-| Device installation is blocked by policy | An Intune or Group Policy device installation restriction refuses the Wintun network adapter. Browsers and apps that use the system proxy are still inspected; other apps are not. | Allow the device ID `Wintun`. If a Prevent rule also matches it, turn on the layered order setting. See [Device installation restrictions](/endpoint/fleet-rollout#device-installation-restrictions). The agent checks again when the policy changes, or within an hour. |
+| Device installation is blocked by policy | An Intune or Group Policy device installation restriction refuses the Wintun network adapter. Browsers and apps that use the system proxy are still inspected. From agent 1.7.0, command-line tools that follow `HTTPS_PROXY` or WinHTTP are inspected too; other apps are not. | Allow the device ID `Wintun`. If a Prevent rule also matches it, turn on the layered order setting. See [Device installation restrictions](/endpoint/fleet-rollout#device-installation-restrictions). The agent checks again when the policy changes, or within an hour. |
 | AI sites are sent around Blindsight by a company proxy | A proxy is in the path and **Inspect traffic through a company proxy** is off. | Turn it on at **Endpoint → Configurations → Default policy**. See [Proxies](/endpoint/fleet-rollout#proxies). |
 | A TLS inspector re-signs AI sites and its root is not trusted | A TLS inspection product sits in the path. The row names its issuer. | Put the inspector's root in the machine certificate store, or exempt the AI hosts from inspection. |
 | Traffic into the tunnel is blocked (firewall rule, error 10013) | A firewall rule or a VPN kill switch refuses the agent's traffic. | Allow `BlindsightAgent.exe` in the firewall policy, or exclude it from the kill switch. |
@@ -409,6 +458,31 @@ The reason on the device row starts with one of these:
 | nothing is intercepting on this device | The agent is running but inspecting nothing. | Restart the device. If it stays, reinstall with **Update**. |
 | agent files were modified on this device | Something changed the agent's installed files. | Review the tamper event, then reinstall with **Update**. |
 | Scans are rate limited | The platform limited the device's scans. | Wait. If it continues, contact support. |
+
+### The Wintun policy block notice
+
+When devices are blocked by a device installation policy, the console shows one
+notice for all of them. It appears on the Intune **Devices** tab and on
+**Endpoint → Devices**, and draws nothing when the count is zero or unknown.
+
+The notice has:
+
+- A headline, for example "3 devices: Windows is blocking the Wintun adapter".
+  Devices whose agent is not online right now are counted from their last report
+  and named: "(1 not online right now, as last reported)".
+- What is still inspected: browsers and apps that follow the Windows proxy
+  settings.
+- The exact setting to change. In Intune, open **System → Device Installation →
+  Device Installation Restrictions** and add the hardware ID `Wintun` to **Allow
+  installation of devices that match any of these device IDs**. A copy button
+  copies `Wintun`.
+- The layered order note, for when a **Prevent** rule also matches Wintun.
+- That the devices recover on their own within the hour once the policy allows
+  it. No reinstall is needed.
+- A link to the steps in [Device installation restrictions](/endpoint/fleet-rollout#device-installation-restrictions).
+
+Devices that were revoked are not counted. In a workspace that shows only
+counts, the figure is withheld when a group is smaller than five.
 
 ## Known limits
 

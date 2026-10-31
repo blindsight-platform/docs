@@ -379,9 +379,42 @@ Whole-device protection on Windows runs through a small network adapter, the
 Wintun virtual adapter, which Windows installs the first time the lane starts.
 If your Intune or Group Policy settings restrict which devices Windows may
 install, allow this one. Without it, the agent keeps protecting browsers and
-apps that use the system proxy, and the device row reads **Device
-installation is blocked by policy**. The agent stops retrying and looks
+apps that use the system proxy, and the device row reads **Partly protected**
+with the line **Wintun blocked by policy**. The agent stops retrying and looks
 again when the policy changes, or after an hour.
+
+From agent 1.7.0, a device in this state also points command-line tools at the
+agent. The agent sets the machine's `HTTPS_PROXY` variable and the WinHTTP proxy
+to its local address. Command-line tools that honour `HTTPS_PROXY` or the WinHTTP proxy, such as curl, pip and git, are inspected when started after the change. Node needs its own proxy setting. When the policy lets Wintun in, the whole-device lane takes over and
+the agent takes those two settings back. It keeps the certificate trust variables
+(`SSL_CERT_FILE`, `NODE_EXTRA_CA_CERTS` and the like). On an older agent, or when
+those two settings did not take, the device reason ends with "Command-line tools
+are not covered."
+
+### See which devices are blocked
+
+The console counts the blocked devices and shows one notice for all of them, on
+**Endpoint → Devices** and on the Intune **Devices** tab. It names the Intune
+setting to change and the hardware ID to copy (`Wintun`), and tells you the
+devices recover on their own within the hour. See
+[The Wintun policy block notice](/endpoint/connect-intune#the-wintun-policy-block-notice).
+
+<Steps>
+  <Step title="Allow the hardware ID">
+    In Intune, open **System → Device Installation → Device Installation
+    Restrictions**. Add `Wintun` to **Allow installation of devices that match any
+    of these device IDs**.
+  </Step>
+  <Step title="Check for a Prevent rule">
+    If a Prevent rule also matches Wintun, turn on **Apply layered order of
+    evaluation for Allow and Prevent device installation policies across all
+    device match criteria**. Without it the allow entry has no effect.
+  </Step>
+  <Step title="Wait for the devices">
+    The devices recover within the hour. No reinstall is needed. The notice
+    disappears when the count reaches zero.
+  </Step>
+</Steps>
 
 Allow one of these, narrowest first. Use the device ID `Wintun`; allow the whole Net class only if your
 policy tool cannot target device IDs, because it lets any network adapter install:
@@ -521,7 +554,7 @@ under **Visibility**. The change is written to the audit trail.
   Blindsight.
 - **Off.** The agent tries a direct connection first and uses the proxy only when
   that fails. AI traffic that goes through the proxy is not inspected. The device
-  row reads **degraded** and names the reason, about 20 seconds after the agent
+  row reads **Partly protected** and names the reason, about 20 seconds after the agent
   finds the proxy when nobody is signed in and about a minute when someone is.
   No alert or pending action is raised. A WPAD answer of `DIRECT` stays protected.
 - **Workspaces that switched it off themselves keep it off.** One that never chose
@@ -572,7 +605,7 @@ not touch the adapters of a VPN client. The agent sets its routes to win over a
 VPN's default route, which was checked with OpenVPN. A VPN that installs a kill switch
 can refuse the agent's traffic, as WireGuard does with `AllowedIPs = 0.0.0.0/0`.
 The agent then stops its network helper after one refused probe, falls back to the
-explicit-proxy engine and the device reads **degraded** with the cause.
+explicit-proxy engine and the device reads **Partly protected** with the cause.
 
 **Cloud machines.** On Amazon EC2, Azure virtual machines, Windows 365 and Azure
 Virtual Desktop, the whole-device lane always leaves the link-local address

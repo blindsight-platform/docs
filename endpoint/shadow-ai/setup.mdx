@@ -213,7 +213,9 @@ policy**.
   </Accordion>
 
   <Accordion title="Start inspecting a service you approved">
-    Onboarding a discovered service creates a managed App and links it
+    Approving a service keeps it inspected, and the most-used AI services are
+    inspected by default. See [AI services](/endpoint/ai-services). Onboarding a
+    discovered service creates a managed App and links it
     to the row, but it does not decrypt anything on its own. To
     actually inspect the traffic, add an `inspect` host rule pointing
     at that App. Only then do prompts, verdicts, and redactions start
@@ -230,7 +232,7 @@ policy**.
   A `tunnel` rule makes a host invisible to discovery, not just
   uninspected. That is the point, but it means a silenced host will
   never reappear in the inventory, even if usage explodes. Prefer
-  **sanction** for approved AI tools, which keeps the row and its
+  **approve** for approved AI tools, which keeps the row and its
   history, and reserve `tunnel` for hosts that are not AI at all.
 </Warning>
 

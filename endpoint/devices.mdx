@@ -24,7 +24,7 @@ role holds the first and `endpoint-admin` holds both. See
 | **User**         | Directory user attached to the device, when identity is `bound` or `auto`.                    |
 | **Agent version**| Version of the installed agent (`1.0.29` at the time of writing).                             |
 | **Status**       | `online`, `idle`, `offline`, `tampered`.                                                      |
-| **Protection**   | Whether the device is actually inspecting. `protected`, `degraded` (intercepting, but not everything), or `bypassed`. A paused, revoked, or silent device is never reported as protected. |
+| **Protection**   | Whether the device is actually inspecting. **Protected**, **Partly protected** (intercepting, but not everything), **Not protected**, or **Starting**, with a one-line reason on the last two. In the API these are `protected`, `degraded`, `bypassed` and `starting`. A paused, revoked, or silent device is never reported as protected. |
 | **Last seen**    | Most recent ping from the agent. Agents heartbeat every 60 seconds; a device is counted offline after five minutes of silence. |
 | **Verdict mix**  | Counts of `allow` / `redact` / `block` for the device in the last 7 days.                     |
 | **Tamper events**| Number of high‑severity events in the last 30 days. Click to drill in.                        |
@@ -39,21 +39,41 @@ Filter the table by:
 - **Tamper status** (find devices where the agent isn't running clean).
 - **Last‑seen window** (find dormant laptops the agent isn't reaching).
 
-### Why a device reads degraded
+### Why a device reads Partly protected
 
-A degraded device is protecting, but not everything. The row names the cause and
+A partly protected device is protecting, but not everything. The row names the cause and
 what to do. The causes you meet in a fleet rollout:
 
 | Reason on the row | What it means |
 | ----------------- | ------------- |
 | AI sites are sent around Blindsight by a company proxy | A proxy is in the path and the switch **Inspect traffic through a company proxy** is off. Turn it on at **Endpoint → Configurations → Default policy**. See [Proxies](/endpoint/fleet-rollout#proxies). |
 | A TLS inspector re-signs AI sites and its root is not trusted | The row names the issuer. Put the inspector's root in the machine certificate store, or exempt the AI hosts. |
-| Device installation is blocked by policy | A device installation restriction refuses the Wintun adapter. See [Device installation restrictions](/endpoint/fleet-rollout#device-installation-restrictions). |
+| Device installation is blocked by policy (**Wintun blocked by policy** on the row) | A device installation restriction refuses the Wintun adapter. See [Device installation restrictions](/endpoint/fleet-rollout#device-installation-restrictions). |
 | Traffic into the tunnel is blocked (firewall rule, error 10013) | A firewall rule blocks `BlindsightAgent.exe`, or a VPN kill switch refuses the agent's traffic. |
 | Scans are rate limited | The platform limited the device's scans. The row and the console show the reason. |
 
 Every reason, with what to do about it, is listed in
 [Why a device is not protected](/endpoint/connect-intune#why-a-device-is-not-protected).
+
+### Starting
+
+A device reads **Starting** for up to 3 minutes while the agent comes up: after an
+enrollment, and on Windows after a restart, a reboot or an upgrade (agent 1.7.0
+and later). During this window the agent's own
+beats say it is not inspecting yet, and the console does not call the device **Not
+protected**. After 3 minutes the device shows the state it reports. The agent's
+window and the console use the same word.
+
+### The Partly protected alert
+
+The **Protection lost on a device** alert fires when a device stops inspecting AI
+traffic. A device that is **Partly protected** raises it with the title **Partly
+protected** and the severity **medium**. A device that is **Not protected** raises
+the same alert at **high**. The summary of a partly protected device reads, for
+example, "LT-0142 is only partly protected: browser traffic is inspected, the rest
+of the device is not".
+
+A workspace that shows only counts names the device as "A device".
 
 ### Intune state
 
@@ -277,7 +297,7 @@ snapshot, so it holds even if the person paused from another machine.
 The fleet figures ask the server whether a device is protected rather
 than assuming. A device counts as unprotected when it is paused,
 revoked, silent for more than five minutes, or reporting a `bypassed`
-or `degraded` protection state.
+or `degraded` (**Partly protected**) protection state.
 
 ## Revocation and re-enrollment
 

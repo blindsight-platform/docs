@@ -1,0 +1,182 @@
+---
+title: "Custom AI services"
+description: "Add an AI service the catalogue does not know, such as an internal tool or a new vendor: its host, the paths to read, how its requests are read, how a reply is scanned, and which detectors run."
+---
+
+A custom AI service covers a tool that no public catalogue knows: one your company
+built, or a vendor that is not listed yet. You give Blindsight the domain. Devices
+then read the traffic to it and apply the same inspection as for any other AI
+service.
+
+<Warning>
+  Adding a service means devices in your workspace terminate TLS to that domain,
+  from their next policy check. Check that the domain is the one you mean. Every
+  addition is recorded in the [audit trail](/compliance/audit-trail).
+</Warning>
+
+## Who can do what
+
+| Permission | Lets the user |
+| ---------- | ------------- |
+| `endpoint.ai_services.add` | Add a service, and send a test prompt. Held by `admin` and `endpoint-admin` by default. |
+| `endpoint.ai_services.teach` | Choose a ready-made format or teach one from a sample. Held by `admin` only by default, because the format decides which part of a request is scanned. |
+| `endpoint.ai_services.manage` | Change who may use a service, its detectors and its reply setting, and delete it. |
+| `endpoint.discovery.view` | See custom services and their health. |
+
+## Add a service
+
+On **Endpoint → AI services**, select **Add service**. The dialog has three
+steps.
+
+<Steps>
+  <Step title="Which service to add">
+    Enter the **Domain** people reach the service at, for example
+    `chat.example.com`. A URL is fine: the domain is kept, and a path in it fills the
+    paths field.
+
+    - **Which names it covers**: **This host and its subdomains**, or **This host
+      only**. A bare domain also covers its subdomains, so `example.com` covers
+      `chat.example.com`.
+    - **Only these paths** (optional): one path per line. A star matches any run of
+      characters, for example `/v1/chat/completions*`. Leave it empty to read every
+      path on the host.
+    - **Name** (optional): the vendor or product name. It only changes what the
+      inventory shows.
+  </Step>
+  <Step title="How this service is treated">
+    Choose **Inspect** or **Protect**. Both read the traffic. They differ in what
+    happens when something is found.
+
+    - **Inspect**: personal data is pseudonymized before a prompt leaves the
+      machine and prompt injection is scored. Nobody is blocked from using it.
+    - **Protect**: the same inspection, and a request that trips a rule can be
+      stopped. It is treated like an AI service the company runs.
+
+    Then choose **Who may use it**: **Everyone**, or **Only these groups**. With
+    groups, everyone outside them is blocked from the service, and each group gets
+    the action you choose. Limiting a service to groups needs the manage permission.
+  </Step>
+  <Step title="How its requests are read">
+    Choose **Not sure** to read every request the generic way. This is right for
+    most services. Or choose a ready-made format. A format can be taught later from
+    a sample.
+  </Step>
+</Steps>
+
+The new row opens in the **Catalogue** so the next step is in front of you.
+
+A host that cannot be inspected is refused, with the reason. That covers a name
+that is not a domain, an IP address, a registry suffix, a host Blindsight never
+intercepts and a host the agent bypasses.
+
+### Hosts that match one name only
+
+Two kinds of host cover their own name only, never their siblings, and the dialog
+says **This host only** with the reason:
+
+- A **cloud application host**, such as an API Gateway, a load balancer or a
+  `cloudapp.azure.com` name. Its siblings belong to other people.
+- A name under a domain **shared by many tenants**. A rule for it covers that name
+  only, never the other tenants.
+
+## The service detail
+
+Open the service in the **Catalogue** to see its sections.
+
+### Where
+
+The host, whether subdomains are covered, and the paths read. For example
+`chat.example.com and its subdomains, 2 paths`. Devices read only those paths. An
+empty list reads every path.
+
+### Format
+
+The format says where in a request the prompt sits. It reads **Generic**, the name
+of a ready-made format, or **Taught**.
+
+- **Not sure (generic)**: the platform looks for text that reads like a prompt.
+- **Template**: pick a ready-made format. The places read are listed under
+  **Read from**.
+- **Teach from a sample**: paste a request body from the service (JSON or a form
+  body), then click the strings the person types. The sample stays in your
+  browser. It is not sent, stored or logged. Only the paths you choose are saved.
+
+Teaching needs `endpoint.ai_services.teach`. Without it the section says so.
+
+### Detectors
+
+**Detectors** shows what runs for this service. A detector the workspace has off
+stays off. The section holds:
+
+- The per-service **Pseudonymization** and **Prompt-injection detection**
+  settings, each **Inherit**, **On** or **Off**. See
+  [Per-service settings](/endpoint/ai-services#per-service-settings-inherit-on-off).
+- **Secrets and keys**, and the personal data categories: **Email addresses**,
+  **Phone numbers**, **Person names**, **Postal addresses**, **Card numbers**,
+  **Bank account numbers** and **National and tax identifiers**. These categories
+  can only be switched off for this service.
+- **When something is found**: **Redact** or **Block**. **Block** is offered only
+  under **Protect**.
+- **Scan a streamed reply once it ends**. This is the reply verdict. The reply
+  reaches the person untouched. A verdict is recorded afterwards, and nothing is
+  rewritten.
+
+Personal data is masked on the device before a prompt is sent, so switching a
+category off here does not stop that masking. On-device pseudonymization follows
+**Inspect** or **Protect**.
+
+### Who
+
+**Everyone**, or **Only these groups**. With groups, "Only people in the listed
+group may use this service. Everyone else is blocked."
+
+### About
+
+When it was added and by whom, an owner, a description and a classification:
+**Public**, **Internal**, **Confidential** or **Restricted**.
+
+### Health
+
+Four figures. A figure the platform cannot answer reads as a dash with the reason,
+never as 0.
+
+| Figure | Meaning |
+| ------ | ------- |
+| **Last prompt** | When a prompt was last read, and when a reply was last reported. |
+| **Unread requests, 7 days** | Requests seen but not read. |
+| **Unclaimed endpoint shapes** | Requests to this host that carry no prompt the service reads. If one carries prompts, teach the format from a sample. |
+| **Devices applying paths and replies** | Devices on agent 1.7.0 or later. |
+
+### Prove it
+
+Select **Send a test prompt**. The page shows a sentence with a code in it, and
+asks you to type it into the service from any enrolled device. The code must sit
+inside a sentence: text shorter than 16 characters is never sent for inspection.
+
+The page then checks every 5 seconds for up to 15 minutes and shows:
+
+- **Seen on a device**: which device, and the result, such as **Scanned**,
+  **Blocked**, **Protection paused on that device**, **Seen, not inspected** or
+  **Seen without a host**.
+- **Read from**: the field the prompt was read from. An agent that does not report
+  it says **Not reported by this agent**.
+- **Verdict**: **Allowed**, **Redacted** or **Blocked**.
+- **Reply**: **Reply scanned**, **Reply observed, not scanned** or **No reply seen**.
+
+If nothing arrives in time, the page lists why, most likely reason first. Up to
+three tests can be open at a time.
+
+## Older agents
+
+Path scope, the reply verdict and the per-service settings are applied by agent
+**1.7.0 and later**. An older agent reads every path on the host and follows the
+workspace reply setting, the workspace pseudonymization and the workspace
+injection setting. Detectors in the scan, who may use the service and the test
+prompt work for every agent. The page says how many devices run an older agent and
+never reports an older fleet as applying something it ignores.
+
+## See also
+
+- [AI services](/endpoint/ai-services)
+- [Endpoint permissions](/endpoint/permissions)
+- [Release notes](/endpoint/release-notes)
