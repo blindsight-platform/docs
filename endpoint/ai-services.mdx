@@ -11,7 +11,12 @@ and what each one is governed by. The page has two tabs:
 | **Catalogue** | Every AI service Blindsight recognises, used or not. A decision made here applies from the first request. |
 | **Observed** | The recognised AI services your agents have seen on the fleet, with who reached them and how often. |
 
-A workspace where nothing has been seen opens on **Catalogue**. A workspace with
+A workspace where nothing has been seen opens on **Catalogue**. An empty
+**Observed** tab reads "No AI traffic observed yet. Agents report each service the
+first time it is used." with an **Open the Catalogue** link. On a workspace that
+shows only counts it reads "No AI traffic released yet. A service is listed here
+once a closed week releases its counts."
+ A workspace with
 traffic opens on **Observed**. The count beside each tab is the number of rows in
 it. Search by host or vendor.
 
@@ -69,11 +74,17 @@ Built-in services and the most-used AI services (popular ones) are inspected
 by default, without anyone approving or deciding. Hugging Face is the exception:
 its clients are mostly Python tools that pin certificates, so it is not inspected
 until you choose to. Hosts that cannot be intercepted, such as cloud,
-identity and operating system update hosts, are only counted.
+identity and operating system update hosts, read **counted only** and the row
+says these settings have no effect on them. Less-used services follow later, after
+real-device tests.
 
-Approving a service that was already inspected leaves it inspected. A service
-approved before this release keeps the way it was handled until you approve it
-again.
+Approving a service removes it from Shadow AI and keeps it inspected. Services
+approved before this release are moved to inspected by the release's data
+migration, except those where an admin chose **Stop inspecting**: those keep the
+service settings **Off** for pseudonymization and prompt-injection detection.
+Approving or inspecting such a service later does not turn the detectors back on.
+The row says so: "Approved, but Pseudonymization is Off for this service ...
+Approving does not turn it back on: change it here."
 
 ### Microsoft 365 Copilot
 
@@ -128,23 +139,59 @@ The first setting that is not **Inherit** wins, in this order:
 3. The policy's default.
 4. The workspace setting.
 
-The service's own setting beats the policy default. In this release the service's
-own setting and the workspace setting apply. The two policy levels follow when
-policies carry these settings.
+The service's own setting beats the policy default. Where two policies disagree
+for one person, **On** wins. A policy that blocks a service still blocks it.
+The effective line names the source: **On, workspace setting**, **On, set for this
+service**, **On, policy default**, or **On, set by policy Finance**.
 
 Changing a service's setting needs `endpoint.ai_services.manage`. A person
 without the permission sees the rows read-only: "Changing this needs the manage
-grant."
+grant." Each Catalogue and Observed row opens an inspection panel for the host
+that governs it, with these controls and the line "Policies can change this for
+the people they reach."
 
 The service's setting applies to the host whose rule governs the service. A
 setting on `example.com` covers the subdomains its rule covers. A custom service
 with an exact host covers that host only. A host no rule governs is refused.
 
-<Note>
-  The service-level setting is in this release, on the detail of a
-  [custom AI service](/endpoint/custom-ai-services#detectors). The policy-level
-  setting is not in this release.
-</Note>
+### Settings in a policy
+
+A policy has an **Inspection** section, marked "applies on agent 1.7.0 and
+later". It holds:
+
+- **Default for every service in this policy**: **Pseudonymization** and
+  **Prompt-injection detection**, each **Inherit**, **On** or **Off**. A default
+  applies to inspected services, not to blocked or tunnelled ones.
+- A list of services, each with its own pair of settings for that policy.
+
+A folded section shows a summary such as "Default: prompt-injection detection on.
+2 services are set on their own." The save bar lists each change. Saving
+inspection settings needs `endpoint.protections.configure`, which an admin holds
+by default. Without it the section is read-only, and a save that changes it is
+refused with a message naming the permission. The rest of the policy is not saved
+in that case either.
+
+### Works council workspaces
+
+In a workspace with the works council module on, switching prompt-injection
+detection **On** is refused until the works council notice flow exists, whether
+from a policy or for one service. Admins see:
+
+> This workspace has a works council. Prompt-injection detection cannot be
+> switched on until the notice flow exists; ask support. An On already stored
+> stays, and the policy can be saved with it.
+
+In the policy editor the **On** choice for prompt-injection detection is
+disabled, with the hint "Needs the notice flow in a works-council workspace",
+except where that exact On is already stored. For a service, the change is refused
+with `422 works_council_notice_required`. **Off**, **Inherit**, pseudonymization
+**On** and saving an unchanged value are never refused.
+
+### Older agents
+
+Per-service and per-policy settings take effect only on agent 1.7.0 and later. The
+console says "Applies on agent 1.7.0 and later: N of M devices" and never claims
+coverage on an older agent, which keeps the workspace value.
 
 ## Permissions
 
@@ -152,6 +199,7 @@ with an exact host covers that host only. A host no rule governs is refused.
 | ---------- | ------------- |
 | `endpoint.discovery.view` | See the Catalogue, the Observed list and a service's settings. |
 | `endpoint.ai_services.manage` | Approve, inspect, block and clear, and change a service's settings. |
+| `endpoint.protections.configure` | Change the **Inspection** section of a policy. |
 | `endpoint.ai_services.add` | [Add a custom AI service](/endpoint/custom-ai-services). |
 | `endpoint.ai_services.teach` | Teach a custom service's request format. |
 

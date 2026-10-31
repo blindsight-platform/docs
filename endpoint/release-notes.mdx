@@ -70,8 +70,9 @@ which agent version they need.
 - **Shadow AI** lists unapproved services only. Approved and managed services are
   on **AI services**.
 - **Approving a service keeps it inspected.** Approve no longer ends inspection.
-- Each service has per-service **Pseudonymization** and **Prompt-injection
-  detection** settings: **Inherit**, **On** or **Off**.
+- Each service, and each policy, has **Pseudonymization** and **Prompt-injection
+  detection** settings: **Inherit**, **On** or **Off**. They apply on agent 1.7.0
+  and later. In a works council workspace a new prompt-injection **On** is refused.
 - Microsoft 365 Copilot is decided as one family of hosts.
 
 ### Custom AI services
@@ -125,8 +126,8 @@ which agent version they need.
 
 ### Known limits of this release
 
-- **Policy-level AI service settings** are not in this release. The service-level
-  setting is.
+- **Prompt-injection On** cannot be set in a works council workspace until the
+  notice flow exists.
 - **A restart loop.** A service that is killed and restarted again and again can
   read **Starting** for about 3 minutes of each cycle.
 - **Deletion.** The platform shows the date data is due for deletion and sends the
