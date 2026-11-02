@@ -117,7 +117,7 @@ Three of them are **decisions about the service**, and they move
 
 | Action              | Status becomes | What it does                                                                                                  |
 | ------------------- | -------------- | -------------------------------------------------------------------------------------------------------------- |
-| **Sanction**        | `sanctioned`   | Marks the service as an approved tool. It stays in the inventory with its history, drops out of the shadow count, and is excluded from the report entirely. Also writes an `observe` rule, which clears any earlier `block`, so approving a tool is a real way back from banning it. |
+| **Sanction**        | `sanctioned`   | Marks the service as an approved tool. The console button reads **Approve**. It stays in the inventory with its history, drops out of the shadow count, and is excluded from the report entirely. **Prompts are still inspected** whenever inspection is on: approving writes a `protect` host rule (the console calls it **Inspect**), never an `observe` rule, and never a block. It also clears any earlier `block`, so approving a tool is a real way back from banning it. |
 | **Block**           | `blocked`      | Writes a `block` host rule. Agents refuse the connection on their next policy pull.                             |
 | **Onboard as app**  | `promoted`     | Creates a managed App keyed from the hostname, links the row to it, **and writes an `inspect` rule** so the traffic is fully inspected. |
 
@@ -161,7 +161,7 @@ vetted, without breaking anybody's day while you decide.
 
 | Situation                                                       | Decision                                          |
 | --------------------------------------------------------------- | -------------------------------------------------- |
-| An approved vendor tool that you do not need to inspect          | **Sanction**                                        |
+| An approved vendor tool                                          | **Sanction** (**Approve**). It stays inspected.     |
 | A companion / roleplay service, or an unknown host nobody claims | **Block**                                           |
 | A tool a team genuinely needs, on sensitive work                 | **Onboard as app**                                  |
 | A tool you have not decided on, but do not want unseen either    | **Protect**. Visibility now, decision later.        |

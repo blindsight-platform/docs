@@ -7,32 +7,35 @@ description: "Where to find every workspace‑level knob, the license model, and
 map of what lives where, what each tab does, and the licensing model
 behind feature gates.
 
-## The Settings tabs
+## The Settings menu
 
-Settings is grouped by product, and rows you have no license or no
-permission for are not shown.
+Settings, Access management and Profile each put their sections in the main
+sidebar, the same way **Configurations** does. There is no tab strip in the page.
+Each section is a row with an icon. The selected row is marked, and a thin line
+separates the groups. A row you have no permission or licence for is not shown.
 
-| Group                | Tab                     | Contents                                                                          |
-| -------------------- | ----------------------- | ----------------------------------------------------------------------------------- |
-| **Workspace**        | Workspace / Organization | Workspace name, timezone, and workspace-level identity.                           |
-|                      | Access management       | A signpost to [Access management](/administration/access), not a second copy of it. |
-|                      | Reviewers               | The reviewer roster used by triage workflows.                                       |
-|                      | License                 | Current plan, enabled modules, seat count, expiry. Paste a new license key.          |
-|                      | Billing                 | What you are on and how much of your allowance is left. Separate from License.       |
-|                      | Your MSP                | For admins and owners of an organization workspace: approve an MSP's request, and control its access. See [Your MSP](/msp/for-clients). |
-| **Runtime Security** | Custom rules            | Detection rules for the app firewall. See [Schedules & custom rules](/data-security/automation). |
-| **Endpoint**         | Configurations          | A signpost to Endpoint → Configurations, where the fleet's policy actually lives.          |
-| **Data Security**    | Scanning                | Default engine parameters and scan behaviour.                                        |
-|                      | Healing and access      | Default healing toggles, auto-heal, retention, and dataset access control.           |
-| **Platform**         | Integrations            | See [Integrations & webhooks](/data-security/integrations).                          |
-|                      | Notifications           | Email, in-app, and webhook defaults per event type.                                  |
-|                      | Appearance              | Theme, accent color, density, logo upload.                                           |
+The Settings rows, in order:
+
+| Group | Row | Contents |
+| ----- | --- | -------- |
+| **Workspace** | **Identity** | Workspace name, logo, who owns it, and the actions that cannot be undone. Admins and owners. |
+| | **Report branding** | What the cover of every client report says about the MSP. MSP accounts only. |
+| | **Your MSP** | For admins and owners of an organization workspace: approve an MSP's request, and control its access. See [Your MSP](/msp/for-clients). |
+| | **Compliance** | Where the workspace operates and which compliance modules decide what the console shows. |
+| | **Privacy** | Who is named in the console. See [Who is named in the console](/endpoint/who-is-named). |
+| | **Plan and usage** | Plan, requests used, people, endpoint devices, expiry, enabled modules, and the licence key. |
+| | **Integrations** | See [Integrations & webhooks](/data-security/integrations). |
+| **Product defaults** | **Data Security** | Healing defaults and, for admins, dataset access control. |
+| **You** | **Appearance** | Theme, accent color, density. |
+
+Your own profile is not a Settings row. Open it from the user menu. **Profile** has
+its own sidebar menu: **Account**, **Sign-in and security**, **Client access** (MSP
+members only), **Notifications** and **Your activity**.
 
 <Note>
   People, roles, resource access, API keys, authentication and SSO all
-  moved to [Access management](/administration/access). Settings keeps
-  a signpost row rather than a duplicate form, so there is one place a
-  change can be made.
+  moved to [Access management](/administration/access), so there is one
+  place a change can be made.
 
   The workspace two-factor rule moved with them: it now sits on
   **Access management → Directory**, beside the directory that enforces
@@ -137,11 +140,26 @@ banner on the relevant page, and API calls return
 
 1. Your account manager sends you an updated license key (a short
    alphanumeric string).
-2. **Settings → License → Paste new key**.
+2. **Settings → Plan and usage**, then paste the key in **Licence key** and select
+   **Replace** (**Activate** if no key is set yet).
 3. New modules light up within a minute.
 
-The License tab also shows the current expiry date, the seat count,
+**Plan and usage** also shows the current expiry date, the seat count,
 and a usage summary so you can plan for renewals.
+
+### Requests used
+
+**Requests used** is the count of Runtime Security requests in the current
+period, against the limit, with the date it resets. A prompt and its response are
+two requests. When the platform cannot read the meter, the figure reads **Not
+reported** and the line under it says "the request meter could not be read".
+It never shows 0 for a count that could not be read. **Endpoint devices** reads
+**Not reported** the same way.
+
+### When a licence ends
+
+Once Blindsight switches the licence lifecycle on for your platform, a licence that ends gives you notice, then a read-only workspace, then an export
+window. See [When a licence ends](/administration/licence-lifecycle).
 
 ## Quotas
 

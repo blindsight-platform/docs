@@ -62,7 +62,7 @@ machine is set to use a proxy, a PAC file or WPAD.
 | Setting | What devices do |
 | ------- | --------------- |
 | **On** (the default) | Inspected AI traffic follows the proxy or PAC file the device uses, so a network that allows only its proxy still reaches AI services through Blindsight. |
-| **Off** | The device tries a direct connection first and uses the proxy only when that fails. AI traffic that goes through the proxy is not inspected, and the device reads **degraded** with the reason. |
+| **Off** | The device tries a direct connection first and uses the proxy only when that fails. Keep this on unless Blindsight support asks otherwise; the device shows a reason in the console when it is off. |
 
 A workspace that never chose a value reads on. A value an administrator set is
 kept, whichever way it points. The October 2026 release removed an off value

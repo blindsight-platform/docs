@@ -67,9 +67,10 @@
               "endpoint/who-is-named",
               "endpoint/devices",
               "endpoint/protections",
+              "endpoint/ai-services",
+              "endpoint/custom-ai-services",
               "endpoint/policies",
               "endpoint/permissions",
-              "endpoint/release-notes",
               {
                 "group": "Shadow AI",
                 "pages": [
@@ -106,7 +107,8 @@
             "group": "Administration",
             "pages": [
               "administration/access",
-              "administration/settings"
+              "administration/settings",
+              "administration/licence-lifecycle"
             ]
           }
         ]
@@ -127,6 +129,17 @@
           {
             "group": "Runtime Security API",
             "openapi": "api-reference/openapi-runtime-security.yaml"
+          }
+        ]
+      },
+      {
+        "tab": "Release notes",
+        "groups": [
+          {
+            "group": "Release notes",
+            "pages": [
+              "release-notes"
+            ]
           }
         ]
       }
@@ -216,6 +229,11 @@
     {
       "source": "/data-integrity",
       "destination": "/data-security/overview",
+      "permanent": true
+    },
+    {
+      "source": "/endpoint/release-notes",
+      "destination": "/release-notes",
       "permanent": true
     }
   ],
