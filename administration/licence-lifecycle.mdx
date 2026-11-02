@@ -125,15 +125,13 @@ again."
 
 ## When the platform goes silent
 
-Separately from a licence ending, an agent can step aside when the platform has
-not answered for a long time. After 14 days without any answer, plus awake time
-and failed attempts to reach the platform, the agent hands the machine back
-in the same way. It returns by itself when the platform answers again. This
-removes nothing.
+Separately from a licence ending, an administrator can let an agent step aside
+when it has not reached the platform for a long period. It returns by itself when
+the platform answers again. This removes nothing.
 
-Agent 1.7.0 and later. An older agent keeps its settings until it is uninstalled with a code. This is off by default in agent 1.7.0. An administrator of the device turns it on
-with the managed configuration value `SilenceRelease`, and changes the number of
-days with `SilenceDays`. On Windows these live under `HKLM\SOFTWARE\Blindsight`.
+Agent 1.7.0 and later. This is off by default. An administrator of the device turns
+it on with the managed configuration value `SilenceRelease`, and sets the period
+with `SilenceDays`. On Windows these live under `HKLM\SOFTWARE\Blindsight`.
 On a Mac they are the `dev.blindsight` managed preferences.
 
 ## Deletion

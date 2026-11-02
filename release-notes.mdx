@@ -1,0 +1,132 @@
+---
+title: "Release notes"
+description: "What is new in Blindsight, newest first: the Endpoint agent for Windows and Mac, and the console and platform."
+---
+
+Each entry below is one release, newest first. Agent releases are named
+**Endpoint** with their version. Console and platform releases are named
+**Platform** with their date.
+
+<Update label="Endpoint 2.0.0" description="2 November 2026">
+  Endpoint 2.0.0 for Windows and Mac makes inspection more responsive under heavy
+  AI use, broadens what Shadow AI discovers, and simplifies enrolment on Mac.
+  Devices on 1.6.x update automatically from the `stable` channel.
+
+  - **Responsive under load.** Prompt checks run alongside the connection instead
+    of holding it up, so inspection stays smooth when people use AI heavily.
+  - **AI traffic only on Windows.** The default mode routes only AI traffic
+    through Blindsight. Downloads and everyday traffic are unaffected.
+  - **GitHub Copilot is inspected by default**, for both completions and chat.
+  - **Broader Shadow AI discovery.** More of the AI services your people reach are
+    recognised and shown in the console.
+  - **Mac enrolment from device management.** A Mac can enrol with a deployment
+    token delivered by your device management.
+  - **Clearer messages.** Fewer false alarms, and setup errors are explained in
+    plain language.
+
+  If you restrict device installation, allow the Wintun adapter. See
+  [Device installation restrictions](/endpoint/fleet-rollout#device-installation-restrictions).
+</Update>
+
+<Update label="Platform 2026-11-02" description="Console and platform, 2 November 2026">
+  This release brings a new way to govern AI services, finer inspection settings,
+  clearer device protection states and a defined licence lifecycle. It works with
+  every agent from 1.6.1. Features that need a newer agent say so on their page.
+
+  - **AI services, Catalogue and Observed.** **Endpoint → AI services** lists every
+    recognised AI service and what your fleet uses. Shadow AI now lists unapproved
+    services only, and approving a service keeps it inspected. The most-used AI
+    services are inspected by default, so figures on **Overview** may change on the
+    day. See [AI services](/endpoint/ai-services).
+  - **Inspection settings per service and per policy.** Pseudonymization and
+    prompt-injection detection can be set to **Inherit**, **On** or **Off** for a
+    service or within a policy.
+  - **Custom AI services.** Add an internal or unlisted AI service by its domain,
+    choose what is read and who may use it, and confirm it with a test prompt. See
+    [Custom AI services](/endpoint/custom-ai-services).
+  - **Clearer protection states.** Devices read **Protected**, **Partly
+    protected**, **Not protected** or **Starting**, with a short reason. The Intune
+    page groups devices the same way, a single notice names the setting to change
+    for devices that need the Wintun adapter allowed, and a **Partly protected**
+    alert keeps you informed. See [Matching and the figures](/endpoint/connect-intune#matching-and-the-figures).
+  - **Licence lifecycle.** When a licence ends, the workspace moves through notice,
+    read-only and export phases, with an email to administrators at each step. See
+    [When a licence ends](/administration/licence-lifecycle).
+  - **Simpler navigation.** **Settings**, **Access management** and **Profile** show
+    their sections in the main sidebar. A figure that cannot be read reads **Not
+    reported**, never zero. See [Settings](/administration/settings#the-settings-menu).
+
+  If you restrict device installation, allow the Wintun adapter. See
+  [Device installation restrictions](/endpoint/fleet-rollout#device-installation-restrictions).
+</Update>
+
+<Update label="Endpoint 1.6.6" description="29 October 2026">
+  Endpoint 1.6.6 improves how the Windows agent handles device installation
+  restrictions, shared machines and company proxies.
+
+  - **Steadier protection under device installation restrictions.** Devices where
+    a policy restricts the Wintun adapter report their state consistently from the
+    moment they start.
+  - **Machines with nobody signed in** report their true state and no longer raise
+    false alerts.
+  - **Faster recovery.** When an administrator allows the Wintun adapter, the
+    agent picks it up sooner.
+  - **Company proxies set for apps.** A company proxy configured only in the
+    Windows connection settings used by PowerShell, .NET and Office is now detected
+    and routed through Blindsight.
+</Update>
+
+<Update label="Endpoint 1.6.5" description="27 October 2026">
+  Endpoint 1.6.5 strengthens the Windows agent on networks where traffic goes
+  through a company proxy and inspection through the company proxy is switched on.
+
+  - **The proxy route is maintained.** The agent keeps traffic routed through
+    Blindsight to the company proxy, including an automatically discovered proxy,
+    and restores the route when it is changed, for example by a Group Policy
+    refresh.
+  - **Accurate state.** A device without the route in place reads **Partly
+    protected** with the reason.
+  - **Pause and revoke.** A paused or revoked device gets its own proxy settings
+    back. Only changes the agent did not make are reported as tamper.
+  - **Quicker start** on networks where inspection through the company proxy is
+    switched off.
+</Update>
+
+<Update label="Endpoint 1.6.4" description="26 October 2026">
+  Endpoint 1.6.4 for Windows, with the platform release it ships with, focuses on
+  reliable installs and upgrades, full support for company proxies, stronger
+  tamper protection and a new Intune connection.
+
+  <Warning>
+    **Replace your alert destination URLs.** Slack, Teams, webhook and Splunk
+    destination URLs created before this release should be replaced. Create new ones
+    at the provider and edit each destination to use them. See
+    [Alert destinations](/administration/settings#alert-destinations).
+  </Warning>
+
+  **Before you update**
+
+  - **Update your Intune detection rules.** Detect the agent by the file version of
+    `BlindsightAgent.exe`, greater than or equal to `1.6.4`, or select **Update** in
+    [Connect Intune](/endpoint/connect-intune) to write the new rules. See
+    [Deploying with Intune](/endpoint/fleet-rollout#deploying-with-intune).
+  - **Inspection through a company proxy is on by default** for workspaces that
+    never chose a value. See [Proxies](/endpoint/fleet-rollout#proxies).
+  - **Add the 1.6.4 allow rules** if you use App Control or AppLocker. See
+    [Locked-down PowerShell and App Control](/endpoint/fleet-rollout#locked-down-powershell-and-app-control).
+
+  **Highlights**
+
+  - **Reliable installs and upgrades.** Installs report a clear result, upgrades on
+    Windows Server are dependable, and an interrupted install repairs itself.
+  - **Company proxies.** Enrolment, sign-in, updates and scans follow static, PAC
+    and WPAD proxies, including NTLM and Kerberos authentication and TLS inspection
+    products.
+  - **Stronger tamper protection.** Stopping, disabling or renaming the agent raises
+    a tamper alert, and a removed inspection certificate is restored and reported.
+  - **Connect Intune.** Connect a tenant, see which devices run the agent, and
+    deploy, update or remove it from the console. See
+    [Connect Intune](/endpoint/connect-intune).
+  - **Security.** Alert destination URLs are masked throughout the console and
+    audit trail, and proxy credentials are never written to disk.
+</Update>

@@ -71,12 +71,9 @@ only** or **Not decided** plus what the default does with it.
 ### What is inspected by default
 
 Built-in services and the most-used AI services (popular ones) are inspected
-by default, without anyone approving or deciding. Hugging Face is the exception:
-its clients are mostly Python tools that pin certificates, so it is not inspected
-until you choose to. Hosts that cannot be intercepted, such as cloud,
-identity and operating system update hosts, read **counted only** and the row
-says these settings have no effect on them. Less-used services follow later, after
-real-device tests.
+by default, without anyone approving or deciding. Hosts that cannot be
+intercepted, such as cloud, identity and operating system update hosts, read
+**counted only** and the row says these settings have no effect on them.
 
 Approving a service removes it from Shadow AI and keeps it inspected. Services
 approved before this release are moved to inspected by the release's data

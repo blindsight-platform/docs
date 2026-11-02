@@ -57,21 +57,19 @@ Every reason, with what to do about it, is listed in
 
 ### Starting
 
-A device reads **Starting** for up to 3 minutes while the agent comes up: after an
+A device reads **Starting** briefly while the agent comes up: after an
 enrollment, and on Windows after a restart, a reboot or an upgrade (agent 1.7.0
-and later). During this window the agent's own
-beats say it is not inspecting yet, and the console does not call the device **Not
-protected**. After 3 minutes the device shows the state it reports. The agent's
-window and the console use the same word.
+and later). The console does not call the device **Not protected** while it
+starts. Once the agent has come up, the device shows the state it reports. The
+agent's window and the console use the same word.
 
 ### The Partly protected alert
 
 The **Protection lost on a device** alert fires when a device stops inspecting AI
 traffic. A device that is **Partly protected** raises it with the title **Partly
 protected** and the severity **medium**. A device that is **Not protected** raises
-the same alert at **high**. The summary of a partly protected device reads, for
-example, "LT-0142 is only partly protected: browser traffic is inspected, the rest
-of the device is not".
+the same alert at **high**. The summary names the device and the reason, for
+example "LT-0142 is only partly protected".
 
 A workspace that shows only counts names the device as "A device".
 

@@ -71,7 +71,6 @@
               "endpoint/custom-ai-services",
               "endpoint/policies",
               "endpoint/permissions",
-              "endpoint/release-notes",
               {
                 "group": "Shadow AI",
                 "pages": [
@@ -130,6 +129,17 @@
           {
             "group": "Runtime Security API",
             "openapi": "api-reference/openapi-runtime-security.yaml"
+          }
+        ]
+      },
+      {
+        "tab": "Release notes",
+        "groups": [
+          {
+            "group": "Release notes",
+            "pages": [
+              "release-notes"
+            ]
           }
         ]
       }
@@ -219,6 +229,11 @@
     {
       "source": "/data-integrity",
       "destination": "/data-security/overview",
+      "permanent": true
+    },
+    {
+      "source": "/endpoint/release-notes",
+      "destination": "/release-notes",
       "permanent": true
     }
   ],

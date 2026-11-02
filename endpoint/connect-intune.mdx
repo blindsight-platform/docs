@@ -445,7 +445,7 @@ The reason on the device row starts with one of these:
 
 | Reason on the row | What it means | What to do |
 | ----------------- | ------------- | ---------- |
-| Device installation is blocked by policy | An Intune or Group Policy device installation restriction refuses the Wintun network adapter. Browsers and apps that use the system proxy are still inspected. From agent 1.7.0, command-line tools that follow `HTTPS_PROXY` or WinHTTP are inspected too; other apps are not. | Allow the device ID `Wintun`. If a Prevent rule also matches it, turn on the layered order setting. See [Device installation restrictions](/endpoint/fleet-rollout#device-installation-restrictions). The agent checks again when the policy changes, or within an hour. |
+| Device installation is blocked by policy | An Intune or Group Policy device installation restriction refuses the Wintun network adapter, so whole-device protection cannot start. | Allow the device ID `Wintun`. If a Prevent rule also matches it, turn on the layered order setting. See [Device installation restrictions](/endpoint/fleet-rollout#device-installation-restrictions). The agent checks again when the policy changes, or within an hour. |
 | AI sites are sent around Blindsight by a company proxy | A proxy is in the path and **Inspect traffic through a company proxy** is off. | Turn it on at **Endpoint → Configurations → Default policy**. See [Proxies](/endpoint/fleet-rollout#proxies). |
 | A TLS inspector re-signs AI sites and its root is not trusted | A TLS inspection product sits in the path. The row names its issuer. | Put the inspector's root in the machine certificate store, or exempt the AI hosts from inspection. |
 | Traffic into the tunnel is blocked (firewall rule, error 10013) | A firewall rule or a VPN kill switch refuses the agent's traffic. | Allow `BlindsightAgent.exe` in the firewall policy, or exclude it from the kill switch. |
@@ -470,8 +470,6 @@ The notice has:
 - A headline, for example "3 devices: Windows is blocking the Wintun adapter".
   Devices whose agent is not online right now are counted from their last report
   and named: "(1 not online right now, as last reported)".
-- What is still inspected: browsers and apps that follow the Windows proxy
-  settings.
 - The exact setting to change. In Intune, open **System → Device Installation →
   Device Installation Restrictions** and add the hardware ID `Wintun` to **Allow
   installation of devices that match any of these device IDs**. A copy button
