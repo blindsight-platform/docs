@@ -134,13 +134,8 @@
       },
       {
         "tab": "Release notes",
-        "groups": [
-          {
-            "group": "Release notes",
-            "pages": [
-              "release-notes"
-            ]
-          }
+        "pages": [
+          "release-notes"
         ]
       }
     ]
