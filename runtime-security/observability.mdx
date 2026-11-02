@@ -49,18 +49,37 @@ Use `minutes=N` instead of `days=N` for sub‑day windows
 
 ### `GET /api/runtime-security/events`
 
-Paginated event list.
+Paginated event list, newest first. Includes events from the desktop
+app as well as from API and SDK calls.
 
-| Parameter      | Type     | Notes                                                              |
-| -------------- | -------- | ------------------------------------------------------------------ |
-| `limit`        | int      | 1–500. Default 50.                                                  |
-| `before_uuid`  | string   | Cursor for pagination. Pass the last UUID you saw.                 |
-| `verdict`      | string   | Filter to `allow`, `flag`, `redact`, or `block`.                     |
-| `direction`    | string   | Filter to `input`, `output`, or `tool_call`.                        |
+| Parameter      | Type     | Notes                                                                 |
+| -------------- | -------- | --------------------------------------------------------------------- |
+| `limit`        | int      | 1 to 500. Default 50.                                                 |
+| `offset`       | int      | Number of events to skip. Use it to page: `0`, then `limit`, and so on. |
+| `date_from`    | date     | `YYYY-MM-DD`. Events from this day onwards (UTC, inclusive).          |
+| `date_to`      | date     | `YYYY-MM-DD`. Events up to and including this day (UTC). Defaults to today. |
+| `days`         | int      | The last N days, today included. Ignored when `date_from` is set.     |
+| `verdict`      | string   | Filter to `allow`, `flag`, `redact`, or `block`.                      |
+| `direction`    | string   | Filter to `input`, `output`, or `tool_call`.                          |
+| `device_only`  | bool     | Only events from enrolled desktop app devices.                        |
 
-The response includes the full event payload: `uuid`, `verdict`,
-`text`, `redacted_text`, scoring breakdown, App id, config version,
-and any `custom_params` attached at scan time.
+The response has `total` (the number of events that match the filters)
+and `items` (the current page). Each event carries its `uuid`,
+`created_at`, `verdict`, `direction`, `pii_categories`,
+`injection_label`, the service and provider, the device and application
+when it came from the desktop app, and the stored text according to
+the workspace's privacy settings.
+
+Authenticate with an API key that has the **Read threat events**
+permission, sent in the `X-API-Key` header.
+
+```bash
+curl -H "X-API-Key: $BLINDSIGHT_API_KEY" \
+  "https://platform.blindsight.io/api/runtime-security/events?verdict=flag&device_only=true&date_from=2026-11-01&limit=500&offset=0"
+```
+
+To read everything in a window, keep the same filters and increase
+`offset` by `limit` until a page returns fewer items than `limit`.
 
 ## Drift
 
@@ -143,8 +162,9 @@ own code.
   </Accordion>
 
   <Accordion title="Ship live data to your SIEM">
-    Poll `/events` with `before_uuid` cursoring from a scheduled job.
-    Push to your SIEM with the `uuid` so cross‑system queries can
-    join on it.
+    Poll `/events` from a scheduled job with `date_from` set to the
+    last day you collected, paging with `limit` and `offset`. Skip
+    events whose `uuid` you already have, and push the rest to your
+    SIEM with the `uuid` so cross‑system queries can join on it.
   </Accordion>
 </AccordionGroup>

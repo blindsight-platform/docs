@@ -344,16 +344,32 @@ paths:
         - name: limit
           in: query
           schema: { type: integer, minimum: 1, maximum: 500, default: 50 }
-        - name: before_uuid
+        - name: offset
           in: query
-          schema: { type: string }
-          description: "Cursor: returns events older than this event UUID."
+          schema: { type: integer, minimum: 0, default: 0 }
+          description: "Number of events to skip. Results are newest first."
+        - name: date_from
+          in: query
+          schema: { type: string, format: date }
+          description: "Events from this day onwards (UTC, inclusive)."
+        - name: date_to
+          in: query
+          schema: { type: string, format: date }
+          description: "Events up to and including this day (UTC). Defaults to today."
+        - name: days
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 3650 }
+          description: "The last N days, today included. Ignored when date_from is set."
         - name: verdict
           in: query
           schema: { type: string, enum: [allow, flag, redact, block] }
         - name: direction
           in: query
           schema: { type: string, enum: [input, output, tool_call] }
+        - name: device_only
+          in: query
+          schema: { type: boolean, default: false }
+          description: "Only events from enrolled desktop app devices."
       responses:
         '200':
           description: Page of events
@@ -901,9 +917,9 @@ components:
         items:
           type: array
           items: { $ref: '#/components/schemas/Event' }
-        next_cursor:
-          type: string
-          nullable: true
+        total:
+          type: integer
+          description: Number of events that match the filters.
 
     Event:
       type: object
