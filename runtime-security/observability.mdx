@@ -81,6 +81,10 @@ curl -H "X-API-Key: $BLINDSIGHT_API_KEY" \
 To read everything in a window, keep the same filters and increase
 `offset` by `limit` until a page returns fewer items than `limit`.
 
+Automated background requests that AI web apps send while they run, such as
+settings, identifiers and telemetry, are not recorded as prompts. The events
+API does not return them and the console does not count them.
+
 ## Drift
 
 ### `GET /api/runtime-security/drift?baseline_days=30&recent_days=7`
