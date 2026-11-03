@@ -101,35 +101,34 @@ page reads **No unapproved AI** and points you to the AI services page.
 **Waiting on you** counts services where nothing is decided and nothing is
 inspecting them. A page that cannot tell reads **Not available**, not 0.
 
-## Per-service settings: Inherit, On, Off
+## Per-service settings: Customize for this service
 
-Two inspection settings can be set for one service:
+Under a service, **Customize for this service** opens settings that apply
+to that service only. While it is closed, a line says what the service
+follows. The settings are:
 
-- **Pseudonymization**: personal data is replaced with placeholders on the device
-  before a prompt is sent.
-- **Prompt-injection detection**: prompts and replies are scored for injection.
+- **Personal data**: **Inherit**, **Off**, **Redact** or **Pseudonymize**.
+- **Prompt injection**: **Inherit**, **Off** or **On**.
+- **Data types**: **Change a data type** to set **Protect**, **Keep** or
+  **Block** for one kind of value in prompts to this service. See
+  [Protections](/endpoint/protections#what-protect-keep-and-block-mean).
 
-Each has three choices: **Inherit**, **On** and **Off**. **Inherit** is the
-default and follows the workspace. **On** switches a setting on for this service
-even when the workspace has it off, if your plan and the engine allow it. **Off**
-switches it off for this service.
+**Inherit** is the default and follows the workspace. Any other choice
+applies to this service even when the workspace has it differently, if
+your plan allows it.
 
-Under each control a line says what is true now and why:
+Each row shows the value that applies and where it comes from, for example
+the workspace, this service, a policy default or a named policy. Under it,
+one line per policy says what that policy changes for this service.
 
-- **On, workspace setting** or **Off, workspace setting**
-- **On, set for this service** or **Off, set for this service**
-- **On (not available on this plan)**, when On is chosen and nothing can run it
-- **On (not active: personal data protection is off)**, for pseudonymization when
-  that protection is off for the workspace
-
-A third line reads **Applies on agent 1.7.0 and later: N of M devices**. Older
-agents ignore the setting and keep the workspace value, so the count shows how
-many devices follow it. If the fleet cannot be counted, the numbers read as a
-dash.
+Per-service personal data and data types apply on the device from desktop
+agent 2.1, and in the cloud scan now. The console shows how many devices
+follow a setting; an older agent keeps the workspace value.
 
 ### Which setting wins
 
-The first setting that is not **Inherit** wins, in this order:
+The first setting that is not **Inherit** wins, in this order (the same
+order applies to data types):
 
 1. The policy's setting for this service.
 2. The service's own setting.
@@ -153,13 +152,14 @@ with an exact host covers that host only. A host no rule governs is refused.
 
 ### Settings in a policy
 
-A policy has an **Inspection** section, marked "applies on agent 1.7.0 and
-later". It holds:
+A policy has an **Inspection** section with **Customize**. It holds:
 
-- **Default for every service in this policy**: **Pseudonymization** and
-  **Prompt-injection detection**, each **Inherit**, **On** or **Off**. A default
-  applies to inspected services, not to blocked or tunnelled ones.
-- A list of services, each with its own pair of settings for that policy.
+- **Default for every service in this policy**: **Personal data** (**Inherit**,
+  **Off**, **Redact** or **Pseudonymize**), **Prompt injection** (**Inherit**,
+  **Off** or **On**) and **Data types**. A default applies to inspected
+  services, not to blocked or tunnelled ones.
+- **Single services**: a list of services, each with its own settings for that
+  policy.
 
 A folded section shows a summary such as "Default: prompt-injection detection on.
 2 services are set on their own." The save bar lists each change. Saving

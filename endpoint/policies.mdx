@@ -53,6 +53,16 @@ attributed to (see [Apps](/runtime-security/apps)).
   answer while a device enforces another.
 </Note>
 
+### Inspection settings in a policy
+
+A policy's **Inspection** section holds the same choices as Protections as
+defaults for everyone the policy applies to: **Personal data**, **Prompt
+injection** and **Data types**. It can also set **Single services**, with
+their own entries for that policy. Each choice can be **Inherit**. The order
+is the policy's entry for the service, then the service's own setting, then
+the policy default, then the workspace. See
+[AI services](/endpoint/ai-services#which-setting-wins).
+
 ### Inspect traffic through a company proxy
 
 **Endpoint → Configurations → Default policy → Visibility → Inspect traffic
