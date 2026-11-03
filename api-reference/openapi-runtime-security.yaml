@@ -920,30 +920,46 @@ components:
         total:
           type: integer
           description: Number of events that match the filters.
+        identity_mode:
+          type: string
+          description: Whether people and devices are named or shown as codes.
 
     Event:
       type: object
       properties:
         uuid: { type: string }
-        created_at: { type: string, format: date-time }
+        created_at:
+          type: string
+          format: date-time
+          description: UTC, ISO 8601, ending in `Z`.
         direction: { type: string, enum: [input, output, tool_call] }
-        verdict: { type: string, enum: [allow, flag, redact, block] }
-        injection_score: { type: number }
-        injection_label: { type: string, nullable: true }
-        pii_count: { type: integer }
+        verdict:
+          type: string
+          enum: [allow, flag, redact, block]
+          description: "`flag` filters also return redacted or blocked events that carried an injection."
+        reason:
+          type: string
+          nullable: true
+          enum: [prompt_injection, harmful_content, pii, policy]
+          description: Why the event is not a clean pass.
+        provider: { type: string, nullable: true }
+        source_app:
+          type: string
+          nullable: true
+          description: The service host.
+        model: { type: string, nullable: true }
+        device_hostname: { type: string, nullable: true }
+        device_os_user: { type: string, nullable: true }
+        process_name: { type: string, nullable: true }
+        user_email: { type: string, nullable: true }
         pii_categories:
           type: array
           items: { type: string }
+        redacted_text:
+          type: string
+          nullable: true
+          description: The stored text according to the workspace privacy settings.
         text_length: { type: integer }
-        latency_ms: { type: integer }
-        source_app: { type: string, nullable: true }
-        provider: { type: string, nullable: true }
-        model: { type: string, nullable: true }
-        client_ip: { type: string, nullable: true }
-        blocked_reason: { type: string, nullable: true }
-        metadata:
-          type: object
-          additionalProperties: true
 
     DriftResponse:
       type: object

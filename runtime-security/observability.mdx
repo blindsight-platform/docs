@@ -63,12 +63,34 @@ app as well as from API and SDK calls.
 | `direction`    | string   | Filter to `input`, `output`, or `tool_call`.                          |
 | `device_only`  | bool     | Only events from enrolled desktop app devices.                        |
 
-The response has `total` (the number of events that match the filters)
-and `items` (the current page). Each event carries its `uuid`,
-`created_at`, `verdict`, `direction`, `pii_categories`,
-`injection_label`, the service and provider, the device and application
-when it came from the desktop app, and the stored text according to
-the workspace's privacy settings.
+The response has `total` (the number of events that match the filters),
+`items` (the current page) and `identity_mode` (whether people and devices
+are named or shown as codes). Each event has these fields and no others:
+
+| Field             | Notes                                                                                   |
+| ----------------- | --------------------------------------------------------------------------------------- |
+| `uuid`            | Event identifier.                                                                       |
+| `created_at`      | UTC, ISO 8601, ending in `Z`.                                                           |
+| `verdict`         | `allow`, `flag`, `redact`, or `block`.                                                  |
+| `direction`       | `input`, `output`, or `tool_call`.                                                      |
+| `reason`          | `prompt_injection`, `harmful_content`, `pii`, `policy`, or `null` for a clean pass.     |
+| `provider`        | The AI provider, or `null`.                                                             |
+| `source_app`      | The service host, or `null`.                                                            |
+| `model`           | The model, or `null`.                                                                   |
+| `device_hostname` | The device, from the desktop app. A code when the workspace does not name devices.     |
+| `device_os_user`  | The operating system user on the device. A code when people are not named.             |
+| `process_name`    | The application on the device that sent the request, when known.                       |
+| `user_email`      | The person the device is bound to. A code when the workspace does not name people.     |
+| `pii_categories`  | The categories of personal data found.                                                  |
+| `redacted_text`   | The stored text, according to the workspace's privacy settings.                         |
+| `text_length`     | Length of the original text in characters.                                              |
+
+A `verdict` of `flag` also includes events that were redacted or blocked and
+that carried an injection, so a filter on `flag` finds every event with an
+injection.
+
+`GET /api/runtime-security/events/{uuid}/explain` returns the same fields for
+one event.
 
 Authenticate with an [API key](/administration/api-keys) that has the
 **Read threat events** permission, sent in the `X-API-Key` header. A key
