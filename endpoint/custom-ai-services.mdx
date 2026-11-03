@@ -108,22 +108,20 @@ Teaching needs `endpoint.ai_services.teach`. Without it the section says so.
 **Detectors** shows what runs for this service. A detector the workspace has off
 stays off. The section holds:
 
-- The per-service **Pseudonymization** and **Prompt-injection detection**
-  settings, each **Inherit**, **On** or **Off**. See
-  [Per-service settings](/endpoint/ai-services#per-service-settings-inherit-on-off).
-- **Secrets and keys**, and the personal data categories: **Email addresses**,
-  **Phone numbers**, **Person names**, **Postal addresses**, **Card numbers**,
-  **Bank account numbers** and **National and tax identifiers**. These categories
-  can only be switched off for this service.
+- The per-service **Personal data** and **Prompt injection** settings. See
+  [Per-service settings](/endpoint/ai-services#per-service-settings-customize-for-this-service).
+- **Secrets and keys**. To stop protecting a kind of personal data for this
+  service, set it to **Keep** under **Data types** in **Customize for this
+  service**. It covers the same categories, such as email addresses, phone
+  numbers, person names, postal addresses, card numbers, bank account numbers
+  and national and tax identifiers.
 - **When something is found**: **Redact** or **Block**. **Block** is offered only
   under **Protect**.
 - **Scan a streamed reply once it ends**. This is the reply verdict. The reply
   reaches the person untouched. A verdict is recorded afterwards, and nothing is
   rewritten.
 
-Personal data is masked on the device before a prompt is sent, so switching a
-category off here does not stop that masking. On-device pseudonymization follows
-**Inspect** or **Protect**.
+On-device personal data protection follows **Inspect** or **Protect**.
 
 ### Who
 

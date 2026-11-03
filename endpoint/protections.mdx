@@ -1,50 +1,119 @@
 ---
 title: "Protections"
-description: "Choose which of the three endpoint protections devices run: prompt injection detection, personal data protection and Shadow AI. Each works on its own."
+description: "Choose what devices and the cloud scan do about prompt injection, personal data and Shadow AI, one choice per area with detail behind Customize."
 ---
 
-A workspace decides what its devices do with AI traffic by switching
-three protections on or off. They are independent: any combination
+A workspace decides what its devices do with AI traffic by choosing
+three protections. They are independent: any combination
 works, so you can run Shadow AI alone, or protect personal data without
 looking for injection.
 
 Open **Endpoint → Configurations → Protections**. It is the first item
-in the rail, and the only place the three are switched.
+in the rail, and the only place the three are set.
 
-## The three protections
+## The three areas
 
-| Protection                    | When it is on                                                                                              | When it is off                                                   |
-| ----------------------------- | ----------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| **Prompt injection detection** | A redacted copy of each prompt is checked for injection and jailbreak attempts.                             | Those attempts go undetected.                                    |
-| **Personal data protection**   | Personal data is redacted or pseudonymized before prompts and uploads leave the device.                     | Prompts and uploads reach AI services unchanged.                 |
-| **Shadow AI**                  | Devices record which AI services people use, including ones nobody approved.                                | Unapproved AI services are not seen.                             |
+The page is organised in levels. At the first level there is one choice
+per area. Detail sits behind **Customize** under each area, so you only
+open it when you need it.
 
-A new workspace starts with all three on. Existing workspaces keep all
-three on until you change them.
+| Area                           | Choices                          | What it does                                                                                                   |
+| ------------------------------ | -------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **Personal data protection**   | **Off**, **Redact**, **Pseudonymize** | **Off**: prompts and uploads reach AI services unchanged. **Redact**: personal data is removed before it leaves the device. **Pseudonymize**: personal data is swapped for stand-ins before the prompt leaves the device and restored in the reply. |
+| **Prompt injection detection** | **Off**, **Flag**, **Block**     | **Flag** records injection attempts and lets the prompt through. **Block** stops the prompt before it reaches the AI service. |
+| **Shadow AI**                  | On or off                        | Devices record which AI services people use, including ones nobody approved.                                   |
 
-At least one protection stays on. The last switch that is on cannot be
-turned off; to stop all of them, remove the agent. See
+A new workspace starts with all three on. Existing workspaces keep what
+they had until you change it.
+
+At least one area stays on. The last one that is on cannot be turned off;
+to stop all of them, remove the agent. See
 [Uninstalling the agent](/endpoint/uninstall).
 
-### Choices under each switch
+Under the three areas, one line says whether AI services and policies
+change any of these settings, for example how many of each. **Review**
+opens a table of every policy and AI service that changes a setting, with
+a link to edit it where it is set. If none do, the line reads that AI
+services and policies follow these settings.
 
-Sub-choices appear only under a switch that is on.
+## Customize
 
-- **Personal data protection**
-  - **Redact** removes the value. **Pseudonymize** swaps it for a
-    stand-in the person can get back, with the mapping kept on the
-    device.
-  - **Find names on the device** runs the names model locally. Labels,
-    retention and scope are under **Personal data details**.
-- **Shadow AI**
-  - **Unapproved AI** is **Record only**, **Protect** or **Block**.
-    This is the posture towards services nobody has decided on. See
-    [Shadow AI triage](/endpoint/shadow-ai/triage). **Protect** needs
-    injection detection or personal data protection on, because it
-    reads prompts.
+### Personal data protection
 
-A sentence under the switches describes the combination you have chosen,
-so you read the outcome and not only the switches.
+Open **Customize** under **Personal data protection** to see:
+
+- **Data types.** Each kind of value has its own choice: **Protect**,
+  **Keep** or **Block**. See [What Protect, Keep and Block mean](#what-protect-keep-and-block-mean).
+  Types are grouped: people and organisations, contact, identity
+  documents by country (including the Mexican RFC, CURP and CLABE),
+  financial, health and demographics, network, and secrets. Each group
+  folds, and has **Protect all** and **Keep all**. **Search data types**
+  finds one by name.
+- **Sensitive data on device.** Runs a detection model on each device for
+  the people, organisation and place types set to **Protect** or
+  **Block**.
+- With **Pseudonymize** chosen, two more settings appear:
+  - **Keep stand-in keys for**: how many days a device can turn stand-ins
+    back into real values. A chat resumed after this shows stand-ins.
+  - **Same stand-in across chats for a day**: when on, every chat and
+    upload on a device uses the same stand-in for a value for one day, so
+    the model sees one person and not several. When off, each chat has its
+    own stand-ins.
+
+While **Customize** is closed, a quiet line says whether the data types
+are at their defaults or how many you changed.
+
+### Shadow AI
+
+- **Unapproved AI** is **Record only**, **Protect** or **Block**. This is
+  the posture towards services nobody has decided on. See
+  [Shadow AI triage](/endpoint/shadow-ai/triage). **Protect** needs
+  injection detection or personal data protection on, because it reads
+  prompts.
+- **Newly discovered AI** sets what happens the first time a service is
+  seen. The default is the same as **Unapproved AI**.
+
+A sentence under each area describes the choice you have made, so you
+read the outcome and not only the control.
+
+## What Protect, Keep and Block mean
+
+| Choice      | What happens to the value                                                                                                  |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------- |
+| **Protect** | The value is removed in **Redact** mode, or swapped for a stand-in in **Pseudonymize** mode.                               |
+| **Keep**    | The value is left as typed. It is not a finding, so it is not recorded as personal data.                                   |
+| **Block**   | The prompt is refused.                                                                                                      |
+
+## Where each setting applies
+
+Every row in the console shows where it runs next to its name. The data
+types table has a **Device** column and a **Cloud scan** column.
+
+| Setting                                  | Device                                              | Cloud scan                          |
+| ---------------------------------------- | --------------------------------------------------- | ----------------------------------- |
+| Prompt injection detection               | Decides whether the text is sent                    | Checks the text                     |
+| Personal data protection on or off       | Yes                                                 | Yes                                 |
+| Redact or Pseudonymize                   | Yes                                                 | No                                  |
+| Data types                               | Yes                                                 | Yes                                 |
+| Data types per AI service                | Yes, from desktop agent 2.1                         | Yes                                 |
+| Sensitive data on device                 | Yes                                                 | No                                  |
+| Stand-in settings                        | Yes                                                 | No                                  |
+| Record retention                         | No                                                  | Kept by the platform                |
+
+## At the foot of the page
+
+- **What left devices** shows, for the last 7, 30 or 90 days, how much
+  personal data was replaced on the device, how much the platform masked
+  and how much reached the service as typed. It shows counts and
+  categories only; no value is stored.
+- **How long records are kept** sets how long prompt records, counts and
+  the audit trail are kept.
+
+## Pseudonymization
+
+Pseudonymization used to have its own page. It is now part of
+Protections: choose **Pseudonymize** under **Personal data protection**
+and open **Customize**. The old address opens the personal data section.
 
 ## What each combination does
 
@@ -109,7 +178,7 @@ after they update.
 ## Licence
 
 A protection your licence does not include shows **Not in your plan**
-instead of a switch, and the platform refuses a request to turn it on.
+instead of a choice, and the platform refuses a request to turn it on.
 
 ## Who can change it
 
