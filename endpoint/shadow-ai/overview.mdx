@@ -99,9 +99,14 @@ last two are shadow AI.
 | `catalog_observed`  | **Known AI**     | Matches the built-in AI catalog: a recognised provider, but nobody has approved it.         |
 | `candidate`         | **Unknown host** | Not in any rule or the catalog, but the heuristic says it looks like an LLM endpoint.       |
 
+A name is not enough on its own. A host whose only AI sign is a `.ai`
+domain needs AI wording in its name or a page that confirms it, and
+advertising, tracking and content-delivery hosts under `.ai` are never
+treated as unknown AI.
+
 ### The built-in catalog
 
-Blindsight ships a curated catalog of roughly 180 AI hosts, maintained
+Blindsight ships a curated catalog of more than 300 AI hosts, maintained
 centrally and extended without an agent release. It spans:
 
 - **Chat assistants and answer engines**, `poe.com`, `perplexity.ai`,
