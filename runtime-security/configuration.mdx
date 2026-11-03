@@ -79,12 +79,12 @@ Only the fields in the table below are part of the supported contract.
 | Field                          | Range / values                       | What it does                                                                       |
 | ------------------------------ | ------------------------------------ | ---------------------------------------------------------------------------------- |
 | `enabled`                      | bool                                 | Master toggle. Off, scan endpoints return `503`.                                    |
-| `max_text_length`              | integer                              | Characters. A scan field longer than this is refused with `413`.                    |
+| `max_text_length`              | 256 to 200000, default 32000         | Characters. A scan field longer than this is refused with `413`.                    |
 | `log_events`                   | bool                                 | Persist a row to the event table per scan. Off, the firewall is invisible.          |
 | `pre_prompt`                   | string, up to 20000 chars            | System prompt injected by the proxy. Admin‑trusted, not scanned.                    |
 | `pre_prompt_placement`         | `prepend` / `append` / `sandwich`     | Where the pre‑prompt goes relative to the user's messages.                          |
 | `agentic.tool_allowlist` / `tool_denylist` | arrays of strings        | Workspace‑wide tool gates for tool‑call scanning.                                   |
-| `agentic.max_arg_bytes`        | integer                              | JSON‑serialised argument size cap for tool‑call scanning.                            |
+| `agentic.max_arg_bytes`        | 256 to 1000000, default 32000        | JSON‑serialised argument size cap for tool‑call scanning.                            |
 | `agentic.allow_private_network`| bool                                 | Disable SSRF blocks for RFC1918 / loopback. Use only for on‑prem agents.            |
 | `dlp_fail_mode`                | `open` / `closed`                     | What a device agent does when an AI destination cannot be inspected. `open` lets it through, `closed` refuses the connection. |
 | `dlp_fail_mode_locked`         | bool                                 | When true, a device must honour the workspace `dlp_fail_mode` over any local override. |
@@ -93,7 +93,7 @@ Only the fields in the table below are part of the supported contract.
 | `file_scanning_enabled`        | bool                                 | Master switch for inspecting file and image attachments.                             |
 | `file_unredactable_action`     | `block` / `allow`                     | What to do when a file carries PII but its format has no in-file redactor.           |
 | `pseudonymize_enabled`         | bool                                 | Swap detected values for realistic surrogates before a prompt leaves the device, and restore them in the reply. |
-| `pseudonymize_retention_days`  | integer (days)                       | How long the surrogate map is kept on the device.                                    |
+| `pseudonymize_retention_days`  | 1 to 365, default 30                 | How long the surrogate map is kept on the device.                                    |
 | `identity_mode`                | `named` / `pseudonymised` / `aggregated` | Whether people and devices are named, shown as codes, or shown as totals only. |
 
 <Note>
@@ -119,9 +119,9 @@ operator's reason.
 ```json
 {
   "config": {
-    "sensitivity": {
-      "input_block": "<stricter or more lenient>",
-      "input_redact": "<stricter or more lenient>",
+    "thresholds": {
+      "block": "<stricter or more lenient>",
+      "redact": "<stricter or more lenient>",
       "output_block": "<stricter or more lenient>",
       "output_redact": "<stricter or more lenient>"
     },
@@ -129,14 +129,14 @@ operator's reason.
       "injection": true,
       "pii": true,
       "ner": true,
-      "anomaly_detection": false,
-      "obfuscation_detection": false,
+      "embedding_anomaly": false,
+      "perplexity": false,
       "topic_drift": false,
       "agentic_guardrails": true
     },
     "ner": {
       "mode": "flag",
-      "sensitivity": "<stricter or more lenient>",
+      "threshold": "<stricter or more lenient>",
       "entities": ["person", "address", "phone_number", "date_of_birth"]
     },
     "custom_phrases": ["ignore previous instructions"],
@@ -162,18 +162,18 @@ operator's reason.
 
 | Field                                       | Range / values    | What it does                                                                              |
 | ------------------------------------------- | ----------------- | ----------------------------------------------------------------------------------------- |
-| `sensitivity.input_block`                   | stricter / more lenient | How readily input is refused. Stricter blocks more, with more false alarms.          |
-| `sensitivity.input_redact`                  | stricter / more lenient | How readily input is redacted. Stricter redacts more, with more false alarms.        |
-| `sensitivity.output_block` / `output_redact`| stricter / more lenient | The same two settings, applied to model output traffic.                              |
+| `thresholds.block`                          | stricter / more lenient | How readily input is refused. Stricter blocks more, with more false alarms.          |
+| `thresholds.redact`                         | stricter / more lenient | How readily input is redacted. Stricter redacts more, with more false alarms.        |
+| `thresholds.output_block` / `output_redact` | stricter / more lenient | The same two settings, applied to model output traffic.                              |
 | `detectors.injection`                       | bool              | Check input for prompt injection.                                              |
 | `detectors.pii`                             | bool              | Detect structured PII and secrets (input and output).                            |
 | `detectors.ner`                             | bool              | Detect unstructured PII (names, addresses, DOB). See [NER PII detection](#ner-pii-detection). Default **on**. |
-| `detectors.anomaly_detection`               | bool              | Flag traffic that looks unlike what the App normally sees.                                 |
-| `detectors.obfuscation_detection`           | bool              | Flag prompts that look deliberately scrambled or obfuscated.                               |
+| `detectors.embedding_anomaly`               | bool              | Flag traffic that looks unlike what the App normally sees.                                 |
+| `detectors.perplexity`                      | bool              | Flag prompts that look deliberately scrambled or obfuscated.                               |
 | `detectors.topic_drift`                     | bool              | Watch for topic drift across the App's traffic.                            |
 | `detectors.agentic_guardrails`              | bool              | Apply the tool‑call rules in `tool_policy` plus built‑in guards for dangerous tool arguments.                  |
 | `ner.mode`                                  | `flag` / `redact` | Default `flag` (monitor‑only, never mutates traffic). `redact` masks NER spans like regex PII hits. |
-| `ner.sensitivity`                           | stricter / more lenient | How readily a NER match counts as a finding. Stricter finds more, with more false alarms. |
+| `ner.threshold`                             | stricter / more lenient | How readily a NER match counts as a finding. Stricter finds more, with more false alarms. |
 | `ner.entities`                              | array of strings  | Zero‑shot entity labels to look for. Free‑form, no retrain needed to add a custom one.      |
 | `custom_phrases`                            | array of strings  | Phrase pack. A match forces `block`.                    |
 | `pii_rules`                                 | array             | App‑scoped regex PII rules. Validated for safe execution before they are accepted.          |
@@ -229,7 +229,7 @@ see.
 {
   "ner": {
     "mode": "flag",
-    "sensitivity": "<stricter or more lenient>",
+    "threshold": "<stricter or more lenient>",
     "entities": ["person", "address", "date_of_birth", "medical_condition"]
   }
 }
@@ -238,7 +238,7 @@ see.
 | Field       | Range / values                       | What it does                                                                 |
 | ----------- | ------------------------------------- | ----------------------------------------------------------------------------- |
 | `mode`      | `flag` (default) / `redact`           | `flag` records findings and raises an `allow` verdict to `flag`, but never rewrites text. `redact` masks NER spans exactly like a regex PII hit. |
-| `sensitivity` | stricter / more lenient             | How readily a match counts as a finding. Stricter finds more names and addresses, and also more false alarms. |
+| `threshold`   | stricter / more lenient             | How readily a match counts as a finding. Stricter finds more names and addresses, and also more false alarms. |
 | `entities`  | array of zero‑shot labels             | The entity types to look for. Defaults to `person`, `address`, `phone_number`, `date_of_birth`, `social_security_number`, `passport_number`, `driver_license`, `bank_account_number`, `medical_condition`, `organization`. Add any custom label (`medical_record_number`, `patient_mrn`, `employee_number`, …): zero‑shot means no retrain or redeploy. |
 
 <Warning>
@@ -287,15 +287,14 @@ first time, or to render a live status badge in your own tooling.
 | `state`     | Meaning                                                                                          |
 | ----------- | -------------------------------------------------------------------------------------------------- |
 | `idle`      | Not yet requested. Call this endpoint (or run a scan) to trigger the load.                         |
-| `loading`   | Background load in progress. Scans that arrive now proceed **without** NER (fail‑open).             |
+| `loading`   | Background load in progress. NER findings are not included until it is ready.             |
 | `ready`     | Warm. Scans include NER findings.                                                                   |
 | `error`     | Load failed (see `error`). NER is skipped; every other detector runs normally.                      |
 | `disabled`  | The tier is switched off for the deployment, or `detectors.ner=false`.                                          |
 | `unavailable` | The build does not carry the NER runtime. Expected on the slim firewall image, which intentionally omits it. |
 
-The tier fails open at every stage: cold tier, load error, or a slim
-image without the runtime all just mean NER findings are absent for
-that scan. Every other detector still runs.
+When the NER tier is not ready or not available, every other detector
+still runs.
 
 ## Pre‑prompts on the proxy
 
@@ -332,7 +331,7 @@ process restart.
 | `RUNTIME_SECURITY_FAIL_MODE`                      | `open`               | `open`: if a classifier errors at runtime, the remaining checks decide. `closed`: force `block`. |
 | `RUNTIME_SECURITY_NER_ENABLED`                    | `1` (on)             | Global kill‑switch for the NER PII tier. `0` / `false` / `off` disables regardless of `detectors.ner`. |
 | `RUNTIME_SECURITY_FILE_ANALYSIS_ALLOW_PRIVATE_HOSTS` | `false`            | File‑attachment URL fetching refuses loopback / RFC1918 / link‑local / cloud‑metadata targets (SSRF guard) unless this is set.                |
-| `RUNTIME_SECURITY_FILE_ANALYSIS_BLOCK_UNSCANNABLE`   | `false`             | When `true`, an attachment that couldn't be turned into scannable text (oversized, unsupported type, extraction failure, image with no OCR text) is treated as a policy violation (`blocked_reason: attachment_unscannable:<kind>`) instead of silently forwarded. |
+| `RUNTIME_SECURITY_FILE_ANALYSIS_BLOCK_UNSCANNABLE`   | `false`             | When `true`, an attachment that cannot be inspected is treated as a policy violation instead of being forwarded. |
 | `RUNTIME_SECURITY_MAX_REQUEST_BODY_BYTES`         | `16777216` (16 MB)   | Hard cap on proxy request‑body size, enforced on `Content-Length` and via streaming byte‑count. Returns `413` on overflow.                      |
 
 ## Common workflows
