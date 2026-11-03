@@ -219,69 +219,19 @@ endpoint devices to people.
 
 ## API keys
 
-Everything in the UI is also available over the REST API. To use it
-programmatically, mint a key from the **Keys** tab.
+API keys are global and are managed from the **Keys** tab: one set for
+Data Security, Runtime Security, Endpoint and Shadow AI. When you create
+a key you choose what it is for, which scopes it to the products your
+licence covers and the permissions you hold. People without access to
+this page manage their own keys under **Settings → API keys**.
 
-<Steps>
-  <Step title="Create the key">
-    Give it a descriptive name (`CI pipeline`, `Lab upload script`).
-  </Step>
-  <Step title="Scope it">
-    - **Full access** (`*`): every scope the platform defines, across
-      Data Security and Runtime Security.
-    - **Full runtime access** (`runtime:*`): the `runtime:` scopes only.
-    - Or tick the individual scopes the key actually needs
-      (`datasets:read`, `runtime:scan`, and so on).
+A key can never do more than the person who created it, can expire, and
+authenticates with the `X-API-Key` header. Runtime Security keys can also be
+bound to specific Apps, so a key that leaks cannot be pointed at a different
+application.
 
-    A key can never do more than the person who created it. The full
-    scope list is in the
-    [API reference](/api-reference/introduction#api-key-scopes).
-  </Step>
-  <Step title="Set an expiration">
-    Never, 30 days, 90 days, or 1 year. Short-lived keys are safer.
-  </Step>
-  <Step title="Copy the token">
-    **Now.** It is displayed exactly once. If you miss it, revoke and
-    mint a new one.
-  </Step>
-</Steps>
-
-Runtime Security keys can additionally be bound to specific Apps, so a
-key that leaks cannot be pointed at a different application.
-
-### Using the key
-
-Pass it as `Authorization: Bearer <token>` on every API call.
-
-```bash
-curl -H "Authorization: Bearer $BLINDSIGHT_TOKEN" \
-     $API_BASE/api/datasets
-```
-
-### Revoking a key
-
-Click **Revoke** on any row in the Keys tab. Revocation is instant and
-audit-logged. Subsequent calls with that key return `401`.
-
-### Rotation
-
-<AccordionGroup>
-  <Accordion title="CI / CD pipelines">
-    Mint one key per pipeline. Rotate every 90 days. Store the new
-    value in your CI's secret manager, run jobs against both old and
-    new for one rotation window, then revoke the old one.
-  </Accordion>
-
-  <Accordion title="Long-running services">
-    Mint with **Never** expiry and rotate manually on a cadence. Name
-    the key after the service so it is obvious in the audit trail.
-  </Accordion>
-
-  <Accordion title="Ad-hoc scripts">
-    Mint a short-lived key (30 days), use it, revoke when done. Treat
-    ad-hoc keys like one-use tokens.
-  </Accordion>
-</AccordionGroup>
+See [API keys](/administration/api-keys) for the full flow and the
+options each purpose offers.
 
 ## Your own profile
 

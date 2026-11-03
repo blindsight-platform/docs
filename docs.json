@@ -107,6 +107,7 @@
             "group": "Administration",
             "pages": [
               "administration/access",
+              "administration/api-keys",
               "administration/settings",
               "administration/licence-lifecycle"
             ]

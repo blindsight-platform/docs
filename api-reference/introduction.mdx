@@ -38,11 +38,12 @@ All endpoints require a bearer token. There are two ways to get one.
 
 ### API keys (recommended for services)
 
-Mint a long-lived key from **Settings, API keys** in the workspace.
-Pass it as a bearer token on every request:
+Create a key under **Settings → API keys**, or **Access management → Keys**
+for administrators. See [API keys](/administration/api-keys).
+Send it in the `X-API-Key` header on every request:
 
 ```bash
-curl -H "Authorization: Bearer $API_KEY" $API_BASE/api/datasets
+curl -H "X-API-Key: $API_KEY" $API_BASE/api/datasets
 ```
 
 API keys are scoped to a workspace and can be revoked individually.
