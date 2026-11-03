@@ -1,49 +1,90 @@
 ---
 title: "Observability"
-description: "Analytics, event log, drift detection, and streaming. Three read‑only endpoints that turn the firewall into a continuous monitoring surface."
+description: "Analytics, event log, drift, health and streaming. Read-only endpoints that turn the firewall into a continuous monitoring surface."
 ---
 
-The persisted event log powers three read‑only endpoints plus a
+The persisted event log powers a set of read-only endpoints plus a
 streaming surface. Use them to answer "what is the firewall doing
 right now" without rerunning anything.
 
+## Authentication
+
+Every endpoint on this page is a `GET` that you call with an
+[API key](/administration/api-keys) in the `X-API-Key` header. The key needs
+the **Read threat events** permission (`runtime:events:read`). A key with
+**Full Runtime Access** (`runtime:*`) or full platform access also works. A key
+acts as the person who created it, so it can only read what that person can
+read.
+
+Without a valid key the API returns `401`. With a key that lacks the
+permission it returns `403`. If Runtime Security is not enabled for the
+workspace, it returns `404`.
+
 ## Analytics
 
-### `GET /api/runtime-security/analytics?days=14`
+### `GET /api/runtime-security/analytics`
 
-Returns aggregate counts for the window.
+Aggregate counts for a time window.
+
+| Parameter | Type             | Notes                                                                                   |
+| --------- | ---------------- | --------------------------------------------------------------------------------------- |
+| `days`    | int              | 1 to 3650. Default 14. The last N days.                                                 |
+| `minutes` | int              | 1 to 5256000. A window of the last N minutes. Overrides `days`.                         |
+| `start`   | datetime         | Start of an absolute window, ISO 8601 in UTC (for example `2026-11-01T00:00:00Z`). Send it together with `end`. |
+| `end`     | datetime         | End of an absolute window. Must be after `start`. When `start` and `end` are set they override `days` and `minutes`. |
+| `app`     | string, repeated | An App UUID. Repeat the parameter to include several Apps. An unknown App returns `400`.|
+
+Sending only one of `start` and `end`, or an `end` that is not after `start`,
+returns `400`.
+
+The response has these fields:
+
+| Field                    | Notes                                                                                       |
+| ------------------------ | ------------------------------------------------------------------------------------------- |
+| `range_days`             | The `days` value of the request.                                                            |
+| `range_minutes`          | The length of the window in minutes.                                                        |
+| `bucket_seconds`         | The width of one `series` bucket: 60 for windows up to an hour, 3600 up to a day, otherwise 86400. |
+| `totals`                 | Counts for the window: `total`, `input`, `output`, `tool_call`, `pii_hits` (events with personal data) and `injection_hits` (events with an injection finding). |
+| `verdict_breakdown`      | Event counts for `allow`, `flag`, `redact` and `block`.                                     |
+| `pii_category_breakdown` | Event counts per category of personal data.                                                 |
+| `avg_latency_ms`, `p95_latency_ms` | Scan time. `null` unless the person who owns the key may view firewall latency. |
+| `series`                 | One entry per bucket, oldest first: `date` (the bucket start in UTC, `YYYY-MM-DD` for daily buckets and `YYYY-MM-DDTHH:MM` for shorter ones), `allow`, `flag`, `redact`, `block` and `total`. |
+
+```bash
+curl -H "X-API-Key: $BLINDSIGHT_API_KEY" \
+  "https://platform.blindsight.io/api/runtime-security/analytics?days=7"
+```
 
 ```json
 {
-  "range_days": 14,
+  "range_days": 7,
+  "range_minutes": 10080,
+  "bucket_seconds": 86400,
   "totals": {
-    "total": 12450,
-    "input": 8200,
-    "output": 4100,
-    "tool_call": 150,
-    "pii_hits": 412,
-    "injection_hits": 78
+    "total": 6200,
+    "input": 4100,
+    "output": 2050,
+    "tool_call": 50,
+    "pii_hits": 210,
+    "injection_hits": 31
   },
-  "verdict_breakdown": {"allow": 11960, "flag": 19, "redact": 412, "block": 78},
-  "pii_category_breakdown": {"email": 220, "phone": 110, "ssn": 12, "person": 34},
-  "top_injection_labels": [{"label": "INJECTION", "count": 78}],
+  "verdict_breakdown": {"allow": 5950, "flag": 12, "redact": 210, "block": 28},
+  "pii_category_breakdown": {"email": 120, "phone": 55, "person": 35},
+  "avg_latency_ms": null,
+  "p95_latency_ms": null,
   "series": [
-    {"date": "2026-04-15", "allow": 800, "redact": 30, "block": 5, "total": 835}
+    {"date": "2026-10-28", "allow": 850, "flag": 2, "redact": 30, "block": 4, "total": 886}
   ]
 }
 ```
-
-Use `minutes=N` instead of `days=N` for sub‑day windows
-(`1 ≤ N ≤ 5256000`).
 
 ### How to read the numbers
 
 | Field                       | What it tells you                                                                 |
 | --------------------------- | --------------------------------------------------------------------------------- |
-| `verdict_breakdown`         | The shape of your traffic. If `block` spikes, investigate before tuning. A rising `flag` count usually means an uncorroborated injection signal or a monitor‑mode NER detector; see [Verdicts](/runtime-security/verdicts). |
-| `pii_category_breakdown`    | Which categories are actually firing, including NER‑sourced ones (`person`, `address`, `date_of_birth`, …) when `detectors.ner` is on. Drives custom rule and NER entity‑list decisions. |
-| `top_injection_labels`      | The labels the model is producing. Useful for spotting an emerging attack family.  |
-| `series`                    | Daily series. Plot it to see weekend / weekday rhythms or rollout impact.          |
+| `verdict_breakdown`         | The shape of your traffic. If `block` spikes, investigate before tuning. A rising `flag` count means more events are being recorded for review; see [Verdicts](/runtime-security/verdicts). |
+| `pii_category_breakdown`    | Which categories of personal data are actually showing up. Drives custom rule decisions. |
+| `series`                    | The time series. Plot it to see weekend and weekday rhythms or rollout impact.    |
 
 ## Event log
 
@@ -109,20 +150,120 @@ Automated background requests that AI web apps send while they run, such as
 settings, identifiers and telemetry, are not recorded as prompts. The events
 API does not return them and the console does not count them.
 
+### Example response
+
+```json
+{
+  "total": 137,
+  "identity_mode": "named",
+  "items": [
+    {
+      "uuid": "6b0f3c1e-2a4d-4f57-9a1e-0c5d8e7b4a12",
+      "created_at": "2026-11-02T14:07:31Z",
+      "verdict": "flag",
+      "direction": "input",
+      "reason": "prompt_injection",
+      "provider": "openai",
+      "source_app": "chatgpt.com",
+      "model": "gpt-4o",
+      "device_hostname": "LAPTOP-0042",
+      "device_os_user": "jsmith",
+      "process_name": "chrome.exe",
+      "user_email": "jsmith@example.com",
+      "pii_categories": [],
+      "redacted_text": "Summarise this document for me",
+      "text_length": 31
+    }
+  ]
+}
+```
+
+### Page through events
+
+`total` counts every event that matches your filters, so you can size the
+job up front. Keep the filters fixed and move `offset` forward by `limit`:
+
+```bash
+LIMIT=200
+OFFSET=0
+while :; do
+  PAGE=$(curl -s -H "X-API-Key: $BLINDSIGHT_API_KEY" \
+    "https://platform.blindsight.io/api/runtime-security/events?date_from=2026-11-01&limit=$LIMIT&offset=$OFFSET")
+  COUNT=$(echo "$PAGE" | jq '.items | length')
+  echo "$PAGE" | jq -c '.items[]'
+  [ "$COUNT" -lt "$LIMIT" ] && break
+  OFFSET=$((OFFSET + LIMIT))
+done
+```
+
+New events arrive at the top while you page, which shifts later pages. For a
+one-off export, set `date_to` to a day that has ended so the window does not
+move. For a feed you poll, de-duplicate on `uuid`.
+
+### One event
+
+```bash
+curl -H "X-API-Key: $BLINDSIGHT_API_KEY" \
+  "https://platform.blindsight.io/api/runtime-security/events/6b0f3c1e-2a4d-4f57-9a1e-0c5d8e7b4a12/explain"
+```
+
+The response is a single object with the fields in the table above, plus
+`identity_mode`. An unknown `uuid` returns `404`.
+
 ## Drift
 
-### `GET /api/runtime-security/drift?baseline_days=30&recent_days=7`
+### `GET /api/runtime-security/drift`
 
-Population Stability Index (PSI) per dimension:
+Compares how your traffic looks in a recent window against a longer baseline
+window, using the Population Stability Index (PSI) per dimension.
 
-- `verdict`
-- `direction`
-- `source_app`
-- `model`
-- `provider`
-- `pii_category`
-- `injection_label`
-- `blocked_reason`
+| Parameter       | Type             | Notes                                                                       |
+| --------------- | ---------------- | --------------------------------------------------------------------------- |
+| `baseline_days` | int              | 2 to 365. Default 30. The length of the baseline window, ending now.         |
+| `recent_days`   | int              | 1 to 90. Default 7. The recent window, ending now. Must be smaller than `baseline_days`, otherwise `400`. |
+| `app`           | string, repeated | An App UUID. Repeat the parameter to include several Apps. An unknown App returns `400`. |
+
+The response has `baseline` and `recent` (each with `start`, `end` in UTC and
+`total_events`), `daily_volume` (`date` and `count` per day), and
+`dimensions`, sorted with the largest shift first. Each dimension has:
+
+| Field                                      | Notes                                                              |
+| ------------------------------------------ | ------------------------------------------------------------------ |
+| `name`, `label`                            | The dimension, for example `verdict` ("Verdict mix").              |
+| `psi`                                      | The PSI value for the dimension.                                   |
+| `severity`                                 | `stable`, `moderate` or `high`.                                    |
+| `baseline_distribution`, `recent_distribution` | The share of events per category in each window.               |
+| `top_shifts`                               | The categories that moved most: `category`, `baseline_share`, `recent_share`, `delta`, `baseline_count`, `recent_count`. |
+| `psi_series`                               | `date` and `psi` per day of the recent window.                     |
+
+Dimensions you can read: `verdict`, `direction`, `source_app`, `model`,
+`provider` and `pii_category`.
+
+```bash
+curl -H "X-API-Key: $BLINDSIGHT_API_KEY" \
+  "https://platform.blindsight.io/api/runtime-security/drift?baseline_days=30&recent_days=7"
+```
+
+```json
+{
+  "baseline": {"start": "2026-10-04T09:00:00", "end": "2026-11-03T09:00:00", "total_events": 21400},
+  "recent": {"start": "2026-10-27T09:00:00", "end": "2026-11-03T09:00:00", "total_events": 5100},
+  "dimensions": [
+    {
+      "name": "verdict",
+      "label": "Verdict mix",
+      "psi": 0.03,
+      "severity": "stable",
+      "baseline_distribution": {"allow": 0.96, "redact": 0.03, "block": 0.01},
+      "recent_distribution": {"allow": 0.95, "redact": 0.04, "block": 0.01},
+      "top_shifts": [
+        {"category": "redact", "baseline_share": 0.03, "recent_share": 0.04, "delta": 0.01, "baseline_count": 640, "recent_count": 204}
+      ]
+    }
+  ],
+  "daily_volume": [{"date": "2026-11-02", "count": 740}]
+}
+```
 
 PSI ranges roughly:
 
@@ -132,9 +273,56 @@ PSI ranges roughly:
 | `0.1 – 0.25`  | Mild drift. Worth a glance.                                         |
 | `> 0.25`      | Significant drift. Investigate.                                     |
 
-PSI > 0.25 on `injection_label` is the canonical "model is missing a
-new attack pattern" signal, investigate and consider updating the
-phrase pack or threshold.
+A dimension with a high PSI is a prompt to open the event log for the same
+window and see what changed.
+
+## Health
+
+### `GET /api/runtime-security/health`
+
+Tells you whether the firewall is on and ready to scan. Use it as a readiness
+check in your own tooling.
+
+| Field     | Notes                                                                                           |
+| --------- | ----------------------------------------------------------------------------------------------- |
+| `enabled` | Whether the firewall is turned on for the workspace. When `false`, scan calls return `503`.     |
+| `status`  | `ready`, `degraded` or `disabled`. `degraded` means the firewall is up but not fully ready, for example while it is starting. |
+
+The response carries further fields for operators. Only `enabled` and `status`
+are part of the supported contract.
+
+```bash
+curl -H "X-API-Key: $BLINDSIGHT_API_KEY" \
+  "https://platform.blindsight.io/api/runtime-security/health"
+```
+
+```json
+{"enabled": true, "status": "ready"}
+```
+
+## Service status
+
+### `GET /api/runtime-security/service-status`
+
+Whether the firewall service behind the scan endpoints is running.
+
+| Field         | Notes                                                                          |
+| ------------- | ------------------------------------------------------------------------------ |
+| `provisioned` | Whether this deployment has a firewall service at all.                         |
+| `ready`       | `true` when at least one firewall instance is running and can serve scans.     |
+
+The response carries further fields that describe the hosting deployment. They
+are not part of the supported contract. If the status cannot be read, the
+endpoint returns `503`.
+
+```bash
+curl -H "X-API-Key: $BLINDSIGHT_API_KEY" \
+  "https://platform.blindsight.io/api/runtime-security/service-status"
+```
+
+```json
+{"provisioned": true, "ready": true}
+```
 
 ## Streaming
 
@@ -182,11 +370,10 @@ own code.
   </Accordion>
 
   <Accordion title="Tune a noisy App">
-    1. `drift?baseline_days=30&recent_days=3` to see what's shifted.
-    2. If `injection_label` drifted, inspect the
-       `top_injection_labels` analytics field for the new label.
-    3. Add a custom phrase or adjust the threshold, then watch the
-       next drift run.
+    1. `drift?baseline_days=30&recent_days=3&app=<app-uuid>` to see what's shifted.
+    2. Open the event log for the same App and window, filtered to the
+       verdict or direction that moved.
+    3. Adjust the App's configuration, then watch the next drift run.
   </Accordion>
 
   <Accordion title="Ship live data to your SIEM">
