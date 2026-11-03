@@ -1,0 +1,79 @@
+---
+title: "API keys"
+description: "Create and manage keys for the Blindsight API. One set of keys for the whole platform, chosen by what each key is for."
+---
+
+API keys let a script, service or integration call the Blindsight API
+without a person signing in. Keys are global: one set covers Data
+Security, Runtime Security, Endpoint and Shadow AI, and they are no
+longer managed inside Runtime Security.
+
+## Where to find them
+
+| Who | Where | What they see |
+| --- | ----- | ------------- |
+| Administrators (`settings.security.manage`) | **Access management → Keys** | Every key in the workspace. |
+| Everyone else with `api_keys.manage` | **Settings → API keys** | Their own keys only. |
+
+The former Runtime Security API keys link redirects to **Settings → API keys**.
+Keys created before this change keep working unchanged.
+
+## Create a key
+
+<Steps>
+  <Step title="Choose what it is for">
+    Pick one purpose: **Data Security**, **Runtime Security**,
+    **Endpoint**, **Shadow AI**, or **Entire platform**. A purpose appears
+    only if your workspace licence covers it and you hold permissions for it.
+  </Step>
+  <Step title="Choose what it may do">
+    Tick the narrowest set that works. Only permissions you hold are offered.
+  </Step>
+  <Step title="Set how long it lasts">
+    Give the key an expiry. A key with an end date is one nobody has to remember.
+  </Step>
+  <Step title="Copy the secret">
+    The key is shown once. If you miss it, rotate the key to issue a new one.
+  </Step>
+</Steps>
+
+A key acts as the person who created it. It can never do more than that
+person can, and it loses a permission when they do.
+
+Keys are labelled in the table by what they can do, and show whether they are
+active, expiring, expired, disabled, or unused. Administrators can edit,
+rotate, disable and delete keys from the same table.
+
+## What each purpose offers
+
+| Purpose | Options |
+| ------- | ------- |
+| **Data Security** | Read or write datasets, projects and results; read or start scans. |
+| **Runtime Security** | Scan prompts and responses; read threat events; read or change firewall configuration; or everything in Runtime Security. |
+| **Endpoint** | **Read endpoint events**, and **Manage endpoints and their policies**. |
+| **Shadow AI** | **Read Shadow AI discoveries**, and **Decide on Shadow AI services**. |
+| **Entire platform** | Everything you can do, including permissions you are granted later. |
+
+Endpoint and Shadow AI use the same permissions as Runtime Security. A key that
+reads endpoint events can also read Runtime Security events, and a key that
+manages endpoints can also change Runtime Security configuration. The
+console states this beside each option.
+
+## Rotate and revoke
+
+Rotate a key to issue a new secret before the old one stops working in your
+systems, then delete the old key. Deleting or disabling a key is instant and
+audit-logged, and later calls with it return `401`. Name each key after what
+uses it, so it is obvious in the audit trail.
+
+## Use a key
+
+Send the key in the `X-API-Key` header.
+
+```bash
+curl -H "X-API-Key: $BLINDSIGHT_API_KEY" \
+  "$API_BASE/api/runtime-security/events?limit=50"
+```
+
+The full scope list and the key endpoints are in the
+[API reference](/api-reference/introduction#api-key-scopes).

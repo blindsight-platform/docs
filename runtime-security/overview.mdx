@@ -133,8 +133,8 @@ clients) or `X-Blindsight-Key` (Anthropic clients).
 | `X-Blindsight-App-Id`            | App UUID (see [Apps](/runtime-security/apps)) | Required on every scan / proxy call. Attributes traffic to an App. |
 | `X-Blindsight-App-Token`         | App token                          | Required when the App has `require_signed_token=true`.                     |
 
-API keys are issued under **Settings → API Keys** in the Blindsight
-dashboard. They scope to a workspace and a permission set; Runtime
+API keys are created under **Settings → API keys**, or **Access management → Keys**
+for administrators. See [API keys](/administration/api-keys). They scope to a workspace and a permission set; Runtime
 Security needs:
 
 - `runtime_security.scan` to call the scan endpoints.

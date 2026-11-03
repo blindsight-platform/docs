@@ -1,6 +1,6 @@
 ---
 title: "Triage & governance"
-description: "Work the Shadow AI inventory: how risk is ranked, what sanction / block / onboard actually do, the Insights read on the estate, and the exportable report."
+description: "Work the Shadow AI inventory: how risk is ranked, what sanction / block / onboard actually do, the Insights read on the estate, and the Shadow AI and endpoint report."
 ---
 
 The inventory is a worklist, not a dashboard. Every row is an AI
@@ -220,30 +220,47 @@ reported, it says so rather than drawing a flat zero line.
 
 ## Export the report
 
-**Export** on the Shadow AI page generates a PDF built server-side.
+**Export report** on the Shadow AI page opens a dialog and generates the
+**Shadow AI and endpoint report** as a PDF. It is built on the server from the
+same figures the console shows, so the report and the screens agree.
+
+The full report is two pages:
+
+| Page | What it covers |
+| ---- | -------------- |
+| **AI use and protection** | The share of AI traffic that was inspected, the AI services in use and what Blindsight did about each, the kinds of personal data found in prompts (counted by kind, never the values), and what the period would have looked like without Blindsight. |
+| **Fleet rollout and what needs attention** | How many devices are protected, have reduced protection or are not reporting, as the Devices page shows them, the rollout since the first device enrolled, and the devices that need action. |
+
+The **summary** is the first page alone.
 
 | Option        | Values                                                                                  |
 | ------------- | ---------------------------------------------------------------------------------------- |
-| **Type**      | Full report, or summary.                                                                  |
-| **Sections**  | Discovered services inventory · Risk analysis & traffic trend · Usage & exposure · Methodology & definitions. The executive summary is always included. |
-| **Range**     | Last 7 / 30 / 90 days, or all time.                                                       |
-| **Anonymize** | Replaces user and device names with `User 1`, `Device 1`. Departments are kept.           |
+| **Report type** | Full report, or summary.                                                                |
+| **Time range** | The same range control as the page: a preset or two exact dates.                        |
+| **Anonymize identities** | Shows people and devices as codes, so the report can be shared beyond the security team. |
 
-The report leads with a narrative summary, then the risk-ranked
-inventory, the traffic trend against the prior period, exposure
-breakdowns, and a methodology section that states plainly that
-detection is passive and destination-only.
+An anonymized report says so at the top of the first page. A workspace that
+[codes its people and machines](/endpoint/who-is-named) always exports the
+anonymized form, and the switch stays on.
 
 <Note>
   Sanctioned services are approved tools, not shadow AI, so they are
-  excluded from the report everywhere: the table, the totals, and the
-  breakdowns. The inventory in the console still shows them, filtered
-  behind the **Sanctioned** chip.
+  excluded from the report. The inventory in the console still shows them,
+  filtered behind the **Sanctioned** chip.
 </Note>
 
-Filenames are stamped, `shadow-ai-report-20260729.pdf` or
-`shadow-ai-summary-20260729.pdf`, so a monthly export drops cleanly
-into an evidence folder.
+The same dialog exports the inventory as **CSV** or **JSON**, one row per
+service, approved services included.
+
+A workspace that shows [counts only](/endpoint/who-is-named#counts-only) gets
+a different report, built from the weeks already published. It names no one,
+carries no codes and lists no person or device, so the dialog has no time range
+or anonymize option and offers sections to include instead.
+
+Exporting needs `endpoint.discovery.view`, and every export is written to the
+audit trail with who exported it and the options chosen. Files are stamped,
+`shadow-ai-report-20260729.pdf` or `shadow-ai-summary-20260729.pdf`, so a
+monthly export drops cleanly into an evidence folder.
 
 ## API
 
@@ -347,11 +364,11 @@ are part of your control evidence.
   </Accordion>
 
   <Accordion title="Prove coverage to an auditor">
-    1. Export the full report with **Anonymize** on if the audience
+    1. Export the full report with **Anonymize identities** on if the audience
        should not see identities.
     2. Pair it with the audit trail export for the same period, which
        carries the decisions and who made them.
-    3. The methodology section states the detection limits explicitly,
-       which is usually the auditor's first question.
+    3. Say that detection is passive and destination-only, which is
+       usually the auditor's first question.
   </Accordion>
 </AccordionGroup>

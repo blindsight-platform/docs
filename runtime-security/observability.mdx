@@ -70,8 +70,10 @@ and `items` (the current page). Each event carries its `uuid`,
 when it came from the desktop app, and the stored text according to
 the workspace's privacy settings.
 
-Authenticate with an API key that has the **Read threat events**
-permission, sent in the `X-API-Key` header.
+Authenticate with an [API key](/administration/api-keys) that has the
+**Read threat events** permission, sent in the `X-API-Key` header. A key
+created for **Endpoint** with **Read endpoint events** works for desktop app
+events.
 
 ```bash
 curl -H "X-API-Key: $BLINDSIGHT_API_KEY" \
@@ -80,6 +82,10 @@ curl -H "X-API-Key: $BLINDSIGHT_API_KEY" \
 
 To read everything in a window, keep the same filters and increase
 `offset` by `limit` until a page returns fewer items than `limit`.
+
+Automated background requests that AI web apps send while they run, such as
+settings, identifiers and telemetry, are not recorded as prompts. The events
+API does not return them and the console does not count them.
 
 ## Drift
 
