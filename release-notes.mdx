@@ -7,6 +7,17 @@ Each entry below is one release, newest first. Agent releases are named
 **Endpoint** with their version. Console and platform releases are named
 **Platform** with their date.
 
+<Update label="Platform 2026-11-06" description="Console and platform, 6 November 2026">
+  This release adds native syslog export of Endpoint events to your SIEM.
+
+  - **Syslog export.** Send blocked, redacted and flagged prompts, policy changes
+    and device protection changes to your SIEM's syslog collector, in CEF, JSON or
+    RFC 5424, over TLS by default. Send a test event before you start, and follow
+    delivery health on the destination's row. The text of a prompt is sent only when
+    you turn on **Include what was typed**. See
+    [Syslog export to your SIEM](/endpoint/syslog-export).
+</Update>
+
 <Update label="Endpoint 2.0.0" description="2 November 2026">
   Endpoint 2.0.0 for Windows and Mac makes inspection more responsive under heavy
   AI use, broadens what Shadow AI discovers, and simplifies enrolment on Mac.

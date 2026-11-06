@@ -90,6 +90,13 @@ Alerts are sent to destinations you add at **Endpoint → Configurations → Ale
 a webhook, Slack, Microsoft Teams, Splunk, Sentinel, a mailbox or a syslog
 collector. A rule then decides which events reach which destination.
 
+To send Endpoint events to your SIEM, select **Send to a SIEM**. Blindsight sends
+each blocked, redacted or flagged prompt, each policy change and each change in
+device protection to your syslog collector, in CEF, JSON or RFC 5424, over TLS by
+default. The text of a prompt is sent only if you turn on **Include what was
+typed**. Allow `34.246.156.194` in the collector's firewall. See
+[Syslog export to your SIEM](/endpoint/syslog-export).
+
 A Slack, Teams, webhook or Splunk URL is itself the credential, because whoever
 holds it can post to the channel. Blindsight keeps it in full only where the alert
 is sent from, and shows it masked everywhere else: the host and the last four

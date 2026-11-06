@@ -71,6 +71,7 @@
               "endpoint/custom-ai-services",
               "endpoint/policies",
               "endpoint/permissions",
+              "endpoint/syslog-export",
               {
                 "group": "Shadow AI",
                 "pages": [
