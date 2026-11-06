@@ -1,0 +1,65 @@
+---
+title: "Device linking and person records"
+description: "How a laptop is linked to the person who uses it, so a policy assigned to that person reaches their device."
+---
+
+A policy assigned to a person reaches that person's laptop once the laptop is
+linked to them. Workspaces that use [Intune](/endpoint/connect-intune) get these
+links made for them.
+
+## How a laptop is linked
+
+- **An exact match links automatically.** When the Intune user of a laptop matches
+  a person's email address, the laptop is linked to that person. The match ignores
+  letter case.
+- **The link follows the primary user.** When the Intune primary user changes, the
+  link moves to the new person.
+- **Everything else is a suggestion.** When there is no exact match, or the link
+  needs a decision, a suggested link appears for an admin to confirm or dismiss.
+- **People with a policy get a suggestion.** A person who has a policy assigned, by
+  name or through a group, gets a suggested link instead of an automatic one. The
+  suggestion lists every policy that starts to apply once you confirm it.
+- **Platform owners always get a suggestion.**
+- **Workspaces that do not name people** never link or suggest. See
+  [Who is named in the console](/endpoint/who-is-named).
+
+## Review and undo links
+
+Suggested links are listed in **Pending actions** and on **Endpoint → Devices**.
+Confirm or dismiss each one.
+
+Every link, change and removal is recorded in the
+[audit trail](/compliance/audit-trail). You can undo a recent link from **Recent
+links**. A dismissed suggestion is not offered again, and an undone link is not
+made again.
+
+## What a link gives the person
+
+A link made from Intune selects the person's policy. It does not give that person
+any authority on the device, such as pausing protection, overriding rules or adding
+device rules. Those come only after an admin confirms the link or the person signs
+in. See [Identity](/endpoint/identity).
+
+## Person records
+
+An Intune user with no console account becomes a person record, so you can assign
+policies to them.
+
+- A person record has no password, no sign-in and no role.
+- You can assign it policies and link it to a laptop.
+- It does not count toward your seat limit and does not appear in the **Users**
+  list.
+- When the person is invited, or signs in through your directory or single sign-on,
+  the record becomes a normal account. It keeps its policies and its linked laptop.
+- Sign-in, password reset and role changes are refused for a record until it
+  becomes an account.
+
+## Notices
+
+When you assign a policy to someone with no laptop linked, a notice says that the
+person has no device linked, so the policy does not reach them yet. It links
+straight to where you can link a device. Only people who can manage devices see it.
+
+Notices of the same kind are grouped in one card. Select the **X** on a card to
+close it. Closed notices move to **Dismissed notices** in **Pending actions**, where
+you can find them again.

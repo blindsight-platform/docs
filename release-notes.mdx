@@ -8,7 +8,9 @@ Each entry below is one release, newest first. Agent releases are named
 **Platform** with their date.
 
 <Update label="Platform 2026-11-06" description="Console and platform, 6 November 2026">
-  This release adds native syslog export of Endpoint events to your SIEM.
+  This release adds native syslog export of Endpoint events to your SIEM, topic
+  rules in Endpoint policies, a more complete policy import, and links between
+  devices and the people who use them.
 
   - **Syslog export.** Send blocked, redacted and flagged prompts, policy changes
     and device protection changes to your SIEM's syslog collector, in CEF, JSON or
@@ -16,6 +18,18 @@ Each entry below is one release, newest first. Agent releases are named
     delivery health on the destination's row. The text of a prompt is sent only when
     you turn on **Include what was typed**. See
     [Syslog export to your SIEM](/endpoint/syslog-export).
+  - **Topic rules.** Describe a subject in a sentence, and choose to flag or block
+    prompts about it, whatever words people use. Topic rules are part of a policy
+    and reach everyone the policy is assigned to. See
+    [Topic rules](/endpoint/topic-rules).
+  - **Policy import.** An import now maps named AI services, categories of AI
+    services, file scanning and per-service settings to policy, and lists every
+    sentence it cannot turn into a rule. See [Import a policy](/endpoint/policy-import).
+  - **Device linking and person records.** Laptops are linked to the people who use
+    them from Intune, so a policy assigned to a person reaches their device. People
+    without a console account get a person record that you can assign policies to.
+    Related notices are grouped, and a closed notice moves to **Dismissed notices**.
+    See [Device linking and person records](/endpoint/device-linking).
 </Update>
 
 <Update label="Endpoint 2.0.0" description="2 November 2026">
