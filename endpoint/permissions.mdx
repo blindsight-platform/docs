@@ -124,8 +124,8 @@ separately if you want them separate.
 | Permission                              | Lets the user                                                                                              |
 | --------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | `endpoint.view`                         | Read the named policies, groups, and assignments that decide what each device enforces, and the effective policy resolved for one person. |
-| `endpoint.manage`                       | Create, edit, and delete those policies, groups, and assignments.                                            |
-| `endpoint.import.manage`                | Upload the document that says who may use which AI tools, have it read once, and review the policies it proposes. Applying them also needs `endpoint.manage`. |
+| `endpoint.manage`                       | Create, edit, and delete those policies, groups, and assignments, including a policy's [topic rules](/endpoint/topic-rules). |
+| `endpoint.import.manage`                | Upload the document that says who may use which AI tools, have it read once, and review the policies it proposes. Applying them also needs `endpoint.manage`, and applying inspection settings also needs `endpoint.protections.configure`. See [Import a policy](/endpoint/policy-import). |
 | `endpoint.mcp.manage`                   | Create, edit, and delete the MCP tool profiles devices obey. Reading them stays with `endpoint.view`.        |
 | `endpoint.protections.configure`        | Switch the three [protections](/endpoint/protections) on or off for the devices in this workspace.           |
 | `endpoint.device_ui.configure`          | Decide what the desktop app shows the person using a protected device.                                       |

@@ -1,0 +1,90 @@
+---
+title: "Topic rules"
+description: "Flag or block prompts about a subject you describe in plain language, whatever words people use."
+---
+
+A topic rule flags or blocks prompts about a subject you describe in a sentence.
+You do not list keywords. Blindsight matches prompts by what they are about, so a
+prompt that uses different words for the same subject is still caught.
+
+Use topic rules for what a pattern or a data type cannot express, for example
+"asking for administrator, root or sudo access without approval" or "drafting
+messages to candidates about salary offers".
+
+## Add a topic rule
+
+Topic rules live in a policy. Open **Endpoint → Policies**, open a policy, and go
+to the **Topics** section.
+
+<Steps>
+  <Step title="Describe the topic in a sentence">
+    Write what the prompts are about, in plain language. Be specific, so ordinary
+    prompts are not caught. The editor tells you when a description is too short or
+    too vague.
+  </Step>
+  <Step title="Choose the action">
+    - **Flag** keeps the prompt and records it.
+    - **Block** stops the prompt for everyone the policy covers.
+
+    A new topic always starts as **Flag**.
+  </Step>
+  <Step title="Add example prompts (optional)">
+    Short example prompts help Blindsight recognize the topic. Each example is a full
+    sentence, for example "Can you give me sudo on the build server?".
+  </Step>
+  <Step title="Save the policy">
+    The save bar lists the topics added, removed and changed. Devices the policy
+    reaches pick up the change like any other policy change.
+  </Step>
+</Steps>
+
+<Tip>
+  Start with **Flag** and check the flagged events on **Endpoint → Events** for a
+  few days. Switch the topic to **Block** once the matches are the ones you expect.
+</Tip>
+
+After you save, Blindsight prepares recognition examples for the topic, so it is
+recognized in other wordings and languages. The topic works straight away. While
+the examples are being prepared, a line under the topic says so. If they cannot be
+prepared yet, the topic still works and Blindsight tries again. You can also ask it
+to try again from that line.
+
+## Who a topic rule applies to
+
+A topic rule belongs to its policy. It reaches the people, groups and devices the
+policy is assigned to, the same way as the policy's other rules. See
+[Where to edit policy](/endpoint/policies#where-to-edit-policy).
+
+Changing the words of a topic makes it a new rule with a new ID. Changing only its
+action or its examples keeps the same rule.
+
+## Languages
+
+Matching is by meaning, in English and Spanish. A topic you write in one of these
+languages matches prompts about the same subject in the other, so you do not need
+to write each topic twice.
+
+## Start from the policy description
+
+When a notice or a link takes you to a policy's **Topics** section, the editor can
+add a first topic filled in from the policy's description. Blindsight keeps the
+subject of the sentence and drops the wording around it. For example, "Employees
+must not use AI assistants to gain administrator access" becomes a topic about
+gaining administrator access. Check the text, choose the action and save.
+
+## What people and admins see
+
+- **The person** whose prompt is blocked sees that it was stopped, with the topic
+  as the reason, for example **Prompt about asking for administrator access**.
+- **Admins** see the event in **Endpoint → Events** with the reason `topic_rule`
+  and the topic that matched.
+- **Your SIEM** receives the event with the reason `topic_rule` and the ID of the
+  topic rule, if you use [syslog export](/endpoint/syslog-export). The wording of
+  the topic is not sent.
+
+## When topic rules do not run
+
+Topic rules need prompt inspection. If prompt inspection is off for the workspace,
+the **Topics** section says that topic rules will not run yet. Your topics are kept,
+and they start working when inspection is switched on. See
+[Protections](/endpoint/protections).

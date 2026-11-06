@@ -1,0 +1,89 @@
+---
+title: "Import a policy"
+description: "Turn the AI policy your company already wrote into Endpoint policies you review and approve."
+---
+
+**Import a policy** reads the AI policy your company already wrote and proposes
+Endpoint policies from it. Nothing becomes policy until you approve it.
+
+Open **Endpoint → Configurations → Import a policy**, or select **Import a policy**
+on **Endpoint → Policies**. You need `endpoint.import.manage` to upload and review,
+and `endpoint.manage` to apply. See [Permissions](/endpoint/permissions#the-catalog).
+
+## What is kept
+
+Your document is read once to find the rules in it. It is not saved. When reading
+finishes, the file and its text are discarded. Blindsight keeps the rules you
+approve, the sentence each one came from, and a record of who approved what.
+Proposals you do not apply are deleted when you apply or discard the import.
+
+## Import a document
+
+<Steps>
+  <Step title="Upload">
+    Drop in your policy in Word, PDF, a spreadsheet or plain text. Written policies,
+    access matrices and permission tables all work. You can leave the page while the
+    document is read.
+  </Step>
+  <Step title="Coverage">
+    Before any rule is shown, you see how much of the document the platform can
+    enforce:
+
+    | Bucket | What it holds |
+    | ------ | ------------- |
+    | **Enforced** | Statements that become policy rules, once their groups are matched. |
+    | **Not enforceable** | Real rules that are outside what Endpoint controls. They are listed so the count is complete. |
+    | **Refused** | Statements that were proposed but did not pass checking, with the reason. |
+
+    Open a bucket to read the sentences in it. Select **Export the coverage report**
+    to keep a copy. Export it here, because the quoted sentences are deleted with the
+    rest of the import.
+  </Step>
+  <Step title="People">
+    Match each group the document names to a group from your directory, or to
+    **Everyone in this workspace**. If the document names nobody, every rule applies
+    to everyone.
+  </Step>
+  <Step title="Review and apply">
+    Each proposal shows the sentence it came from and what it changes on your
+    devices. Edit a proposal in place if you need to. The summary confirms that
+    nothing becomes less restrictive and that no roles or permissions change. Select
+    **Apply** to create the policies. Devices pick them up like any other policy
+    change.
+  </Step>
+</Steps>
+
+## What an import can turn into a rule
+
+| In your document | Becomes |
+| ---------------- | ------- |
+| A named AI service, for example "Engineering cannot use DeepSeek" | A rule for that service's hosts, taken from the [AI services catalogue](/endpoint/ai-services). One name can cover several hosts. |
+| An explicit domain | A rule for that domain. |
+| A category, for example "Image generators are prohibited" | A block for that category of AI services. |
+| A subject people must not ask AI about | A [topic rule](/endpoint/topic-rules). |
+| Fail open or fail closed, file scanning, and what to do with a file that cannot be redacted | The matching policy settings. |
+| Inspection settings for a single service | The policy's settings for that service. Applying them also needs `endpoint.protections.configure`. |
+
+A host comes only from a service the document names or a domain it writes out.
+An import never guesses a host.
+
+## What an import holds back
+
+An import does not turn every sentence into a rule. It holds back a sentence it
+cannot turn into a rule, and lists it under **Not enforceable** with the reason.
+For example:
+
+- Rules about something Endpoint does not control, such as who may use the console.
+- Approving or allowing a whole category of AI services. An import never loosens
+  policy.
+- A rule assigned to a single device rather than to people or groups.
+
+## Import a revised policy
+
+When your policy changes, import the new version. Blindsight compares it with the
+rules applied from the last import:
+
+- A rule that has not changed is hidden.
+- A rule whose sentence changed is shown as before and after.
+- A rule that is no longer in the document is listed under **No longer in the
+  document**, so you can retire it.

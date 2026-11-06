@@ -31,6 +31,7 @@ Policy comes from two places, and the difference matters.
 | **Endpoint → Configurations → Protections** | Which of the three protections devices run: prompt injection detection, personal data protection and Shadow AI, and how each behaves. See [Protections](/endpoint/protections). |
 | **Endpoint → Configurations → Default policy** | The floor every device in the workspace starts from, such as fail mode. The unapproved AI posture is set under Shadow AI on Protections, and this page shows it read-only. |
 | **Endpoint → Policies** | Named policies layered on top of that floor, each assigned to people, groups or specific devices. |
+| **Endpoint → Configurations → Import a policy** | Policies proposed from the AI policy your company already wrote, for you to review and apply. See [Import a policy](/endpoint/policy-import). |
 
 **Policies has its own page in the Endpoint menu.** It used to sit inside
 Configurations alongside the settings; it is a thing you come to manage
@@ -52,6 +53,17 @@ attributed to (see [Apps](/runtime-security/apps)).
   overrides it and links straight to it, so the screen cannot show one
   answer while a device enforces another.
 </Note>
+
+### Topic rules in a policy
+
+A policy's **Topics** section flags or blocks prompts about subjects you describe in
+plain language, for example "asking for administrator access without approval".
+Matching is by meaning, so the exact words do not need to match. Each topic is
+**Flag** or **Block**, and it reaches everyone the policy is assigned to, like the
+policy's other rules. See [Topic rules](/endpoint/topic-rules).
+
+A policy assigned to a person reaches their laptop once the laptop is linked to
+them. See [Device linking and person records](/endpoint/device-linking).
 
 ### Inspection settings in a policy
 

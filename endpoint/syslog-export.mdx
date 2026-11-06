@@ -216,7 +216,7 @@ message starts with an RFC 5424 header:
     | `cs3` (`sourceId`) | The event's ID in Blindsight. |
     | `cs4` (`deliveryId`) | This delivery's ID, for removing duplicates. |
     | `cs5` (`text`) | What was typed, only when **Include what was typed** is on. |
-    | `cs6` (`topicRuleId`) | The ID of the topic rule that matched, when one did. |
+    | `cs6` (`topicRuleId`) | The ID of the [topic rule](/endpoint/topic-rules) that matched, when one did. |
     | `cn2` (`redactedOnDevice`) | How many values the device itself replaced. |
     | `cn3` (`textTruncated`) | `1` when the text was shortened to fit. |
     | `request` | A link to the event in the console. |
@@ -268,7 +268,7 @@ message starts with an RFC 5424 header:
 | `serviceHost`, `provider`, `model` | The AI service the prompt went to. |
 | `categories` | Detection categories, comma separated. |
 | `reason` | For a block, the reason code. |
-| `topicRuleId` | The ID of the topic rule that matched, when one did. |
+| `topicRuleId` | The ID of the [topic rule](/endpoint/topic-rules) that matched, when one did. |
 | `redactedOnDevice` | How many values the device itself replaced. |
 | `rule` | The Blindsight alert rule that sent it. |
 | `eventId`, `eventType` | The event in Blindsight. |
