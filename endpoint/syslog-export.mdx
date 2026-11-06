@@ -1,0 +1,345 @@
+---
+title: "Syslog export to your SIEM"
+description: "Send Endpoint policy events to your SIEM's syslog collector in CEF, JSON or RFC 5424, over TLS, TCP or UDP."
+---
+
+Blindsight can send Endpoint events to your SIEM's syslog collector, one message
+per event, as it happens. That covers every prompt the agent blocked, redacted or
+flagged, every policy change, and every time a device loses or regains protection.
+
+If you would rather pull events, use the API:
+`GET /api/runtime-security/events` with an [API key](/administration/api-keys)
+that has the **Read endpoint events** permission, filtered by verdict and date.
+
+## What is sent
+
+Each message says what happened and where: the time, the workspace, the device,
+the person, the AI service, the verdict, the detection categories, the reason code
+and the severity.
+
+How the device and the person are named follows your workspace's
+[identity setting](/endpoint/who-is-named):
+
+| Identity setting | Device and person in the message |
+| ---------------- | -------------------------------- |
+| Named | The device's host name and the person's email address. |
+| Pseudonymized | The same codes the console shows, for example `Person 7KQ2MD`. |
+| Counts only | Single prompts are not sent. Policy and protection changes are sent hourly, without naming a device. |
+
+The setting in force when a message is sent decides how it names people. This
+includes a message that was waiting to be retried when the setting changed.
+
+### What was typed is off by default
+
+By default, no prompt, excerpt, file content or topic wording leaves Blindsight in
+a syslog message.
+
+To send the text, turn on **Include what was typed** for a destination. This needs
+the **Send prompt text to a SIEM** permission, which administrators have, and a
+destination that uses TLS. Each blocked, redacted or flagged prompt then carries its
+text, exactly as the console shows it.
+
+- **Only what your policy redacts is removed.** A redacted prompt arrives with those
+  values replaced. On a blocked or flagged prompt, values your policy does not
+  redact, such as names, companies and addresses, can still be readable. The
+  original text, as the device sent it before redaction, is never sent.
+- **Pseudonymized workspaces stay pseudonymized.** Email addresses, device names,
+  account names and the names of people in the workspace are replaced in the text
+  by the same codes the console shows.
+- **Counts only sends no text.** Single prompts are not sent at all. If the setting
+  was on, it stays on but paused, and resumes when the workspace names people again.
+- **The text is read when the message is sent.** A prompt deleted by retention or an
+  erasure request before then is sent without text.
+- **A long prompt is shortened** to fit a collector's line, and marked as shortened.
+
+Turning the setting on or off is recorded in the [audit trail](/compliance/audit-trail)
+with who did it. Pointing a destination that includes text at another collector
+needs the same permission. An API key cannot turn it on. Turning it off needs only
+**Manage alerts**.
+
+<Warning>
+  Your SIEM keeps its own copy of the text, under its own retention and access
+  controls, not this workspace's. Turn on **Include what was typed** only when your
+  SIEM should hold it.
+</Warning>
+
+## Before you start
+
+<Steps>
+  <Step title="Have a collector on a public address">
+    You need a syslog collector your SIEM reads from, reachable from the internet.
+    TLS on port `6514` is recommended.
+  </Step>
+  <Step title="Allow the Blindsight address">
+    Allow this address in the collector's firewall:
+
+    | Region | Address |
+    | ------ | ------- |
+    | Blindsight cloud (EU) | `34.246.156.194` |
+
+    If the address changes, you are told in advance. A self-hosted installation
+    connects from its own network.
+  </Step>
+  <Step title="Have your CA certificate ready">
+    If the collector's TLS certificate is signed by a private certificate authority,
+    have that CA certificate ready in PEM form.
+  </Step>
+</Steps>
+
+Blindsight connects only to public addresses. A host name that resolves to a
+private, loopback, link-local or cloud metadata address is refused when you save,
+and again each time a message is sent.
+
+## Set up a destination
+
+You need the **Manage alerts** permission, which administrators have.
+
+<Steps>
+  <Step title="Open Alerts">
+    Go to **Endpoint → Configurations → Alerts** and select **Send to a SIEM**.
+  </Step>
+  <Step title="Where is your collector?">
+    Enter a name, the collector's host name and port, and the transport. Paste your
+    CA certificate if it is a private one. Select **Next**.
+  </Step>
+  <Step title="What should it receive?">
+    Choose the format and tick what to send:
+
+    - Blocked, redacted and flagged prompts
+    - Policy changes
+    - Device protection lost, and device protection resumed
+
+    Tick **Include what was typed** only if your SIEM should hold the text of each
+    prompt. It is off by default.
+  </Step>
+  <Step title="Test it, then start">
+    Select **Send test event**. The result appears on the spot: delivered, or the
+    reason it was not, such as a refused connection, no answer, an untrusted
+    certificate or no TLS on that port. Then select **Start sending**.
+  </Step>
+</Steps>
+
+The test event is titled **Test alert** and names nobody, so it is safe to send to
+a production SIEM. With **Include what was typed** on, it carries a line of example
+text, so you can see which field the text lands in.
+
+What you ticked becomes ordinary alert rules, listed under **Rules**, where you can
+switch one off or change it.
+
+### Delivery health
+
+The destination's row shows its health: when it last delivered, the last error, and
+how many events were dropped, if any.
+
+Messages are sent in the background, never on the path that inspects prompts. A
+slow or unreachable collector does not slow anyone down. A failed send is retried
+several times over the following hours. The first message given up during an
+outage is written to the audit trail. During a long outage, a destination drops new
+messages instead of building an endless backlog, and counts what it dropped on the
+destination's row.
+
+Delivery is at least once, so a message can arrive twice after a retry. Every
+message carries a delivery ID that you can use to remove duplicates.
+
+## Transports
+
+| Transport | Encrypted | Delivery confirmed | Use when |
+| --------- | --------- | ------------------ | -------- |
+| **TLS** | Yes | Yes | Always, unless your collector cannot do TLS. |
+| **TCP** | No | Yes | Inside a private link you trust. |
+| **UDP** | No | No | Only when nothing else is possible. A test over UDP can only confirm the message left. |
+
+TLS is version 1.2 or later. The collector's certificate and its host name are
+always verified, and verification cannot be turned off. Messages are framed one per
+line (RFC 6587, non-transparent framing), which every common collector accepts on
+TCP and TLS.
+
+## Formats
+
+All three formats carry the same facts. Choose the one your SIEM parses best. Every
+message starts with an RFC 5424 header:
+
+```text
+<PRI>1 TIMESTAMP blindsight rs-alerts - MSGID ...
+```
+
+- `PRI` is the facility (16, `local0`, by default) times 8, plus the syslog
+  severity: 6 for low, 4 for medium, 3 for high and 2 for critical.
+- `TIMESTAMP` is when the message was sent, in UTC. The event's own time is in the
+  fields.
+- `MSGID` is the event family for RFC 5424 and JSON, and `-` for CEF.
+
+### Event families
+
+| Family | When |
+| ------ | ---- |
+| `endpoint_event` | The agent blocked, redacted or flagged a prompt, a response or a tool call. |
+| `policy_changed` | A policy, group, detection or install setting changed. |
+| `protection_lost` | A device stopped inspecting AI traffic. |
+| `protection_resumed` | A device inspects AI traffic again after a pause. |
+| `test` | A test event you sent. |
+
+<Tabs>
+  <Tab title="CEF">
+    Recommended for Splunk, Microsoft Sentinel, IBM QRadar and ArcSight. The CEF
+    record is the syslog message.
+
+    ```text
+    <11>1 2026-11-06T10:15:41Z blindsight rs-alerts - - - CEF:0|Blindsight|Runtime Security|1|endpoint_block|Prompt blocked|8|rt=1793960130000 cat=endpoint_event act=block msg=A prompt to chat.openai.com was blocked. suser=dana@example.com dvchost=DANA-LAPTOP dhost=chat.openai.com reason=topic_rule deviceDirection=0 flexString1Label=categories flexString1=credit_card,topic_rule cs2Label=workspace cs2=Example cs4Label=deliveryId cs4=e1a7...
+    ```
+
+    | Header position | Value |
+    | --------------- | ----- |
+    | Device Vendor | `Blindsight` |
+    | Device Product | `Runtime Security` |
+    | Device Version | `1` |
+    | Signature ID | `endpoint_block`, `endpoint_redact`, `endpoint_flag`, or the family for other events. |
+    | Name | For example `Prompt blocked`, `Response redacted` or `Policy changed`. |
+    | Severity | 3 low, 5 medium, 8 high, 10 critical. |
+
+    | Extension key | Meaning |
+    | ------------- | ------- |
+    | `rt` | When the event happened, in milliseconds since 1970 (UTC). |
+    | `cat` | The event family. |
+    | `act` | For Endpoint events, the verdict: `block`, `redact` or `flag`. |
+    | `msg` | A one-sentence summary. |
+    | `suser` | The person, named as your identity setting allows. |
+    | `dvchost` | The device, named as your identity setting allows. |
+    | `deviceExternalId` | The device's ID in Blindsight. |
+    | `dhost` | The AI service's host. |
+    | `reason` | For a block, the reason code, for example `topic_rule`. |
+    | `deviceDirection` | `0` for a prompt or tool call going out, `1` for a response coming back. |
+    | `flexString1` (`categories`) | Detection categories, comma separated. |
+    | `flexString2` (`provider`) | The AI provider. |
+    | `cs1` (`rule`) | The Blindsight alert rule that sent it. |
+    | `cs2` (`workspace`) | The workspace. |
+    | `cs3` (`sourceId`) | The event's ID in Blindsight. |
+    | `cs4` (`deliveryId`) | This delivery's ID, for removing duplicates. |
+    | `cs5` (`text`) | What was typed, only when **Include what was typed** is on. |
+    | `cs6` (`topicRuleId`) | The ID of the topic rule that matched, when one did. |
+    | `cn2` (`redactedOnDevice`) | How many values the device itself replaced. |
+    | `cn3` (`textTruncated`) | `1` when the text was shortened to fit. |
+    | `request` | A link to the event in the console. |
+
+    Values are escaped as the CEF specification requires (`\=`, `\\`, and line
+    breaks as `\n`), so any text in a value reads back exactly.
+  </Tab>
+  <Tab title="RFC 5424">
+    A standard RFC 5424 message with no structured data element. Every field is a
+    `key="value"` pair in the message, followed by the summary as `msg`. Splunk,
+    QRadar, Sentinel and the syslog-ng `kv-parser()` split this form without
+    configuration.
+
+    ```text
+    <11>1 2026-11-06T10:15:41Z blindsight rs-alerts - endpoint_event - family="endpoint_event" severity="high" occurredAt="2026-11-06T10:15:30Z" workspace="Example" verdict="block" direction="input" person="dana@example.com" device="DANA-LAPTOP" identityMode="named" serviceHost="chat.openai.com" provider="openai" categories="credit_card,topic_rule" reason="topic_rule" eventType="endpoint.block" deliveryId="..." msg="A prompt to chat.openai.com was blocked."
+    ```
+
+    Values are in double quotes, with `\"` and `\\` escaped. A field with no value
+    is left out.
+
+    <Tip>
+      If you include what was typed, prefer CEF or JSON. A prompt often contains
+      double quotes, and some SIEMs stop a value at the first escaped quote.
+    </Tip>
+  </Tab>
+  <Tab title="JSON">
+    The same fields as one JSON object in the message, plus `title`, `summary` and
+    `consoleUrl`.
+
+    ```text
+    <11>1 2026-11-06T10:15:41Z blindsight rs-alerts - endpoint_event - {"family":"endpoint_event","severity":"high","occurredAt":"2026-11-06T10:15:30Z","workspace":"Example","verdict":"block","direction":"input","person":"dana@example.com","device":"DANA-LAPTOP","serviceHost":"chat.openai.com","provider":"openai","categories":"credit_card,topic_rule","reason":"topic_rule","eventId":"...","deliveryId":"...","title":"Prompt blocked","summary":"A prompt to chat.openai.com was blocked."}
+    ```
+  </Tab>
+</Tabs>
+
+### Field reference for RFC 5424 and JSON
+
+| Field | Meaning |
+| ----- | ------- |
+| `family` | The event family. |
+| `severity` | `low`, `medium`, `high` or `critical`. Blocks are high. Redactions and flags are medium. |
+| `occurredAt` | When the event happened, in UTC (ISO 8601). |
+| `workspace`, `workspaceId` | The workspace. |
+| `verdict` | `block`, `redact` or `flag`, for Endpoint events. |
+| `direction` | `input` (prompt), `output` (response) or `tool_call`. |
+| `person` | The person who sent the prompt, as your identity setting allows. |
+| `device`, `deviceId` | The device, as your identity setting allows. |
+| `identityMode` | `named` or `pseudonymised`. |
+| `serviceHost`, `provider`, `model` | The AI service the prompt went to. |
+| `categories` | Detection categories, comma separated. |
+| `reason` | For a block, the reason code. |
+| `topicRuleId` | The ID of the topic rule that matched, when one did. |
+| `redactedOnDevice` | How many values the device itself replaced. |
+| `rule` | The Blindsight alert rule that sent it. |
+| `eventId`, `eventType` | The event in Blindsight. |
+| `deliveryId` | This delivery's ID, for removing duplicates. |
+| `text` | What was typed, only when **Include what was typed** is on. |
+| `textTruncated` | `true` when the text was shortened to fit. |
+
+## SIEM examples
+
+<AccordionGroup>
+  <Accordion title="Splunk">
+    With Splunk Connect for Syslog (SC4S), listen with TLS on `6514` and choose
+    **CEF** in Blindsight. SC4S recognizes the records by their vendor and product.
+
+    ```text
+    index=* sourcetype=cef "Blindsight"
+    | search act=block
+    | stats count by suser, dhost
+    ```
+
+    Without SC4S, a TCP or TLS data input with source type `syslog` also works. With
+    **JSON** chosen, use `| spath input=message`, or extract the JSON after the
+    header, to read the fields.
+  </Accordion>
+  <Accordion title="Microsoft Sentinel">
+    Use the **Common Event Format (CEF) via AMA** data connector with a Linux log
+    forwarder, and choose **CEF** in Blindsight. Events land in the
+    `CommonSecurityLog` table.
+
+    ```kusto
+    CommonSecurityLog
+    | where DeviceVendor == "Blindsight" and DeviceProduct == "Runtime Security"
+    | where DeviceAction in ("block", "redact", "flag")
+    | project TimeGenerated, DeviceAction, SourceUserName, DeviceCustomString2, DestinationHostName, FlexString1
+    ```
+
+    `DeviceCustomString2` is the workspace and `FlexString1` holds the detection
+    categories.
+  </Accordion>
+  <Accordion title="IBM QRadar">
+    Add a log source with these settings:
+
+    - **Log source type**: Universal CEF
+    - **Protocol**: TLS Syslog on port `6514`, or Syslog
+    - **Log source identifier**: `blindsight`
+
+    Choose **CEF** in Blindsight. Map `endpoint_block`, `endpoint_redact` and
+    `endpoint_flag` to QRadar events in the Universal CEF event mapping, so you can
+    use them in rules and offenses.
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Nothing arrives">
+    Send a test event from the destination's dialog. It names the problem. A
+    refused connection is usually the port or the transport. No answer is usually a
+    firewall that does not allow `34.246.156.194`. An untrusted certificate needs the
+    CA certificate added to the destination.
+  </Accordion>
+  <Accordion title="The test arrives but no events do">
+    Check under **Rules** that the rules for this destination are on. Check that
+    your workspace does not show counts only, because single prompts are not sent
+    then.
+  </Accordion>
+  <Accordion title="You want the prompt text in the SIEM">
+    Edit the destination, tick **Include what was typed** on the second step, and
+    save. Messages sent from then on carry the text.
+  </Accordion>
+  <Accordion title="You changed the collector">
+    Edit the destination and send a test event before you save.
+  </Accordion>
+</AccordionGroup>

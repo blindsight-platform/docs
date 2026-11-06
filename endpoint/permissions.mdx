@@ -154,6 +154,8 @@ separately if you want them separate.
 | `endpoint.protection.pause_policy`      | Allow or bar pausing on a machine, for everyone who holds it.                                                |
 | `endpoint.devices.uninstall_code`       | Issue a one-time code that lets IT remove the agent from one managed machine, and withdraw an unused code.   |
 | `endpoint.devices.uninstall_code_workspace` | Issue a code that removes the agent from every machine, push a removal authorization to chosen machines, and choose whether uninstall codes are off, observed or required. |
+| `runtime_security.alerts.manage`        | Add and change alert destinations, including [syslog export](/endpoint/syslog-export), the rules that decide which events reach them, and send test alerts. |
+| `runtime_security.alerts.export_text`   | Turn on **Include what was typed** for a syslog destination, so each blocked, redacted or flagged prompt carries its text, as the console shows it, to your SIEM. Turning it off needs only `runtime_security.alerts.manage`. |
 
 The nine `endpoint.desktop.*` keys are listed
 [below](#what-people-see-in-the-desktop-app).
