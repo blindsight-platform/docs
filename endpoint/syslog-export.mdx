@@ -1,6 +1,6 @@
 ---
 title: "Syslog export to your SIEM"
-description: "Send Endpoint policy events to your SIEM's syslog collector in CEF, JSON or RFC 5424, over TLS, TCP or UDP."
+description: "Send Endpoint policy events to your SIEM's syslog collector in CEF, JSON or RFC 5424 (key=value or structured data), over TLS, TCP or UDP."
 ---
 
 Blindsight can send Endpoint events to your SIEM's syslog collector, one message
@@ -156,7 +156,7 @@ TCP and TLS.
 
 ## Formats
 
-All three formats carry the same facts. Choose the one your SIEM parses best. Every
+All four formats carry the same facts. Choose the one your SIEM parses best. Every
 message starts with an RFC 5424 header:
 
 ```text
@@ -167,7 +167,7 @@ message starts with an RFC 5424 header:
   severity: 6 for low, 4 for medium, 3 for high and 2 for critical.
 - `TIMESTAMP` is when the message was sent, in UTC. The event's own time is in the
   fields.
-- `MSGID` is the event family for RFC 5424 and JSON, and `-` for CEF.
+- `MSGID` is the event family for both RFC 5424 forms and JSON, and `-` for CEF.
 
 ### Event families
 
@@ -224,7 +224,7 @@ message starts with an RFC 5424 header:
     Values are escaped as the CEF specification requires (`\=`, `\\`, and line
     breaks as `\n`), so any text in a value reads back exactly.
   </Tab>
-  <Tab title="RFC 5424">
+  <Tab title="RFC 5424 (key=value)">
     A standard RFC 5424 message with no structured data element. Every field is a
     `key="value"` pair in the message, followed by the summary as `msg`. Splunk,
     QRadar, Sentinel and the syslog-ng `kv-parser()` split this form without
@@ -242,6 +242,25 @@ message starts with an RFC 5424 header:
       double quotes, and some SIEMs stop a value at the first escaped quote.
     </Tip>
   </Tab>
+  <Tab title="RFC 5424 (structured data)">
+    The same fields in one RFC 5424 structured data element, with the summary as
+    the message. The SD-ID is `blindsight@67580`, under Blindsight's IANA private
+    enterprise number 67580, and it does not change. Choose this form when your
+    collector reads RFC 5424 structured data, for example the syslog-ng
+    `.SDATA.blindsight@67580.*` values or the rsyslog `structured-data` property.
+
+    ```text
+    <11>1 2026-11-06T10:15:41Z blindsight rs-alerts - endpoint_event [blindsight@67580 family="endpoint_event" severity="high" occurredAt="2026-11-06T10:15:30Z" workspace="Example" verdict="block" direction="input" person="dana@example.com" device="DANA-LAPTOP" identityMode="named" serviceHost="chat.openai.com" provider="openai" categories="credit_card,topic_rule" reason="topic_rule" eventType="endpoint.block" deliveryId="..."] A prompt to chat.openai.com was blocked.
+    ```
+
+    Parameter names are the field names in the reference below. Values are escaped
+    as RFC 5424 requires (`\"`, `\\` and `\]`), and a line break becomes a space.
+    A field with no value is left out.
+
+    The key=value form does not change: a destination that uses it keeps receiving
+    the same shape. To move to structured data, edit the destination and change its
+    format.
+  </Tab>
   <Tab title="JSON">
     The same fields as one JSON object in the message, plus `title`, `summary` and
     `consoleUrl`.
@@ -253,6 +272,8 @@ message starts with an RFC 5424 header:
 </Tabs>
 
 ### Field reference for RFC 5424 and JSON
+
+The same names are used in the key=value form, as structured data parameters and as JSON keys.
 
 | Field | Meaning |
 | ----- | ------- |
