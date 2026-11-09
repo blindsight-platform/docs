@@ -17,7 +17,7 @@ Each entry below is one release, newest first. Agent releases are named
     identity, so a reinstall needs the enrollment token. See
     [Uninstalling the agent](/endpoint/uninstall).
   - **Shadow AI by DNS lookups.** The agent notices AI services by the names a
-    device looks up and names the app behind each lookup. It reads names only.
+    device looks up. It reads names only.
     The workspace setting **Notice AI services by DNS lookups** controls it. See
     [Notice AI services by DNS lookups](/endpoint/policies#notice-ai-services-by-dns-lookups).
   - **Microsoft 365 Copilot.** Only what a person types is inspected, once.
@@ -28,11 +28,6 @@ Each entry below is one release, newest first. Agent releases are named
     is now refused on the device, where before it could be sent masked.
   - **More personal data on the device.** Mexican RFC, CURP and CLABE numbers are
     recognised on the device, with their check digits.
-  - **Clearer protection states.** A device whose lane an administrator switched
-    off in the console reads **Partly protected** with the reason, and a Mac that
-    your organisation enrolled reads **Protected** with nobody signed in. A lane
-    change in the console reaches a running Windows device at its next policy
-    fetch.
   - **Block events.** Blocks by host or category are reported as events with no
     prompt text, once the platform supports them.
   - **Steadier operation.** A short outage or a rate limit is retried instead of
