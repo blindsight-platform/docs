@@ -7,6 +7,96 @@ Each entry below is one release, newest first. Agent releases are named
 **Endpoint** with their version. Console and platform releases are named
 **Platform** with their date.
 
+<Update label="Endpoint 2.1.5" description="9 November 2026">
+  Endpoint 2.1.5 for Windows and Mac collects the changes since 2.0.0. It is on the
+  `stable` channel, so devices on 2.0.0 update automatically. Features that need a
+  newer platform say so.
+
+  - **Stronger device identity.** A device proves it is the same device when it
+    enrols again, on Windows and Mac. A clean uninstall removes the device
+    identity, so a reinstall needs the enrollment token. See
+    [Uninstalling the agent](/endpoint/uninstall).
+  - **Shadow AI by DNS lookups.** The agent notices AI services by the names a
+    device looks up. It reads names only.
+    The workspace setting **Notice AI services by DNS lookups** controls it. See
+    [Notice AI services by DNS lookups](/endpoint/policies#notice-ai-services-by-dns-lookups).
+  - **Microsoft 365 Copilot.** Only what a person types is inspected, once.
+    History, titles and type-ahead suggestions are no longer recorded as prompts,
+    and a refused turn ends with a plain message.
+  - **Protections follow the console.** The agent applies every Protections
+    setting per workspace, policy and AI service. A data type set to **Block**
+    is now refused on the device, where before it could be sent masked.
+  - **More personal data on the device.** Mexican RFC, CURP and CLABE numbers are
+    recognised on the device, with their check digits.
+  - **Block events.** Blocks by host or category are reported as events with no
+    prompt text. They appear in the console with Platform 2026-11-09.
+  - **Steadier operation.** A short outage or a rate limit is retried instead of
+    failing open, the last good licence and policy are kept, and the app starts
+    reliably after an upgrade or a restart.
+  - **Regex host rules.** A regex host rule is matched without regard to case on
+    every route. A rule that used `\S`, `\D`, `\W` or `\B` and never matched
+    may start matching, so review those rules.
+  - **Diagnostics.** Automatic diagnostics upload is off unless the workspace turns
+    it on. Diagnostics an administrator requests still work.
+</Update>
+
+<Update label="Platform 2026-11-09" description="Console and platform, 9 November 2026">
+  This release adds a preview before every Intune change, simpler Intune
+  connection and permissions, policy fixes for the Wintun block, a setting for
+  noticing AI services by DNS lookups, and a structured data form of syslog
+  export. It works with every agent from 1.6.1. Features that need a newer agent
+  say so.
+
+  - **Every Intune change is previewed.** Before Blindsight writes to your Intune,
+    the console shows what it will create, change, assign or remove, what it
+    leaves untouched and how to undo it, and writes only what you confirmed. See
+    [Every change is previewed first](/endpoint/connect-intune#every-change-is-previewed-first).
+  - **One Microsoft approval to connect.** Connecting Intune asks Microsoft once
+    instead of twice. See
+    [Connecting with one Microsoft approval](/endpoint/connect-intune#connecting-with-one-microsoft-approval).
+  - **Approve more access.** When an optional Microsoft permission is missing, the
+    Intune page offers **Approve more access**. Existing tenants approve the new
+    read permission `DeviceManagementConfiguration.Read.All` once to enable policy
+    checks. See [Approve more access](/endpoint/connect-intune#approve-more-access).
+  - **Policies redesigned.** Each policy is one page in sections: Overview,
+    Personal data, AI services, Topics, Files, Assignments and History. The Default
+    policy has the same shape. Protections, Default policy, Assignments and Import a
+    policy now live under **Policies**, and the old addresses redirect. See
+    [One page per policy](/endpoint/policies#one-page-per-policy).
+  - **Assign and check.** Assign a policy to devices from its **Assignments**
+    section, see every assignment in **All assignments**, and use **Check a person**
+    to see what applies to a person and why, including data types that differ from
+    the default and the policy each comes from. History is read-only. See
+    [Check a person](/endpoint/policies#check-a-person).
+  - **Blocks appear as events.** Blocks stopped on the device now show in the
+    console as events, with no prompt text.
+  - **Intune fix card.** An applied fix stays listed with **Undo** after devices
+    recover, and a failed write offers **Check again**. See
+    [Policy fixes for the Wintun block](/endpoint/connect-intune#policy-fixes-for-the-wintun-block).
+  - **Policy fixes for Wintun.** Check one group, preview the policy, apply it
+    and undo it, from the Wintun notice. It needs the **Blindsight Intune fixes**
+    approval. See
+    [Policy fixes for the Wintun block](/endpoint/connect-intune#policy-fixes-for-the-wintun-block).
+  - **Notice AI services by DNS lookups.** A new Default policy setting, on by
+    default, for agents 2.1.4 and later. See
+    [Notice AI services by DNS lookups](/endpoint/policies#notice-ai-services-by-dns-lookups).
+  - **Syslog structured data.** RFC 5424 with structured data is a separate
+    format, `blindsight@67580`, beside the unchanged key=value form. See
+    [Syslog export to your SIEM](/endpoint/syslog-export#formats).
+  - **Places default to Keep.** Place names such as countries and cities are no
+    longer pseudonymized unless an administrator sets **Places** to **Protect** or
+    **Block**. Postal addresses, email addresses and card numbers are unaffected.
+  - **Events lists.** The lists offer a **relevant only** view, with options to
+    include or show only hidden records and a count of each.
+  - **Install page.** Each enrollment token shows its limit and expiry.
+  - **Endpoint without Runtime Security.** A workspace licensed for Endpoint
+    alone uses Endpoint fully.
+  - **A quieter top bar.** Data Security appears only when your workspace is
+    licensed for it. The request and latency figures are gone from the top bar,
+    with their Appearance setting, and the background activity indicator shows
+    only while work is running.
+</Update>
+
 <Update label="Platform 2026-11-06" description="Console and platform, 6 November 2026">
   This release adds native syslog export of Endpoint events to your SIEM, topic
   rules in Endpoint policies, a more complete policy import, and links between

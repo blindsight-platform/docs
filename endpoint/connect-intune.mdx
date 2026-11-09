@@ -44,8 +44,9 @@ consent screen shows a verified publisher and no "unverified" warning.
 
 | Application | Graph application permissions |
 | ----------- | ----------------------------- |
-| **Blindsight Endpoint for Intune** (read) | `DeviceManagementManagedDevices.Read.All`, `DeviceManagementApps.Read.All` |
+| **Blindsight Endpoint for Intune** (read) | `DeviceManagementManagedDevices.Read.All`, `DeviceManagementApps.Read.All`, `DeviceManagementConfiguration.Read.All` |
 | **Blindsight Endpoint for Intune (deploy)** | `DeviceManagementApps.ReadWrite.All`, `GroupMember.Read.All` |
+| **Blindsight Intune fixes** | `DeviceManagementConfiguration.ReadWrite.All`. Asked for only when you use a [policy fix](#policy-fixes-for-the-wintun-block). |
 
 - **No client secret exists.** Blindsight proves itself to Microsoft with a
   certificate. The private key is held in AWS KMS and only the separate runner
@@ -59,6 +60,13 @@ consent screen shows a verified publisher and no "unverified" warning.
 
 Install status needs `DeviceManagementApps.Read.All`. Without it the device list
 still works and the install column reads **Not read yet**.
+
+`DeviceManagementConfiguration.Read.All` lets Blindsight read your device
+installation policies, so it can tell whether one blocks the Wintun adapter.
+It reads policies and changes nothing. A tenant connected before this
+permission existed approves it once with
+[Approve more access](#approve-more-access). Until then the policy check reads
+**Cannot check** and the rest of the page works as before.
 
 ### What Blindsight reads
 
@@ -108,6 +116,17 @@ still works and the install column reads **Not read yet**.
   Microsoft's screen then asks for an administrator.
 </Warning>
 
+### Connecting with one Microsoft approval
+
+When one approval is available for your workspace, the steps above shrink to a
+single Microsoft screen. **Connect Intune** opens Microsoft's permissions page
+once. After the administrator approves, Blindsight confirms the tenant with a
+quiet sign-in in the background, shows **Confirming with Microsoft**, and then
+connects. If Microsoft finishes that sign-in as a different account, the page
+offers one more sign-in with the right account. The roles that can approve, the
+approval by email and the page's wording for a sign-in that does not finish are
+the same as above. A tenant that is already connected is not asked again.
+
 ### If you are not one of the two roles
 
 Sign in with your own account anyway. Blindsight proves the tenant, and
@@ -143,6 +162,18 @@ Administrator who does not use Blindsight:
   workspace already uses. Free mailbox domains do not count.
 - The link works once and expires after 24 hours.
 - **Cancel request** withdraws a request that has not been approved yet.
+
+### Approve more access
+
+Blindsight adds a read permission now and then. A tenant connected earlier keeps
+working without it, and the **Microsoft Graph** section on the **Configuration**
+tab lists each permission as **Granted**, **Not granted** or **Not checked**.
+When an optional permission is **Not granted**, **Approve more access** appears
+next to the list. Select it, and a Global Administrator or Privileged Role
+Administrator approves the missing permission at Microsoft. Existing tenants
+approve `DeviceManagementConfiguration.Read.All` this way, once, to enable policy
+checks. Nothing already granted is removed, and the page updates by itself when
+Microsoft passes the approval on. Needs `endpoint.intune.manage`.
 
 ## Read the tenant
 
@@ -216,6 +247,25 @@ withheld. See [Who is named in the console](/endpoint/who-is-named).
   application under **Enterprise applications** in your own Microsoft tenant. The
   page links there.
 </Note>
+
+## Every change is previewed first
+
+Blindsight never writes to your Intune until you have seen exactly what it will
+write. Deploy, update, uninstall, remove, retry and a policy fix each open the
+preview in place before the button that confirms. The preview lists:
+
+- What Blindsight **creates, uploads, changes, assigns or removes**, one line per
+  change, with its details and the groups it targets.
+- The **tenant** it writes to.
+- **Not touched**: what stays as it is, such as assignments you added in Intune.
+- **Undo**: how to take the change back.
+- **Show the requests sent to Microsoft**, which opens the requests as they are
+  sent.
+
+The confirmation covers that exact plan. If anything Blindsight would write
+changes after you read the preview, nothing is written. The page shows the new
+preview and you confirm that one. The plan you confirmed is kept in the
+[audit trail](/compliance/audit-trail).
 
 ## Deploy the agent
 
@@ -446,7 +496,7 @@ The reason on the device row starts with one of these:
 | Reason on the row | What it means | What to do |
 | ----------------- | ------------- | ---------- |
 | Device installation is blocked by policy | An Intune or Group Policy device installation restriction refuses the Wintun network adapter, so whole-device protection cannot start. | Allow the device ID `Wintun`. If a Prevent rule also matches it, turn on the layered order setting. See [Device installation restrictions](/endpoint/fleet-rollout#device-installation-restrictions). The agent checks again when the policy changes, or within an hour. |
-| AI sites are sent around Blindsight by a company proxy | A proxy is in the path and **Inspect traffic through a company proxy** is off. | Turn it on at **Endpoint → Configurations → Default policy**. See [Proxies](/endpoint/fleet-rollout#proxies). |
+| AI sites are sent around Blindsight by a company proxy | A proxy is in the path and **Inspect traffic through a company proxy** is off. | Turn it on at **Endpoint → Policies → Default policy**. See [Proxies](/endpoint/fleet-rollout#proxies). |
 | A TLS inspector re-signs AI sites and its root is not trusted | A TLS inspection product sits in the path. The row names its issuer. | Put the inspector's root in the machine certificate store, or exempt the AI hosts from inspection. |
 | Traffic into the tunnel is blocked (firewall rule, error 10013) | A firewall rule or a VPN kill switch refuses the agent's traffic. | Allow `BlindsightAgent.exe` in the firewall policy, or exclude it from the kill switch. |
 | Windows will not load the network driver | Microsoft's vulnerable-driver blocklist, on by default in Windows 11, refuses the packet driver. Browsers and system-proxy apps are still inspected. | Keep the blocklist on. Allow the Wintun adapter so the whole-device lane covers the rest. |
@@ -481,6 +531,48 @@ The notice has:
 
 Devices that were revoked are not counted. In a workspace that shows only
 counts, the figure is withheld when a group is smaller than five.
+
+### Policy fixes for the Wintun block
+
+Under the Wintun notice, **Check and fix from Intune** can check one group of your
+deployment and, where one allow entry would change the result, create a single
+separately named policy for it. The policy is added in your Intune and nowhere
+else.
+
+<Steps>
+  <Step title="Check a group">
+    Pick a group of your deployment and select **Check this group**. Blindsight
+    reads your device installation policies and says whether Windows blocks the
+    Wintun adapter on that group. It reads only. This needs the read permission
+    `DeviceManagementConfiguration.Read.All`; see
+    [Approve more access](#approve-more-access).
+  </Step>
+  <Step title="Read the preview">
+    When a fix would help, the preview shows the policy it would create, its one
+    setting and value, and the group it is assigned to. **Your own policies, All
+    users and All devices are not touched.** When a fix would not help, the page
+    says why and writes nothing.
+  </Step>
+  <Step title="Approve once">
+    The first time, you approve **Blindsight Intune fixes** at Microsoft and come
+    back to the same preview. Later fixes reuse the approval.
+  </Step>
+  <Step title="Apply">
+    Confirming creates the policy and assigns it to the chosen group. Devices
+    take it at their next Intune sync, usually within the hour. Select **Check
+    again** afterwards to see the result.
+  </Step>
+</Steps>
+
+An applied fix stays listed on the page with **Undo** after the devices recover and
+the notice is gone, so you can still remove it later. If Blindsight could not write
+the policy, the card says so and offers **Check again**.
+
+**Undo and remove the policy** shows the exact removal in place first, and the
+button there confirms it. The application behind the fixes can only manage the
+policies Blindsight created. If its approval is withdrawn while a policy stands,
+approve it again to undo the policy or to disconnect Intune. Where policy fixes
+are not offered for your workspace, the notice shows the manual steps only.
 
 ## Known limits
 

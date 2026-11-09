@@ -24,19 +24,69 @@ policy decision; it fetches the latest version from the cloud.
 
 ### Where to edit policy
 
-Policy comes from two places, and the difference matters.
+Every policy setting lives under **Endpoint → Policies**. Protections, the
+Default policy, Assignments and Import a policy are all part of it.
 
 | Where | What it sets |
 | ----- | ------------ |
-| **Endpoint → Configurations → Protections** | Which of the three protections devices run: prompt injection detection, personal data protection and Shadow AI, and how each behaves. See [Protections](/endpoint/protections). |
-| **Endpoint → Configurations → Default policy** | The floor every device in the workspace starts from, such as fail mode. The unapproved AI posture is set under Shadow AI on Protections, and this page shows it read-only. |
-| **Endpoint → Policies** | Named policies layered on top of that floor, each assigned to people, groups or specific devices. |
-| **Endpoint → Configurations → Import a policy** | Policies proposed from the AI policy your company already wrote, for you to review and apply. See [Import a policy](/endpoint/policy-import). |
+| **Endpoint → Policies → Default policy** | The floor every device in the workspace starts from: personal data protection, prompt injection detection, Shadow AI, fail mode and visibility. See [Protections](/endpoint/protections). |
+| **Endpoint → Policies**, then a policy | A named policy layered on top of that floor, each assigned to people, groups or specific devices. |
+| **Endpoint → Policies → All assignments** | Every assignment across all policies. |
+| **Endpoint → Policies → Check a person** | What applies to one person and why. |
+| **Endpoint → Policies → Import a written policy** | Policies proposed from the AI policy your company already wrote, for you to review and apply. See [Import a policy](/endpoint/policy-import). |
 
-**Policies has its own page in the Endpoint menu.** It used to sit inside
-Configurations alongside the settings; it is a thing you come to manage
-rather than a setting you adjust once, so it now stands on its own. The
-old link still works and lands on the new page.
+**Configurations** keeps what is not a policy: MCP tools, Directory & SSO,
+Alerts, Intune and Manual install.
+
+### One page per policy
+
+Each policy opens on one page, in sections. A strip across the top moves between
+them and shows a dot on a section that holds a change you have not saved. There is
+one draft and one save bar for the whole page, so switching sections never loses an
+edit.
+
+| Section | What it holds |
+| ------- | ------------- |
+| **Overview** | A plain sentence for each part of the policy, each linking to its section. It says when a rule adds nothing because the default already covers it. |
+| **Personal data** | How personal data is protected, then every data type with its setting and whether it comes from this policy or the default policy. Select a row to set it to **Protect**, **Keep** or **Block**, or to go back to the default. |
+| **AI services** | Rules for categories and named services, prompt injection, services with settings of their own, and software calling the API. |
+| **Topics** | The policy's [topic rules](/endpoint/topic-rules). |
+| **Files** | The two file scanning switches, with what the default already does beside each. |
+| **Assignments** | Who the policy applies to: groups, people, devices or everyone. |
+| **History** | The record of changes to the policy. |
+
+The **Default policy** has the same page shape, with Overview, Personal data, AI
+services, Files and History. It has no Topics or Assignments, because it applies to
+everyone.
+
+**New policy** and **Duplicate** open the same page. A name is suggested from the
+first rule you add.
+
+### Assign a policy to devices
+
+Open the policy and go to **Assignments**. Add a group, a person, a device or
+everyone, and remove an assignment from the same table. A policy assigned to a
+person reaches their laptop once it is linked to them.
+
+**Endpoint → Policies → All assignments** lists every assignment across all
+policies, archived ones included, so an archived policy's assignments can be removed
+without restoring it. It is also where you assign a policy from one place and link a
+device to a person.
+
+### Check a person
+
+**Endpoint → Policies → Check a person** answers what applies to one person and why.
+Search for a person and the page shows the settings being enforced on their devices,
+the policy each comes from, a table of **data types set differently from the default**
+(each with its setting, what it applies to and the policy it comes from), the groups
+that apply policy to them, and the policies assigned to them directly. In a
+workspace that does not name people, the view is not offered.
+
+### History
+
+A policy's **History** is read-only. Each row is one save, with its version, when it
+was saved, what changed and who saved it, for example "Card numbers: as the default
+to Block". The default policy's History also lists every change to its protections.
 
 Thresholds, custom phrases, custom PII rules and tool policy are the same
 as SDK-mode Runtime Security and are edited on the App the agent is
@@ -67,7 +117,7 @@ them. See [Device linking and person records](/endpoint/device-linking).
 
 ### Inspection settings in a policy
 
-A policy's **Inspection** section holds the same choices as Protections as
+A policy's **Personal data** and **AI services** sections hold the same choices as Protections as
 defaults for everyone the policy applies to: **Personal data**, **Prompt
 injection** and **Data types**. It can also set **Single services**, with
 their own entries for that policy. Each choice can be **Inherit**. The order
@@ -77,7 +127,7 @@ the policy default, then the workspace. See
 
 ### Inspect traffic through a company proxy
 
-**Endpoint → Configurations → Default policy → Visibility → Inspect traffic
+**Endpoint → Policies → Default policy → AI services → Inspect traffic
 through a company proxy** decides what a device does with AI traffic when the
 machine is set to use a proxy, a PAC file or WPAD.
 
@@ -91,6 +141,22 @@ kept, whichever way it points. The October 2026 release removed an off value
 that was stored but that nobody had set, so those workspaces now read on. Each
 change is written to the [audit trail](/compliance/audit-trail). See
 [Proxies](/endpoint/fleet-rollout#proxies) for the network cases.
+
+### Notice AI services by DNS lookups
+
+**Endpoint → Policies → Default policy → AI services → Notice AI services
+by DNS lookups** lets a device notice the AI services people reach from any app,
+by the names the device looks up. It reads names only, never content, and drops
+every name that is not a known AI service. What it notices appears under
+[Shadow AI](/endpoint/shadow-ai/overview).
+
+| Setting | What devices do |
+| ------- | --------------- |
+| **On** (the default) | The device notices AI services by the names it looks up and reports them as sightings. |
+| **Off** | The device reports only the AI services it sees through its other routes. |
+
+The setting needs Endpoint agent 2.1.4 or later on Windows and Mac. Older agents
+ignore it. Each change is written to the [audit trail](/compliance/audit-trail).
 
 ## AI host rules
 
