@@ -496,7 +496,7 @@ The reason on the device row starts with one of these:
 | Reason on the row | What it means | What to do |
 | ----------------- | ------------- | ---------- |
 | Device installation is blocked by policy | An Intune or Group Policy device installation restriction refuses the Wintun network adapter, so whole-device protection cannot start. | Allow the device ID `Wintun`. If a Prevent rule also matches it, turn on the layered order setting. See [Device installation restrictions](/endpoint/fleet-rollout#device-installation-restrictions). The agent checks again when the policy changes, or within an hour. |
-| AI sites are sent around Blindsight by a company proxy | A proxy is in the path and **Inspect traffic through a company proxy** is off. | Turn it on at **Endpoint → Configurations → Default policy**. See [Proxies](/endpoint/fleet-rollout#proxies). |
+| AI sites are sent around Blindsight by a company proxy | A proxy is in the path and **Inspect traffic through a company proxy** is off. | Turn it on at **Endpoint → Policies → Default policy**. See [Proxies](/endpoint/fleet-rollout#proxies). |
 | A TLS inspector re-signs AI sites and its root is not trusted | A TLS inspection product sits in the path. The row names its issuer. | Put the inspector's root in the machine certificate store, or exempt the AI hosts from inspection. |
 | Traffic into the tunnel is blocked (firewall rule, error 10013) | A firewall rule or a VPN kill switch refuses the agent's traffic. | Allow `BlindsightAgent.exe` in the firewall policy, or exclude it from the kill switch. |
 | Windows will not load the network driver | Microsoft's vulnerable-driver blocklist, on by default in Windows 11, refuses the packet driver. Browsers and system-proxy apps are still inspected. | Keep the blocklist on. Allow the Wintun adapter so the whole-device lane covers the rest. |
@@ -563,6 +563,10 @@ else.
     again** afterwards to see the result.
   </Step>
 </Steps>
+
+An applied fix stays listed on the page with **Undo** after the devices recover and
+the notice is gone, so you can still remove it later. If Blindsight could not write
+the policy, the card says so and offers **Check again**.
 
 **Undo and remove the policy** shows the exact removal in place first, and the
 button there confirms it. The application behind the fixes can only manage the
