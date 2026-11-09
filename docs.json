@@ -122,18 +122,764 @@
         "tab": "API reference",
         "groups": [
           {
-            "group": "Overview",
+            "group": "Get started",
             "pages": [
-              "api-reference/introduction"
+              "api-reference/introduction",
+              "api-reference/authentication",
+              "api-reference/errors",
+              "api-reference/rate-limits",
+              "api-reference/versioning"
             ]
           },
           {
-            "group": "Blindsight API",
-            "openapi": "api-reference/openapi.json"
+            "group": "Identity and sign-in",
+            "pages": [
+              {
+                "group": "Authentication",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "POST /api/auth/password/forgot",
+                  "POST /api/auth/password/reset/confirm",
+                  "POST /api/auth/email/change",
+                  "POST /api/auth/email/change/confirm",
+                  "POST /api/auth/login",
+                  "GET /api/auth/me",
+                  "GET /api/auth/2fa/status",
+                  "POST /api/auth/2fa/setup/start",
+                  "POST /api/auth/2fa/setup/confirm",
+                  "POST /api/auth/2fa/disable",
+                  "POST /api/auth/register",
+                  "POST /api/auth/password/change",
+                  "POST /api/auth/token/refresh",
+                  "GET /api/auth/csrf",
+                  "POST /api/auth/logout"
+                ]
+              },
+              {
+                "group": "Single sign-on",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "POST /api/auth/sso/discover",
+                  "GET /api/auth/sso/{provider_uuid}/login",
+                  "GET /api/auth/sso/{provider_uuid}/callback"
+                ]
+              },
+              {
+                "group": "Social sign-in",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "GET /api/auth/social/providers",
+                  "GET /api/auth/social/{provider}/login",
+                  "GET /api/auth/social/{provider}/callback"
+                ]
+              },
+              {
+                "group": "SCIM provisioning",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "GET /scim/v2/ServiceProviderConfig",
+                  "GET /scim/v2/Users",
+                  "POST /scim/v2/Users",
+                  "DELETE /scim/v2/Users/{user_id}",
+                  "GET /scim/v2/Users/{user_id}",
+                  "PATCH /scim/v2/Users/{user_id}",
+                  "PUT /scim/v2/Users/{user_id}",
+                  "GET /scim/v2/Groups",
+                  "POST /scim/v2/Groups",
+                  "GET /scim/v2/Groups/{group_id}",
+                  "PATCH /scim/v2/Groups/{group_id}"
+                ]
+              }
+            ]
           },
           {
-            "group": "Runtime Security API",
+            "group": "Data Security",
+            "pages": [
+              {
+                "group": "Projects",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "GET /api/projects",
+                  "POST /api/projects",
+                  "DELETE /api/projects/{project_id}",
+                  "GET /api/projects/{project_id}",
+                  "PUT /api/projects/{project_id}",
+                  "DELETE /api/projects/{project_id}/datasets",
+                  "DELETE /api/projects/{project_id}/scans"
+                ]
+              },
+              {
+                "group": "Datasets",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "GET /api/datasets",
+                  "POST /api/datasets",
+                  "GET /api/datasets/summaries",
+                  "GET /api/datasets/validate-name",
+                  "PATCH /api/datasets/{dataset_id}/settings",
+                  "GET /api/datasets/{dataset_id}/reviewers",
+                  "PUT /api/datasets/{dataset_id}/reviewers",
+                  "GET /api/datasets/{dataset_id}/bias",
+                  "DELETE /api/datasets/{dataset_id}",
+                  "GET /api/datasets/{dataset_id}",
+                  "DELETE /api/datasets/{dataset_id}/branches/{branch_id}",
+                  "GET /api/datasets/{dataset_id}/details",
+                  "GET /api/datasets/{dataset_id}/structure",
+                  "PATCH /api/datasets/{dataset_id}/structure",
+                  "POST /api/datasets/{dataset_id}/structure/reanalyze",
+                  "GET /api/datasets/{dataset_id}/drift",
+                  "DELETE /api/datasets/{dataset_id}/drift/snapshots",
+                  "GET /api/datasets/{dataset_id}/filesystem",
+                  "GET /api/datasets/{dataset_id}/filesystem/search",
+                  "GET /api/datasets/{dataset_id}/filesystem/children",
+                  "POST /api/datasets/{dataset_id}/filesystem/move",
+                  "GET /api/datasets/{dataset_id}/filesystem/preview",
+                  "GET /api/datasets/{dataset_id}/filesystem/file",
+                  "GET /api/datasets/{dataset_id}/filesystem/image-preview",
+                  "GET /api/datasets/{dataset_id}/shortcut-guidance/classes",
+                  "GET /api/datasets/{dataset_id}/shortcut-guidance/classes/{class_name}/samples",
+                  "GET /api/datasets/{dataset_id}/shortcut-guidance/classes/{class_name}/mask",
+                  "DELETE /api/datasets/{dataset_id}/shortcut-guidance/classes/{class_name}",
+                  "PUT /api/datasets/{dataset_id}/shortcut-guidance/classes/{class_name}",
+                  "GET /api/datasets/{dataset_id}/download",
+                  "GET /api/datasets/{dataset_id}/branches",
+                  "POST /api/datasets/{dataset_id}/branches",
+                  "POST /api/datasets/{dataset_id}/branches/latent-selection",
+                  "POST /api/datasets/{dataset_id}/best-samples/stop",
+                  "GET /api/datasets/{dataset_id}/history",
+                  "GET /api/datasets/{dataset_id}/documents/{document_id}",
+                  "GET /api/datasets/{dataset_id}/overview",
+                  "POST /api/datasets/{dataset_id}/compliance-report",
+                  "POST /api/datasets/{dataset_id}/compliance-report/download"
+                ]
+              },
+              {
+                "group": "Uploads and imports",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "POST /api/uploads/dataset/init",
+                  "POST /api/uploads/dataset/{dataset_id}/abort",
+                  "POST /api/uploads/dataset/text",
+                  "POST /api/uploads/dataset/{dataset_id}/text",
+                  "POST /api/uploads/dataset/images",
+                  "POST /api/uploads/dataset/{dataset_id}/images",
+                  "POST /api/uploads/dataset/images/3d",
+                  "POST /api/import/kaggle",
+                  "POST /api/import/huggingface",
+                  "POST /api/import/direct",
+                  "POST /api/import/preview",
+                  "GET /api/jobs/{job_id}",
+                  "POST /api/jobs/{job_id}/cancel",
+                  "POST /api/datasets/{dataset_id}/retry-import",
+                  "POST /api/repositories/check"
+                ]
+              },
+              {
+                "group": "Scans",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "GET /api/scans/{scan_id}/reviewers",
+                  "GET /api/scans",
+                  "POST /api/scans",
+                  "POST /api/scans/{scan_id}/stop",
+                  "DELETE /api/scans/{scan_id}",
+                  "GET /api/scans/{scan_id}",
+                  "GET /api/scans/{scan_id}/results",
+                  "GET /api/scans/{scan_id}/results/{result_id}",
+                  "GET /api/scans/{scan_id}/results/{result_id}/comments",
+                  "POST /api/scans/{scan_id}/results/{result_id}/comments",
+                  "DELETE /api/scans/{scan_id}/results/{result_id}/comments/{comment_id}",
+                  "GET /api/scans/{scan_id}/logs",
+                  "PATCH /api/scans/{scan_id}/results/{result_id}/status",
+                  "PATCH /api/scans/{scan_id}/results/{result_id}/text",
+                  "PATCH /api/scans/{scan_id}/results/status",
+                  "GET /api/scans/{scan_id}/representation",
+                  "GET /api/scans/{scan_id}/text-graph",
+                  "GET /api/scans/{scan_id}/text-cleaning",
+                  "GET /api/scans/{scan_id}/results/{result_id}/preview",
+                  "GET /api/scans/{scan_id}/artifacts/file",
+                  "GET /api/scans/{scan_id}/artifacts/{artifact_path}",
+                  "GET /api/scans/{scan_id}/volumes/{case_id}/{kind}",
+                  "DELETE /api/datasets/{dataset_id}/scans",
+                  "GET /api/datasets/{dataset_id}/scan-advanced",
+                  "POST /api/datasets/{dataset_id}/scan"
+                ]
+              },
+              {
+                "group": "Schedules",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "GET /api/schedules",
+                  "DELETE /api/datasets/{dataset_id}/schedule",
+                  "GET /api/datasets/{dataset_id}/schedule",
+                  "POST /api/datasets/{dataset_id}/schedule",
+                  "DELETE /api/projects/{project_id}/schedule",
+                  "GET /api/projects/{project_id}/schedule",
+                  "POST /api/projects/{project_id}/schedule"
+                ]
+              },
+              {
+                "group": "Healing",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "POST /api/datasets/{dataset_id}/heal",
+                  "GET /api/datasets/{dataset_id}/healing",
+                  "GET /api/datasets/{dataset_id}/healing/versions",
+                  "POST /api/datasets/{dataset_id}/healing/activate",
+                  "DELETE /api/healing/{job_id}",
+                  "GET /api/healing/{job_id}",
+                  "GET /api/healing/{job_id}/download",
+                  "POST /api/healing/{job_id}/stop"
+                ]
+              },
+              {
+                "group": "RAG corpora",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "GET /api/rag-corpus/providers",
+                  "POST /api/rag-corpus/discover",
+                  "POST /api/rag-corpus/test-connection",
+                  "GET /api/rag-corpus",
+                  "POST /api/rag-corpus",
+                  "DELETE /api/rag-corpus/{corpus_uuid}",
+                  "GET /api/rag-corpus/{corpus_uuid}",
+                  "POST /api/rag-corpus/{corpus_uuid}/sources",
+                  "POST /api/rag-corpus/{corpus_uuid}/sources/{source_id}/test",
+                  "POST /api/rag-corpus/{corpus_uuid}/documents/upload",
+                  "GET /api/rag-corpus/{corpus_uuid}/documents",
+                  "GET /api/rag-corpus/{corpus_uuid}/findings",
+                  "POST /api/rag-corpus/{corpus_uuid}/scan",
+                  "POST /api/rag-corpus/{corpus_uuid}/documents/{doc_uuid}/quarantine",
+                  "POST /api/rag-corpus/{corpus_uuid}/documents/{doc_uuid}/unquarantine",
+                  "GET /api/rag-corpus/{corpus_uuid}/filter-contract",
+                  "PATCH /api/rag-corpus/{corpus_uuid}/settings"
+                ]
+              },
+              {
+                "group": "Custom rules",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "GET /api/custom-rules",
+                  "POST /api/custom-rules",
+                  "DELETE /api/custom-rules/{rule_id}",
+                  "PATCH /api/custom-rules/{rule_id}",
+                  "POST /api/custom-rules/test"
+                ]
+              },
+              {
+                "group": "Playground",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "POST /api/playground/prepare",
+                  "GET /api/playground/sessions",
+                  "POST /api/playground/sessions",
+                  "DELETE /api/playground/sessions/{session_id}",
+                  "GET /api/playground/sessions/{session_id}",
+                  "PATCH /api/playground/sessions/{session_id}",
+                  "POST /api/playground/sessions/{session_id}/cancel",
+                  "POST /api/playground/sessions/{session_id}/retry",
+                  "POST /api/playground/sessions/{session_id}/upload",
+                  "GET /api/playground/sessions/{session_id}/data",
+                  "PATCH /api/playground/sessions/{session_id}/data",
+                  "POST /api/playground/sessions/{session_id}/embedding",
+                  "POST /api/playground/sessions/{session_id}/bias",
+                  "GET /api/playground/sessions/{session_id}/distributions",
+                  "POST /api/playground/sessions/{session_id}/splits",
+                  "POST /api/playground/sessions/{session_id}/publish",
+                  "GET /api/playground/datasets/{dataset_id}/csv-files",
+                  "POST /api/playground/sessions/from-dataset",
+                  "POST /api/playground/sessions/{session_id}/export-csv",
+                  "POST /api/playground/sessions/{session_id}/sql",
+                  "GET /api/playground/sessions/{session_id}/profile",
+                  "GET /api/playground/sessions/{session_id}/context",
+                  "POST /api/playground/sessions/{session_id}/dry-run-bias",
+                  "GET /api/playground/sessions/{session_id}/hypotheses",
+                  "POST /api/playground/sessions/{session_id}/hypotheses",
+                  "DELETE /api/playground/sessions/{session_id}/hypotheses/{hypothesis_id}",
+                  "GET /api/playground/sessions/{session_id}/audit",
+                  "POST /api/playground/sessions/from-scan",
+                  "GET /api/playground/widgets/sessions",
+                  "GET /api/playground/sessions/{session_id}/retry-hint"
+                ]
+              },
+              {
+                "group": "Search and activity",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "GET /api/activity-summary",
+                  "GET /api/activity-live",
+                  "GET /api/activity-recent",
+                  "GET /api/search",
+                  "GET /api/overview"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Runtime Security (scan and proxy)",
             "openapi": "api-reference/openapi-runtime-security.yaml"
+          },
+          {
+            "group": "Runtime Security management",
+            "pages": [
+              {
+                "group": "Apps",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "POST /api/runtime-security/scan/file",
+                  "POST /api/runtime-security/scan/tool",
+                  "GET /api/runtime-security/mcp/pinned",
+                  "DELETE /api/runtime-security/mcp/pinned/{tool_uuid}",
+                  "POST /api/runtime-security/mcp/pinned/{tool_uuid}/repin",
+                  "POST /api/runtime-security/mcp/pinned/{tool_uuid}/status",
+                  "GET /api/runtime-security/pseudonymization/labels",
+                  "GET /api/runtime-security/ner/status",
+                  "GET /api/runtime-security/drift/topics",
+                  "GET /api/runtime-security/firewall-flow",
+                  "GET /api/runtime-security/apps/templates",
+                  "GET /api/runtime-security/apps",
+                  "POST /api/runtime-security/apps",
+                  "GET /api/runtime-security/apps/posture",
+                  "DELETE /api/runtime-security/apps/{app_uuid}",
+                  "GET /api/runtime-security/apps/{app_uuid}",
+                  "PATCH /api/runtime-security/apps/{app_uuid}",
+                  "DELETE /api/runtime-security/apps/{app_uuid}/permanent",
+                  "POST /api/runtime-security/apps/{app_uuid}/clone",
+                  "GET /api/runtime-security/apps/{app_uuid}/config-versions",
+                  "PUT /api/runtime-security/apps/{app_uuid}/config",
+                  "GET /api/runtime-security/apps/{app_uuid}/custom-params",
+                  "POST /api/runtime-security/apps/{app_uuid}/custom-params",
+                  "DELETE /api/runtime-security/apps/{app_uuid}/custom-params/{param_uuid}",
+                  "PATCH /api/runtime-security/apps/{app_uuid}/custom-params/{param_uuid}",
+                  "GET /api/runtime-security/apps/{app_uuid}/tokens",
+                  "POST /api/runtime-security/apps/{app_uuid}/tokens",
+                  "DELETE /api/runtime-security/apps/{app_uuid}/tokens/{token_uuid}",
+                  "GET /api/runtime-security/apps/{app_uuid}/components",
+                  "POST /api/runtime-security/apps/{app_uuid}/components",
+                  "DELETE /api/runtime-security/apps/{app_uuid}/components/{component_uuid}",
+                  "PATCH /api/runtime-security/apps/{app_uuid}/components/{component_uuid}",
+                  "POST /api/runtime-security/apps/{app_uuid}/components/layout",
+                  "GET /api/runtime-security/apps/{app_uuid}/components/metrics",
+                  "GET /api/runtime-security/apps/{app_uuid}/dataset/summary",
+                  "POST /api/runtime-security/apps/{app_uuid}/dataset",
+                  "GET /api/runtime-security/apps/{app_uuid}/dataset/linkable",
+                  "POST /api/runtime-security/apps/{app_uuid}/dataset/materialize-events",
+                  "POST /api/runtime-security/apps/{app_uuid}/dataset/link",
+                  "POST /api/runtime-security/apps/{app_uuid}/labeling/ensure-dataset",
+                  "GET /api/runtime-security/apps/{app_uuid}/labeling/events",
+                  "PUT /api/runtime-security/apps/{app_uuid}/labeling/events/{event_uuid}/label",
+                  "POST /api/runtime-security/apps/{app_uuid}/labeling/labels/bulk",
+                  "GET /api/runtime-security/apps/{app_uuid}/labeling/export",
+                  "GET /api/runtime-security/apps/{app_uuid}/insights/runs",
+                  "POST /api/runtime-security/apps/{app_uuid}/insights/runs",
+                  "GET /api/runtime-security/apps/{app_uuid}/insights/runs/{run_uuid}",
+                  "GET /api/runtime-security/apps/{app_uuid}/scan-engines",
+                  "GET /api/runtime-security/apps/{app_uuid}/scans",
+                  "POST /api/runtime-security/apps/{app_uuid}/scans",
+                  "GET /api/runtime-security/apps/{app_uuid}/scans/{scan_uuid}",
+                  "POST /api/runtime-security/apps/{app_uuid}/scans/{scan_uuid}/cancel",
+                  "GET /api/runtime-security/apps/{app_uuid}/scans/{scan_uuid}/findings",
+                  "PATCH /api/runtime-security/apps/{app_uuid}/scans/{scan_uuid}/findings/{finding_id}",
+                  "POST /api/runtime-security/apps/{app_uuid}/insights/findings/{finding_id}/suggest-rule",
+                  "GET /api/runtime-security/apps/{app_uuid}/template-diff",
+                  "POST /api/runtime-security/apps/{app_uuid}/canaries/regenerate",
+                  "POST /api/runtime-security/apps/{app_uuid}/mcp/tools",
+                  "DELETE /api/runtime-security/apps/{app_uuid}/mcp/tools/{tool_name}",
+                  "GET /api/runtime-security/apps/{app_uuid}/risk-timeline",
+                  "POST /api/runtime-security/apps/{app_uuid}/insights/findings/{finding_id}/export-ticket",
+                  "POST /api/runtime-security/apps/{app_uuid}/scans/{scan_uuid}/findings/{finding_id}/suggest-rule",
+                  "POST /api/runtime-security/apps/{app_uuid}/scans/{scan_uuid}/findings/{finding_id}/export-ticket",
+                  "POST /api/runtime-security/apps/{app_uuid}/events/upload",
+                  "GET /api/runtime-security/apps/{app_uuid}/events/uploads",
+                  "GET /api/runtime-security/apps/{app_uuid}/events/uploads/{upload_uuid}",
+                  "POST /api/runtime-security/proxy/gemini/v1beta/{rest_path}",
+                  "POST /api/runtime-security/proxy/vertex/v1/{rest_path}"
+                ]
+              },
+              {
+                "group": "Devices and agents",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "GET /api/runtime-security/agent/latest-version",
+                  "POST /api/runtime-security/agent/enroll",
+                  "POST /api/runtime-security/agent/enroll-session",
+                  "POST /api/runtime-security/agent/scan",
+                  "POST /api/runtime-security/agent/scan-file",
+                  "GET /api/runtime-security/agent/protection/pause",
+                  "POST /api/runtime-security/agent/protection/pause",
+                  "GET /api/runtime-security/agent/policy",
+                  "POST /api/runtime-security/agent/heartbeat",
+                  "POST /api/runtime-security/agent/identity/start",
+                  "GET /api/runtime-security/agent/identity/status",
+                  "POST /api/runtime-security/agent/tamper-events",
+                  "POST /api/runtime-security/agent/device-events",
+                  "GET /api/runtime-security/agent/enrollment-tokens",
+                  "POST /api/runtime-security/agent/enrollment-tokens",
+                  "POST /api/runtime-security/agent/enrollment-tokens/{token_uuid}/revoke",
+                  "GET /api/runtime-security/agent/devices",
+                  "POST /api/runtime-security/agent/devices/{device_uuid}/resume",
+                  "POST /api/runtime-security/agent/devices/{device_uuid}/rebind",
+                  "POST /api/runtime-security/agent/devices/{device_uuid}/revoke",
+                  "POST /api/runtime-security/agent/devices/{device_uuid}/allow-reenrollment",
+                  "GET /api/runtime-security/agent/rules",
+                  "DELETE /api/runtime-security/agent/rules/{name}",
+                  "PUT /api/runtime-security/agent/rules/{name}",
+                  "POST /api/runtime-security/agent/rules/{name}/toggle",
+                  "GET /api/runtime-security/agent/devices/rules",
+                  "GET /api/runtime-security/agent/devices/{device_uuid}/rules"
+                ]
+              },
+              {
+                "group": "Discovery",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "GET /api/runtime-security/discovery",
+                  "GET /api/runtime-security/discovery/activity",
+                  "GET /api/runtime-security/discovery/catalog",
+                  "POST /api/runtime-security/discovery/{service_uuid}/protect",
+                  "POST /api/runtime-security/discovery/{service_uuid}/unprotect",
+                  "POST /api/runtime-security/discovery/{service_uuid}/sanction",
+                  "POST /api/runtime-security/discovery/{service_uuid}/block",
+                  "POST /api/runtime-security/discovery/{service_uuid}/promote",
+                  "POST /api/runtime-security/discovery/report",
+                  "POST /api/runtime-security/agent/discovery"
+                ]
+              },
+              {
+                "group": "DLP policy",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "GET /api/runtime-security/dlp/settings",
+                  "PUT /api/runtime-security/dlp/settings",
+                  "GET /api/runtime-security/dlp/policies",
+                  "POST /api/runtime-security/dlp/policies",
+                  "DELETE /api/runtime-security/dlp/policies/{uuid}",
+                  "GET /api/runtime-security/dlp/policies/{uuid}",
+                  "PUT /api/runtime-security/dlp/policies/{uuid}",
+                  "GET /api/runtime-security/dlp/policies/{uuid}/assignments",
+                  "GET /api/runtime-security/dlp/groups",
+                  "POST /api/runtime-security/dlp/groups",
+                  "DELETE /api/runtime-security/dlp/groups/{uuid}",
+                  "GET /api/runtime-security/dlp/groups/{uuid}",
+                  "PUT /api/runtime-security/dlp/groups/{uuid}",
+                  "GET /api/runtime-security/dlp/groups/{uuid}/members",
+                  "POST /api/runtime-security/dlp/groups/{uuid}/members",
+                  "DELETE /api/runtime-security/dlp/groups/{uuid}/members/{member_id}",
+                  "GET /api/runtime-security/dlp/assignments",
+                  "POST /api/runtime-security/dlp/assignments",
+                  "DELETE /api/runtime-security/dlp/assignments/{uuid}",
+                  "GET /api/runtime-security/dlp/mcp-profiles",
+                  "POST /api/runtime-security/dlp/mcp-profiles",
+                  "DELETE /api/runtime-security/dlp/mcp-profiles/{uuid}",
+                  "GET /api/runtime-security/dlp/mcp-profiles/{uuid}",
+                  "PUT /api/runtime-security/dlp/mcp-profiles/{uuid}",
+                  "GET /api/runtime-security/dlp/tool-catalog",
+                  "GET /api/runtime-security/dlp/effective-policy",
+                  "GET /api/runtime-security/dlp/users/{user_id}/policy"
+                ]
+              },
+              {
+                "group": "DLP installation",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "GET /api/runtime-security/dlp/install/values",
+                  "GET /api/runtime-security/dlp/install/settings",
+                  "PUT /api/runtime-security/dlp/install/settings",
+                  "GET /api/runtime-security/dlp/install/bundle"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Compliance and audit",
+            "pages": [
+              {
+                "group": "Compliance",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "GET /api/compliance/frameworks",
+                  "PUT /api/compliance/frameworks",
+                  "POST /api/compliance/report",
+                  "GET /api/compliance/reports/instance",
+                  "GET /api/compliance/summary",
+                  "GET /api/compliance/activity-timeline",
+                  "GET /api/compliance/activity-timeline/detail",
+                  "GET /api/datasets/{dataset_id}/lineage"
+                ]
+              },
+              {
+                "group": "Audit trail",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "GET /api/audit-trail/records",
+                  "POST /api/audit-trail/records",
+                  "GET /api/audit-trail/records/{record_uuid}",
+                  "POST /api/audit-trail/ingest",
+                  "GET /api/audit-trail/verify",
+                  "GET /api/audit-trail/stats",
+                  "GET /api/audit-trail/param-analytics",
+                  "GET /api/audit-trail/export",
+                  "POST /api/audit-trail/import/preview",
+                  "POST /api/audit-trail/import",
+                  "GET /api/audit-trail/applications",
+                  "POST /api/audit-trail/applications",
+                  "DELETE /api/audit-trail/applications/{application_uuid}",
+                  "GET /api/audit-trail/param-schemas",
+                  "POST /api/audit-trail/param-schemas",
+                  "DELETE /api/audit-trail/param-schemas/{schema_uuid}",
+                  "PUT /api/audit-trail/param-schemas/{schema_uuid}"
+                ]
+              },
+              {
+                "group": "Reports",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "GET /api/reports/templates",
+                  "POST /api/reports/templates",
+                  "DELETE /api/reports/templates/{template_id}",
+                  "GET /api/reports/templates/{template_id}",
+                  "PUT /api/reports/templates/{template_id}",
+                  "GET /api/reports",
+                  "POST /api/reports",
+                  "DELETE /api/reports/{report_id}",
+                  "GET /api/reports/{report_id}",
+                  "GET /api/reports/{report_id}/download",
+                  "POST /api/reports/{report_id}/regenerate",
+                  "GET /api/reports/projects/{project_id}/templates",
+                  "POST /api/reports/projects/{project_id}/templates",
+                  "DELETE /api/reports/projects/{project_id}/templates/{template_id}",
+                  "POST /api/reports/projects/{project_id}/templates/{template_id}/default"
+                ]
+              },
+              {
+                "group": "Export templates",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "GET /api/export-templates/",
+                  "POST /api/export-templates/",
+                  "DELETE /api/export-templates/{template_uuid}",
+                  "GET /api/export-templates/{template_uuid}",
+                  "PUT /api/export-templates/{template_uuid}",
+                  "POST /api/export-templates/{template_uuid}/render"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Workspace administration",
+            "pages": [
+              {
+                "group": "Workspaces",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "GET /api/workspaces",
+                  "POST /api/workspaces",
+                  "GET /api/workspaces/me",
+                  "PATCH /api/workspaces/me",
+                  "POST /api/workspaces/me/transfer-admin",
+                  "DELETE /api/workspaces/{workspace_id}",
+                  "GET /api/workspaces/{workspace_id}",
+                  "PATCH /api/workspaces/{workspace_id}",
+                  "GET /api/workspaces/{workspace_id}/members",
+                  "POST /api/workspaces/{workspace_id}/members",
+                  "DELETE /api/workspaces/{workspace_id}/members/{user_id}",
+                  "PATCH /api/workspaces/{workspace_id}/members/{user_id}",
+                  "POST /api/workspaces/{workspace_id}/members/{user_id}/invalidate-sessions"
+                ]
+              },
+              {
+                "group": "Users",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "GET /api/users",
+                  "POST /api/users",
+                  "GET /api/users/lookup",
+                  "GET /api/users/roles",
+                  "POST /api/users/roles",
+                  "DELETE /api/users/roles/{role}",
+                  "GET /api/users/permissions",
+                  "GET /api/users/roles/permissions",
+                  "PUT /api/users/roles/{role}/permissions",
+                  "GET /api/users/me/permissions",
+                  "GET /api/users/{user_id}/permissions",
+                  "PUT /api/users/{user_id}/permissions",
+                  "GET /api/users/me/history",
+                  "POST /api/users/me/history/read-all",
+                  "POST /api/users/me/history/{log_id}/read",
+                  "POST /api/users/me/history/{log_id}/dismiss",
+                  "GET /api/users/me/notification-prefs",
+                  "PATCH /api/users/me/notification-prefs",
+                  "PATCH /api/users/me",
+                  "DELETE /api/users/{user_id}",
+                  "PATCH /api/users/{user_id}",
+                  "POST /api/users/{user_id}/password",
+                  "POST /api/users/{user_id}/mfa/reset",
+                  "GET /api/users/{user_id}/history",
+                  "GET /api/users/pending-email-changes",
+                  "POST /api/users/{user_id}/approve-email-change"
+                ]
+              },
+              {
+                "group": "Invitations",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "GET /api/invitations",
+                  "POST /api/invitations",
+                  "DELETE /api/invitations/{invite_id}",
+                  "POST /api/invitations/{invite_id}/resend",
+                  "POST /api/invitations/bulk",
+                  "POST /api/invitations/agent-rollout",
+                  "GET /api/invitations/preview",
+                  "POST /api/invitations/accept"
+                ]
+              },
+              {
+                "group": "API keys",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "GET /api/api-keys",
+                  "POST /api/api-keys",
+                  "GET /api/api-keys/scopes",
+                  "DELETE /api/api-keys/{key_id}",
+                  "GET /api/api-keys/{key_id}",
+                  "PUT /api/api-keys/{key_id}",
+                  "POST /api/api-keys/{key_id}/rotate"
+                ]
+              },
+              {
+                "group": "Settings",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "GET /api/settings/security",
+                  "PATCH /api/settings/security",
+                  "GET /api/settings/tenant",
+                  "PATCH /api/settings/tenant",
+                  "GET /api/settings/tenant/usage",
+                  "GET /api/settings/reviewers",
+                  "PUT /api/settings/reviewers"
+                ]
+              },
+              {
+                "group": "Directory sync",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "GET /api/admin/directory/providers",
+                  "POST /api/admin/directory/providers",
+                  "DELETE /api/admin/directory/providers/{uuid}",
+                  "GET /api/admin/directory/providers/{uuid}",
+                  "PUT /api/admin/directory/providers/{uuid}",
+                  "POST /api/admin/directory/providers/{uuid}/scim-token",
+                  "POST /api/admin/directory/providers/{uuid}/scim-token/revoke",
+                  "GET /api/admin/directory/providers/{uuid}/group-mappings",
+                  "PUT /api/admin/directory/providers/{uuid}/group-mappings"
+                ]
+              },
+              {
+                "group": "Integrations",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "POST /api/datasets/{dataset_id}/integrations/webhooks/test",
+                  "POST /api/datasets/{dataset_id}/integrations/github/test",
+                  "POST /api/datasets/{dataset_id}/integrations/huggingface/test",
+                  "POST /api/datasets/{dataset_id}/integrations/kaggle/test",
+                  "POST /api/datasets/{dataset_id}/integrations/s3/test",
+                  "POST /api/projects/{project_id}/integrations/s3/test",
+                  "GET /api/integrations/credentials-status",
+                  "GET /api/integrations/my-credentials",
+                  "POST /api/integrations/my-credentials",
+                  "DELETE /api/integrations/my-credentials/{credential_id}",
+                  "GET /api/integrations/jira",
+                  "PUT /api/integrations/jira",
+                  "GET /api/integrations/webhooks",
+                  "PUT /api/integrations/webhooks",
+                  "POST /api/integrations/webhooks/test",
+                  "GET /api/integrations/audit-webhook",
+                  "PUT /api/integrations/audit-webhook",
+                  "DELETE /api/integrations/audit-webhook/token",
+                  "POST /api/integrations/audit-webhook/token",
+                  "POST /api/integrations/audit-webhook/rotate",
+                  "GET /api/integrations/github",
+                  "PUT /api/integrations/github",
+                  "DELETE /api/integrations/github/tokens/{credential_id}",
+                  "GET /api/integrations/huggingface",
+                  "PUT /api/integrations/huggingface",
+                  "DELETE /api/integrations/huggingface/tokens/{credential_id}",
+                  "GET /api/integrations/kaggle",
+                  "PUT /api/integrations/kaggle",
+                  "GET /api/integrations/s3",
+                  "PUT /api/integrations/s3",
+                  "POST /api/integrations/s3/test",
+                  "DELETE /api/integrations/kaggle/credentials/{credential_id}",
+                  "POST /api/integrations/jira/test",
+                  "POST /api/integrations/jira/test-issue",
+                  "POST /api/integrations/jira/datasets",
+                  "POST /api/integrations/jira/webhook"
+                ]
+              },
+              {
+                "group": "Pending actions",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "GET /api/pending-actions",
+                  "PATCH /api/pending-actions/{action_uuid}",
+                  "POST /api/pending-actions/{action_uuid}/dismiss",
+                  "POST /api/pending-actions/rs-token-remint"
+                ]
+              },
+              {
+                "group": "License",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "GET /api/license/",
+                  "POST /api/license/activate",
+                  "POST /api/license/deactivate",
+                  "POST /api/license/sync",
+                  "POST /api/license/upgrade-intent"
+                ]
+              },
+              {
+                "group": "Onboarding",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "GET /api/onboarding/deployment",
+                  "PUT /api/onboarding/deployment",
+                  "POST /api/onboarding/deployment/reset"
+                ]
+              },
+              {
+                "group": "Support",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "POST /api/support/report_bug",
+                  "POST /api/support/request_feature"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Platform",
+            "pages": [
+              {
+                "group": "Platform operations",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "GET /api/platform/users",
+                  "POST /api/platform/users",
+                  "GET /api/platform/plans",
+                  "DELETE /api/platform/users/{user_id}",
+                  "GET /api/platform/activity",
+                  "DELETE /api/platform/workspaces/{workspace_id}/license",
+                  "POST /api/platform/workspaces/{workspace_id}/license"
+                ]
+              },
+              {
+                "group": "Webhooks",
+                "openapi": "api-reference/openapi.json",
+                "pages": [
+                  "POST /api/keygen/webhook"
+                ]
+              }
+            ]
           }
         ]
       },

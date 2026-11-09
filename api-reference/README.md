@@ -18,7 +18,7 @@ export DATABASE_URL=... DATA_DIR=... CONTENT_ENCRYPTION_KEY=... \
 python3 -c 'import json; from app.main import app; json.dump(app.openapi(), open("/tmp/openapi.json","w"), indent=2)'
 ```
 
-Then, in this repo, three post-processing steps that must not be skipped:
+Then, in this repo, four post-processing steps that must not be skipped:
 
 1. **Set `servers` and `info`.** FastAPI emits neither usefully. The prose in
    these docs uses `https://api.your-blindsight.com` as the placeholder host,
@@ -30,7 +30,15 @@ Then, in this repo, three post-processing steps that must not be skipped:
 3. **Replace em dashes.** House rule, and the backend docstrings they come from
    still contain them.
 
-Check all three before committing:
+4. **Group by product area.** Overwrite `openapi.json` and `openapi.yaml`
+   with the regenerated output, then run `python3 api-reference/organize_spec.py`
+   from the repo root. It gives every operation one tag that names its
+   navigation group, orders the paths to match, hides the operations the
+   hand written Runtime Security spec already documents, and rewrites the
+   API reference tab of `docs.json`. A new path with no matching rule makes
+   the script stop; add a rule to `RULES` rather than leaving it untagged.
+
+Check all of them before committing:
 
 ```bash
 grep -icE 'gliner|deberta|protectai|deepset|fastino|testsavantai' api-reference/*

@@ -1,0 +1,37 @@
+---
+title: "Rate limits"
+description: "How throttling and quotas surface in responses, and how to back off."
+---
+
+Two separate mechanisms can refuse a request. They return different
+status codes, so handle them differently.
+
+## Rate limits: `429`
+
+Requests are throttled per workspace. A throttled request returns
+`429` with a `Retry-After` header giving the seconds to wait.
+
+```bash
+curl -i -H "X-API-Key: $API_KEY" $API_BASE/api/datasets
+# HTTP/1.1 429 Too Many Requests
+# Retry-After: 30
+```
+
+Wait for `Retry-After` and retry. Add jitter if several workers share
+a key, so they do not retry in step.
+
+## Quotas: `402`
+
+Runtime Security scans are metered against your plan's
+`max_runtime_security_calls`. When the quota runs out, scan routes
+return `402` with the typed code `QUOTA_EXCEEDED` until the quota
+resets or the license is upgraded. Retrying does not help.
+
+Runtime Security Apps also carry hourly and daily event caps that
+answer `429` with `APP_QUOTA_EXCEEDED`. See
+[Runtime Security errors](/runtime-security/errors) for both.
+
+## Next steps
+
+- [Errors](/api-reference/errors): the response envelope.
+- [Runtime Security errors](/runtime-security/errors): codes specific to scan and proxy.
