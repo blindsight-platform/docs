@@ -92,6 +92,22 @@ that was stored but that nobody had set, so those workspaces now read on. Each
 change is written to the [audit trail](/compliance/audit-trail). See
 [Proxies](/endpoint/fleet-rollout#proxies) for the network cases.
 
+### Notice AI services by DNS lookups
+
+**Endpoint → Configurations → Default policy → Visibility → Notice AI services
+by DNS lookups** lets a device notice the AI services people reach from any app,
+by the names the device looks up. It reads names only, never content, and drops
+every name that is not a known AI service. What it notices appears under
+[Shadow AI](/endpoint/shadow-ai/overview).
+
+| Setting | What devices do |
+| ------- | --------------- |
+| **On** (the default) | The device notices AI services by the names it looks up and reports them as sightings. |
+| **Off** | The device reports only the AI services it sees through its other routes. |
+
+The setting needs Endpoint agent 2.1.4 or later on Windows and Mac. Older agents
+ignore it. Each change is written to the [audit trail](/compliance/audit-trail).
+
 ## AI host rules
 
 The agent only intercepts traffic to hosts on the AI host list. Every
