@@ -1,0 +1,30 @@
+---
+title: "Versioning"
+description: "How the API specs are versioned and where changes are announced."
+---
+
+## Two specs, two versions
+
+The reference is built from two OpenAPI documents, each with its own
+`info.version`.
+
+| Spec                               | Version | Source                                  |
+| ---------------------------------- | ------- | --------------------------------------- |
+| Runtime Security (scan and proxy)  | `1.0.0` | Hand written, with worked examples.     |
+| Full REST surface                  | `0.1.0` | Generated from the running application. |
+
+The version describes the document, not a path prefix. REST paths such
+as `/api/datasets` carry no version segment.
+
+## Proxy routes
+
+The reverse-proxy routes mirror the upstream provider's own path. A
+segment such as `v1` or `v1beta` in `/api/runtime-security/proxy/...`
+is the provider's version, not Blindsight's, so your SDK keeps working
+when you only change its `base_url`.
+
+## Staying current
+
+- Changes ship with each release. Read the [release notes](/release-notes) before you upgrade a self-hosted deployment.
+- Treat unknown response fields as additive and ignore them.
+- Read `error.code` and `X-Blindsight-Error-Code` rather than message text. See [Errors](/api-reference/errors).

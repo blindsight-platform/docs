@@ -1,0 +1,50 @@
+---
+title: "Errors"
+description: "The error envelope every endpoint returns and how to branch on it."
+---
+
+Failed requests return a JSON body with an `error` object and, for most
+errors, a `detail` field that repeats what the endpoint raised.
+
+```json
+{
+  "error": {
+    "code": "HTTP_404",
+    "message": "Dataset not found",
+    "details": null
+  },
+  "detail": "Dataset not found"
+}
+```
+
+| Field           | Meaning                                                                  |
+| --------------- | ------------------------------------------------------------------------ |
+| `error.code`    | `HTTP_` followed by the status code, for example `HTTP_404`.              |
+| `error.message` | A human-readable summary. Wording can change, so do not parse it.        |
+| `error.details` | The structured payload when the endpoint returned one, otherwise `null`. |
+| `detail`        | The raw detail. A string, or an object carrying a typed `code` and `message`. |
+
+## Branch on the typed code
+
+Endpoints that distinguish several failures under one status raise a
+typed code, such as `QUOTA_EXCEEDED`. Every error response also carries
+it in the `X-Blindsight-Error-Code` header, which is `HTTP_<status>`
+when the endpoint has no typed code. Read the header instead of
+parsing the body.
+
+## Status codes
+
+| Status | Meaning                                                                    |
+| ------ | -------------------------------------------------------------------------- |
+| `400`  | The request is malformed or missing a required header.                     |
+| `401`  | Credentials are missing or invalid. See [Authentication](/api-reference/authentication). |
+| `402`  | The workspace quota is used up. See [Rate limits](/api-reference/rate-limits). |
+| `403`  | The caller lacks the permission or API key scope. `detail` names it.      |
+| `404`  | The resource does not exist, or the feature is not licensed for the workspace. |
+| `409`  | The request conflicts with the current state.                              |
+| `422`  | Validation failed. `error.details` lists the offending fields.             |
+| `429`  | Too many requests. See [Rate limits](/api-reference/rate-limits).          |
+| `500`  | Unexpected server error. Retry once, then contact support.                 |
+
+The Runtime Security scan and proxy routes add their own typed codes.
+See [Runtime Security errors](/runtime-security/errors).
