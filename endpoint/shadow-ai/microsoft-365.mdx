@@ -1,0 +1,149 @@
+---
+title: "Microsoft 365 Copilot and agents"
+description: "Read Microsoft 365 Copilot and Copilot Studio agent activity from your tenant: the read-only access Blindsight asks for, what each permission reads, what it never touches, and how to remove it."
+---
+
+Blindsight can show how your organisation uses Microsoft 365 Copilot and its
+agents next to the AI use it sees on your devices. It reads activity records
+from your Microsoft tenant through a separate, read-only application that an
+administrator approves. Nothing is installed on devices.
+
+Blindsight asks only for the permissions a level needs, and tells you which
+permission a level adds, and why, before you approve it. Every application
+Blindsight can ask your tenant to approve is listed in
+[Permissions Blindsight asks for](/permissions-and-access/permissions).
+
+Access comes in three levels. Each one is a separate approval in Microsoft, and
+you can stop at any level.
+
+| Level | What you see | Conversation text read |
+| ----- | ------------ | ---------------------- |
+| **1. Activity** | Who uses which Copilot app or agent, when, and which files and sites it referenced. AI apps people connected to their work account. Sign-ins to AI services. | No |
+| **2. Agent catalog** | Every Copilot agent available in your tenant, including agents nobody has used yet. | No |
+| **3. Content checks** | Copilot and agent conversations that broke one of your data policies, with a short masked excerpt. Off by default. | Yes, checked and not kept |
+
+## How access is granted
+
+Blindsight reaches your tenant through **Blindsight Activity**, a multitenant
+Microsoft Entra application that Blindsight owns. It is separate from the
+[Intune applications](/endpoint/connect-intune#the-two-microsoft-applications),
+so you can approve one without the other.
+
+- A Global Administrator or Privileged Role Administrator approves it once on
+  Microsoft's admin consent screen, which lists the same permissions as this
+  page. Application Administrators and Cloud Application Administrators cannot
+  approve Microsoft Graph application permissions. If the person setting it up cannot approve tenant-wide permissions,
+  Blindsight prepares a link to send to someone who can.
+- Every permission is an **application permission** and **read-only**.
+  Blindsight signs in as the application, so no user signs in for collection
+  to run.
+- Blindsight calls three Microsoft hosts only: `graph.microsoft.com`,
+  `manage.office.com`, and, at level 3, the Dataverse environment addresses you
+  enter.
+
+## Level 1: activity
+
+Metadata only. Microsoft's audit records for Copilot carry message identifiers,
+not message text.
+
+| Permission | API | Why | What is read | Not read |
+| ---------- | --- | --- | ------------ | -------- |
+| `ActivityFeed.Read` | Office 365 Management APIs | Subscribes to your unified audit log, where Microsoft records each Copilot and agent interaction (`CopilotInteraction`). | User, time, the app (for example Word, Teams or Copilot Chat), the agent's identifier and name, and the files and sites the interaction referenced with their sensitivity labels. | Prompt and response text, which the record does not contain. Other audit records in the feed are discarded. |
+| `AuditLog.Read.All` | Microsoft Graph | Shows sign-ins to AI services with work accounts, including from devices without the agent. Needs Microsoft Entra ID P1 or P2. | Sign-ins to applications Blindsight recognises as AI services: user, application, time, result. | Sign-ins to anything that is not an AI service. Directory audit events. |
+| `Application.Read.All` | Microsoft Graph | Finds AI tools connected to your tenant and matches them to the [AI services catalog](/endpoint/ai-services). | Name, publisher and identifier of each enterprise application. | Application secrets and certificates. |
+| `Directory.Read.All` | Microsoft Graph | Shows who gave an AI tool access to their mail, files or calendar. Microsoft lists this as the narrowest permission for reading consent grants. | For each grant: the application, the person (or everyone, for an admin grant), and the permissions granted. | The mail, files or calendars the grants cover. Blindsight writes nothing to the directory. |
+| `User.Read.All` | Microsoft Graph | Turns user identifiers into names and tells licensed Copilot users apart. | Display name, email address, department, job title, account status, and which licences are assigned. | Mailboxes, files, contacts or other user content. |
+| `GroupMember.Read.All` | Microsoft Graph | Limits collection to chosen groups and lets policies differ by group. | Group names and members. | Group conversations, files or calendars. |
+
+Without Microsoft Entra ID P1 or P2, Microsoft does not serve sign-ins to
+applications, and the console shows that view as not available rather than
+empty.
+
+## Level 2: agent catalog
+
+Optional. Level 1 already lists every agent that has been used.
+
+| Permission | API | Why | What is read | Not read |
+| ---------- | --- | --- | ------------ | -------- |
+| `CopilotPackages.Read.All` | Microsoft Graph | Lists every agent available in your tenant, so an agent nobody approved can be flagged before its first use. | Agent name, publisher, platform, the Copilot hosts it runs in, and whether it is blocked. | Agent instructions, knowledge sources or conversations. |
+
+Microsoft serves this list only to tenants with a Microsoft Agent 365 licence, in the global Microsoft cloud.
+
+## Level 3: content checks
+
+Off by default, approved separately, and limited to the groups you choose. Only
+this level reads conversation text. Each conversation is checked in memory
+against the same data policies as your devices. When a policy matches,
+Blindsight keeps the rule, the person, the time, the app and a short excerpt
+with the sensitive value masked. Nothing is kept when no policy matches, and in
+a [totals-only workspace](/endpoint/who-is-named) only counts are kept.
+
+### Microsoft 365 Copilot
+
+| Permission | API | What is read |
+| ---------- | --- | ------------ |
+| `AiEnterpriseInteraction.Read.All` | Microsoft Graph | Prompts and responses in Microsoft 365 Copilot, for users in the groups you chose who hold a Microsoft 365 Copilot licence with the Microsoft Copilot with Graph-grounded chat service plan. |
+
+Microsoft does not include agents built in Copilot Studio in this source. Those
+are read from Dataverse.
+
+### Copilot Studio agents
+
+Agents built in Copilot Studio keep their conversations in the Dataverse
+`ConversationTranscript` table of their Power Platform environment.
+
+<Steps>
+  <Step title="Add the application user">
+    In the Power Platform admin center, open the environment, then
+    **Settings → Users + permissions → Application users → New app user**.
+    Search for **Blindsight Activity** by name, and pick a business unit.
+  </Step>
+  <Step title="Give it a read-only role">
+    Assign a security role with organisation-level **Read** on the
+    **Conversation Transcript** and **Bot** tables and nothing else.
+  </Step>
+  <Step title="Add the environment in Blindsight">
+    Enter the environment's address. Environments you do not add are never
+    contacted.
+  </Step>
+</Steps>
+
+Blindsight reads no other Dataverse table, including Dynamics 365 business
+records. Microsoft deletes transcripts after 30 days by default. Transcripts
+are not saved in developer environments, Dataverse for Teams environments, or
+where an admin turned saving off. Blindsight reads what your environment
+keeps.
+
+## What Blindsight never does
+
+With any of the access above, Blindsight never:
+
+- writes, changes or deletes anything in your tenant or Dataverse environments
+- reads mailboxes, OneDrive or SharePoint files, Teams chats or calendars
+- reads conversation text unless you turn on level 3
+- stores full prompts or responses at any level
+
+## Before you connect
+
+- **Audit logging is on.** Unified audit logging must be turned on in
+  Microsoft Purview. Copilot and Copilot Studio activity is then recorded as
+  part of Audit (Standard), with no extra licence.
+- **The first activity can take up to 12 hours** to arrive after you connect.
+  After that it arrives continuously.
+- **History starts when you connect.** Microsoft keeps delivered activity for
+  7 days, so Blindsight sees activity from the day it subscribes onward.
+
+## Remove access
+
+You can remove access in Microsoft at any time, whatever the console shows.
+
+- **All levels:** in the Microsoft Entra admin center, open
+  **Enterprise applications** and select **Blindsight Activity**. Under
+  **Properties**, turn off **Enabled for users to sign in?** to stop Microsoft
+  issuing it new tokens, or select **Delete**. A deleted application can be
+  restored for 30 days. To drop one level and keep the rest, revoke just those
+  permissions under **Permissions**.
+- **Copilot Studio transcripts:** in the Power Platform admin center, remove the **Blindsight Activity** application user from each
+  environment.
+- **In Blindsight:** disconnecting stops collection at once. Stored activity
+  is deleted with the workspace or on request.

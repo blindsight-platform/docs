@@ -24,6 +24,17 @@ do not decrypt, and they never see the prompt.
   what to onboard, before you enforce anything.
 </Note>
 
+## Where the signal comes from
+
+| Source | What it sees | What you install |
+| ------ | ------------ | ---------------- |
+| **Endpoint agent** (Windows and Mac) | Every AI service a managed device reaches, in the browser, desktop apps, IDE plugins and command-line tools, on or off the office network. The only source that can check what is typed into a prompt and block it. | The agent, pushed from Intune (directly from the console with [Connect Intune](/endpoint/connect-intune)), GPO, Configuration Manager or any MDM. See [Fleet rollout](/endpoint/fleet-rollout). |
+| **Microsoft 365** | Microsoft 365 Copilot and agent activity, AI apps people connected to their work account, and sign-ins to AI services. | Nothing. An administrator approves a read-only app. See [Microsoft 365 Copilot and agents](/endpoint/shadow-ai/microsoft-365). |
+| **Your own AI applications** | Prompts and responses of the AI features your teams build. | The [reverse proxy](/runtime-security/reverse-proxy) or an [SDK](/runtime-security/sdk-examples). |
+
+A no-install start is to connect Microsoft 365 first, then roll the agent
+out to one pilot group through Intune.
+
 ## Discovery vs inspection
 
 The agent handles two classes of AI host differently. Both are driven
