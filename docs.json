@@ -80,7 +80,8 @@
                 "pages": [
                   "endpoint/shadow-ai/overview",
                   "endpoint/shadow-ai/setup",
-                  "endpoint/shadow-ai/triage"
+                  "endpoint/shadow-ai/triage",
+                  "endpoint/shadow-ai/microsoft-365"
                 ]
               }
             ]
