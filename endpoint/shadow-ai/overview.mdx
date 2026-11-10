@@ -160,6 +160,32 @@ Substring matching alone never qualifies. `email.example.com` and
 `domain.example.com` do not become candidates, while
 `my-llm-proxy.example.com` does.
 
+### Sites that impersonate an AI service
+
+Some sites dress up as a well-known AI service to collect sign-ins or push
+a fake "desktop app": a copy of the brand's name with one letter changed,
+lookalike characters, the brand on a domain it does not own, or the brand
+next to a word such as *download* or *login*. Their front pages often say
+exactly what the real service says, so the evidence that would normally
+confirm an AI service would confirm the fake one too.
+
+Every host the fleet reaches is checked against the names of the major AI
+brands before anything else is decided about it. A host that matches is
+listed as **Impersonates** *brand* and is never treated as AI:
+
+- It is never acted on automatically, whatever **Newly discovered AI** is
+  set to, and never suggested for the shared catalog.
+- It ranks **High** risk with the real service named, for example
+  *Impersonates ChatGPT: the real service is chatgpt.com*.
+- It cannot be approved. To allow the brand, approve its real domain.
+- It is not counted as AI in the Shadow AI figures.
+- It raises the **Impersonating site reached** alert once per site.
+
+The brand's own domains, every host in the built-in catalog and every
+built-in rule are never matched, so the real service is never flagged.
+See [Impersonating sites](/endpoint/shadow-ai/triage#impersonating-sites)
+for what to do with one.
+
 ### What the agent and the platform keep out of the inventory
 
 Windows agent 1.6.4 reports the AI services it sees on the whole-device lane, not

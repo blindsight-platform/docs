@@ -31,7 +31,7 @@ scoping controls on the right.
 
 | Control        | Options                                                                              |
 | -------------- | ------------------------------------------------------------------------------------- |
-| **Chips**      | All · Needs review · High risk · Unknown host · Workflow · Sanctioned · Blocked · Managed |
+| **Chips**      | All · Needs review · High risk · Unknown host · Impersonating · Workflow · Sanctioned · Blocked · Managed |
 | **Sort**       | Highest risk (default) · Most active · Recently seen · Most devices                    |
 | **Device**     | Drill into one device's services.                                                       |
 | **User**       | Drill into one identity's services.                                                     |
@@ -64,6 +64,7 @@ no hidden score and no model: recognition, capability, and exposure.
 | Signal                                   | Effect   | Reason shown                                            |
 | ---------------------------------------- | -------- | -------------------------------------------------------- |
 | Known AI, not sanctioned                 | Medium   | "Known AI, not sanctioned"                                |
+| Impersonates a known AI brand            | **High** | "Impersonates ChatGPT: the real service is chatgpt.com"   |
 | Not in the catalog (**Unknown host**)    | **High** | "Unrecognised host: not in the AI catalog"                |
 | Workflow automation platform             | **High** | "Automation platform: can move data between systems"      |
 | Seen on 5 or more devices                | **High** | "Broad exposure: seen on N devices"                       |
@@ -105,6 +106,29 @@ click; the automation simply will not decide for you.
   blocked, or managed resolves to low by definition, so the worklist
   shows `—` rather than pretending the ranking still says something.
 </Note>
+
+## Impersonating sites
+
+A row that reads **Impersonates** *brand* is a site dressed as a known AI
+service (see [Sites that impersonate an AI
+service](/endpoint/shadow-ai/overview#sites-that-impersonate-an-ai-service)).
+Expand it to see the real service's domain and which check matched:
+
+| Check shown | What it means |
+| ----------- | ------------- |
+| Spelled with lookalike characters | Letters from another alphabet or digits that look like the brand's letters. |
+| One letter away from the brand | A misspelling of the brand's name. |
+| The brand name on a domain ending the brand does not own | For example the brand's name under a different country or generic ending. |
+| The brand name beside a download or sign-in word | For example *desktop*, *download*, *login* or *free* next to the brand. |
+| Uses the brand's own domain as part of another site's name | The real domain at the start of someone else's address. |
+
+**Approve** is not offered for these rows. The row tells you which domain
+to approve instead if people need the real service. Block the site, and
+check the devices and people listed against it: anyone who reached it may
+have entered work credentials or run a download.
+
+**Impersonating site reached** is a high-severity alert sent once per site.
+Choose it at **Endpoint → Configurations → Alerts** like any other alert.
 
 ## The decisions
 
