@@ -9,6 +9,26 @@ lists every one. All Microsoft applications below are owned by Blindsight,
 multitenant, and approved by an administrator on Microsoft's own consent
 screen, which shows the same permissions as this page.
 
+## Only what a feature needs
+
+Blindsight asks for the smallest set of permissions that lets a feature do its
+work, and nothing in advance.
+
+- **Each feature asks for its own access.** Connecting Intune asks only for
+  read access. Deploying the agent, applying a policy fix or reading Copilot
+  activity each asks separately, and only when you turn that feature on.
+- **Read before write.** Every application reads unless the feature you chose
+  has to change something, and then it can change only what it created.
+- **Some features need more.** When a feature needs a permission you have not
+  approved yet, Blindsight tells you before you approve it: which permission,
+  why the feature needs it, and what it will and will not do with it. Nothing
+  is asked for silently, and turning a feature off never needs a new
+  permission.
+- **This page is kept current.** Every permission any feature can ask for is
+  listed here, with the reason.
+
+## The applications
+
 | Application | Used for | Permission type | Writes to your tenant |
 | ----------- | -------- | --------------- | --------------------- |
 | [Sign in with Microsoft or Google](#sign-in-with-microsoft-or-google) | People signing in to the console | Delegated | No |
