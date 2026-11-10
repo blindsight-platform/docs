@@ -116,7 +116,12 @@
               "administration/settings",
               "administration/licence-lifecycle"
             ]
-          },
+          }
+        ]
+      },
+      {
+        "tab": "Permissions and Access",
+        "groups": [
           {
             "group": "Permissions and Access",
             "pages": [
