@@ -123,9 +123,37 @@
         "tab": "Permissions and Access",
         "groups": [
           {
-            "group": "Permissions and Access",
+            "group": "Overview",
             "pages": [
               "permissions-and-access/permissions"
+            ]
+          },
+          {
+            "group": "Sign-in and identity",
+            "pages": [
+              "permissions-and-access/sign-in",
+              "permissions-and-access/single-sign-on"
+            ]
+          },
+          {
+            "group": "Microsoft Intune",
+            "pages": [
+              "permissions-and-access/intune-read",
+              "permissions-and-access/intune-deploy",
+              "permissions-and-access/intune-fixes"
+            ]
+          },
+          {
+            "group": "Microsoft 365",
+            "pages": [
+              "permissions-and-access/microsoft-365"
+            ]
+          },
+          {
+            "group": "Your control",
+            "pages": [
+              "permissions-and-access/never",
+              "permissions-and-access/remove-access"
             ]
           }
         ]
