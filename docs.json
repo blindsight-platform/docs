@@ -125,7 +125,7 @@
           {
             "group": "Overview",
             "pages": [
-              "permissions-and-access/permissions"
+              "permissions-and-access/index"
             ]
           },
           {
@@ -1020,6 +1020,11 @@
     {
       "source": "/endpoint/release-notes",
       "destination": "/release-notes",
+      "permanent": true
+    },
+    {
+      "source": "/permissions-and-access/permissions",
+      "destination": "/permissions-and-access",
       "permanent": true
     }
   ],
