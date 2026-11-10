@@ -118,9 +118,9 @@
             ]
           },
           {
-            "group": "Trust",
+            "group": "Permissions and Access",
             "pages": [
-              "trust/permissions"
+              "permissions-and-access/permissions"
             ]
           }
         ]
