@@ -123,7 +123,7 @@
         "tab": "Permissions and Access",
         "groups": [
           {
-            "group": "Overview",
+            "group": "Permissions and Access",
             "pages": [
               "permissions-and-access/index"
             ]
