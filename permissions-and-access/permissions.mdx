@@ -1,11 +1,12 @@
 ---
 title: "Permissions Blindsight asks for"
-description: "Every application Blindsight asks your Microsoft or Google tenant to approve, each permission it holds, why, what it reads, what it never touches, and how to remove it."
+sidebarTitle: "Overview"
+description: "Every application Blindsight asks your Microsoft or Google tenant to approve, why, and the principles behind each request."
 ---
 
 Blindsight asks for access to your tenant only for the features you turn on,
-and each feature is a separate application with its own approval. This page
-lists every one. All Microsoft applications below are owned by Blindsight,
+and each feature is a separate application with its own approval. These pages
+list every one. All Microsoft applications below are owned by Blindsight,
 multitenant, and approved by an administrator on Microsoft's own consent
 screen, which shows the same permissions as this page.
 
@@ -24,19 +25,19 @@ work, and nothing in advance.
   why the feature needs it, and what it will and will not do with it. Nothing
   is asked for silently, and turning a feature off never needs a new
   permission.
-- **This page is kept current.** Every permission any feature can ask for is
+- **These pages are kept current.** Every permission any feature can ask for is
   listed here, with the reason.
 
 ## The applications
 
 | Application | Used for | Permission type | Writes to your tenant |
 | ----------- | -------- | --------------- | --------------------- |
-| [Sign in with Microsoft or Google](#sign-in-with-microsoft-or-google) | People signing in to the console | Delegated | No |
-| [Your own single sign-on app](#single-sign-on-and-directory-sync) | Workspace SSO and SCIM | Yours, not Blindsight's | No |
-| [Blindsight Endpoint for Intune](#blindsight-endpoint-for-intune) | Seeing which devices run the agent | Application | No |
-| [Blindsight Endpoint for Intune (deploy)](#blindsight-endpoint-for-intune-deploy) | Deploying the agent from the console | Application | One app and its assignments |
-| [Blindsight Intune fixes](#blindsight-intune-fixes) | Fixing a policy that blocks the agent | Application | One policy per fix you approve |
-| [Blindsight Activity](#blindsight-activity) | Microsoft 365 Copilot and agent activity | Application | No |
+| [Sign in with Microsoft or Google](/permissions-and-access/sign-in) | People signing in to the console | Delegated | No |
+| [Your own single sign-on app](/permissions-and-access/single-sign-on) | Workspace SSO and SCIM | Yours, not Blindsight's | No |
+| [Blindsight Endpoint for Intune](/permissions-and-access/intune-read) | Seeing which devices run the agent | Application | No |
+| [Blindsight Endpoint for Intune (deploy)](/permissions-and-access/intune-deploy) | Deploying the agent from the console | Application | One app and its assignments |
+| [Blindsight Intune fixes](/permissions-and-access/intune-fixes) | Fixing a policy that blocks the agent | Application | One policy per fix you approve |
+| [Blindsight Activity](/permissions-and-access/microsoft-365) | Microsoft 365 Copilot and agent activity | Application | No |
 
 ## Who approves
 
@@ -49,118 +50,6 @@ work, and nothing in advance.
   approve, Blindsight prepares a link to send to someone who can.
 - **Consent is pinned to one tenant.** A tenant can be linked to one Blindsight
   workspace at a time.
-
-## Sign in with Microsoft or Google
-
-Blindsight's own sign-in application, used when a person selects **Sign in
-with Microsoft** or **Sign in with Google**.
-
-| Permission | Type | Why | What is read |
-| ---------- | ---- | --- | ------------ |
-| `openid` | Delegated | Signs the person in. | A sign-in token for that person. |
-| `email` | Delegated | Matches the person to their Blindsight account. | Their email address. A Google address must be verified. |
-| `profile` | Delegated | Shows who is signed in. | Their name. |
-
-Nothing else is requested. Blindsight cannot read the person's mail, files,
-contacts or calendar, and keeps no Microsoft or Google token after sign-in.
-
-## Single sign-on and directory sync
-
-Workspace single sign-on and SCIM run through **your own** application in your
-identity provider, not one Blindsight owns, so you choose and control its
-permissions.
-
-- **Single sign-on (OIDC):** Blindsight requests `openid email profile` by
-  default. If you send a groups claim in the sign-in token, Blindsight reads it
-  to map people to groups. It makes no Microsoft Graph calls for sign-in.
-- **SCIM:** your identity provider pushes users and groups to Blindsight with a
-  token you create in Blindsight. Blindsight holds no permission in your tenant
-  for it.
-
-See [Identity binding](/endpoint/identity).
-
-## Blindsight Endpoint for Intune
-
-Reads your Intune tenant so the console can show which managed Windows and Mac
-devices run the agent. Your tenant needs an active Intune licence.
-
-| Permission | Type | Why | What is read | Not read |
-| ---------- | ---- | --- | ------------ | -------- |
-| `DeviceManagementManagedDevices.Read.All` | Application | Lists the devices Intune manages and matches each to a Blindsight device. | Device name, operating system and version, serial number, Entra device ID, last check-in, and the assigned user where your workspace names its people. | Files, apps' data or anything on the device itself. |
-| `DeviceManagementApps.Read.All` | Application | Shows whether the Blindsight app is installed on each device. | Your Win32 apps by name and publisher, and the install status of Blindsight's own app. Only Blindsight's app is kept. | The settings or contents of your other apps. |
-| `DeviceManagementConfiguration.Read.All` | Application | Checks whether a device installation policy blocks the network adapter the agent needs. | Your device configuration and installation restriction policies. | Nothing is changed. |
-
-## Blindsight Endpoint for Intune (deploy)
-
-Deploys the agent from the console. Asked for only when you turn deploy on, and
-it needs the read application first.
-
-| Permission | Type | Why | What it can do |
-| ---------- | ---- | --- | -------------- |
-| `DeviceManagementApps.ReadWrite.All` | Application | Creates the Blindsight app in Intune, assigns it to the groups you choose, and later updates it or sets it to uninstall. | It only ever changes the app it created. It cannot change or delete any other app. |
-| `GroupMember.Read.All` | Application | Lets you search for the groups to deploy to. | Reads group names and members. Writes nothing. |
-
-Every change is shown as a preview before it is made. See
-[Connect Intune](/endpoint/connect-intune).
-
-## Blindsight Intune fixes
-
-Asked for only the first time you approve a
-[policy fix](/endpoint/connect-intune#policy-fixes-for-the-wintun-block).
-
-| Permission | Type | Why | What it can do |
-| ---------- | ---- | --- | -------------- |
-| `DeviceManagementConfiguration.ReadWrite.All` | Application | Creates one separately named policy with a single allow entry, assigned to the group you picked. | Your own policies, All users and All devices are never changed. Each fix is previewed first. |
-
-The three Intune applications prove themselves to Microsoft with a
-certificate. No client secret exists, and the private key never leaves AWS
-KMS.
-
-## Blindsight Activity
-
-Reads Microsoft 365 Copilot and Copilot Studio agent activity. It is separate
-from the Intune applications and has three levels, each approved separately.
-Every permission is read-only.
-
-| Level | Permission | API | Why |
-| ----- | ---------- | --- | --- |
-| 1. Activity | `ActivityFeed.Read` | Office 365 Management APIs | Reads Copilot and agent interactions from your unified audit log. The records carry no prompt or response text. |
-| 1. Activity | `AuditLog.Read.All` | Microsoft Graph | Sign-ins to AI services with work accounts. Needs Microsoft Entra ID P1 or P2. |
-| 1. Activity | `Application.Read.All` | Microsoft Graph | AI tools connected to your tenant. |
-| 1. Activity | `Directory.Read.All` | Microsoft Graph | Who gave an AI tool access to their mail, files or calendar. Microsoft lists it as the narrowest permission for reading consent grants. |
-| 1. Activity | `User.Read.All` | Microsoft Graph | Names, departments and assigned licences. |
-| 1. Activity | `GroupMember.Read.All` | Microsoft Graph | Limiting collection to chosen groups. |
-| 2. Agent catalog | `CopilotPackages.Read.All` | Microsoft Graph | Every agent available in your tenant. Needs a Microsoft Agent 365 licence. |
-| 3. Content checks | `AiEnterpriseInteraction.Read.All` | Microsoft Graph | Microsoft 365 Copilot prompts and responses, checked against your data policies. Off by default. |
-| 3. Content checks | Dataverse application user | Dataverse | Copilot Studio agent transcripts, with a role that reads the transcript table only. Off by default. |
-
-What each permission reads and never reads is set out in
-[Microsoft 365 Copilot and agents](/endpoint/shadow-ai/microsoft-365).
-
-## What Blindsight never does
-
-With any of the access on this page, Blindsight never:
-
-- reads mailboxes, OneDrive or SharePoint files, Teams chats or calendars
-- changes anything in your tenant other than the one Intune app and the fix
-  policies listed above
-- stores full prompts or responses read from Microsoft 365
-
-## Remove access
-
-- **In Blindsight:** disconnecting a feature stops Blindsight using its access
-  at once.
-- **In Microsoft:** in the Microsoft Entra admin center, open
-  **Enterprise applications** and select the application. Under
-  **Properties**, turn off **Enabled for users to sign in?** to stop Microsoft
-  issuing it new tokens, or select **Delete**. A deleted application can be
-  restored for 30 days. To keep an application but drop a permission, revoke
-  it under **Permissions**.
-- **Dataverse:** remove the Blindsight application user from each environment
-  in the Power Platform admin center.
-
-Removing the deploy application does not uninstall the agent. Set the app to
-uninstall from the console first if you want the agent removed.
 
 ## Revisions
 

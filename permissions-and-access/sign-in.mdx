@@ -1,0 +1,17 @@
+---
+title: "Sign in with Microsoft or Google"
+sidebarTitle: "Sign in with Microsoft or Google"
+description: "The delegated permissions Blindsight requests when a person signs in to the console with a Microsoft or Google account."
+---
+
+Blindsight's own sign-in application, used when a person selects **Sign in
+with Microsoft** or **Sign in with Google**.
+
+| Permission | Type | Why | What is read |
+| ---------- | ---- | --- | ------------ |
+| `openid` | Delegated | Signs the person in. | A sign-in token for that person. |
+| `email` | Delegated | Matches the person to their Blindsight account. | Their email address. A Google address must be verified. |
+| `profile` | Delegated | Shows who is signed in. | Their name. |
+
+Nothing else is requested. Blindsight cannot read the person's mail, files,
+contacts or calendar, and keeps no Microsoft or Google token after sign-in.

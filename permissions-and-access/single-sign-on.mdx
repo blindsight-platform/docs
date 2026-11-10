@@ -1,0 +1,18 @@
+---
+title: "Single sign-on and directory sync"
+sidebarTitle: "Single sign-on and SCIM"
+description: "Workspace single sign-on and SCIM run through your own identity provider application, so you choose its permissions."
+---
+
+Workspace single sign-on and SCIM run through **your own** application in your
+identity provider, not one Blindsight owns, so you choose and control its
+permissions.
+
+- **Single sign-on (OIDC):** Blindsight requests `openid email profile` by
+  default. If you send a groups claim in the sign-in token, Blindsight reads it
+  to map people to groups. It makes no Microsoft Graph calls for sign-in.
+- **SCIM:** your identity provider pushes users and groups to Blindsight with a
+  token you create in Blindsight. Blindsight holds no permission in your tenant
+  for it.
+
+See [Identity binding](/endpoint/identity).

@@ -1,0 +1,15 @@
+---
+title: "Blindsight Intune fixes"
+sidebarTitle: "Policy fixes"
+description: "The Intune application that creates a single policy fix you approve, and what it never changes."
+---
+
+Asked for only the first time you approve a
+[policy fix](/endpoint/connect-intune#policy-fixes-for-the-wintun-block).
+
+| Permission | Type | Why | What it can do |
+| ---------- | ---- | --- | -------------- |
+| `DeviceManagementConfiguration.ReadWrite.All` | Application | Creates one separately named policy with a single allow entry, assigned to the group you picked. | Your own policies, All users and All devices are never changed. Each fix is previewed first. |
+
+Blindsight proves itself to Microsoft with a certificate. No client secret
+exists, and the private key never leaves AWS KMS.
