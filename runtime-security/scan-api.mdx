@@ -46,7 +46,8 @@ Scan a user prompt before forwarding it to your LLM.
 | --------------- | ------ | -------- | --------------------------------------------------------------------------- |
 | `text`          | string | yes      | The prompt to scan. Up to 32,000 characters by default.                      |
 | `session_id`    | string | no       | Your identifier for the conversation or agent run (up to 200 characters). Send the same value on every call of one run so related calls are judged together. |
-| `history`       | array  | no       | Up to 16 earlier turns of the conversation, oldest first. Each entry is a string or an object with `role` and `content`. |
+| `turn`          | integer | no      | This call's number in the conversation named by `session_id`, counting from 1. A retried call with the same number is not counted twice. See [Conversations](/runtime-security/conversations). |
+| `history`       | array  | no       | Up to 50 earlier turns of the conversation, oldest first. Each entry is a string or an object with `role` and `content`. Prompt-injection detection reads the most recent 16. For an App with conversation conditions the turns are also read for personal data. |
 | `untrusted`     | array  | no       | Up to 32 parts of the prompt that did not come from the user, such as retrieved documents. Each entry has `content`, and optionally `source` (`retrieval`, `tool_result`, `web`, `email`, `file`, `document`, `user_upload`, `other`) and `label`. |
 | `source_app`    | string | no       | Free‑form app identifier (up to 128 chars). Diagnostic; not the App UUID.    |
 | `provider`      | string | no       | `openai`, `anthropic`, `gemini`, `vertex`, `bedrock`, `groq`, and so on. Up to 32 chars. |
@@ -64,6 +65,8 @@ Scan a user prompt before forwarding it to your LLM.
 | `redacted_text` | The text with personal data replaced by `<CATEGORY>` markers. Equal to the original when nothing was redacted. |
 | `text_length`   | Length of the scanned text in characters.                                                    |
 | `latency_ms`    | How long the scan took, in milliseconds.                                                     |
+| `conversation`  | Present only for an App with conversation conditions and a call that named its conversation: `state`, `turn`, `rules_applied` and `exposed_earlier`. See [Conversations](/runtime-security/conversations). |
+| `history_redacted` | Present with `conversation`, when `history` was sent: the turns as they should be sent on, in the order received. |
 
 ```bash
 curl -X POST "https://platform.blindsight.io/api/runtime-security/scan/input" \

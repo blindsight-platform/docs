@@ -46,6 +46,7 @@
               "runtime-security/overview",
               "runtime-security/apps",
               "runtime-security/scan-api",
+              "runtime-security/conversations",
               "runtime-security/reverse-proxy",
               "runtime-security/tool-calls",
               "runtime-security/verdicts",

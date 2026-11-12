@@ -1,0 +1,151 @@
+---
+title: "Conversations"
+description: "Act on one kind of personal data only when another is part of the same conversation, and keep pseudonyms consistent across its turns."
+---
+
+A name on its own is usually harmless. A name next to a national ID or an
+account number is not. Conversation conditions let an App act on one kind of
+data only when another kind has been part of the same conversation, in an
+earlier turn or a later one.
+
+For example, with the built-in rule on, a person's name is left as typed until
+something that identifies the person appears. From then on the name is masked,
+and the response lists the earlier turns that had already sent it.
+
+## Set up a condition
+
+Open the App, then **Configuration**, **Policy**, **Conversations**.
+
+- **Conditions** are sentence rows: "Mask email addresses when any IBAN, card
+  or bank account number appears in the whole conversation." Choose the data
+  to act on, what triggers it, and how far back to look.
+- **Write one as a sentence** turns a description into a condition. You see
+  how it was read and confirm it before anything is added. Only the reading is
+  saved.
+- **Remembering conversations** sets how long a conversation is remembered
+  after its last message, and what happens when it cannot be checked.
+- **Try a conversation** runs a short example through the conditions as
+  edited, saved or not. Nothing is remembered and no event is written.
+
+Conditions apply to calls that name their conversation. A call without a
+conversation id is judged on its own message only.
+
+## Name the conversation
+
+Send the same `session_id` on every call of one conversation. Send `turn`
+(counting from 1) to keep a retried call from counting twice.
+
+```bash
+curl -X POST "https://platform.blindsight.io/api/runtime-security/scan/input" \
+  -H "X-API-Key: $BLINDSIGHT_API_KEY" \
+  -H "X-Blindsight-App-Id: 5d7f1c0e-8b6a-4e0b-9c52-3f1a2b7d9e44" \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Her tax number is 123456789, add it to the letter.", "session_id": "chat-8841", "turn": 3}'
+```
+
+The response gains a `conversation` object:
+
+```json
+{
+  "verdict": "redact",
+  "redacted_text": "Her tax number is <NATIONAL_ID>, add it to the letter.",
+  "conversation": {
+    "ref": "c7f2a91e04b3d6a8",
+    "state": "continued",
+    "turn": 3,
+    "rules_applied": [],
+    "exposed_earlier": [
+      {"turn": 1, "label": "person", "rule": "names-with-identifier"}
+    ]
+  }
+}
+```
+
+| Field | Notes |
+| ----- | ----- |
+| `state` | `new`, `continued`, `rebuilt`, `unknown`, `saturated` or `unavailable`. See below. |
+| `turn` | This call's number in the conversation. |
+| `rules_applied` | Data acted on in this turn because of another turn. `trigger_turn` names it. |
+| `exposed_earlier` | Earlier turns that sent data as typed before this turn made it sensitive. Purge or re-send them. |
+| `ref` | A short keyed hash of the conversation. It groups events in the console. It is not your id. |
+
+When the trigger arrives after the data was already sent, the earlier turn
+cannot be unsent. From that turn on the data is masked, the response lists the
+earlier turns, and the verdict is at least `flag` so a caller that reads only
+the verdict still notices.
+
+The field is absent, not empty, when the App has no conversation conditions or
+the call named no conversation. Absent means the conversation was not checked.
+
+## When a conversation cannot be checked
+
+A conversation can be `unknown` (a later turn of one the platform no longer
+remembers), `saturated` (it reached the most the platform keeps for one
+conversation) or `unavailable` (it could not be read in time). The App's
+setting decides:
+
+- **Mask every target as if its trigger was seen.** The safe side, and the
+  default.
+- **Judge the message on its own.**
+
+The response says which applied in `when_unchecked`. A scan never fails
+because the conversation could not be read.
+
+## Send the whole conversation instead
+
+If your application resends the full conversation on every call, send it in
+`history` and keep no state on your side. The turns are read for personal data
+as well, and the response returns them in `history_redacted`, turn for turn, so
+you can send the masked version on.
+
+If the platform did not remember the conversation, it is rebuilt from the
+history (`state` is `rebuilt`), so the next call can omit it.
+
+## Consistent pseudonyms
+
+For an App set to pseudonymize, the same value gets the same token in every
+turn of a conversation: a name that is `<PERSON_1>` in turn 1 is `<PERSON_1>`
+in turn 4. Only the caller can restore the originals. The response carries the
+mapping for the tokens in that call, as it does without conversations. The
+platform never keeps the originals.
+
+## What is remembered
+
+For each conversation the platform keeps which kinds of data appeared, in which
+turn and when, plus a keyed hash and a token number per value. It never keeps
+the text, a value, or your conversation id. The hashes use a key per workspace
+that is held by the platform, and a conversation is forgotten after the
+lifetime you choose.
+
+## Limits
+
+| What | Limit |
+| ---- | ----- |
+| Conversation id | Up to 200 characters. |
+| Remembered for | 15 minutes to 7 days after the last message. The default is 24 hours. |
+| `history` | Up to 50 turns, each read up to 8,000 characters. |
+| Conditions per App | Up to 20. |
+
+## SDKs
+
+<Tabs>
+  <Tab title="Python">
+    ```python
+    result = rs.scan_input(prompt, session_id=conversation_id, turn=turn)
+    send_to_model = result.redacted_text
+
+    for item in (result.conversation or {}).get("exposed_earlier", []):
+        purge_turn(item["turn"])
+    ```
+  </Tab>
+  <Tab title="TypeScript">
+    ```ts
+    const result = await rs.scanInput(prompt, { sessionId: conversationId, turn });
+    const sendToModel = result.redactedText;
+
+    for (const item of result.conversation?.exposedEarlier ?? []) purgeTurn(item.turn);
+    ```
+  </Tab>
+</Tabs>
+
+See [Scan API](/runtime-security/scan-api) for every field of the call.
