@@ -1,0 +1,17 @@
+---
+title: "Blindsight Endpoint for Intune"
+sidebarTitle: "Read devices"
+description: "The read-only Intune application: which permissions it holds, why, what it reads and what it never reads."
+---
+
+Reads your Intune tenant so the console can show which managed Windows and Mac
+devices run the agent. Your tenant needs an active Intune licence.
+
+| Permission | Type | Why | What is read | Not read |
+| ---------- | ---- | --- | ------------ | -------- |
+| `DeviceManagementManagedDevices.Read.All` | Application | Lists the devices Intune manages and matches each to a Blindsight device. | Device name, operating system and version, serial number, Entra device ID, last check-in, and the assigned user where your workspace names its people. | Files, apps' data or anything on the device itself. |
+| `DeviceManagementApps.Read.All` | Application | Shows whether the Blindsight app is installed on each device. | Your Win32 apps by name and publisher, and the install status of Blindsight's own app. Only Blindsight's app is kept. | The settings or contents of your other apps. |
+| `DeviceManagementConfiguration.Read.All` | Application | Checks whether a device installation policy blocks the network adapter the agent needs. | Your device configuration and installation restriction policies. | Nothing is changed. |
+
+Blindsight proves itself to Microsoft with a certificate. No client secret
+exists, and the private key never leaves AWS KMS.

@@ -1,0 +1,56 @@
+---
+title: "Permissions Blindsight asks for"
+sidebarTitle: "Overview"
+description: "Every application Blindsight asks your Microsoft or Google tenant to approve, why, and the principles behind each request."
+---
+
+Blindsight asks for access to your tenant only for the features you turn on,
+and each feature is a separate application with its own approval. These pages
+list every one. All Microsoft applications below are owned by Blindsight,
+multitenant, and approved by an administrator on Microsoft's own consent
+screen, which shows the same permissions as this page.
+
+## Only what a feature needs
+
+Blindsight asks for the smallest set of permissions that lets a feature do its
+work, and nothing in advance.
+
+- **Each feature asks for its own access.** Connecting Intune asks only for
+  read access. Deploying the agent, applying a policy fix or reading Copilot
+  activity each asks separately, and only when you turn that feature on.
+- **Read before write.** Every application reads unless the feature you chose
+  has to change something, and then it can change only what it created.
+- **Some features need more.** When a feature needs a permission you have not
+  approved yet, Blindsight tells you before you approve it: which permission,
+  why the feature needs it, and what it will and will not do with it. Nothing
+  is asked for silently, and turning a feature off never needs a new
+  permission.
+- **These pages are kept current.** Every permission any feature can ask for is
+  listed here, with the reason.
+
+## The applications
+
+| Application | Used for | Permission type | Writes to your tenant |
+| ----------- | -------- | --------------- | --------------------- |
+| [Sign in with Microsoft or Google](/permissions-and-access/sign-in) | People signing in to the console | Delegated | No |
+| [Your own single sign-on app](/permissions-and-access/single-sign-on) | Workspace SSO and SCIM | Yours, not Blindsight's | No |
+| [Blindsight Endpoint for Intune](/permissions-and-access/intune-read) | Seeing which devices run the agent | Application | No |
+| [Blindsight Endpoint for Intune (deploy)](/permissions-and-access/intune-deploy) | Deploying the agent from the console | Application | One app and its assignments |
+| [Blindsight Intune fixes](/permissions-and-access/intune-fixes) | Fixing a policy that blocks the agent | Application | One policy per fix you approve |
+| [Blindsight Activity](/permissions-and-access/microsoft-365) | Microsoft 365 Copilot and agent activity | Application | No |
+
+## Who approves
+
+- **Delegated sign-in** needs no administrator unless your tenant requires
+  admin approval for all apps.
+- **Application permissions to Microsoft Graph** are approved by a Global
+  Administrator or a Privileged Role Administrator. Application Administrators
+  and Cloud Application Administrators cannot approve Microsoft Graph
+  application permissions. When the person setting a feature up cannot
+  approve, Blindsight prepares a link to send to someone who can.
+- **Consent is pinned to one tenant.** A tenant can be linked to one Blindsight
+  workspace at a time.
+
+## Revisions
+
+- **Nov 10, 2026:** first version.

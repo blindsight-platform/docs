@@ -1,0 +1,24 @@
+---
+title: "Blindsight Activity"
+sidebarTitle: "Copilot and agents"
+description: "The read-only application that reads Microsoft 365 Copilot and Copilot Studio agent activity, in three levels."
+---
+
+Reads Microsoft 365 Copilot and Copilot Studio agent activity. It is separate
+from the Intune applications and has three levels, each approved separately.
+Every permission is read-only.
+
+| Level | Permission | API | Why |
+| ----- | ---------- | --- | --- |
+| 1. Activity | `ActivityFeed.Read` | Office 365 Management APIs | Reads Copilot and agent interactions from your unified audit log. The records carry no prompt or response text. |
+| 1. Activity | `AuditLog.Read.All` | Microsoft Graph | Sign-ins to AI services with work accounts. Needs Microsoft Entra ID P1 or P2. |
+| 1. Activity | `Application.Read.All` | Microsoft Graph | AI tools connected to your tenant. |
+| 1. Activity | `Directory.Read.All` | Microsoft Graph | Who gave an AI tool access to their mail, files or calendar. Microsoft lists it as the narrowest permission for reading consent grants. |
+| 1. Activity | `User.Read.All` | Microsoft Graph | Names, departments and assigned licences. |
+| 1. Activity | `GroupMember.Read.All` | Microsoft Graph | Limiting collection to chosen groups. |
+| 2. Agent catalog | `CopilotPackages.Read.All` | Microsoft Graph | Every agent available in your tenant. Needs a Microsoft Agent 365 licence. |
+| 3. Content checks | `AiEnterpriseInteraction.Read.All` | Microsoft Graph | Microsoft 365 Copilot prompts and responses, checked against your data policies. Off by default. |
+| 3. Content checks | Dataverse application user | Dataverse | Copilot Studio agent transcripts, with a role that reads the transcript table only. Off by default. |
+
+What each permission reads and never reads is set out in
+[Microsoft 365 Copilot and agents](/endpoint/shadow-ai/microsoft-365).

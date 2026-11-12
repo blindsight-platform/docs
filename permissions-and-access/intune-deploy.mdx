@@ -1,0 +1,19 @@
+---
+title: "Blindsight Endpoint for Intune (deploy)"
+sidebarTitle: "Deploy the agent"
+description: "The Intune application that deploys the agent from the console, and the one app it is allowed to change."
+---
+
+Deploys the agent from the console. Asked for only when you turn deploy on, and
+it needs the read application first.
+
+| Permission | Type | Why | What it can do |
+| ---------- | ---- | --- | -------------- |
+| `DeviceManagementApps.ReadWrite.All` | Application | Creates the Blindsight app in Intune, assigns it to the groups you choose, and later updates it or sets it to uninstall. | It only ever changes the app it created. It cannot change or delete any other app. |
+| `GroupMember.Read.All` | Application | Lets you search for the groups to deploy to. | Reads group names and members. Writes nothing. |
+
+Every change is shown as a preview before it is made. See
+[Connect Intune](/endpoint/connect-intune).
+
+Blindsight proves itself to Microsoft with a certificate. No client secret
+exists, and the private key never leaves AWS KMS.

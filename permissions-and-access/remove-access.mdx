@@ -1,0 +1,19 @@
+---
+title: "Remove access"
+sidebarTitle: "Remove access"
+description: "How to stop Blindsight using an application, from the console or directly in Microsoft."
+---
+
+- **In Blindsight:** disconnecting a feature stops Blindsight using its access
+  at once.
+- **In Microsoft:** in the Microsoft Entra admin center, open
+  **Enterprise applications** and select the application. Under
+  **Properties**, turn off **Enabled for users to sign in?** to stop Microsoft
+  issuing it new tokens, or select **Delete**. A deleted application can be
+  restored for 30 days. To keep an application but drop a permission, revoke
+  it under **Permissions**.
+- **Dataverse:** remove the Blindsight application user from each environment
+  in the Power Platform admin center.
+
+Removing the deploy application does not uninstall the agent. Set the app to
+uninstall from the console first if you want the agent removed.
