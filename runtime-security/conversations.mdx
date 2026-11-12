@@ -28,7 +28,7 @@ Open the App, then **Configuration**, **Policy**, **Conversations**.
   edited, saved or not. Nothing is remembered and no event is written.
 
 Conditions apply to calls that name their conversation. A call without a
-conversation id is judged on its own message only.
+conversation id cannot be judged against one: by default the data a condition would hold back is masked as it is today, and with the setting **judge the message on its own** the condition looks inside that one message.
 
 ## Name the conversation
 
@@ -68,11 +68,17 @@ The response gains a `conversation` object:
 | `rules_applied` | Data acted on in this turn because of another turn. `trigger_turn` names it. |
 | `exposed_earlier` | Earlier turns that sent data as typed before this turn made it sensitive. Purge or re-send them. |
 | `ref` | A short keyed hash of the conversation. It groups events in the console. It is not your id. |
+| `recorded` | `false` when this turn was not remembered (the memory could not take it in time). A later call cannot see this turn's data, so send the conversation in `history` on the next call. |
+| `history_unread` | How many turns sent in `history` could not be read. The fail mode below applies. |
 
 When the trigger arrives after the data was already sent, the earlier turn
 cannot be unsent. From that turn on the data is masked, the response lists the
 earlier turns, and the verdict is at least `flag` so a caller that reads only
 the verdict still notices.
+
+Turn numbers are yours. When you send `turn`, that number is used as is. When you send `history`, its turns are numbered by their position in the list you sent, and the current turn is the next position, so `exposed_earlier` lines up with what you sent.
+
+Send turns one at a time. Two calls of one conversation in flight together are each judged on the state before either was recorded.
 
 The field is absent, not empty, when the App has no conversation conditions or
 the call named no conversation. Absent means the conversation was not checked.
@@ -89,7 +95,7 @@ setting decides:
 - **Judge the message on its own.**
 
 The response says which applied in `when_unchecked`. A scan never fails
-because the conversation could not be read.
+because the conversation could not be read. The setting also applies when you send `history` and the conversation was unknown or a turn of the history could not be read, because the history may not hold the turn that carried the trigger.
 
 ## Send the whole conversation instead
 
