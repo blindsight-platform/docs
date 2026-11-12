@@ -78,6 +78,8 @@ the verdict still notices.
 
 Turn numbers are yours. When you send `turn`, that number is used as is. When you send `history`, its turns are numbered by their position in the list you sent, and the current turn is the next position, so `exposed_earlier` lines up with what you sent.
 
+A condition with a time window in minutes also limits which earlier turns are reported: a turn that sent the data longer ago than the window is not listed in `exposed_earlier`. A conversation sent in full in `history` is judged by turn distance alone, because the platform has no clock for those turns.
+
 Send turns one at a time. Two calls of one conversation in flight together are each judged on the state before either was recorded.
 
 The field is absent, not empty, when the App has no conversation conditions or
