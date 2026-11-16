@@ -137,6 +137,7 @@ separately if you want them separate.
 | `endpoint.enrollment.reveal`            | Show a full enrollment token again after it was minted, so an MDM or RMM job can use it without minting another. |
 | `endpoint.device_diagnostics.view`      | Read what a device found when it checked its own layers, its timeline, its traced flows and its diagnostic bundle, and download that bundle. |
 | `endpoint.device_diagnostics.act`       | Ask one device to run its self-check, upload a bundle, raise its logging for a bounded window, refresh its policy, restart its interceptor, or apply an update. Each ask names a device and a reason. |
+| `endpoint.device_diagnostics.collect` | Ask one device to upload its diagnostics bundle at its next check-in, with no step for the person. Held by `admin` by default. |
 | `endpoint.device_errors.view`           | See the errors agents report: failed provisioning, enrollment and policy fetches, and what each device last stopped on. |
 | `endpoint.discovery.view`               | Read the [Shadow AI](/endpoint/shadow-ai/overview) inventory: which AI services are in use, on how many devices, and whether each has a decision. |
 | `endpoint.ai_services.manage`           | Approve, protect, block, or onboard a discovered AI service.                                                 |

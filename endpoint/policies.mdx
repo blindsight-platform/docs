@@ -158,6 +158,72 @@ every name that is not a known AI service. What it notices appears under
 The setting needs Endpoint agent 2.1.4 or later on Windows and Mac. Older agents
 ignore it. Each change is written to the [audit trail](/compliance/audit-trail).
 
+### Features a policy applies to
+
+A policy says which features it applies to. The list of policies shows them, and you
+can filter the list by feature. **Overview** says in a sentence where a policy applies.
+
+| Feature | What it takes from the policy |
+| ------- | ----------------------------- |
+| **Endpoint** | What the desktop agent allows, redacts or blocks on these people's devices. |
+| **Microsoft 365 Copilot** | Copilot activity from these people is checked against the policy and raises the same signals as the endpoint. |
+| **AI services** | Which AI these people may use: approved, inspected or blocked, including sites that impersonate a known AI service. |
+| **SDK and API** | Prompts your own Apps send to the scan API: personal data, conversation rules and injection. You choose the Apps. |
+
+A policy written before this change applies to Endpoint only. The **Default policy** has
+one switch per feature. Endpoint is always on. The others, when on, make the default
+policy the floor for that feature. A feature that your licence does not include is not
+counted.
+
+### Settings that need a newer desktop app
+
+A setting that only newer desktop apps read is marked in the console with the oldest
+version that acts on it, for example **Needs desktop 2.1.6 or later**. A device on an
+older app keeps the setting in its policy and ignores it, so the console says so beside
+the setting instead of promising that devices pick the change up.
+
+| Setting | Needs desktop |
+| ------- | ------------- |
+| **Install updates** | 2.1.6 |
+| **Message on the block page** and **Contact on the block page** | 2.1.7 |
+| **Tell the person when details were removed** | 2.1.7 |
+| **Report names looked up by any program** | 2.1.7 |
+
+### Install updates
+
+**Endpoint → Policies → Default policy → Install updates** decides whether the desktop
+app on managed devices installs a new version by itself.
+
+| Setting | What devices do |
+| ------- | --------------- |
+| **Each person decides** (the default) | The app follows the person's own setting. |
+| **Automatically** | The app installs updates by itself, with no step for the person. |
+| **Not automatically** | The app does not install updates by itself. |
+
+A choice other than **Each person decides** replaces the person's own choice for the
+whole workspace.
+
+### Block page message and contact
+
+When a site is blocked, the person sees a block page. **Message on the block page** adds
+one or two plain sentences under the reason, for example who to ask. It is short, plain
+text with no formatting or links. **Contact on the block page** adds one email address,
+shown as text. Each change is written to the [audit trail](/compliance/audit-trail).
+
+### Tell the person when details were removed
+
+When this is on, the desktop app tells the person that details were removed from
+something they sent to an AI service. It is off by default, so removal then happens
+without a notice. A blocked request always tells the person, with a reference an
+administrator can search, whatever this setting says.
+
+### Report names looked up by any program
+
+When this is on, devices also report the names their computer looks up for any
+program, not only what passes through the proxy, so an AI service reached by a native
+app or a command line tool can be found. It reads names only, never what was sent. It is
+off by default. Each change is written to the [audit trail](/compliance/audit-trail).
+
 ## AI host rules
 
 The agent only intercepts traffic to hosts on the AI host list. Every

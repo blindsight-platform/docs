@@ -171,6 +171,52 @@ Substring matching alone never qualifies. `email.example.com` and
 `domain.example.com` do not become candidates, while
 `my-llm-proxy.example.com` does.
 
+### Sites that impersonate an AI service
+
+Some sites dress up as a well-known AI service to collect sign-ins or push
+a fake "desktop app": a copy of the brand's name with one letter changed,
+lookalike characters, the brand on a domain it does not own, or the brand
+next to a word such as *download* or *login*. Their front pages often say
+exactly what the real service says, so the evidence that would normally
+confirm an AI service would confirm the fake one too.
+
+Every host the fleet reaches is checked against the names of the major AI
+brands before anything else is decided about it. A host that matches is
+listed as **Impersonates** *brand* and is never treated as AI:
+
+- It is never approved or acted on by the **Newly discovered AI** setting, and
+  never suggested for the shared catalog.
+- It ranks **High** risk with the real service named, for example
+  *Impersonates ChatGPT: the real service is chatgpt.com*.
+- It cannot be approved. To allow the brand, approve its real domain.
+- It is not counted as AI in the Shadow AI figures.
+- It raises the **Impersonating site reached** alert once per site.
+
+The brand's own domains, every host in the built-in catalog and every
+built-in rule are never matched, so the real service is never flagged.
+See [Impersonating sites](/endpoint/shadow-ai/triage#impersonating-sites)
+for what to do with one.
+
+#### Blocking lookalike sites
+
+The clearest lookalikes can be blocked on every device as soon as your fleet
+reaches them, and the people who reached one are told by email which service it
+imitates and where the real one is. A weaker lookalike is only listed. A site you
+decided about yourself is never touched.
+
+**Block impersonating sites** is on for workspaces created from 16 November 2026.
+It is off for a workspace that existed before, until an administrator turns it on.
+There are two places to do it:
+
+- the notice that says how many sites your people reached that pretend to be a
+  well-known AI service, with **Turn on blocking**
+- **Endpoint → Policies → Default policy**, the **Block impersonating sites** switch
+
+Each change is written to the [audit trail](/compliance/audit-trail). A person
+who is blocked sees a block page. Workspaces can add a short message and a
+contact to it; see
+[Block page message and contact](/endpoint/policies#block-page-message-and-contact).
+
 ### What the agent and the platform keep out of the inventory
 
 Windows agent 1.6.4 reports the AI services it sees on the whole-device lane, not
