@@ -84,12 +84,75 @@ An App's page has two tabs.
 
 A new App opens on **Connect** until its first request arrives.
 
-### New app
+### Create an app
 
-Select **New app** on the list. Give it a name (the key is made from it, and is
-permanent), an optional description, and set the three protections. The defaults
-are **Mask**, every PII type for your workspace's countries on, no topics, and
-**Block** for prompt injection. Everything but the key can change later.
+1. **Open the list.** In the console, go to **Runtime Security → Apps** and
+   select **New app**.
+2. **Name it.** Type a **Name**, for example "Claims intake bot". The app's
+   key is made from the name and shown under it; select **Customize** to change
+   it. The key is permanent. **+ Add a description** is optional.
+3. **Check what it protects.** Under **What it protects**, the defaults for
+   your workspace's countries are already set:
+   - **PII**: **Pseudonymized and restored**, with the PII types of your
+     workspace's countries on. Select **Change**, then **Show the types**, to
+     turn a type on or off, or pick **Mask** instead.
+   - **Topics**: none. Select **Change** and **Add a topic** for a subject this
+     app must not handle, then choose **Block** or **Flag**.
+   - **Prompt injection**: **Blocked**. Select **Change** to choose
+     **Flag only**.
+
+   Everything but the key can change later, on the app's page.
+4. **Create it.** Select **Create app**.
+5. **Create a key (optional).** The dialog then offers a key your code sends to
+   scan for this app. Select **Create a scan key**: it can only scan, and only
+   for this app. It is shown once, so select **Copy key** and store it as
+   `BLINDSIGHT_API_KEY`. Without the permission to manage API keys, the dialog
+   says who can create one. You can also create the key later on **Connect**.
+6. **Open the app.** Select **Open the app**. It opens on **Connect**, where
+   **Add it to your code** has the snippet with this app's ID filled in.
+7. **Send a first test request.** On **Connect**, under **Prove it works**,
+   select **Send a test request from here**, or run the command below from a
+   terminal. A card number in the sample prompt comes back redacted, and the
+   app starts showing its traffic.
+
+A minimal first request with the SDK (TypeScript), using the key from step 5
+and the app ID from the snippet on **Connect**:
+
+```ts
+// npm install @blindsight/security
+import { RuntimeSecurity } from "@blindsight/security";
+
+const rs = new RuntimeSecurity({
+  baseUrl: "https://platform.blindsight.io",
+  apiKey: process.env.BLINDSIGHT_API_KEY!,
+  appId: "<your app ID>", // this app's settings apply to every scan
+});
+
+// before the model
+const verdict = await rs.scanInput("My card is 4242 4242 4242 4242");
+if (verdict.blocked) throw new Error(verdict.blockedReason);
+const safeInput = verdict.safeText; // send this to your model
+
+// after the model: check the reply, then put the real values back
+const reply = await callYourModel(safeInput);
+const checked = await rs.scanOutput(reply, { prompt: safeInput });
+if (checked.blocked) throw new Error(checked.blockedReason);
+const answer = verdict.restore(checked.safeText);
+```
+
+The same first request with curl:
+
+```bash
+curl -s https://platform.blindsight.io/api/runtime-security/scan/input \
+  -H "X-API-Key: $BLINDSIGHT_API_KEY" \
+  -H "X-Blindsight-App-Id: <your app ID>" \
+  -H "Content-Type: application/json" \
+  -d '{"text":"My card is 4242 4242 4242 4242"}'
+```
+
+With **Pseudonymized and restored**, your model reads placeholders such as
+`<PERSON_1>` in place of personal data, and `restore` puts the real values
+back into the checked reply.
 
 ### Connect an App
 
