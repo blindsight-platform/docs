@@ -1394,6 +1394,73 @@
           }
         }
       },
+      "put": {
+        "tags": [
+          "SCIM provisioning"
+        ],
+        "summary": "Replace Group",
+        "description": "RFC 7644 section 3.5.1: replace the group's displayName and member list. Members the body does not list are removed, and an absent or empty members list empties the group. Only membership that SCIM provided is written, so people an administrator added by hand stay. The group's externalId cannot be changed here, and its platform roles are never read or written.",
+        "operationId": "replace_group_scim_v2_Groups__group_id__put",
+        "parameters": [
+          {
+            "name": "group_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Group Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true,
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
       "patch": {
         "tags": [
           "SCIM provisioning"
@@ -1447,6 +1514,59 @@
                 "schema": {}
               }
             }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "SCIM provisioning"
+        ],
+        "summary": "Delete Group",
+        "description": "RFC 7644 section 3.6: delete the group and the membership it fed. Endpoint groups an administrator bound to it stay, with their hand-added members and policy assignments. A group that grants platform roles is refused with 409 until an administrator removes its role mapping in the console.",
+        "operationId": "delete_group_scim_v2_Groups__group_id__delete",
+        "parameters": [
+          {
+            "name": "group_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Group Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "409": {
+            "description": "The group grants platform roles."
           },
           "422": {
             "description": "Validation Error",
@@ -23417,6 +23537,93 @@
           },
           "required": true
         },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewerListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/settings/reviewers/{user_id}": {
+      "post": {
+        "tags": [
+          "Settings"
+        ],
+        "summary": "Add Global Reviewer",
+        "description": "Add one global reviewer. Adding someone already on the list changes nothing. Only an active member of the workspace can be added. Needs a workspace admin.",
+        "operationId": "add_global_reviewer_api_settings_reviewers__user_id__post",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewerListResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such member in this workspace."
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Settings"
+        ],
+        "summary": "Remove Global Reviewer",
+        "description": "Remove one global reviewer. Removing someone not on the list changes nothing. Needs a workspace admin.",
+        "operationId": "remove_global_reviewer_api_settings_reviewers__user_id__delete",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "User Id"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",

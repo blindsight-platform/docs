@@ -24,8 +24,8 @@ The Settings rows, in order:
 | | **Compliance** | Where the workspace operates and which compliance modules decide what the console shows. |
 | | **Privacy** | Who is named in the console. See [Who is named in the console](/endpoint/who-is-named). |
 | | **Plan and usage** | Plan, requests used, people, endpoint devices, expiry, enabled modules, and the licence key. |
-| | **Integrations** | See [Integrations & webhooks](/data-security/integrations). |
-| **Product defaults** | **Data Security** | Healing defaults and, for admins, dataset access control. |
+| | **Integrations** | See [Integrations & webhooks](/data-security/integrations). Shown only where Data Security is deployed and licensed, because every service here serves Data Security. |
+| **Product defaults** | **Data Security** | Healing defaults, for admins the global reviewers and dataset access control. |
 | **You** | **Appearance** | Theme, accent color, density. |
 
 Your own profile is not a Settings row. Open it from the user menu. **Profile** has
@@ -74,6 +74,23 @@ workspace**:
 - **Retention for cured zips**: how long the platform keeps healed
   downloads before garbage collection. Lineage stays even after the
   zip is purged.
+
+## Global reviewers
+
+**Settings → Data Security → Reviewers** lists the people assigned to review scan
+results across all datasets. Admins and owners see it.
+
+- **Add reviewer** opens a search by name or email. Select **Add** beside a person.
+  Only an active member of the workspace can be added.
+- **Remove** takes one person off the list.
+
+Each add or remove changes one person on the stored list and nothing else, so two
+admins editing at once both keep their change. Adding someone who is already a
+reviewer, or removing someone who is not, changes nothing. Both are recorded in
+your activity history. If the list could not be read, the panel says so and offers
+**Try again** instead of letting a change replace a list it has not seen. A
+workspace that shows only totals lists the people who run the console, never a
+watched person.
 
 ## Security
 

@@ -226,8 +226,10 @@
                   "PUT /scim/v2/Users/{user_id}",
                   "GET /scim/v2/Groups",
                   "POST /scim/v2/Groups",
+                  "DELETE /scim/v2/Groups/{group_id}",
                   "GET /scim/v2/Groups/{group_id}",
-                  "PATCH /scim/v2/Groups/{group_id}"
+                  "PATCH /scim/v2/Groups/{group_id}",
+                  "PUT /scim/v2/Groups/{group_id}"
                 ]
               }
             ]
@@ -796,7 +798,9 @@
                   "PATCH /api/settings/tenant",
                   "GET /api/settings/tenant/usage",
                   "GET /api/settings/reviewers",
-                  "PUT /api/settings/reviewers"
+                  "PUT /api/settings/reviewers",
+                  "DELETE /api/settings/reviewers/{user_id}",
+                  "POST /api/settings/reviewers/{user_id}"
                 ]
               },
               {

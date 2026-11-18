@@ -66,6 +66,15 @@ systems, then delete the old key. Deleting or disabling a key is instant and
 audit-logged, and later calls with it return `401`. Name each key after what
 uses it, so it is obvious in the audit trail.
 
+### Keys that belong to an App
+
+A Runtime Security key can be limited to one App, or to several. A key limited to
+one App needs no App ID in its requests. When that App is archived or deleted,
+every key limited to it alone is revoked in the same step, and each revocation is
+written to the [audit trail](/compliance/audit-trail). A key limited to several
+Apps keeps the others and loses only this one. Turning an App off does not touch
+its keys. See [Apps](/runtime-security/apps#turn-off-archive-and-delete).
+
 ## Use a key
 
 Send the key in the `X-API-Key` header.

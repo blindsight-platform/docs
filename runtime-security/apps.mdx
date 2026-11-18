@@ -1,30 +1,123 @@
 ---
 title: "Apps"
-description: "Per‑surface configuration for thresholds, detectors, custom rules, tool policy, and privacy. One workspace can run many Apps side by side."
+description: "One App per AI surface: three protections you set in place (PII, topics, prompt injection), its keys, and what it did. One workspace can run many Apps side by side."
 ---
 
 An **App** is a per‑workspace logical surface: a chatbot, a RAG
-assistant, a code agent. Each App owns its own thresholds, detectors,
-custom PII rules, custom phrases, tool policy, privacy mode, custom
-event params, dataset projection, and per‑App quotas. Every scan and
-proxy call is attributed to exactly one App via the
-`X-Blindsight-App-Id` header.
+assistant, a code agent, or an API partner. Each App has three
+protections you can read at a glance and change in place, and keeps its
+own keys, custom rules, custom event params and tool policy. Every scan
+and proxy call is attributed to exactly one App via the
+`X-Blindsight-App-Id` header, or by the App a scan key is limited to.
 
-## Why Apps
+## The three protections
 
-One workspace usually fronts several distinct LLM surfaces that
-warrant different security postures:
+Each App shows one line per protection: what it is set to, what it did
+over the page's time window, and **Change**. **Change** opens the controls
+under the line. Nothing leaves the page, and **Done** folds them again.
 
-- A healthcare chatbot needs strict PHI thresholds and may forbid
-  certain providers.
-- An internal code agent can tolerate looser injection thresholds
-  but needs strict tool policy.
-- A customer support bot wants standard thresholds and rich
-  ticketing custom params.
+| Protection | What you set | What a request meets |
+| ---------- | ------------ | -------------------- |
+| **PII** | **Pseudonymize and restore** or **Mask**, and which PII types are on. | With **Pseudonymize and restore**, your model gets a placeholder such as `<PERSON_1>` and your user gets the real value back in the reply. With **Mask**, the model gets a type placeholder such as `<PERSON>` and the reply keeps it. |
+| **Topics** | Up to 20 subjects the App must not handle, each set to **Block** or **Flag**. | A request that asks about a **Block** topic never reaches your model, and your app gets the topic as the reason. A **Flag** topic is recorded and goes through. |
+| **Prompt injection** | **Block**, or **Flag only**. | With **Block**, a caught attack is stopped before it reaches your model. With **Flag only** it goes through to your model and is counted as flagged. |
 
-Apps let one workspace run all of these under one license without
-their settings bleeding into each other, and keep their event streams
-cleanly separable in analytics.
+A few things to know:
+
+- **PII types.** Types for your workspace's countries are listed first.
+  Other countries' IDs sit one line below, behind **Show them**. A type that a
+  workspace policy protects stays protected whatever the App says.
+- **Topics and workspace policies.** The workspace policies that cover the
+  App apply too. Where both name a topic, the stricter action wins. Topics
+  are checked on prompts sent through the SDK or the scan API, not through
+  the reverse proxy.
+- **Flag only is a choice to review, not to block.** The line reads **Flagged
+  only, it reaches your model** and is marked as relaxed. Loosening a
+  protection is recorded in the [audit trail](/compliance/audit-trail) as a
+  weakening.
+- **Permissions.** Changing the protections needs the permission to manage
+  Apps. Without it, the lines are read only.
+
+A change is a draft until you save it. Saving writes one new
+[config version](#versioned-config).
+
+## The Apps list
+
+**Runtime Security → Apps** lists every App with its three protections side by
+side.
+
+| Column | What it shows |
+| ------ | ------------- |
+| **App** | The name and key. A row opens the App's page. |
+| **State** | **Receiving**, **Waiting**, **Tested**, **No requests**, **Off** or **Archived**. |
+| **PII** | **Pseudonymized** or **Masked** with how many types are on (for example `13/16`), or **Off**. |
+| **Topics** | How many topics the App has, or **None**. |
+| **Injection** | **Blocked**, or **Flag only**. |
+| **Replaced**, **Blocked** | What the protections did in the window. A figure that could not be read says **Not read**, and no request reads **None**, never a bare 0. |
+| **Trend**, **Last request** | Requests over the window, and when the last one arrived. |
+
+An App shows as **Receiving** once it has received traffic. A request sent
+from the console's own test is shown as a test and never counts as traffic.
+A request whose scan ends in a `503` is not counted.
+
+**Needs you** comes first: Apps that stopped receiving, Apps still waiting for
+their first request, and Apps with a protection relaxed (**Flag only**, or PII
+off). The toolbar has chips for **All**, **Needs you**, **Receiving**, **Off**
+and **Archived**, a search, a template filter, a grouping by state or template
+and a time window. The search, the chips and the window are kept in the
+address, so opening an App and going back returns you to the list as it was.
+
+The figures above the list (**Need you**, **Receiving**, **PII replaced**,
+**Blocked**) count the Apps the list shows, the same way the list counts them.
+See [The dashboard](/runtime-security/overview#the-dashboard).
+
+## An App's page
+
+An App's page has two tabs.
+
+- **Overview**: the three protection lines, an **Activity** section (requests
+  over time, personal data found and attacks found) and **Connect**, one line
+  with the App key, the App ID and whether each request must be signed. **How
+  to connect** opens the steps in place.
+- **Configuration**: **Keys**, **Rules**, **Custom parameters** and **Versions**,
+  each a line that opens in place.
+
+A new App opens on **Connect** until its first request arrives.
+
+### New app
+
+Select **New app** on the list. Give it a name (the key is made from it, and is
+permanent), an optional description, and set the three protections. The defaults
+are **Mask**, every PII type for your workspace's countries on, no topics, and
+**Block** for prompt injection. Everything but the key can change later.
+
+### Connect an App
+
+On **Connect**:
+
+1. **Your key.** Create a scan key that can only scan, and only for this App.
+   It is shown once. Store it as `BLINDSIGHT_API_KEY`.
+2. **Add it to your code.** Pick a language and copy the snippet, which names
+   the App.
+3. **Prove it works.** Send a sample prompt with a card number in it from the
+   console or from a terminal. You should see it redacted. The page then keeps
+   checking for the App's own requests.
+
+### Turn off, archive and delete
+
+- **Turn off** an App from its page: while it is off, requests from it are
+  refused, so its prompts are neither scanned nor answered. Its past requests
+  and dataset stay, and you can turn it on again at any time. Keys are left
+  alone.
+- **Archive** removes the App from the list. Requests from it are refused, and
+  its past requests keep their App.
+- **Delete permanently** needs the permission to delete Apps and the App's name
+  typed to confirm. It cannot be undone.
+
+Archiving or deleting an App revokes every API key limited to that App alone,
+in the same step, and each is recorded in the audit trail. A key limited to
+several Apps keeps the others and loses this one. A key whose Apps are all gone
+is refused with `401`.
 
 ## Managing Apps
 
@@ -50,16 +143,16 @@ or via the REST API.
 ## Built‑in templates
 
 Cloning a template is the fastest way to get a production‑shaped App.
-Each template ships with sensible thresholds, a starter custom‑phrase
+Each template ships with sensible settings, a starter custom‑phrase
 list, custom PII rules where appropriate, custom params, and dataset
 field picks.
 
 | Template key            | Use case                          | Highlights                                                                                          |
 | ----------------------- | --------------------------------- | --------------------------------------------------------------------------------------------------- |
-| `healthcare_chatbot`    | Patient‑facing PHI traffic        | Tighter thresholds (block 0.75 / redact 0.45), Swiss AHV / ICD‑10 / dosage rules.                    |
-| `rag_assistant`         | KB / retrieval‑augmented apps     | Strong injection defence on retrieved docs, RAG‑specific custom phrases, retrieval params.           |
+| `healthcare_chatbot`    | Patient‑facing PHI traffic        | Stricter PHI handling, Swiss AHV / ICD‑10 / dosage rules.                                            |
+| `rag_assistant`         | KB / retrieval‑augmented apps     | Injection defence on retrieved docs, RAG‑specific custom phrases, retrieval params.                  |
 | `code_agent`            | Coding assistants with shell / SQL| Strict tool denylist, agentic guardrails on, secret detection.                                       |
-| `customer_support_bot`  | General support assistants        | Standard thresholds, ticket / CSAT custom params.                                                    |
+| `customer_support_bot`  | General support assistants        | Standard settings, ticket / CSAT custom params.                                                      |
 
 ## App resolution headers
 
@@ -133,9 +226,9 @@ the event row that produced it.
     4. Point your staging environment at the clone's `X-Blindsight-App-Id`.
   </Accordion>
 
-  <Accordion title="Roll out a tighter PII threshold safely">
+  <Accordion title="Roll out a stricter PII setting safely">
     1. Note the current config version on the App.
-    2. `PUT …/apps/{id}/config` with the new thresholds and a
+    2. `PUT …/apps/{id}/config` with the new settings and a
        `change_summary` like `tightening EU launch`.
     3. Watch the drift dashboard for verdict mix changes over the
        next 24 hours.

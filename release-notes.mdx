@@ -7,6 +7,101 @@ Each entry below is one release, newest first. Agent releases are named
 **Endpoint** with their version. Console and platform releases are named
 **Platform** with their date.
 
+<Update label="Platform 2026-11-18" description="Console and platform, 18 November 2026">
+  This release adds the Runtime Security dashboard, a first setup for Compliance,
+  more ways to add your company's own AI services, a proof of the machine key when
+  a device enrols again, and a redesigned Settings. It works with every agent from
+  1.6.0. Features that need a newer desktop app say so.
+
+  - **Runtime Security dashboard.** The page opens on a sentence that says whether
+    your Apps are protected and receiving, then the numbers for the window you pick,
+    what was caught, what changed and next steps. It counts Apps the way the Apps
+    list does. See [The dashboard](/runtime-security/overview#the-dashboard).
+  - **Apps list.** A row opens its App, and the Apps that need you come first. See
+    [The Apps list](/runtime-security/apps#the-apps-list).
+  - **Compliance first setup.** With no framework switched on, Compliance asks where
+    you operate, then only the questions those countries raise, then shows what
+    switches on and why. Nothing is saved until the last step. See
+    [First setup](/compliance/frameworks#first-setup).
+  - **Your company's own AI services.** Devices accept your company's certificates
+    only when an administrator allows it, an administrator can let Windows devices
+    read internal services on private addresses, and you can add your own Azure
+    OpenAI, Azure AI Foundry or Amazon Bedrock endpoint by its exact name. Each
+    choice is recorded in the audit trail. See
+    [Company certificates](/endpoint/custom-ai-services#company-certificates),
+    [Internal services on private addresses](/endpoint/custom-ai-services#internal-services-on-private-addresses)
+    and [Cloud model endpoints by exact name](/endpoint/custom-ai-services#cloud-model-endpoints-by-exact-name).
+  - **Importing a policy is a main way to add one.** **Endpoint → Policies** opens
+    with **Import the policy you already wrote** beside **Write one here**, and an
+    import never proposes a control the document did not state. See
+    [Import a policy](/endpoint/policy-import).
+  - **Settings redesigned.** Every Settings page uses the same rows, switches and
+    choices. **Integrations** is shown only where Data Security is deployed and
+    licensed. Global reviewers are added and removed one at a time, so two admins
+    editing at once both keep their change, and the API gains
+    `POST /api/settings/reviewers/{user_id}` and
+    `DELETE /api/settings/reviewers/{user_id}`. See
+    [Global reviewers](/administration/settings#global-reviewers).
+  - **Machine key proof when a device enrols again.** A device with a machine key
+    proves it holds the key before its enrolment is accepted. Workspaces watch and
+    record by default, and enforcement is switched on per workspace. See
+    [Machine key proof](/endpoint/devices#machine-key-proof).
+  - **Refuse when the app cannot be named.** A Default policy switch that makes a
+    block rule with no host also refuse traffic from an application the device could
+    not name. It is off by default, and the policy shows how many connections
+    devices could not name. See
+    [Refuse when the app cannot be named](/endpoint/policies#refuse-when-the-app-cannot-be-named).
+  - **Topic rules on every App.** An App's own topic rules work whichever PII types
+    the App has switched on.
+</Update>
+
+<Update label="Platform 2026-11-17" description="Console and platform, 17 November 2026">
+  This release rebuilds Runtime Security Apps around three protections, adds a
+  client guide for chatbots, makes every view in the console linkable, and adds
+  replace and delete for SCIM groups. It works with every agent from 1.6.0.
+  Features that need a newer agent say so.
+
+  - **Apps rebuilt around three protections.** Each App shows PII, topics and prompt
+    injection on one line each, with what it did in the window and **Change** to edit
+    it in place. PII can be pseudonymized and restored, topics are the App's own
+    subjects to block or flag, and prompt injection is blocked or flagged only. See
+    [The three protections](/runtime-security/apps#the-three-protections).
+  - **New Apps list and pages.** The list shows the three protections side by side.
+    An App's page has **Overview** and **Configuration**, **New app** sets the
+    protections as it creates the App, and **Connect** gives a scan key limited to
+    the App and a test request. See [Apps](/runtime-security/apps).
+  - **Chatbot integration.** For an App set to pseudonymize and restore, a value
+    keeps its placeholder in every message of a conversation, restoring never puts
+    back a value the model added on its own, and `/scan/restore` puts values back
+    into text. An App set to flag only answers `allow` with `also_flagged`. See
+    [Protect a chatbot](/runtime-security/scan-api#protect-a-chatbot).
+  - **Clearer errors and counts.** Errors carry a code and, where it applies, a wait
+    in `Retry-After`. They never repeat what was sent. A request that ends in
+    `503` is not counted against your allowance, and an App appears as receiving as
+    soon as it has received traffic. The SDKs read the code and the wait, and retry a
+    `429` or `503` a bounded number of times. See
+    [Errors](/runtime-security/errors).
+  - **Keys go with their App.** Archiving or deleting an App revokes every key
+    limited to that App alone, and each is recorded in the audit trail. See
+    [Keys that belong to an App](/administration/api-keys#keys-that-belong-to-an-app).
+  - **Find your way.** Every view has its own address, the breadcrumb names the
+    record and the tab, and a link that takes you into another product offers the way
+    back. See [Finding your way](/overview#finding-your-way).
+  - **SCIM groups.** Your identity provider can replace and delete a group. A group
+    that grants platform roles is refused on delete, and Endpoint groups keep their
+    policy assignments. See [Groups](/endpoint/identity#groups).
+  - **Policy import.** An import never turns a sentence into a control the document
+    did not state. See
+    [An import never proposes a control the document did not state](/endpoint/policy-import#an-import-never-proposes-a-control-the-document-did-not-state).
+  - **Lookalike sites.** A site dressed as a known AI service is listed as an
+    impersonation, and is not counted as an AI service on the Overview, the **AI
+    services** page or in reports. See
+    [Sites that impersonate an AI service](/endpoint/shadow-ai/overview#sites-that-impersonate-an-ai-service).
+  - **Daily request allowance.** If your plan has one, requests beyond it are paced
+    and never refused for the day: you get `429` with
+    `DAILY_ALLOWANCE_SOFT_LIMIT` and a wait. See [Scan API](/runtime-security/scan-api).
+</Update>
+
 <Update label="Platform 2026-11-16" description="Console and platform, 16 November 2026">
   This release redesigns Compliance and Overview, brings one list design to the console,
   and adds lookalike AI site detection, an auditor pack with read-only links, and

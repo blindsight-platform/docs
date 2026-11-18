@@ -358,6 +358,48 @@ back.
   </Step>
 </Steps>
 
+### Machine key proof
+
+A desktop app that supports it holds a machine key that only the system account on
+the device can read. Blindsight binds that key to the device. When the device
+enrols again, it proves it holds the key by signing a one-time challenge, so only the
+machine itself can take back its own device row.
+
+How a workspace treats an enrolment that cannot prove the key is a workspace-wide
+mode:
+
+| Mode | What happens to an enrolment that cannot prove the key |
+| ---- | ------------------------------------------------------- |
+| **Watch** (the default) | The device enrols as before. Blindsight counts the attempt and records it in the audit trail, and the device shows **Enrolled without its key**. |
+| **Enforce** | The enrolment is refused with `409 device_held`, the current credential stays with the device, and the device shows **Takeover refused**. |
+
+Enforcement is switched on per workspace, and not from the console settings. Ask your
+Blindsight contact to turn it on once every device in the workspace runs an app that
+supports the key and shows a bound key. Returning to **Watch** takes effect on the
+next request, and devices that were held then enrol as before.
+
+Open a device to see its **Machine key** group: the key (its fingerprint), each
+attempt that could not prove it with its count and time, and any other key that
+tried. A device is marked **Not bound, contested** when more than one machine
+enrolled as it, and then no key binds by itself.
+
+An administrator with `endpoint.manage` has two actions, each recorded with their
+name:
+
+- **Let it reconnect**, offered for each key that tried the device. The key becomes
+  the only one that can bind to the device, and it still has to prove it holds it.
+  Check first that the machine's diagnostics show the same key (they show its first
+  12 characters).
+- **Reset identity**, which forgets the key. The device then behaves like one
+  enrolled before keys existed until its app registers a new one. Prefer **Let it
+  reconnect**.
+
+A machine that was reimaged or uninstalled has lost its key. In **Watch** it
+enrols as before. Under **Enforce**, let its new key reconnect. An uninstall that
+was confirmed with an [uninstall code](/endpoint/uninstall) issued for that device
+releases the key without an administrator step. Re-authorising a revoked device
+does not.
+
 ## Tamper events
 
 Every tamper attempt is captured. The agent's guardian process and

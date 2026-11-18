@@ -33,7 +33,7 @@ Default policy, Assignments and Import a policy are all part of it.
 | **Endpoint → Policies**, then a policy | A named policy layered on top of that floor, each assigned to people, groups or specific devices. |
 | **Endpoint → Policies → All assignments** | Every assignment across all policies. |
 | **Endpoint → Policies → Check a person** | What applies to one person and why. |
-| **Endpoint → Policies → Import a written policy** | Policies proposed from the AI policy your company already wrote, for you to review and apply. See [Import a policy](/endpoint/policy-import). |
+| **Endpoint → Policies → Import a written policy** | Policies proposed from the AI policy your company already wrote, for you to review and apply. It is one of the two ways to add a policy, beside **New policy**. See [Import a policy](/endpoint/policy-import). |
 
 **Configurations** keeps what is not a policy: MCP tools, Directory & SSO,
 Alerts, Intune and Manual install.
@@ -157,6 +157,25 @@ every name that is not a known AI service. What it notices appears under
 
 The setting needs Endpoint agent 2.1.4 or later on Windows and Mac. Older agents
 ignore it. Each change is written to the [audit trail](/compliance/audit-trail).
+
+### Refuse when the app cannot be named
+
+**Endpoint → Policies → Default policy → Unnamed applications → Refuse when the app
+cannot be named** decides what a block rule that names no host does with a connection
+whose owning application the device could not identify.
+
+| Setting | What devices do |
+| ------- | --------------- |
+| **Off** (the default) | A block rule that names no host applies to the applications the device can name. |
+| **On** | A block rule that names no host also refuses traffic whose application the device could not name. |
+
+Under the switch, **Connections with an unnamed app** says how many connections
+devices could not name in their last report, over the past week, and from how many
+devices. It reads **Not measured yet** until a device reports the figure, never 0.
+Choosing this needs `endpoint.protections.configure`, because it changes what the
+whole fleet may reach. A desktop app that does not read the setting ignores it, as
+described in [Settings that need a newer desktop app](#settings-that-need-a-newer-desktop-app).
+Each change is written to the [audit trail](/compliance/audit-trail).
 
 ### Features a policy applies to
 
