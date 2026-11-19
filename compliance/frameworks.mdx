@@ -198,17 +198,20 @@ mapping over the current evidence window. Two things are worth knowing:
 
 ## Coverage, history and next steps
 
-Each framework shows a **coverage bar**: how many of its controls are met, in
-progress, open or not assessed in the period you chose. Pick a framework to list its
-controls, and select a row to open a panel with the evidence behind it, in place.
+Each framework shows a **coverage bar**: its controls by state, from **Evidenced**
+and **Attested** to **Findings open**, **Partly evidenced**, **No evidence**,
+**Record expired** and **Yours to record**, in the period you chose. Pick a part of the
+bar to list the controls in that state, and select a row to open the evidence behind
+it, in place.
 
-- **Week by week.** A chart under the bar shows how it read each week of the last 12
-  weeks. Move across it to rewind the bars to that week, and select **Back to now**
-  to return.
-- **Changes.** The panel lists the controls whose state changed in those weeks.
-- **Next steps.** The most useful things to do next are listed in order, for example
-  a control with open findings or one that needs a record of yours. Each opens the
-  control it concerns.
+- **Week by week.** Pick a period such as the last 30 days and a chart under the bar
+  shows how it read each week, up to 12 weeks. Move across it to rewind the bars to
+  that week, and select **Back to now** to return. **All time** has no week to repeat.
+- **What changed.** Below the control list, the controls whose state changed, by
+  week, newest first.
+- **What moves you next.** The most useful actions come first, ranked by what needs
+  you and how many controls each moves, across every framework that is on. Each one
+  opens the page where you do it, or the **Record evidence** form.
 
 ## Evidence records
 
@@ -220,11 +223,13 @@ can see. For these you record a document of yours.
    pick a file. Only the file's fingerprint is kept. The file stays with you.
 3. Choose any other controls the same document counts for.
 
-A record is **waiting for sign-off** until a second person approves it. The person who
-recorded it cannot approve it. The approver can sign it off or **Decline** it with a
-reason. The person who recorded it can **Withdraw** it, again with a reason, and record
-a **New version** at any time. A record that passes its review date lapses and counts as
-yours to record again until you renew it.
+A record is **waiting for sign-off** until a second person approves it. Recording,
+sign-off and decline all need `compliance.manage`, and the person who recorded it
+cannot approve it. While it waits, the person who recorded it can **Withdraw** it with
+a reason, and anyone else with `compliance.manage` can **Decline** it with a reason.
+After sign-off, use **New version** to replace it. A record whose recorder's account
+was deleted cannot be signed off: decline it and record it again. When a record passes
+its review date the control reads **Record expired** until you use **Renew the record**.
 
 A signed-off record is shown as attested outside the console: Blindsight does not check
 the document. Recording, sign-off, decline and withdrawal are written to the
@@ -242,6 +247,7 @@ with a fingerprint for every file:
 | `attestations.csv` | Your records, by document, version and fingerprint. |
 | `changes.csv` | Compliance changes in the period, from the audit trail. |
 | `chain.json` | The audit chain's last verification. |
+| `manifest.json` | The framework, the period, who made the pack and when, and every file with its size and fingerprint. |
 | `SHA256SUMS` | A fingerprint of every file. |
 
 The pack never holds prompt or reply text, client identifiers or your uploaded files.
@@ -266,7 +272,9 @@ Every open and download, and every creation and revocation, is written to the
 each link, how many times it was opened and when it expires.
 
 A link stops for good when Compliance, or the framework it shows, is turned off for
-the workspace. Turning it back on does not bring the link back: make a new one.
+the workspace. On workspaces where a lapsed licence switches features off, it also
+stops for good when the licence lapses. Turning the feature back on does not bring the
+link back: make a new one.
 
 ## API
 

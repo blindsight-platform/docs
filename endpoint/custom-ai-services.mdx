@@ -81,20 +81,21 @@ says **This host only** with the reason:
 
 ## Reach of a service you added
 
-Adding a host does not mean Blindsight can read what is sent to it. On the
-**Endpoint → AI services** row of a service you added, **Reach** says what devices did
-with it:
+Adding a host does not mean Blindsight can read what is sent to it. Open
+**Endpoint → AI services**, then a service you added in the **Catalogue**. Its row says
+what devices did with it:
 
 | Reach | What it means |
 | ----- | ------------- |
 | **Reached** | Devices reached it and read the requests. The line shows the counts. |
-| **Seen, nothing readable** | Devices reached it, but no request could be read. |
+| **Seen, nothing readable** | Requests reached the service but carried nothing the endpoint could read. |
 | **Not reached yet** | No device has reached it. |
 | **Too few to show** | In a workspace that shows only totals, a count under the minimum is not shown. |
 
 Choose **Inspect** or **Protect** as described in [Add a service](#add-a-service).
-Requests to some hosts, such as Amazon Bedrock and Azure model endpoints, are signed
-over their body, so they can be added but their body is never rewritten.
+Amazon Bedrock requests are signed over their body, so a Bedrock service can be added,
+but its prompts are read and blocked, never redacted. Under **Protect**, a prompt that
+would be redacted is blocked instead.
 
 ## The service detail
 
