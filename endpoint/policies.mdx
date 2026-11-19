@@ -169,9 +169,9 @@ whose owning application the device could not identify.
 | **Off** (the default) | A block rule that names no host applies to the applications the device can name. |
 | **On** | A block rule that names no host also refuses traffic whose application the device could not name. |
 
-Under the switch, **Connections with an unnamed app** says how many connections
-devices could not name in their last report, over the past week, and from how many
-devices. It reads **Not measured yet** until a device reports the figure, never 0.
+Under the switch, **Apps that could not be named** adds up the latest report of each
+device that reported in the past week, and says from how many devices. It reads
+**Not measured yet** until a device reports the figure, never 0.
 Choosing this needs `endpoint.protections.configure`, because it changes what the
 whole fleet may reach. A desktop app that does not read the setting ignores it, as
 described in [Settings that need a newer desktop app](#settings-that-need-a-newer-desktop-app).

@@ -51,8 +51,8 @@ Each entry below is one release, newest first. Agent releases are named
     not name. It is off by default, and the policy shows how many connections
     devices could not name. See
     [Refuse when the app cannot be named](/endpoint/policies#refuse-when-the-app-cannot-be-named).
-  - **Topic rules on every App.** An App's own topic rules work whichever PII types
-    the App has switched on.
+  - **Topic rules on every App.** An App's own topic rules work whichever personal data
+    types the App has switched on.
 </Update>
 
 <Update label="Platform 2026-11-17" description="Console and platform, 17 November 2026">
@@ -61,9 +61,9 @@ Each entry below is one release, newest first. Agent releases are named
   replace and delete for SCIM groups. It works with every agent from 1.6.0.
   Features that need a newer agent say so.
 
-  - **Apps rebuilt around three protections.** Each App shows PII, topics and prompt
-    injection on one line each, with what it did in the window and **Change** to edit
-    it in place. PII can be pseudonymized and restored, topics are the App's own
+  - **Apps rebuilt around three protections.** Each App shows personal data, topics and
+    prompt injection on one line each, with what it did in the window and **Change** to edit
+    it in place. Personal data can be pseudonymized and restored, topics are the App's own
     subjects to block or flag, and prompt injection is blocked or flagged only. See
     [The three protections](/runtime-security/apps#the-three-protections).
   - **New Apps list and pages.** The list shows the three protections side by side.
@@ -73,12 +73,12 @@ Each entry below is one release, newest first. Agent releases are named
   - **Chatbot integration.** For an App set to pseudonymize and restore, a value
     keeps its placeholder in every message of a conversation, restoring never puts
     back a value the model added on its own, and `/scan/restore` puts values back
-    into text. An App set to flag only answers `allow` with `also_flagged`. See
+    into text. An App set to flag only answers `flag` when it catches an attack, and `redact` with `also_flagged` when the same text also holds personal data. See
     [Protect a chatbot](/runtime-security/scan-api#protect-a-chatbot).
   - **Clearer errors and counts.** Errors carry a code and, where it applies, a wait
     in `Retry-After`. They never repeat what was sent. A request that ends in
-    `503` is not counted against your allowance, and an App appears as receiving as
-    soon as it has received traffic. The SDKs read the code and the wait, and retry a
+    `503` is not counted against your allowance, for single prompt, reply and file
+    scans, and an App appears as receiving as soon as it has received traffic. The SDKs read the code and the wait, and retry a
     `429` or `503` a bounded number of times. See
     [Errors](/runtime-security/errors).
   - **Keys go with their App.** Archiving or deleting an App revokes every key
@@ -97,7 +97,7 @@ Each entry below is one release, newest first. Agent releases are named
     impersonation, and is not counted as an AI service on the Overview, the **AI
     services** page or in reports. See
     [Sites that impersonate an AI service](/endpoint/shadow-ai/overview#sites-that-impersonate-an-ai-service).
-  - **Daily request allowance.** If your plan has one, requests beyond it are paced
+  - **Daily request allowance.** If your plan has one, requests well beyond it are paced
     and never refused for the day: you get `429` with
     `DAILY_ALLOWANCE_SOFT_LIMIT` and a wait. See [Scan API](/runtime-security/scan-api).
 </Update>
