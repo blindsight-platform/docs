@@ -185,7 +185,7 @@ brands before anything else is decided about it. A host that matches is
 listed as **Impersonates** *brand* and is never treated as AI:
 
 - It is never approved or acted on by the **Newly discovered AI** setting, and
-  never suggested for the shared catalog.
+  never added to the shared catalogue as an AI service.
 - It ranks **High** risk with the real service named, for example
   *Impersonates ChatGPT: the real service is chatgpt.com*.
 - It cannot be approved. To allow the brand, approve its real domain.
@@ -203,16 +203,18 @@ for what to do with one.
 #### Blocking lookalike sites
 
 The clearest lookalikes can be blocked on every device as soon as your fleet
-reaches them, and the people who reached one are told by email which service it
-imitates and where the real one is. A weaker lookalike is only listed. A site you
-decided about yourself is never touched.
+reaches them. In a workspace that names people, the people who reached a blocked
+site are told by email which service it imitates and where the real one is. A
+workspace that shows only totals sends no email. A weaker lookalike is only listed.
+A site you decided about yourself is never touched.
 
 **Block impersonating sites** is on for workspaces created from 16 November 2026.
 It is off for a workspace that existed before, until an administrator turns it on.
 There are two places to do it:
 
-- the notice that says how many sites your people reached that pretend to be a
-  well-known AI service, with **Turn on blocking**
+- the notice **Turn on blocking**, shown to administrators who manage the firewall
+  while blocking is off and your people have reached such sites. A workspace that
+  shows only totals sees it without a count
 - **Endpoint → Policies → Default policy**, the **Block impersonating sites** switch
 
 Each change is written to the [audit trail](/compliance/audit-trail). A person

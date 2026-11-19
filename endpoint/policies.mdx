@@ -180,19 +180,20 @@ Each change is written to the [audit trail](/compliance/audit-trail).
 ### Features a policy applies to
 
 A policy says which features it applies to. The list of policies shows them, and you
-can filter the list by feature. **Overview** says in a sentence where a policy applies.
+can filter the list by **Endpoint**, **Copilot**, **AI services** or **SDK and API**.
+**Overview** says in a sentence where a policy applies.
 
 | Feature | What it takes from the policy |
 | ------- | ----------------------------- |
 | **Endpoint** | What the desktop agent allows, redacts or blocks on these people's devices. |
 | **Microsoft 365 Copilot** | Copilot activity from these people is checked against the policy and raises the same signals as the endpoint. |
-| **AI services** | Which AI these people may use: approved, inspected or blocked, including sites that impersonate a known AI service. |
-| **SDK and API** | Prompts your own Apps send to the scan API: personal data, conversation rules and injection. You choose the Apps. |
+| **AI services decisions** | Which AI these people may use: approved, inspected or blocked, including sites that impersonate a known AI service. |
+| **SDK and API scans** | Prompts your own Apps send to the scan API: personal data, conversation rules and injection. You choose the Apps. |
 
 A policy written before this change applies to Endpoint only. The **Default policy** has
 one switch per feature. Endpoint is always on. The others, when on, make the default
-policy the floor for that feature. A feature that your licence does not include is not
-counted.
+policy the floor for that feature. A feature that your licence does not include, or
+Microsoft 365 Copilot when it is not connected, is not counted.
 
 ### Settings that need a newer desktop app
 
@@ -207,6 +208,7 @@ the setting instead of promising that devices pick the change up.
 | **Message on the block page** and **Contact on the block page** | 2.1.7 |
 | **Tell the person when details were removed** | 2.1.7 |
 | **Report names looked up by any program** | 2.1.7 |
+| **When a person opens one** (an impersonating site: **Block** or **Warn**) | 2.1.8 |
 
 ### Install updates
 
@@ -241,7 +243,8 @@ administrator can search, whatever this setting says.
 When this is on, devices also report the names their computer looks up for any
 program, not only what passes through the proxy, so an AI service reached by a native
 app or a command line tool can be found. It reads names only, never what was sent. It is
-off by default. Each change is written to the [audit trail](/compliance/audit-trail).
+off by default, and it works while **Look at the whole estate** is on, which is the
+default. Each change is written to the [audit trail](/compliance/audit-trail).
 
 ## AI host rules
 
