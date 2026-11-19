@@ -7,6 +7,57 @@ Each entry below is one release, newest first. Agent releases are named
 **Endpoint** with their version. Console and platform releases are named
 **Platform** with their date.
 
+<Update label="Platform 2026-11-19" description="Console and platform, 19 November 2026">
+  Two releases went live on 19 November. They add a watch only mode for a first look
+  at AI use, personal data found on the laptop without acting on it, better Swiss
+  detection, and a clearer notice for your people. They work with every agent from
+  1.6.0. Features that need a newer desktop app say so.
+
+  - **Discovery only.** One reversible switch makes a workspace watch and nothing
+    else: it records which AI services people use, nothing is blocked, no prompt is
+    changed and no prompt text is sent. Choose it in the Default policy or as **Watch
+    only (passive)** in Setup, and turn it off to put back what it changed. See
+    [Discovery only](/endpoint/discovery-only).
+  - **Personal data found on the laptop.** With Discovery only on, devices on desktop
+    2.1.12 or later look for the personal data types you chose and report the category
+    and a count. Nothing is changed and no text is sent. See
+    [Personal data found on the laptop](/endpoint/discovery-only#personal-data-found-on-the-laptop).
+  - **Impersonating sites and lookalikes.** The notice that blocking is off now comes
+    first on every page for the administrators who can act on it. A site listed by
+    mistake can be marked **Not a lookalike**, and a lookalike is listed as soon as a
+    device reaches it. See
+    [Impersonating AI sites and lookalikes](/endpoint/shadow-ai/impersonating-sites).
+  - **Swiss detection.** Swiss phone numbers, likely AHV numbers (read as **Likely
+    AHV**) and passwords written in German, French and Italian are found and masked.
+    See [Swiss numbers and passwords](/runtime-security/verdicts#swiss-numbers-and-passwords).
+  - **Files are redacted, not blocked.** A file that still holds personal data after
+    the device cleaned it is redacted, and is no longer blocked for that reason by
+    default. A file's name is not kept when the workspace keeps no prompt text or
+    Discovery only is on. See
+    [Files with personal data](/endpoint/protections#files-with-personal-data).
+  - **Removed devices read as removed.** A device the person uninstalled themselves,
+    on desktop 2.1.12 or later, reads **Removed by the user** in the device list
+    instead of staying protected. See
+    [What the console shows after a removal](/endpoint/uninstall#what-the-console-shows-after-a-removal).
+  - **Employee notice in five languages.** The notice your people read on the laptop
+    is available in English, German, French, Spanish and Portuguese, says where text
+    goes, and sends rights requests to your administrator. See
+    [Employee notice](/endpoint/employee-notice).
+  - **Setup.** Setup remembers the policy drafts it started, says when the App it used
+    was deleted, and offers **Watch only (passive)**. See
+    [What Setup remembers](/getting-started/first-run-setup#what-setup-remembers).
+  - **Countries in one place.** **Settings → Countries** is where you change the
+    countries your workspace operates in. See
+    [Countries](/administration/settings#countries).
+  - **Traffic drift is information.** A shift in traffic is shown as something to
+    review and never as a critical alert.
+  - **Export after a licence ends.** Export stays open for at least 30 days after a
+    licence ends, whatever the reason. See
+    [Export your data](/administration/licence-lifecycle#export-your-data).
+  - **Text areas.** Long text boxes open at a height that fits their purpose and
+    grow as you type, and fit a laptop screen.
+</Update>
+
 <Update label="Platform 2026-11-18" description="Console and platform, 18 November 2026">
   This release adds the Runtime Security dashboard, a first setup for Compliance,
   more ways to add your company's own AI services, a proof of the machine key when
@@ -53,6 +104,11 @@ Each entry below is one release, newest first. Agent releases are named
     [Refuse when the app cannot be named](/endpoint/policies#refuse-when-the-app-cannot-be-named).
   - **Topic rules on every App.** An App's own topic rules work whichever personal data
     types the App has switched on.
+  - **Warn instead of block for lookalike sites.** In the Default policy, **When a
+    person opens one** lets you choose **Warn**: the person sees a page saying the site
+    is not the service it imitates, with a link to the real one, and may still continue.
+    It needs desktop 2.1.8 or later. See
+    [Block or warn](/endpoint/shadow-ai/impersonating-sites#block-or-warn).
 </Update>
 
 <Update label="Platform 2026-11-17" description="Console and platform, 17 November 2026">

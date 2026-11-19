@@ -68,11 +68,13 @@
               "endpoint/who-is-named",
               "endpoint/devices",
               "endpoint/protections",
+              "endpoint/discovery-only",
               "endpoint/ai-services",
               "endpoint/custom-ai-services",
               "endpoint/policies",
               "endpoint/topic-rules",
               "endpoint/policy-import",
+              "endpoint/employee-notice",
               "endpoint/permissions",
               "endpoint/syslog-export",
               {
