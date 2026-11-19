@@ -1224,8 +1224,8 @@ components:
           items: { type: string }
           description: |
             Present when the scan saw something its verdict does not say, for
-            example `["prompt_injection"]` on an App set to flag only. Treat it
-            like a `flag`.
+            example `["prompt_injection"]` next to a `redact` on an App set to flag
+            only. Treat it like a `flag`.
 
     ScanRestoreRequest:
       type: object
@@ -1247,7 +1247,7 @@ components:
         restored:
           type: integer
           minimum: 0
-          description: How many placeholders were replaced.
+          description: How many of the placeholders sent were found in the text and put back.
 
     ScanToolCallResponse:
       type: object

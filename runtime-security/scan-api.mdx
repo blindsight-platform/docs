@@ -32,15 +32,15 @@ traffic is attributed to it when you omit the header.
 | `403`  | The key does not have the `runtime:scan` permission, or its owner no longer holds it. A key limited to other Apps gets `APP_NOT_ALLOWED`. |
 | `404`  | Runtime Security (or, for tool calls, the agentic guardrails module) is not enabled for the workspace. |
 | `413`  | A text field is longer than the workspace limit (`PAYLOAD_TOO_LARGE`). The default limit is 32,000 characters. |
-| `422`  | The request body is not valid. The error names the field and never repeats what you sent. Text that is not valid Unicode is refused with `INVALID_TEXT`. |
+| `422`  | The request body is not valid. The error names the field and never repeats what you sent. Text that is not valid Unicode is refused the same way. |
 | `429`  | You are over the rate limit (limits apply per API key), or, with the code `DAILY_ALLOWANCE_SOFT_LIMIT`, today's request allowance is used and requests are paced. Wait `Retry-After` seconds and send the same request again. |
-| `503`  | The firewall is disabled or still starting, or the scanner could not be reached (`SCANNER_UNAVAILABLE`). A request that ends in a `503` is not counted against your allowance. |
+| `503`  | The firewall is disabled or still starting, or the scanner could not be reached (`SCANNER_UNAVAILABLE`). A single prompt, reply or file scan that fails because the scanner could not run is not counted against your allowance. |
 
-If your plan has a daily request allowance, every answer to an API key also says
-how much of today's allowance is used, in the headers
+If your plan has a daily request allowance, every counted scan call made with an API
+key also says how much of today's allowance is used, in the headers
 `X-Blindsight-Usage-Day-Used`, `-Limit`, `-State` and `-Resets-At`, so you can
-warn your team before requests are paced. Requests are slowed down, never
-stopped for the day.
+warn your team before requests are paced. Requests well past the allowance are slowed
+down, never stopped for the day.
 
 ## `POST /api/runtime-security/scan/input`
 
@@ -71,7 +71,7 @@ Scan a user prompt before forwarding it to your LLM.
 | `text_length`   | Length of the scanned text in characters.                                                    |
 | `latency_ms`    | How long the scan took, in milliseconds.                                                     |
 | `pseudonyms`    | Only for an App set to **Pseudonymize and restore**: each placeholder in `redacted_text` (for example `<PERSON_1>`) with the real value it stands for. It is in this response alone. Blindsight does not store it. |
-| `also_flagged`  | Only when the scan saw something its verdict does not say, for example `["prompt_injection"]` on an App set to **Flag only**. Treat it like a `flag`. |
+| `also_flagged`  | Only when the scan saw something its verdict does not say, for example `["prompt_injection"]` next to a `redact` on an App set to **Flag only**. Treat it like a `flag`. |
 
 ```bash
 curl -X POST "https://platform.blindsight.io/api/runtime-security/scan/input" \
@@ -252,8 +252,8 @@ work on what you send: nothing is looked up, stored or logged.
 | `text`       | string | yes      | Text that carries placeholders.                              |
 | `pseudonyms` | object | yes      | The mapping the scan response returned.                      |
 
-The response holds `text` with the values back in and `restored`, the number of
-placeholders replaced. A result that would be too large is refused with `413` and
+The response holds `text` with the values back in and `restored`, how many of the
+placeholders you sent were found in the text and put back. A result that would be too large is refused with `413` and
 the code `RESTORE_TOO_LARGE`, and nothing is restored. The official SDKs restore
 locally, so they never need this route.
 
