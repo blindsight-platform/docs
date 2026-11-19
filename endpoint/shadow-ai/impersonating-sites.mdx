@@ -1,0 +1,136 @@
+---
+title: "Impersonating AI sites and lookalikes"
+sidebarTitle: "Impersonating sites"
+description: "How Blindsight finds lookalike and fake AI sites that impersonate a known AI service, alerts you, and blocks the clearest ones."
+---
+
+Some sites dress up as a well-known AI service to collect sign-ins or to push a
+fake desktop app. They are **impersonating sites**, also called **lookalike**
+sites or **fake AI sites**. Their front pages often say exactly what the real
+service says, so the evidence that would normally confirm an AI service would
+confirm the fake one too. Blindsight therefore asks a different question first:
+not "is this AI", but "is this pretending to be an AI service it is not".
+
+Every host your fleet reaches is checked against the names of the major AI
+services before anything else is decided about it. This page covers what
+happens when one matches, what is blocked, and what you can change.
+
+## What Blindsight does with a lookalike
+
+A host that matches is listed on **Endpoint → Shadow AI** as **Impersonates**
+*service*, for example *Impersonates ChatGPT: the real service is chatgpt.com*.
+From then on:
+
+- It is **never treated as an AI service**. It is not counted in the Shadow AI
+  figures, on the Overview's **What changed**, in report findings, or in **In
+  use**, **Observed**, **Inspected**, **Approved** and **Waiting** on the **AI
+  services** page.
+- It ranks **High** risk, with the real service named.
+- It is never approved or acted on by the **Newly discovered AI** setting, and
+  never suggested for the shared catalogue.
+- It raises the **Impersonating site reached** alert, once per site.
+- **Approve** is unavailable on its row. The row tells you which domain to
+  approve if people need the real service.
+
+The real service is never flagged. A brand's own domains, every host in the
+built-in catalogue and every built-in rule are never matched.
+
+## How a lookalike is recognised
+
+Expand the row to see which check matched.
+
+| Check shown | What it means |
+| ----------- | ------------- |
+| Spelled with lookalike characters | Letters from another alphabet, or digits, that look like the service's letters. |
+| One letter away from the brand | A misspelling of the service's name. |
+| The brand name on a domain ending the brand does not own | For example the service's name under a different country or generic ending. |
+| The brand name beside a download or sign-in word | For example *desktop*, *download*, *login* or *free* next to the name. |
+| Uses the brand's own domain as part of another site's name | The real domain at the start of someone else's address. |
+| Named an imitation in the Blindsight catalogue | Blindsight's own review recorded the site as an imitation. |
+
+Only the host name is read. Blindsight does not publish its list of service names
+or its matching rules.
+
+## Which lookalikes are blocked
+
+Blocking is a setting of your workspace, and it only touches the clearest cases:
+
+- a site spelled with lookalike characters
+- a download or sign-in word beside the service's name
+- a near miss of the name, or the name on a different ending, when other
+  evidence supports it, such as how recently the domain was registered
+
+Every other lookalike is **named and alerted, never blocked**. A site you decided
+about yourself is never touched by this setting.
+
+**Block impersonating sites** is **on** for workspaces created from 16 November
+2026. It is **off** for a workspace that existed before, until an administrator
+turns it on. There are two places to do it:
+
+- the notice that says how many sites your people reached that pretend to be a
+  well-known AI service, with **Turn on blocking**. It shows at the top of every
+  page of the console, to the people who can edit the Default policy, and stays
+  until you act on it or close it.
+- **Endpoint → Policies → Default policy**, the **Block impersonating sites** switch
+
+A workspace that has blocking on without ever having chosen it is told, while
+the block holds hosts, that blocking is on and where to turn it off. Every
+change is written to the [audit trail](/compliance/audit-trail).
+
+### Block or warn
+
+Under **When a person opens one**, choose what a device does with a site the rule
+covers:
+
+- **Block** refuses the site.
+- **Warn** shows a page saying the site is not the service it imitates, with a
+  link to the real service. The person may continue anyway, and the site then
+  opens on that one device for a short time. Each continue is recorded and
+  counted on the row (*Opened N times past the warning in the last 30 days*).
+
+**Warn** needs desktop 2.1.8 or later. An older desktop app blocks. Moving from
+**Block** to **Warn** weakens a protection, so it is recorded at high severity
+in the audit trail and raises the policy-weakened alert. A site you blocked
+yourself is always refused.
+
+## What people see
+
+- A person who is blocked sees a block page that names the service the site
+  copies and where the real one is (desktop 2.1.7 and later). Workspaces can add
+  a short message and a contact to it; see
+  [Block page message and contact](/endpoint/policies#block-page-message-and-contact).
+- In a workspace that names people, each person who reached a **blocked**
+  lookalike gets one plain email, once per site, naming the site, the service it
+  imitates and the real address. It tells them to report it if they typed
+  anything there. A weaker lookalike is never emailed, and a workspace that shows
+  totals only sends nothing.
+
+## What to do with one
+
+1. Open the row on **Endpoint → Shadow AI** and read which check matched.
+2. If blocking is off, choose **Block** on the row, or turn on **Block
+   impersonating sites** for all of them.
+3. Check the devices and people listed against it. Anyone who reached it may have
+   entered work credentials or run a download.
+4. If people need the real service, approve its real domain.
+
+### Not a lookalike
+
+If a site is listed by mistake, choose **Not a lookalike** on its row. It is
+offered on rows nobody has decided about yet. Devices then stop treating the
+site as a copy of that service. The site is not blocked and not read: this is a
+record of your decision, not an approval, and the row reads **Not a lookalike**
+rather than **Approved**. Each decision is written to the audit trail.
+
+## The alert
+
+**Impersonating site reached** is a high-severity alert sent once per site. Choose
+it at **Endpoint → Configurations → Alerts** like any other alert. In a
+workspace that shows totals only, the alert names the site and nothing about who
+reached it or when.
+
+## Related
+
+- [Shadow AI overview](/endpoint/shadow-ai/overview)
+- [Triage](/endpoint/shadow-ai/triage)
+- [Policies](/endpoint/policies)
