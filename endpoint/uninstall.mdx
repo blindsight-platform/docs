@@ -50,7 +50,7 @@ stays in place. There are two ways to allow a removal:
   uninstall:
 
   ```text
-  msiexec /x {ProductCode} /qn /norestart UNINSTALL_CODE=<code>
+  msiexec /x {ProductCode} /qn /norestart MSIRESTARTMANAGERCONTROL=Disable UNINSTALL_CODE=<code>
   ```
 
   A code is shown once when it is issued and is not written to the
