@@ -237,6 +237,26 @@ own bookkeeping, with no file behind it, and it is not a failed uninstall.
    pseudonymization vault.
 10. Ejects the mounted installer image.
 
+## What the console shows after a removal
+
+A person who installed the agent themselves, with no device management behind it, can
+remove it. Desktop app **2.1.12 or later** then sends a removal receipt before it
+goes, so the console does not go on showing a device that is gone as protected.
+Older apps send none. A receipt with no code is accepted only while the workspace
+uninstall mode is **off**. Under **observe** or **enforce** it is refused as before
+and recorded as tamper.
+
+- While the device still checks in, its row reads **Removal reported**.
+- When it has gone quiet, it reads **Uninstalled**, and **Removed by the user** with
+  the date when no code was used. A removal that a code allowed reads **Removed**
+  with the date. The device list marks it **Removed** and no longer says **Up to
+  date**.
+- If the device checks in again soon after a receipt that carried no code, the
+  removal mark is cleared, the device reads its real state again, and an
+  uninstall-did-not-complete record is filed.
+- A device with no code frees its seat after a quiet period. A device removed with a
+  code frees it at once.
+
 ## Retire the device in the console
 
 Uninstalling clears the device end. It does not remove the row.

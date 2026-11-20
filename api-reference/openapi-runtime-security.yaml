@@ -205,6 +205,45 @@ paths:
         '429': { $ref: '#/components/responses/RateLimited' }
         '503': { $ref: '#/components/responses/Unavailable' }
 
+  /api/runtime-security/scan/restore:
+    post:
+      tags: [Scan]
+      summary: Put the real values back into text that carries placeholders
+      description: |
+        Plain text work on what you send: nothing is looked up, stored or
+        logged. Use it with the `pseudonyms` mapping a scan returned for an
+        App set to pseudonymize and restore. The official SDKs restore
+        locally and never need this route.
+
+        Requires the `runtime:scan` permission. Rate limit: 200 requests per
+        second per API key.
+      operationId: scanRestore
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ScanRestoreRequest' }
+            example:
+              text: "Write to <PERSON_1> at <EMAIL_ADDRESS_1>."
+              pseudonyms: { "<PERSON_1>": "Jane Doe", "<EMAIL_ADDRESS_1>": "jane.doe@example.com" }
+      responses:
+        '200':
+          description: The text with the values back in
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ScanRestoreResponse' }
+              example:
+                text: "Write to Jane Doe at jane.doe@example.com."
+                restored: 2
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '413':
+          description: The restored text would be too long, or needs too many replacements (`RESTORE_TOO_LARGE`). Nothing is restored.
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
   /api/runtime-security/scan/tool-call:
     post:
       tags: [Scan]
@@ -1173,6 +1212,42 @@ components:
         latency_ms:
           type: integer
           minimum: 0
+        pseudonyms:
+          type: object
+          additionalProperties: { type: string }
+          description: |
+            Only for an App set to pseudonymize and restore: each placeholder in
+            `redacted_text` (for example `<PERSON_1>`) with the real value it
+            stands for. It is in this response alone and is never stored.
+        also_flagged:
+          type: array
+          items: { type: string }
+          description: |
+            Present when the scan saw something its verdict does not say, for
+            example `["prompt_injection"]` next to a `redact` on an App set to flag
+            only. Treat it like a `flag`.
+
+    ScanRestoreRequest:
+      type: object
+      required: [text, pseudonyms]
+      properties:
+        text:
+          type: string
+          maxLength: 2000000
+          description: Text that carries placeholders.
+        pseudonyms:
+          type: object
+          additionalProperties: { type: string }
+          description: The mapping a scan response returned. At most 5000 entries.
+    ScanRestoreResponse:
+      type: object
+      required: [text, restored]
+      properties:
+        text: { type: string }
+        restored:
+          type: integer
+          minimum: 0
+          description: How many of the placeholders sent were found in the text and put back.
 
     ScanToolCallResponse:
       type: object

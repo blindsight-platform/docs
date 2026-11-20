@@ -17,18 +17,22 @@ verdict inside a 200 response; this page is for protocol failures.
 | `400`  | `APP_TOKEN_REQUIRED` / `APP_TOKEN_INVALID`       | App requires a signed token and one wasn't supplied or doesn't verify.                              | Issue a fresh token via `…/apps/{id}/tokens`.                                                        |
 | `400`  | `CUSTOM_PARAM_REQUIRED`                          | A required custom param is missing on a scan call.                                                  | Include it in `custom_params`.                                                                       |
 | `400`  |,                                                 | Malformed request, or streaming requested on a non‑streamed route.                                  | Fix the body. See `detail`.                                                                          |
-| `401`  |,                                                 | Missing or invalid credentials.                                                                     | Check the `X-API-Key` header.                                                                        |
+| `401`  |,                                                 | Missing or invalid credentials, or a key that was revoked with its App.                              | Check the `X-API-Key` header. A key limited to an App that was archived or deleted stays refused.    |
+| `403`  | `APP_NOT_ALLOWED`                                | The key is limited to other Apps.                                                                   | Use a key made for this App, or one made for every App.                                              |
 | `402`  | `QUOTA_EXCEEDED`                                 | Workspace license‑call quota exceeded.                                                              | Body includes `usage` snapshot and `upgrade_url`. Wait until reset or upgrade.                       |
 | `403`  |,                                                 | Caller lacks the required permission scope. `detail` names it, e.g. `API key missing required scope: runtime:config:write`. | Reissue the key with that scope. See [API key scopes](/api-reference/authentication#api-key-scopes).    |
 | `409`  |,                                                 | The action contradicts a decision already recorded, e.g. protecting a service somebody blocked.      | Read `detail`. It says what to do instead.                                                           |
 | `404`  |,                                                 | Feature not licensed for this workspace.                                                            | Module is invisible to unlicensed tenants.                                                           |
 | `410`  | `APP_ARCHIVED`                                   | App was deleted or archived.                                                                        | Switch to a live App.                                                                                |
 | `413`  |,                                                 | Proxy request body exceeded `RUNTIME_SECURITY_MAX_REQUEST_BODY_BYTES` (16 MB default).              | Send smaller requests, or raise the cap for self‑hosted deployments.                                 |
-| `422`  |,                                                 | Schema validation failed.                                                                           | See `detail` for the array of field errors.                                                          |
+| `422`  |,                                                 | Schema validation failed. The error names the field and never repeats the value you sent.           | See `detail` for the array of field errors.                                                          |
+| `422`  | `INVALID_TEXT`                                   | A route other than the scan routes was sent text that is not valid Unicode. The scan routes refuse it as an ordinary `422` that names the field.                                                   | Send UTF-8 text.                                                                                     |
 | `423`  | `APP_DISABLED`                                   | App has `status="disabled"`.                                                                        | Re‑enable in the dashboard.                                                                          |
-| `429`  |,                                                 | Per‑second rate limit hit.                                                                          | Back off. Limits are per workspace, not per key.                                                     |
+| `429`  |,                                                 | Per‑second rate limit hit.                                                                          | Back off. Limits are per API key.                                                     |
 | `429`  | `APP_QUOTA_EXCEEDED`                             | App's hourly or daily event cap reached.                                                            | Back off until `Retry-After`, or raise `max_events_per_hour` / `_per_day` on the App.                |
+| `429`  | `DAILY_ALLOWANCE_SOFT_LIMIT`                     | Today's request allowance is used and requests are paced. Never a refusal of every call.            | Wait `Retry-After` seconds, then send the same request again.                                        |
 | `503`  |,                                                 | Firewall disabled, starting up, or metering store unavailable.                                      | Retry with backoff. If persistent, check `/health` and contact support.                              |
+| `503`  | `SCANNER_UNAVAILABLE`                            | The scanner could not be reached. The request is not counted against your allowance.                | Retry with backoff, or answer that the service is unavailable.                                       |
 
 ## Rate limits
 
@@ -39,8 +43,9 @@ quota.
 
 | Endpoint                                              | Limit                            |
 | ----------------------------------------------------- | -------------------------------- |
-| `/scan/input`, `/scan/output`, `/scan/tool-call`      | 20 / second / workspace.          |
-| `/scan/batch`                                          | 4 / second / workspace.           |
+| `/scan/input`, `/scan/output`, `/scan/tool-call`      | 200 / second / API key.           |
+| `/scan/file`                                           | 60 / second / API key.            |
+| `/scan/batch`                                          | 40 / second / API key.            |
 | `/config` PUT                                          | 6 / minute / workspace.           |
 
 When you exceed these limits you get `429` with no `code` field and

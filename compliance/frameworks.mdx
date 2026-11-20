@@ -162,6 +162,49 @@ should read a readiness figure.
   </Accordion>
 </AccordionGroup>
 
+## First setup
+
+The first time you open **Compliance → Frameworks** with no framework switched on,
+Blindsight asks three short questions instead of showing a table. Nothing is written
+until the last step.
+
+<Steps>
+  <Step title="Where you operate">
+    **Where does this workspace have staff or customers?** Pick every country. Each
+    one decides which laws apply.
+  </Step>
+  <Step title="About the business">
+    Only the questions your countries raise are asked, and a question you leave
+    unanswered adds nothing. You can answer it later.
+
+    - **Does FINMA supervise this business?** and the kind of institution. This adds
+      the FINMA mapping.
+    - **Do you sell software or connected products in the EU?** This adds the EU
+      Cyber Resilience Act.
+    - **Do you handle health data in the United States?**
+    - **Are your employees represented by a works council or a similar body?** This
+      adds the council seat, its review page and its approval before anyone is
+      revealed.
+  </Step>
+  <Step title="What switches on">
+    The page lists what applies to your workspace and why, with its deadline where
+    there is one. Frameworks are ticked for you. Untick any, then select **Switch
+    on**. The button saves your answers and switches the ticked frameworks on in one
+    step. A framework that is refused is shown next to the button and the page stays
+    where it is. If nothing applies, **Saves the countries only** says so.
+  </Step>
+</Steps>
+
+What applies comes from the server, so the page and the rest of Compliance always
+agree. SOC 2 and ISO/IEC 27001 are certifications: they are your choice and are
+never suggested by where you operate. A framework outside your plan is named and
+left off. A works council on its own is counted as a safeguard, not as a framework,
+in the summary that says what is switched on.
+
+Someone who can view but not change Compliance sees what was declared and what it
+suggests, and who declared it. Changing the setup needs `settings.compliance.manage`.
+You can switch any framework off later in [Selecting frameworks](#selecting-frameworks).
+
 ## Selecting frameworks
 
 <Steps>

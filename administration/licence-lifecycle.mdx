@@ -18,15 +18,15 @@ The dates count from the day the licence ended.
 
 | Phase | When | What works |
 | ----- | ---- | ---------- |
-| **Notice** | The first 7 days. | Everything. A banner says the licence ended and when the workspace becomes read-only. |
-| **Read-only** | The next 30 days. | You can read and export. Changes are refused. Protection on your devices stops. |
-| **Ended** | From day 37. | Sign-in, the licence-ended page and export only. |
-| **Export closes** | Day 60. | Export stops. Sign-in and the licence-ended page still open. |
+| **Notice** | The first 14 days. | Everything. A banner says the licence ended and when the workspace becomes read-only. |
+| **Read-only** | The next 14 days. | You can read and export. Changes are refused. Protection on your devices stops. |
+| **Ended** | From day 28. | Sign-in, the licence-ended page and export only. |
+| **Export closes** | Not before day 30. | Export stops. Sign-in and the licence-ended page still open. |
 | **Deletion** | Day 90, about 3 months. | Your data is due for deletion. |
 
 When a Blindsight administrator revokes or suspends a licence on purpose, the
-notice is 5 days instead of 7. The read-only and later dates move with it, except
-that export always closes 60 days after the end and deletion falls due 90 days
+workspace is read-only at once, and the later dates move with it. In every case
+export stays open for at least 30 days after the end, and deletion falls due 90 days
 after it.
 
 Renewing the licence puts the workspace back to normal. Devices that stopped
@@ -69,7 +69,7 @@ A few changes stay open, because they reduce exposure. You can still:
 
 ## The licence-ended page
 
-From day 37 every page of the console opens the **Your licence has ended** page.
+From day 28 every page of the console opens the **Your licence has ended** page.
 It is the only page, apart from sign-in and the links people arrive through
 (password reset, invitations, email change and unsubscribe).
 
@@ -77,7 +77,7 @@ The page offers:
 
 - **Export data**, while the export window is open. The page says, for example,
   "You can export your data until 30 December 2026. To use Blindsight again, renew
-  or contact us." After day 60 it says "The export window has closed. To use
+  or contact us." After the export closes it says "The export window has closed. To use
   Blindsight again, renew or contact us." and the button is gone.
 - **Renew or contact us**.
 - **Get an uninstall code**, for an administrator. See below.
@@ -86,9 +86,9 @@ The page offers:
 
 ## Export your data
 
-**Export data** downloads the audit trail as a CSV file. It is open for 60 days
-after the licence ended, in the read-only phase and after it. After that date the
-export is refused too.
+**Export data** downloads the audit trail as a CSV file. It is open for at least 30 days
+after the licence ended, whatever the reason it ended, in the read-only phase and
+after it. After that date the export is refused too.
 
 ## What happens to the devices
 

@@ -63,6 +63,24 @@ you off‑board them, they're disabled.
 | User deactivated                   | Soft‑disabled in Blindsight. Sessions revoked, API keys disabled.                  |
 | User reactivated                   | Re‑enabled in Blindsight with the same row and history.                            |
 
+### Groups
+
+Your IdP can create, read, update, replace and delete groups under
+`/scim/v2/Groups`.
+
+| Request | Effect in Blindsight |
+| ------- | -------------------- |
+| `PUT /scim/v2/Groups/{id}` | Replaces the group's `displayName` and its member list. A member the body does not list is removed, and a body with no `members` empties the group. Only membership that SCIM provided is written, so people an administrator added by hand stay. The group's `externalId` is its key and cannot be changed. Sending the same body again changes nothing. |
+| `DELETE /scim/v2/Groups/{id}` | Deletes the group and the membership SCIM fed. Endpoint groups that an administrator bound to it stay, with their hand-added members and their policy assignments. A policy scoped to such a group keeps its scope and reaches only the group's remaining members, so it never widens to everyone. Answers `204`. |
+
+A group's platform roles belong to the administrator. A `PUT` never reads or writes
+them, and a `DELETE` of a group that grants platform roles is refused with `409`
+until an administrator removes its role mapping in the console. A group you
+remove from the mappings in the console is marked removed. It grants nothing and
+is left out of the mapping list and of policy import, while your IdP can still
+reach it by id. Each replace and delete is recorded
+in the [audit trail](/compliance/audit-trail).
+
 ### Group‑to‑role mapping
 
 Under **Directory & SSO → Group mappings**, map IdP groups to

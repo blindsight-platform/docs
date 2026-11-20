@@ -80,12 +80,28 @@ against the structure the issuing authority uses.
 | Identifier                                              |
 | -------------------------------------------------------- |
 | Swiss AHV / AVS social security number                    |
+| Likely Swiss AHV number (see below)                       |
+| Swiss phone number                                        |
 | UK NHS number                                             |
 | German tax identification number (Steuer-IdNr)            |
 | Swiss vehicle registration plate                          |
 | Mexican RFC (tax identification number)                   |
 | Mexican CURP (population registry key)                    |
 | Mexican CLABE (bank account number)                       |
+
+### Swiss numbers and passwords
+
+- **Swiss phone numbers.** The `+41` and `0041` forms are found, and so is the
+  national form beginning with a Swiss area code. A date written with dots, such as
+  `12.03.2024`, is never read as a phone number.
+- **Likely AHV.** A number that has the AHV shape (it starts with 756) but does not
+  pass the AHV check digit is masked too, and reads **Likely AHV** in the console.
+  It follows the same data type choice as AHV. On laptops it needs desktop **2.1.12
+  or later**.
+- **Passwords in German, French and Italian.** A password written in prose or beside a
+  label such as *Passwort*, *Kennwort*, *mot de passe* or *parola d'ordine* is masked
+  and reported as `password`, together with a new PIN and a "username: x, password: y"
+  pair. A placeholder such as `<PASSWORD>` is not flagged.
 
 A value is reported under one identifier only. A Mexican identifier whose
 check digit is valid is not also reported as another country's identifier.

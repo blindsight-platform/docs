@@ -1,0 +1,113 @@
+---
+title: "Discovery only (watch only mode)"
+sidebarTitle: "Discovery only"
+description: "Discovery only, also called watch only or passive mode, makes a workspace record which AI services people use while nothing is blocked, changed or sent. One reversible switch."
+---
+
+**Discovery only** is one switch for a whole workspace. It makes your devices
+watch and nothing else: they find which AI services people use, nothing is
+blocked, no prompt is changed, and no prompt text is sent. It is also called
+**watch only** or **passive mode**. Use it for a first look before you protect
+anything, for a proof of concept, or while a works council or a legal review is
+still open.
+
+It is off until an administrator turns it on, and turning it off puts back what it
+changed.
+
+## What it changes
+
+Turning it on moves these settings together, in one audited change. Only the
+settings that are not already at the value below move.
+
+| Setting | Becomes |
+| ------- | ------- |
+| **Shadow AI** | On |
+| **Prompt injection detection** | Off |
+| **Personal data protection** | Off |
+| **Unapproved AI** | **Record only** |
+| **Block impersonating sites** | Off |
+
+The certificate, the local proxy and the network adapter stay installed. Only the
+host names of AI services are recorded. A file's name is never kept, and the
+attachment's type and size are. See [Protections](/endpoint/protections) for what
+each setting does on its own.
+
+## Personal data found on the laptop
+
+On a device with desktop app **2.1.12 or later**, Discovery only can also look for
+personal data without acting on it. The laptop reads the prompt on the machine only
+to find the data types your workspace chose, and reports the **category and a
+count**. It changes nothing, blocks nothing and sends no prompt text. A stored
+record never holds the text.
+
+- It needs your plan to cover personal data protection.
+- It applies only to devices that are new enough and report that they can do it. An
+  older device records host names only. The Discovery only card says how many of
+  your devices record personal data, for example *3 of 5 devices record personal
+  data (category and count only). The rest cannot until their desktop app is
+  updated.*
+- A data type you set to **Keep** is not looked for.
+- In **Overview**, a prompt that a device checked and kept on the laptop has its own
+  outcome in the traffic flow, **Kept on the laptop**, which is not a gap in
+  inspection.
+
+## Turn it on
+
+You need the Endpoint licence, Shadow AI in your plan, and the
+`endpoint.protections.configure` permission. If turning it on would also move
+**Block impersonating sites**, you need `runtime_security.firewall.configure` too.
+
+There are two places:
+
+- **Endpoint → Policies → Default policy → Overview**, the **Discovery only** card,
+  button **Make this workspace discovery only**. Save or discard any other changes
+  on the page first, so the settings you see are the ones that change.
+- **Setup**, on the **Devices** step, **What should the agent do?**, then **Watch
+  only (passive)**. Setup uses the same switch. When devices are already checking
+  in, Setup asks before it switches them, and says how many.
+
+The dialog lists, one per line, what stops: prompts no longer masked, prompts no
+longer checked for injection, Unapproved AI no longer protected or blocked, and
+lookalike sites no longer blocked. Devices pick it up at their next check-in.
+
+## On, and in force
+
+Discovery only is **in force** only when nothing else would still make a device
+read, block or send. If something would, the card says *Discovery only is on, but
+not in force* and lists each cause with a link to where it is set:
+
+- Shadow AI is off, or not in your plan.
+- Prompt injection detection or personal data protection is on again.
+- **Unapproved AI** is not **Record only**, or **Block impersonating sites** is on.
+- An AI service is set to inspect, or a named policy reads or blocks, or a service
+  is blocked.
+- An app rule refuses an application, or refuses applications that cannot be
+  named.
+- Someone changed one of the moved settings by hand after you turned it on.
+
+Setup says **Watching only** only when Discovery only is on and in force.
+
+## Turn it off
+
+Choose **Turn off discovery only**. Each setting it moved goes back to what it was.
+These are left as they are, and the dialog says which:
+
+- A setting someone changed by hand while Discovery only was on.
+- A setting your plan does not cover.
+- Prompt injection detection, which stays off while cloud inspection is off.
+- A setting whose restoring would leave no protection on at all, because at least
+  one protection has to stay on.
+
+## What is recorded
+
+- Turning it on or off writes one settings change to the
+  [audit trail](/compliance/audit-trail), with each setting's value before and after.
+- Moving prompt injection detection to off, and back, has its own record.
+- Each setting turned down raises one **policy weakened** alert, so one switch can
+  raise several.
+
+## Related
+
+- [Protections](/endpoint/protections)
+- [Policies](/endpoint/policies)
+- [Shadow AI](/endpoint/shadow-ai/overview)

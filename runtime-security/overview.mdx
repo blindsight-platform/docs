@@ -146,12 +146,32 @@ Security needs:
 The endpoint permissions moved to their own `endpoint.` namespace
 (first as `dlp.` in August 2026, then renamed in October 2026). See [Endpoint permissions](/endpoint/permissions).
 
+## The dashboard
+
+**Runtime Security → Dashboard** opens on the answer, then the numbers. A sentence
+at the top says whether your Apps are protected and receiving, for example "All 3
+apps are protected and receiving", and how many need you. Under it, one line says
+what the protections did in the time window you pick, and the window selector sits
+at the top right.
+
+| Part | What it shows |
+| ---- | ------------- |
+| **Requests**, **PII replaced**, **Blocked**, **Flagged** | The window's figures, each with how it moved against the window before. **Blocked** says how many were stopped by a topic and how many as injection. With no request in the window, the row is replaced by a line that says so. |
+| **PII replaced**, **Blocked by a topic**, **Injection** | What was caught, by type, by topic, and by kind of attack. |
+| Next steps | One card for each thing to do: connect an App that is waiting, check one that stopped receiving, review a protection that was loosened. Without the permission to manage Apps, a card says to ask a workspace admin. |
+| **What changed** | Against the window before, of the same length: a protection loosened, or a figure that moved. |
+| **Recent events** | The latest scanned requests and answers, with filters for verdict, direction and records. |
+
+The dashboard counts Apps the way the [Apps list](/runtime-security/apps#the-apps-list)
+does, so the two always agree. A figure that could not be read says **Not read**,
+and is never shown as 0.
+
 ## Where to next
 
 <CardGroup cols={2}>
   <Card title="Apps" icon="layer-group" href="/runtime-security/apps">
-    Per‑surface configuration: thresholds, detectors, custom rules,
-    tool policy.
+    One App per AI surface: PII, topics, prompt injection, keys and
+    what each did.
   </Card>
   <Card title="Verdicts" icon="gavel" href="/runtime-security/verdicts">
     What `allow` / `redact` / `block` mean and how to act on them.

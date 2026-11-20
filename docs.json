@@ -68,11 +68,13 @@
               "endpoint/who-is-named",
               "endpoint/devices",
               "endpoint/protections",
+              "endpoint/discovery-only",
               "endpoint/ai-services",
               "endpoint/custom-ai-services",
               "endpoint/policies",
               "endpoint/topic-rules",
               "endpoint/policy-import",
+              "endpoint/employee-notice",
               "endpoint/permissions",
               "endpoint/syslog-export",
               {
@@ -81,7 +83,8 @@
                   "endpoint/shadow-ai/overview",
                   "endpoint/shadow-ai/setup",
                   "endpoint/shadow-ai/triage",
-                  "endpoint/shadow-ai/microsoft-365"
+                  "endpoint/shadow-ai/microsoft-365",
+                  "endpoint/shadow-ai/impersonating-sites"
                 ]
               }
             ]
@@ -226,8 +229,10 @@
                   "PUT /scim/v2/Users/{user_id}",
                   "GET /scim/v2/Groups",
                   "POST /scim/v2/Groups",
+                  "DELETE /scim/v2/Groups/{group_id}",
                   "GET /scim/v2/Groups/{group_id}",
-                  "PATCH /scim/v2/Groups/{group_id}"
+                  "PATCH /scim/v2/Groups/{group_id}",
+                  "PUT /scim/v2/Groups/{group_id}"
                 ]
               }
             ]
@@ -796,7 +801,9 @@
                   "PATCH /api/settings/tenant",
                   "GET /api/settings/tenant/usage",
                   "GET /api/settings/reviewers",
-                  "PUT /api/settings/reviewers"
+                  "PUT /api/settings/reviewers",
+                  "DELETE /api/settings/reviewers/{user_id}",
+                  "POST /api/settings/reviewers/{user_id}"
                 ]
               },
               {

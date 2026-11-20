@@ -6,7 +6,14 @@ description: "Turn the AI policy your company already wrote into Endpoint polici
 **Import a policy** reads the AI policy your company already wrote and proposes
 Endpoint policies from it. Nothing becomes policy until you approve it.
 
-Open **Endpoint → Policies** and select **Import a written policy**. You need `endpoint.import.manage` to upload and review,
+Importing the policy you already wrote is one of the two main ways to add a policy.
+**Endpoint → Policies** opens with both: **Import the policy you already wrote**, and
+**Write one here** (**New policy**). Select **Import a written policy** to start. Once
+you have imported before, the line **Last import** shows when, the file name and what
+it created, with **Open** to go back to it. A person who may only write policies sees
+**Write a policy**, and one who may only import sees just the import.
+
+You need `endpoint.import.manage` to upload and review,
 and `endpoint.manage` to apply. See [Permissions](/endpoint/permissions#the-catalog).
 
 ## What is kept
@@ -20,9 +27,9 @@ Proposals you do not apply are deleted when you apply or discard the import.
 
 <Steps>
   <Step title="Upload">
-    Drop in your policy in Word, PDF, a spreadsheet or plain text. Written policies,
-    access matrices and permission tables all work. You can leave the page while the
-    document is read.
+    Choose **File** and drop in your policy in Word, PDF, a spreadsheet or plain text,
+    or choose **Paste text** and paste it. Written policies, access matrices and
+    permission tables all work. You can leave the page while the document is read.
   </Step>
   <Step title="Coverage">
     Before any rule is shown, you see how much of the document the platform can
@@ -65,6 +72,21 @@ Proposals you do not apply are deleted when you apply or discard the import.
 
 A host comes only from a service the document names or a domain it writes out.
 An import never guesses a host.
+
+## An import never proposes a control the document did not state
+
+A proposal always comes from a sentence that says it. Blindsight does not turn a
+sentence into the nearest control that happens to exist.
+
+- A sentence about a kind of data becomes personal data protection only when it
+  names personal data. Another kind of information, such as source code, forecasts
+  or contracts, is a different control. It is held with its sentence for a person to
+  decide, and nothing is switched on for it.
+- When the reader was not sure what a sentence asks for, nothing is proposed. The
+  sentence is held for a person.
+- Words that mean the whole workforce, such as "employees" or "all staff", apply to
+  everyone in the workspace. They are not matched to a group in your directory. A
+  group named like "Engineering staff" stays a group.
 
 ## What an import holds back
 

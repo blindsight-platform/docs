@@ -76,6 +76,18 @@ are at their defaults or how many you changed.
 A sentence under each area describes the choice you have made, so you
 read the outcome and not only the control.
 
+### Files with personal data
+
+A file that still holds personal data after the device has cleaned it is never blocked
+because of that by default. With desktop **2.1.13 or later** the device also redacts
+what was found. The event shows what was removed and what
+was found in the file afterwards, for example *Found in the file after the device
+cleaned it: 2 (email)*. The stored copy of a prompt or file is always masked. A file
+set to **Block** for a data type, or a service you chose different data types for,
+follows those choices. When a workspace keeps no prompt text, or
+[Discovery only](/endpoint/discovery-only) is on, a file's name is not kept either,
+from any agent version. Its type and size are.
+
 ## What Protect, Keep and Block mean
 
 | Choice      | What happens to the value                                                                                                  |

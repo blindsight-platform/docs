@@ -58,6 +58,25 @@ An empty panel here means something specific, and the page says which.
   workspace.
 </Note>
 
+## Finding your way
+
+Every view in the console has its own address, so you can bookmark it, share it, and
+come back to exactly the view you left.
+
+- **Tabs, parts and open rows.** A tab, a section opened inside a tab and an open
+  row or record are each a step in your browser history. The Back button steps to
+  the one before.
+- **Searches, filters and time ranges.** These update the address in place and do
+  not add a step. Opening an item from a list and pressing Back returns you to the
+  list as it was.
+- **The breadcrumb** names the whole path down to the record and the tab, for
+  example *Runtime Security / Apps / your App / Configuration / Keys*. A long record
+  name is shortened, and when the path still does not fit, the levels in between
+  fold into an ellipsis. The browser tab's title follows the same path.
+- **Back to where you came from.** After a link on a page takes you into another
+  product, the page offers **Back to** the page you came from, and keeps offering it
+  while you stay in that product.
+
 ## Where to go from here
 
 Overview is a status surface, not a working surface. Each panel links
@@ -65,7 +84,7 @@ into the product that owns it:
 
 <Columns cols={2}>
   <Card title="Your AI Deployment" icon="diagram-project" href="/runtime-security/overview">
-    The map of the AI systems you run, at `/deployment`.
+    The map of the apps you protect with Runtime Security, at `/deployment`. It appears once the workspace has an app.
   </Card>
   <Card title="Runtime Security" icon="bolt" href="/runtime-security/overview">
     Apps, verdicts, drift, and the firewall itself.

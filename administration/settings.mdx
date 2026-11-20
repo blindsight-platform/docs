@@ -21,11 +21,12 @@ The Settings rows, in order:
 | **Workspace** | **Identity** | Workspace name, logo, who owns it, and the actions that cannot be undone. Admins and owners. |
 | | **Report branding** | What the cover of every client report says about the MSP. MSP accounts only. |
 | | **Your MSP** | For admins and owners of an organization workspace: approve an MSP's request, and control its access. See [Your MSP](/msp/for-clients). |
-| | **Compliance** | Where the workspace operates and which compliance modules decide what the console shows. |
+| | **Countries** | The countries the workspace operates in. See [Countries](#countries). Shown wherever **Compliance** is shown. |
+| | **Compliance** | The industry and which compliance modules decide what the console shows. |
 | | **Privacy** | Who is named in the console. See [Who is named in the console](/endpoint/who-is-named). |
 | | **Plan and usage** | Plan, requests used, people, endpoint devices, expiry, enabled modules, and the licence key. |
-| | **Integrations** | See [Integrations & webhooks](/data-security/integrations). |
-| **Product defaults** | **Data Security** | Healing defaults and, for admins, dataset access control. |
+| | **Integrations** | See [Integrations & webhooks](/data-security/integrations). Shown only where Data Security is deployed and licensed, because every service here serves Data Security. |
+| **Product defaults** | **Data Security** | Healing defaults, for admins the global reviewers and dataset access control. |
 | **You** | **Appearance** | Theme, accent color, density. |
 
 Your own profile is not a Settings row. Open it from the user menu. **Profile** has
@@ -41,6 +42,20 @@ members only), **Notifications** and **Your activity**.
   **Access management → Directory**, beside the directory that enforces
   most of it.
 </Note>
+
+## Countries
+
+**Settings → Countries** is the one place to change the countries your workspace
+operates in. Anyone who can see **Compliance** can read it. Changing it needs
+`settings.compliance.manage`.
+
+The countries set the starting point for a **new** App: country-specific personal
+data types for those countries are on, and the others start off. They also decide
+which Compliance questions apply. They do not change an App that already exists.
+Next to an App's personal data types, in the **New app** dialog and on an App's page,
+a **Change** link opens **Settings → Countries** in a new browser tab, so nothing you
+have typed is lost. Setup does not show the link. See
+[Apps](/runtime-security/apps).
 
 ## Appearance
 
@@ -74,6 +89,24 @@ workspace**:
 - **Retention for cured zips**: how long the platform keeps healed
   downloads before garbage collection. Lineage stays even after the
   zip is purged.
+
+## Global reviewers
+
+**Settings → Data Security → Reviewers** lists the people assigned to review scan
+results across all datasets. Admins and owners see it where Data Security is deployed
+and licensed.
+
+- **Add reviewer** opens a search by name or email. Select **Add** beside a person.
+  Only an active member of the workspace can be added.
+- **Remove** takes one person off the list.
+
+Each add or remove changes one person on the stored list and nothing else, so two
+admins editing at once both keep their change. Adding someone who is already a
+reviewer, or removing someone who is not, changes nothing and records nothing. Each
+real change is recorded in your activity history. If the list could not be read, the panel says so and offers
+**Try again** instead of letting a change replace a list it has not seen. A
+workspace that shows only totals lists the people who run the console, never a
+watched person.
 
 ## Security
 

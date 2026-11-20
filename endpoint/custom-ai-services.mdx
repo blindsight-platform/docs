@@ -3,9 +3,10 @@ title: "Custom AI services"
 description: "Add an AI service the catalogue does not know, such as an internal tool or a new vendor: its host, the paths to read, how its requests are read, how a reply is scanned, and which detectors run."
 ---
 
-A custom AI service covers a tool that no public catalogue knows: one your company
-built, or a vendor that is not listed yet. You give Blindsight the domain. Devices
-then read the traffic to it and apply the same inspection as for any other AI
+A custom AI service covers a tool that no public catalogue knows: your company's own
+chatbot, or a vendor that is not listed yet. A company's own chatbot is never
+recognised on its own, so this is where you add it. You give Blindsight the domain.
+Devices then read the traffic to it and apply the same inspection as for any other AI
 service.
 
 <Warning>
@@ -22,6 +23,8 @@ service.
 | `endpoint.ai_services.teach` | Choose a ready-made format or teach one from a sample. Held by `admin` only by default, because the format decides which part of a request is scanned. |
 | `endpoint.ai_services.manage` | Change who may use a service, its detectors and its reply setting, and delete it. |
 | `endpoint.discovery.view` | See custom services and their health. |
+| `runtime_security.firewall.configure` | Allow company certificates on devices, in the same step as an add or from the switch beside the added services. |
+| `endpoint.ai_services.private_routes` | Turn on reading internal services on private addresses, and, while it is on, add a service or change the names one covers. Held by `admin` only by default, and not available to MSP operators. |
 
 ## Add a service
 
@@ -65,9 +68,56 @@ steps.
 
 The new row opens in the **Catalogue** so the next step is in front of you.
 
-A host that cannot be inspected is refused, with the reason. That covers a name
+A host that cannot be inspected is refused, with the true reason. That covers a name
 that is not a domain, an IP address, a registry suffix, a host Blindsight never
-intercepts and a host the agent bypasses.
+intercepts and a host the agent bypasses. A cloud AI endpoint outside the three
+below is refused for the same reason: add your own chatbot's domain instead.
+
+### Cloud model endpoints by exact name
+
+You can add your own **Azure OpenAI**, **Azure AI Foundry** or **Amazon Bedrock**
+endpoint, by its exact name only:
+
+| Provider | The name you add |
+| -------- | ---------------- |
+| Azure OpenAI | `<resource>.openai.azure.com` |
+| Azure AI Foundry | `<resource>.services.ai.azure.com` |
+| Amazon Bedrock | `bedrock-runtime.<region>.amazonaws.com` |
+
+The name is held exact, with no wildcard: the provider's other endpoints, and other
+people's resources on the same domain, are never read. The dialog says what will be
+read before you save. Devices read every request that any app or script on the
+machine sends to that endpoint, not only your chatbot's, and personal data in it is
+handled like any other AI service. Bedrock requests are signed, so they are never
+changed: a request whose personal data would be replaced is stopped instead. An
+endpoint is read only once your workspace has added it. Approving or protecting a
+cloud model endpoint that nobody added never makes devices read it.
+
+### Company certificates
+
+An internal service often uses a certificate your company issued. Devices do not
+reach such a service until an administrator allows company certificates. Adding a
+service changes nothing about trust on its own. The dialog says so, and offers
+**Also allow company certificates on devices (recorded in the audit trail)** to a
+person who holds `runtime_security.firewall.configure`. The same choice is the
+**Allow company certificates** switch beside the added services.
+
+When it is on, devices also accept the certificates your company installs on its
+computers when they check a site, so an internal AI service with a company
+certificate is reached. It applies to every site devices inspect, so turning it on
+asks you to confirm. Each change is recorded in the audit trail, and removing a
+service does not turn it off.
+
+### Internal services on private addresses
+
+On Windows, an internal chatbot is often reached on a company-network address. The
+switch **Read internal AI services on private addresses**, beside the added
+services, lets Windows devices route the company-network address of each service
+you added through Blindsight, so the chatbot is read there too. Only the exact hosts
+added with **Add service** are routed, never a network a VPN keeps to itself. Turning
+it on shows a warning first, needs `endpoint.ai_services.private_routes`, and is
+recorded in the audit trail, as is turning it off. A desktop app that does not
+support it ignores the switch.
 
 ### Hosts that match one name only
 
@@ -93,9 +143,10 @@ what devices did with it:
 | **Too few to show** | In a workspace that shows only totals, a count under the minimum is not shown. |
 
 Choose **Inspect** or **Protect** as described in [Add a service](#add-a-service).
-Amazon Bedrock requests are signed over their body, so a Bedrock service can be added,
-but its prompts are read and blocked, never redacted. Under **Protect**, a prompt that
-would be redacted is blocked instead.
+Requests to Amazon Bedrock are signed over their body, so a Bedrock service can be
+added, but its prompts are read and blocked, never redacted. Under **Protect**, a
+prompt that would be redacted is blocked instead. See
+[Cloud model endpoints by exact name](#cloud-model-endpoints-by-exact-name).
 
 ## The service detail
 
