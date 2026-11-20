@@ -7,6 +7,56 @@ Each entry below is one release, newest first. Agent releases are named
 **Endpoint** with their version. Console and platform releases are named
 **Platform** with their date.
 
+<Update label="Platform 2026-11-16" description="Console and platform, 16 November 2026">
+  This release redesigns Compliance and Overview, brings one list design to the console,
+  and adds lookalike AI site detection, an auditor pack with read-only links, and
+  collect diagnostics for a device. It works with every agent from 1.6.0. Features that
+  need a newer agent say so.
+
+  - **Compliance redesigned.** Each framework shows a coverage bar, a week by week
+    history you can rewind, next steps, and a panel for every control. See
+    [Coverage, history and next steps](/compliance/frameworks#coverage-history-and-next-steps).
+  - **Evidence records.** Record a document for an organisational control, have a
+    second person sign it off, and withdraw it before it is signed off. See
+    [Evidence records](/compliance/frameworks#evidence-records).
+  - **Auditor pack and read-only links.** Download one framework and period as a
+    ZIP, and make an expiring read-only link an auditor opens without an account. A
+    link stops for good when Compliance or that framework is turned off. See
+    [Auditor pack and shared links](/compliance/frameworks#auditor-pack-and-shared-links).
+  - **Overview redesigned.** What changed against the period before, one rule for
+    counting devices, and setup progress that matches the sidebar. See
+    [The Overview page](/overview).
+  - **Setup in place.** Setup steps open where you are instead of sending you
+    elsewhere. See [Setup opens in place](/getting-started/first-run-setup#setup-opens-in-place).
+  - **Features per policy.** A policy says whether it applies to Endpoint, Microsoft
+    365 Copilot, AI services, or SDK and API scans, and the Default policy has a switch
+    for each. See [Features a policy applies to](/endpoint/policies#features-a-policy-applies-to).
+  - **One list design.** Lists across the console share one toolbar, open a row in
+    place, and keep the actions in the open row.
+  - **Lookalike AI site detection.** Sites that copy a known AI service are listed
+    with what they imitate, and the clearest can be blocked. Blocking is off for
+    existing workspaces and on for workspaces created from now on. An administrator
+    turns it on from the notice **Turn on blocking** or in the Default policy. See
+    [Blocking lookalike sites](/endpoint/shadow-ai/overview#blocking-lookalike-sites).
+  - **A shared AI catalogue.** More AI services are recognised over time without an
+    update on your side. See [The catalogue grows](/endpoint/ai-services#the-catalogue-grows).
+  - **Reach for AI apps added by hand.** A service you added says whether devices
+    reached it and could read it. See
+    [Reach of a service you added](/endpoint/custom-ai-services#reach-of-a-service-you-added).
+  - **Collect diagnostics.** An administrator can collect diagnostics from a device
+    with no step for the person. It requires a recent desktop version. See [Collect diagnostics](/endpoint/devices#collect-diagnostics).
+  - **Clearer device problems.** A device that is not protected describes the cause
+    in plain words. See [Why a device reads Partly protected](/endpoint/devices#why-a-device-reads-partly-protected).
+  - **Privacy.** A workspace that does not show names never shows them in device
+    causes, code signers or package scopes.
+  - **Safer file previews.** File previews are served with stricter security headers.
+  - **Settings for newer desktop apps.** The console marks a setting that only newer
+    desktop apps read with the version it needs: updates (2.1.6), the block page
+    message and contact, the redaction notice and reporting names looked up by any
+    program (2.1.7). See
+    [Settings that need a newer desktop app](/endpoint/policies#settings-that-need-a-newer-desktop-app).
+</Update>
+
 <Update label="Endpoint 2.1.5" description="9 November 2026">
   Endpoint 2.1.5 for Windows and Mac collects the changes since 2.0.0. It is on the
   `stable` channel, so devices on 2.0.0 update automatically. Features that need a

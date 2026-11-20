@@ -55,6 +55,19 @@ what to do. The causes you meet in a fleet rollout:
 Every reason, with what to do about it, is listed in
 [Why a device is not protected](/endpoint/connect-intune#why-a-device-is-not-protected).
 
+Each row names the cause in plain words. A workspace that does not show names never
+shows a person's name in a cause.
+
+### Collect diagnostics
+
+An administrator can collect diagnostics from a device without asking the person to do
+anything. It requires a recent desktop version. Open the device and choose **Collect diagnostics**. The device uploads them the
+next time it checks in. If it does not check in within a short time, the request lapses
+and you can ask again. A device that is revoked, offline for long or on a very old
+agent cannot collect. If a collection is already waiting, the console says so and who
+asked. It needs the `endpoint.device_diagnostics.collect` permission, held by `admin` by default. See
+[Endpoint permissions](/endpoint/permissions).
+
 ### Starting
 
 A device reads **Starting** briefly while the agent comes up: after an

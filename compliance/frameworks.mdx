@@ -196,6 +196,86 @@ mapping over the current evidence window. Two things are worth knowing:
   Blindsight can assess, against the evidence in the window. Read it
   alongside the "not assessed" count, never on its own.
 
+## Coverage, history and next steps
+
+Each framework shows a **coverage bar**: its controls by state, from **Evidenced**
+and **Attested** to **Findings open**, **Partly evidenced**, **No evidence**,
+**Record expired** and **Yours to record**, in the period you chose. Pick a part of the
+bar to list the controls in that state, and select a row to open the evidence behind
+it, in place.
+
+- **Week by week.** Pick a period such as the last 30 days and a chart under the bar
+  shows how it read each week, up to 12 weeks. Move across it to rewind the bars to
+  that week, and select **Back to now** to return. **All time** has no week to repeat.
+- **What changed.** Below the control list, the controls whose state changed, by
+  week, newest first.
+- **What moves you next.** The most useful actions come first, ranked by what needs
+  you and how many controls each moves, across every framework that is on. Each one
+  opens the page where you do it, or the **Record evidence** form.
+
+## Evidence records
+
+Some controls are organisational: a policy, a training or a review that no detection
+can see. For these you record a document of yours.
+
+1. Open the control and select **Record evidence**.
+2. Name the document and its version, choose a **Review by** date, and optionally
+   pick a file. Only the file's fingerprint is kept. The file stays with you.
+3. Choose any other controls the same document counts for.
+
+A record is **waiting for sign-off** until a second person approves it. Recording,
+sign-off and decline all need `compliance.manage`, and the person who recorded it
+cannot approve it. While it waits, the person who recorded it can **Withdraw** it with
+a reason, and anyone else with `compliance.manage` can **Decline** it with a reason.
+After sign-off, use **New version** to replace it. A record whose recorder's account
+was deleted cannot be signed off: decline it and record it again. When a record passes
+its review date the control reads **Record expired** until you use **Renew the record**.
+
+A signed-off record is shown as attested outside the console: Blindsight does not check
+the document. Recording, sign-off, decline and withdrawal are written to the
+[audit trail](/compliance/audit-trail).
+
+## Auditor pack and shared links
+
+**Auditor pack** on a framework downloads one framework and one period as a ZIP,
+with a fingerprint for every file:
+
+| File | What it holds |
+| ---- | ------------- |
+| `report.pdf` | The framework report for the period. |
+| `controls.csv` | Every control, its state and the evidence behind it. |
+| `attestations.csv` | Your records, by document, version and fingerprint. |
+| `changes.csv` | Compliance changes in the period, from the audit trail. |
+| `chain.json` | The audit chain's last verification. |
+| `manifest.json` | The framework, the period, who made the pack and when, and every file with its size and fingerprint. |
+| `SHA256SUMS` | A fingerprint of every file. |
+
+The pack never holds prompt or reply text, client identifiers or your uploaded files.
+People are named only in a workspace that names people.
+
+### Share a read-only link
+
+An administrator with `compliance.manage` can also make a link for an auditor who has
+no account. Choose **Also make a read-only link for an auditor** in the pack dialog.
+
+| | |
+| --- | --- |
+| **Who can make or revoke one** | Administrators with `compliance.manage`. |
+| **How long it works** | 7, 14 or 30 days. The default is 14 and 30 is the most. |
+| **What the auditor sees** | The framework and period you chose, read only. Nothing else in the workspace. |
+| **Names** | Shown only in a workspace that names people. |
+| **Revoking** | Any time, under **Shared links**. The auditor loses access at once. |
+
+The link is shown once, when you make it: copy it then and send it to your auditor.
+Every open and download, and every creation and revocation, is written to the
+[audit trail](/compliance/audit-trail). Your list under **Shared links** shows who made
+each link, how many times it was opened and when it expires.
+
+A link stops for good when Compliance, or the framework it shows, is turned off for
+the workspace. On workspaces where a lapsed licence switches features off, it also
+stops for good when the licence lapses. Turning the feature back on does not bring the
+link back: make a new one.
+
 ## API
 
 | Endpoint                                     | What it does                                            |
