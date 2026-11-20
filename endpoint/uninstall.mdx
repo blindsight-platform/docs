@@ -94,8 +94,13 @@ administrator.
 ### Silently
 
 ```text
-msiexec /x Blindsight-<version>.msi /qn /norestart
+msiexec /x Blindsight-<version>.msi /qn /norestart MSIRESTARTMANAGERCONTROL=Disable
 ```
+
+The last setting keeps Windows Restart Manager away from the Blindsight service,
+which takes a short while to stop. Without it, an uninstall shortly after a restart
+can leave Blindsight's certificate and settings behind. If your workspace requires
+an uninstall code, add `UNINSTALL_CODE=<code>`.
 
 If you no longer have the original MSI, use the kit's `uninstall.cmd`. It
 finds the installed product from the stable UpgradeCode, so it needs no product
