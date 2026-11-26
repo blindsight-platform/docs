@@ -38,6 +38,15 @@ A few things to know:
 - **Permissions.** Changing the protections needs the permission to manage
   Apps. Without it, the lines are read only.
 
+**Apps on the API.** In a workspace on the API, the first app is set up for you
+during the first run. It protects personal data only, it is set to **Pseudonymize
+and restore**, and you choose whether Blindsight keeps request text. Add topics or
+prompt injection protection on the app's page when you need them. An App that
+does not block prompt injection accepts longer texts per call than one that does.
+See [Scan API](/runtime-security/scan-api#limits). A key is always made for an
+App, so create the App before its key. See the
+[API quickstart](/runtime-security/api-quickstart).
+
 A change is a draft until you save it. Saving writes one new
 [config version](#versioned-config).
 

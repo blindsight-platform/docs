@@ -16,6 +16,20 @@ The reference is built from two OpenAPI documents, each with its own
 The version describes the document, not a path prefix. REST paths such
 as `/api/datasets` carry no version segment.
 
+## Versioned scan routes
+
+The scan routes (`scan/input`, `scan/output`, `scan/batch`, `scan/restore`,
+`scan/file`, `scan/tool-call`, `scan/tool` and `pseudonymization/labels`) are
+available at `/api/v1/runtime-security/` as well as at
+`/api/runtime-security/`. Both paths behave the same. Responses on a `/v1` path
+carry `Blindsight-Api-Version: 1`.
+
+Changes inside v1 are additive: new optional fields, new response fields, new
+headers, new routes and new error codes. Ignore fields and headers you do not
+know, and handle an error code you do not know by its HTTP status. A breaking
+change would ship under `/v2`, announced at least 12 months before the old
+version stops, with `Deprecation` and `Sunset` headers on the old one.
+
 ## Proxy routes
 
 The reverse-proxy routes mirror the upstream provider's own path. A

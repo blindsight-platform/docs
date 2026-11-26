@@ -27,6 +27,10 @@ Runtime Security scans are metered against your plan's
 return `402` with the typed code `QUOTA_EXCEEDED` until the quota
 resets or the license is upgraded. Retrying does not help.
 
+On the API, a workspace is not cut off when its trial or allowance ends:
+requests are served at a reduced pace and answer `429` with `Retry-After`.
+See [Plan and usage](/runtime-security/plan-and-usage).
+
 Runtime Security Apps also carry hourly and daily event caps that
 answer `429` with `APP_QUOTA_EXCEEDED`. See
 [Runtime Security errors](/runtime-security/errors) for both.

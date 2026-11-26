@@ -7,6 +7,35 @@ Each entry below is one release, newest first. Agent releases are named
 **Endpoint** with their version. Console and platform releases are named
 **Platform** with their date.
 
+<Update label="Platform 2026-11-26" description="Console and platform, 26 November 2026">
+  This release adds the pseudonymisation API for teams that send text from their own
+  applications. Personal data is replaced by consistent placeholders before your
+  model sees it, and the exact original text comes back afterwards. A new workspace
+  starts on a 14 day trial.
+
+  - **Consistent placeholders and exact restore.** A value keeps one placeholder
+    across a text and across a conversation, and restoring gives the original text
+    back exactly. See [Pseudonymisation and restore](/runtime-security/scan-api#pseudonymisation-and-restore).
+  - **Names.** A person's name is replaced wherever it is written, including a title
+    with the surname and later mentions by surname.
+  - **Longer texts and files.** One call takes much longer texts, files are returned
+    redacted with type placeholders, and the SDK splits long documents for you. See
+    [Limits](/runtime-security/scan-api#limits).
+  - **Conversations in a batch.** A batch can carry a `session_id`, so values keep
+    their placeholders across its items and across calls.
+  - **Usage on every answer.** Each scan reports the requests it counted, and a retry
+    with an `Idempotency-Key` is safe. See [Plan and usage](/runtime-security/plan-and-usage).
+  - **Versioned paths.** Every scan route is also available under `/api/v1/` and
+    answers with its version. See [Versioning](/api-reference/versioning).
+  - **Key rotation with an overlap.** Rotate a key and let the old one keep working
+    for a window you choose, so you deploy the new key without a gap. See
+    [API quickstart](/runtime-security/api-quickstart#rotate-a-key).
+  - **A guided first run.** Invitation, first app, a key made for that app and your
+    first request, all in one flow. See [API quickstart](/runtime-security/api-quickstart).
+  - **Plan and usage.** **Settings > Plan and usage** shows your plan and your requests,
+    and **Manage on Stripe** is where you choose or change a plan.
+</Update>
+
 <Update label="Platform 2026-11-19" description="Console and platform, 19 November 2026">
   Two releases went live on 19 November. They add a watch only mode for a first look
   at AI use, personal data found on the laptop without acting on it, better Swiss

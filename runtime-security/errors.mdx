@@ -6,6 +6,8 @@ description: "Every non‑200 response code, what triggers it, how to react, plu
 This page is your reference when something doesn't go to 200. Use the
 [Verdicts](/runtime-security/verdicts) page for what to do with the
 verdict inside a 200 response; this page is for protocol failures.
+Every error answer carries the header `X-Blindsight-Error-Code`. Read the code
+rather than the message: a code you do not know is handled by its HTTP status.
 
 ## Error codes
 
@@ -19,20 +21,29 @@ verdict inside a 200 response; this page is for protocol failures.
 | `400`  |,                                                 | Malformed request, or streaming requested on a non‑streamed route.                                  | Fix the body. See `detail`.                                                                          |
 | `401`  |,                                                 | Missing or invalid credentials, or a key that was revoked with its App.                              | Check the `X-API-Key` header. A key limited to an App that was archived or deleted stays refused.    |
 | `403`  | `APP_NOT_ALLOWED`                                | The key is limited to other Apps.                                                                   | Use a key made for this App, or one made for every App.                                              |
+| `403`  | `not_available_on_api_plan` | The route is the reverse proxy or an agent route, which a workspace on the API does not use. | Send the text to `/scan/input` and `/scan/output`. |
 | `402`  | `QUOTA_EXCEEDED`                                 | Workspace license‑call quota exceeded.                                                              | Body includes `usage` snapshot and `upgrade_url`. Wait until reset or upgrade.                       |
 | `403`  |,                                                 | Caller lacks the required permission scope. `detail` names it, e.g. `API key missing required scope: runtime:config:write`. | Reissue the key with that scope. See [API key scopes](/api-reference/authentication#api-key-scopes).    |
 | `409`  |,                                                 | The action contradicts a decision already recorded, e.g. protecting a service somebody blocked.      | Read `detail`. It says what to do instead.                                                           |
+| `409`  | `idempotency_key_reused` | The same `Idempotency-Key` was sent with a different body. | Use a new key for a new body. |
+| `409`  | `APP_REQUIRED` | You tried to create a key before the workspace has an App, or without choosing which App the key is for. | Set up your first App, then create its key, and choose the App when there is more than one. |
+| `409`  | `API_KEY_ROTATED_OUT` | You tried to switch back on, or lengthen, a key that a rotation replaced. | Rotate its replacement to get another secret. |
 | `404`  |,                                                 | Feature not licensed for this workspace.                                                            | Module is invisible to unlicensed tenants.                                                           |
 | `410`  | `APP_ARCHIVED`                                   | App was deleted or archived.                                                                        | Switch to a live App.                                                                                |
 | `413`  |,                                                 | Proxy request body exceeded `RUNTIME_SECURITY_MAX_REQUEST_BODY_BYTES` (16 MB default).              | Send smaller requests, or raise the cap for self‑hosted deployments.                                 |
+| `413`  | `text_too_long` | The call holds more text than one call can hold. The body carries `limit` and `recommended_chunk_chars`. Nothing is scanned or counted. | Send the text in parts of `recommended_chunk_chars`, or use the SDK, which splits long documents. |
+| `413`  | `too_many_name_repeats` | The text repeats the people in it more often than one call can handle. The body carries `recommended_chunk_chars`. Nothing is returned or counted. | Send the text in parts of `recommended_chunk_chars`, or use the SDK. |
 | `422`  |,                                                 | Schema validation failed. The error names the field and never repeats the value you sent.           | See `detail` for the array of field errors.                                                          |
 | `422`  | `INVALID_TEXT`                                   | A route other than the scan routes was sent text that is not valid Unicode. The scan routes refuse it as an ordinary `422` that names the field.                                                   | Send UTF-8 text.                                                                                     |
 | `423`  | `APP_DISABLED`                                   | App has `status="disabled"`.                                                                        | Re‑enable in the dashboard.                                                                          |
 | `429`  |,                                                 | Per‑second rate limit hit.                                                                          | Back off. Limits are per API key.                                                     |
 | `429`  | `APP_QUOTA_EXCEEDED`                             | App's hourly or daily event cap reached.                                                            | Back off until `Retry-After`, or raise `max_events_per_hour` / `_per_day` on the App.                |
 | `429`  | `DAILY_ALLOWANCE_SOFT_LIMIT`                     | Today's request allowance is used and requests are paced. Never a refusal of every call.            | Wait `Retry-After` seconds, then send the same request again.                                        |
+| `429`  | `plan_required` | The trial has ended or the plan is paused. Requests are served at a reduced pace, and nothing is deleted. `Retry-After` gives the seconds to wait. | Wait `Retry-After` and send the same request again, or choose a plan under **Settings > Plan and usage**. See [Plan and usage](/runtime-security/plan-and-usage). |
+| `429`  | `too_many_long_scans` | Several long texts are being read for your workspace at once. `Retry-After` is 5 seconds. Nothing is scanned or counted. | Wait `Retry-After`, and send fewer long texts in parallel. |
 | `503`  |,                                                 | Firewall disabled, starting up, or metering store unavailable.                                      | Retry with backoff. If persistent, check `/health` and contact support.                              |
 | `503`  | `SCANNER_UNAVAILABLE`                            | The scanner could not be reached. The request is not counted against your allowance.                | Retry with backoff, or answer that the service is unavailable.                                       |
+| `503`  | `scan_incomplete` | A long text could not be read to the end in time. Nothing is returned or counted. `Retry-After` is 5 seconds. | Send the same request again after `Retry-After`, or split the text. |
 
 ## Rate limits
 
@@ -63,10 +74,16 @@ When hit, the response is:
 Useful for capping spend on staging Apps and for isolating noisy
 customers under the same workspace.
 
+### Requests
+
+On the API, a request is a unit of up to 4,000 characters, and every scan answer
+carries `Billable-Requests` and a `usage` field. A refused or failed call is not
+counted. See [Plan and usage](/runtime-security/plan-and-usage).
+
 ### License quota
 
-Each call consumes one unit from the workspace's monthly call quota.
-Batch items count individually. The 402 response body:
+On a licence with a monthly call quota, each call consumes one unit from the
+quota. Batch items count individually. The 402 response body:
 
 ```json
 {
