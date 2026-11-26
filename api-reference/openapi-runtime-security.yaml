@@ -212,8 +212,13 @@ paths:
       description: |
         Plain text work on what you send: nothing is looked up, stored or
         logged. Use it with the `pseudonyms` mapping a scan returned for an
-        App set to pseudonymize and restore. The official SDKs restore
-        locally and never need this route.
+        App set to pseudonymize and restore, whether it holds realistic
+        stand-ins, numbered tokens or both. Every key is replaced in one pass,
+        longest first, and a restored value is never expanded again. A
+        stand-in matches on whole words and without regard to case, with an
+        English possessive or a German genitive "s" tolerated; a stand-in
+        inside a link is left as it is and listed in `unrestored`. The
+        official SDKs restore locally and never need this route.
 
         Requires the `runtime:scan` permission. Rate limit: 200 requests per
         second per API key.
@@ -1216,9 +1221,17 @@ components:
           type: object
           additionalProperties: { type: string }
           description: |
-            Only for an App set to pseudonymize and restore: each placeholder in
-            `redacted_text` (for example `<PERSON_1>`) with the real value it
-            stands for. It is in this response alone and is never stored.
+            Only for an App set to pseudonymize and restore: each replacement in
+            `redacted_text` (a realistic stand-in such as `Maria Keller`, or a
+            numbered token such as `<IBAN_1>`) with the real value it stands
+            for. It is in this response alone and is never stored.
+        pseudonym_format:
+          type: string
+          enum: [token, stand_in]
+          description: |
+            `stand_in` when `pseudonyms` holds at least one realistic stand-in
+            (it may also hold tokens), `token` when it holds numbered tokens
+            only. Absent when stand-ins are not switched on for the workspace.
         also_flagged:
           type: array
           items: { type: string }
@@ -1248,6 +1261,13 @@ components:
           type: integer
           minimum: 0
           description: How many of the placeholders sent were found in the text and put back.
+        unrestored:
+          type: array
+          items: { type: string }
+          description: |
+            Stand-ins (or parts of a stand-in name) from the mapping that are
+            still in the text or were found inside a link. Empty when there are
+            none. Only present when the mapping holds stand-ins.
 
     ScanToolCallResponse:
       type: object

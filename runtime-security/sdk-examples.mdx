@@ -103,32 +103,37 @@ and `.code`, specialised as `BlindsightAuthError` on 401/403 and
 ### Pseudonymise and restore
 
 For an App set to **Pseudonymize and restore**, scan the user's message, send the
-placeholders to your model, and put the real values back in the answer. Send the
-same `sessionId` for the whole conversation, so a value keeps its placeholder in
-every turn.
+replaced text to your model, and put the real values back in the answer. Personal
+names, email addresses and phone numbers come back as realistic stand-ins, other
+types as numbered tokens. Send the same `sessionId` for the whole conversation, so
+a value keeps its replacement in every turn.
 
 ```ts
 const inp = await rs.scanInput(userText, { sessionId: conversationId });
-const reply = await callYourModel(inp.safeText); // the model sees placeholders only
+const reply = await callYourModel(inp.safeText); // the model sees the replaced text only
 const out = await rs.scanOutput(reply, { prompt: inp.safeText, sessionId: conversationId });
 if (out.blocked) return "Sorry, I can't help with that.";
 
-let safe = out.safeText;
-for (const token of Object.keys(out.pseudonyms ?? {})) {
-  safe = safe.split(token).join("[hidden]"); // data the model wrote on its own
-}
-const final = inp.restore(safe); // your user's own values go back in
+import { restorePseudonyms } from "@blindsight/security";
+
+const hide = Object.fromEntries(Object.keys(out.pseudonyms ?? {}).map((k) => [k, "[hidden]"]));
+const safe = restorePseudonyms(out.safeText, hide); // data the model wrote on its own
+const res = inp.restoreDetailed(safe); // your user's own values go back in
+if (res.unrestored.length) console.warn("not restored:", res.unrestored);
+const final = res.text;
 ```
 
-`restore` runs locally and gives the original text back exactly. The mapping is in
-the response only: keep it on your server and never log it. See
+`restore` runs locally and gives the original text back exactly, for stand-ins and
+tokens alike. `unrestored` lists what could not be put back. The mapping is in
+the response only: keep it on your server and never log it. Use version 1.1 of
+the SDK; version 1.0 only understands numbered tokens. See
 [Scan API](/runtime-security/scan-api#pseudonymisation-and-restore).
 
 ### Long documents
 
 `scanDocument` splits a text of any length at paragraph, sentence and whitespace
 boundaries, scans the parts in order and gives you one result. A name that appears
-in the first part and in the fifth gets one placeholder, and `restore` works on the
+in the first part and in the fifth is put back in both, and `restore` works on the
 whole document.
 
 ```ts

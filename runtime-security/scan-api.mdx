@@ -381,10 +381,18 @@ locally, so they never need this route.
 ## Pseudonymisation and restore
 
 For an App set to **Pseudonymize and restore**, each piece of personal data is
-replaced by a placeholder such as `<PERSON_1>` or `<EMAIL_ADDRESS_1>`. Your model
-works with the placeholders, and you put the real values back in its answer.
+replaced, and you put the real values back in its answer. Personal names, email
+addresses and phone numbers are replaced with realistic stand-ins, such as
+`Maria Keller` or `maria.keller@example.com`. Every other type is replaced with a
+numbered token such as `<IBAN_1>`, so one text can hold both. Your model works
+with the replaced text.
 
-- **The same value gets the same placeholder.** Within one call, a value written
+The response says which kind it holds in `pseudonym_format`: `stand_in` when the
+mapping holds at least one stand-in, `token` when it holds numbered tokens only.
+When stand-ins are not switched on for your workspace, you get numbered tokens
+and the field is absent. The examples below show tokens.
+
+- **The same value gets the same replacement.** Within one call, a value written
   twice has one placeholder. With a `session_id`, it keeps that placeholder in
   every later call of the conversation, and a new value gets the next number.
 - **Names are replaced wherever they are written.** A person's name is replaced
@@ -394,7 +402,13 @@ works with the placeholders, and you put the real values back in its answer.
   both are listed in `pseudonyms`, so restoring puts each back as it was written.
 - **Restore is exact.** Put the values back with the `pseudonyms` mapping and you
   get the original text back, character for character. The SDKs restore
-  locally. Without an SDK, use `/scan/restore`, described below.
+  locally. Without an SDK, use `/scan/restore`, described below. Restore through
+  the SDK helper or `/scan/restore` rather than parsing the text yourself: it
+  handles tokens and stand-ins in one pass.
+- **The mapping is yours.** `pseudonyms` is in the response only. Its keys are
+  the exact replacement strings as they appear in `redacted_text`, its values the
+  originals. Blindsight does not keep it, and the text it stores for your events
+  never holds a stand-in.
 
 ```json
 {
@@ -424,6 +438,35 @@ exactly as it was written.
   "pseudonyms": {"<PERSON_1>": "Anna Bergmann", "<PERSON_1_1>": "Anna\nBergmann"}
 }
 ```
+
+### Restoring stand-ins
+
+`/scan/restore` and the SDK helpers take the same mapping for both kinds. Every
+key is replaced in one pass, longest first, and a restored value is never
+expanded again. A stand-in matches on whole words and without regard to case, and
+an English possessive or a German genitive "s" after a name is tolerated
+("Keller's", "Kellers"). A stand-in inside a link is left as it is. The answer
+includes `unrestored`, a list of stand-ins (or parts of a stand-in name) that are
+still in the text, for example a name your model shortened or wrote inside a link.
+Treat a non-empty list as a warning: look at the text, or ask your model again.
+
+```json
+{
+  "text": "Maria Keller's invoice is ready. See https://example.com/Keller",
+  "pseudonyms": {"Maria Keller": "Jonas Bergmann", "Keller": "Bergmann"}
+}
+```
+
+```json
+{
+  "text": "Jonas Bergmann's invoice is ready. See https://example.com/Keller",
+  "restored": 1,
+  "unrestored": ["Keller"]
+}
+```
+
+Upgrade the SDK to version 1.1 before your workspace is switched to stand-ins.
+Version 1.0 only understands numbered tokens.
 
 An App set to **Mask** replaces each piece with a type marker such as
 `<PERSON>` instead, and has no `pseudonyms` and no restore.
