@@ -152,15 +152,12 @@ More patterns are in [SDK examples](/runtime-security/sdk-examples).
 
 ## Versioned paths
 
-Every scan route except `/scan/file` is available at two paths. They behave
-the same.
+Every scan route is available at two paths. They behave the same.
 
 | Path | Use |
 | ---- | --- |
 | `/api/runtime-security/...` | The path the SDKs use. |
 | `/api/v1/runtime-security/...` | The versioned path. Responses carry the header `Blindsight-Api-Version: 1`. |
-
-The file route, `/scan/file`, is at `/api/runtime-security/scan/file` only.
 
 Changes inside version 1 are additive. A breaking change would ship under
 `/v2`, announced at least 12 months before the old version stops. Ignore

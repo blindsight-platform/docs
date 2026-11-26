@@ -9,10 +9,9 @@ comes back. Useful when you don't want to put a proxy in the chat
 hot path, or when you're scanning text that isn't going to an LLM at
 all (batch pipelines, document ingestion, knowledge‑base curation).
 
-Every scan route except `/scan/file` is available at `/api/runtime-security/...`
-and at `/api/v1/runtime-security/...`. They behave the same. `/scan/file` is at
-`/api/runtime-security/scan/file` only. Responses on a `/v1` path carry the
-header `Blindsight-Api-Version: 1`. See
+Every scan route is available at `/api/runtime-security/...` and at
+`/api/v1/runtime-security/...`. They behave the same. Responses on a `/v1` path
+carry the header `Blindsight-Api-Version: 1`. See
 [API quickstart](/runtime-security/api-quickstart#versioned-paths).
 
 All scan endpoints return **HTTP 200 with a JSON body even when the
@@ -409,6 +408,20 @@ works with the placeholders, and you put the real values back in its answer.
   "verdict": "redact",
   "redacted_text": "Dr. <PERSON_1> signed on Monday. Later, <PERSON_2> called again.",
   "pseudonyms": {"<PERSON_1>": "Jonas Bergmann", "<PERSON_2>": "Bergmann"}
+}
+```
+
+A name that is written another way later in the text, for example split by a
+line break or a double space ("Anna\nBergmann", "Anna  Bergmann"), gets its own
+placeholder in the same family, such as `<PERSON_1_1>`, and `pseudonyms` lists
+the exact characters written. In a call with a `session_id` the family also
+carries the turn, such as `<PERSON_1_T1_1>`. Restoring puts back every form
+exactly as it was written.
+
+```json
+{
+  "redacted_text": "Vertrag mit <PERSON_1> geschlossen.\nDanach schrieb <PERSON_1_1> an uns.",
+  "pseudonyms": {"<PERSON_1>": "Anna Bergmann", "<PERSON_1_1>": "Anna\nBergmann"}
 }
 ```
 
