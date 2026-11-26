@@ -9,9 +9,10 @@ comes back. Useful when you don't want to put a proxy in the chat
 hot path, or when you're scanning text that isn't going to an LLM at
 all (batch pipelines, document ingestion, knowledge‑base curation).
 
-Every scan route is available at `/api/runtime-security/...` and at
-`/api/v1/runtime-security/...`. They behave the same. Responses on a `/v1` path
-carry the header `Blindsight-Api-Version: 1`. See
+Every scan route except `/scan/file` is available at `/api/runtime-security/...`
+and at `/api/v1/runtime-security/...`. They behave the same. `/scan/file` is at
+`/api/runtime-security/scan/file` only. Responses on a `/v1` path carry the
+header `Blindsight-Api-Version: 1`. See
 [API quickstart](/runtime-security/api-quickstart#versioned-paths).
 
 All scan endpoints return **HTTP 200 with a JSON body even when the
@@ -36,8 +37,8 @@ traffic is attributed to it when you omit the header.
 | `402`  | The workspace has used its request allowance for the current period (`QUOTA_EXCEEDED`). |
 | `403`  | The key does not have the `runtime:scan` permission, or its owner no longer holds it. A key limited to other Apps gets `APP_NOT_ALLOWED`. |
 | `404`  | Runtime Security (or, for tool calls, the agentic guardrails module) is not enabled for the workspace. |
-| `413`  | A text is longer than one call can hold (`text_too_long` or `PAYLOAD_TOO_LARGE`). See [Limits](#limits). The body says how long a part to send (`recommended_chunk_chars`). Nothing is scanned or counted. |
-| `422`  | The request body is not valid. The error names the field and never repeats what you sent. Text that is not valid Unicode is refused the same way. |
+| `413`  | A text is longer than one call can hold (`text_too_long`, also given as `legacy_code: PAYLOAD_TOO_LARGE`). See [Limits](#limits). The body says how long a part to send (`recommended_chunk_chars`). Nothing is scanned or counted. |
+| `422`  | The request body is not valid (`VALIDATION_ERROR`). The error names the field and never repeats what you sent. Text that is not valid Unicode is refused the same way. |
 | `409`  | `idempotency_key_reused`: the same `Idempotency-Key` was sent with a different body. Use a new key for a new body. |
 | `429`  | You are over the rate limit (limits apply per API key), or requests are paced: `DAILY_ALLOWANCE_SOFT_LIMIT` when today's allowance is used, `plan_required` when the trial has ended or the plan is paused, `too_many_long_scans` when several long texts are being read at once. Wait `Retry-After` seconds and send the same request again. See [Plan and usage](/runtime-security/plan-and-usage). |
 | `503`  | The firewall is disabled or still starting, the scanner could not be reached (`SCANNER_UNAVAILABLE`), or a long text could not be read to the end (`scan_incomplete`). Wait `Retry-After` seconds and send the same request again. A single prompt, reply or file scan that fails because the scanner could not run is not counted against your allowance. |
@@ -58,7 +59,28 @@ rather than the message. See [Errors](/runtime-security/errors).
 A text over the limit is answered with `413` and the code `text_too_long`. The
 body carries `limit` and `recommended_chunk_chars`. Send the text in parts of
 that size, or use the SDK, which splits a long document for you and numbers the
-placeholders as one document.
+placeholders as one document. The answer carries `X-Blindsight-Error-Code:
+text_too_long` and `Billable-Requests: 0`. This is the answer to a text of
+250,001 characters, shortened:
+
+```json
+{
+  "error": {
+    "code": "text_too_long",
+    "message": "This call holds 250001 characters. The limit is 250000 characters per call. Split the text into parts of at most 250000 characters, or use the SDK, which splits long documents for you.",
+    "details": {
+      "code": "text_too_long",
+      "field": "text",
+      "length": 250001,
+      "scanned": false,
+      "recommended_chunk_chars": 8000,
+      "recommended_chunk_overlap_chars": 200,
+      "limit": 250000,
+      "legacy_code": "PAYLOAD_TOO_LARGE"
+    }
+  }
+}
+```
 
 A text that repeats the people in it very often can be answered with `413` and
 the code `too_many_name_repeats`. Nothing is returned and nothing is counted.
@@ -74,6 +96,19 @@ Every scan answer says what the call used:
 | `Billable-Requests` header | The requests this call counted. See [Plan and usage](/runtime-security/plan-and-usage#what-a-request-is). |
 | `usage` field | `billable_requests` and `characters`. A batch has `usage` on each result and a total. |
 | `X-Blindsight-Text-Stored` header | `true` when text from the call is kept, `false` when it is not. You choose this per App. |
+| `X-Blindsight-Usage-Plan-State` header | Where the workspace stands, for example `trial`. |
+| `X-Blindsight-Usage-Month-Used`, `-Month-Included` and `-Month-Resets-At` headers | The requests used in the current period, the requests the plan includes and when the period ends (UTC). |
+
+A call on a trial answers like this:
+
+```text
+Billable-Requests: 1
+X-Blindsight-Usage-Plan-State: trial
+X-Blindsight-Usage-Month-Used: 264
+X-Blindsight-Usage-Month-Included: 10000
+X-Blindsight-Usage-Month-Resets-At: 2026-12-10T17:35:01Z
+X-Blindsight-Text-Stored: false
+```
 
 If your plan has a daily request allowance, every counted scan call made with an API
 key also says how much of today's allowance is used, in the headers
@@ -116,24 +151,35 @@ Scan a user prompt before forwarding it to your LLM.
 ```bash
 curl -X POST "https://platform.blindsight.io/api/runtime-security/scan/input" \
   -H "X-API-Key: $BLINDSIGHT_API_KEY" \
-  -H "X-Blindsight-App-Id: 5d7f1c0e-8b6a-4e0b-9c52-3f1a2b7d9e44" \
+  -H "X-Blindsight-App-Id: <your app id>" \
   -H "Content-Type: application/json" \
-  -d '{"text": "Please email the report to jane.doe@example.com", "session_id": "chat-8841"}'
+  -d '{"text": "Please email the report to jane.doe@example.com", "session_id": "chat-8843"}'
 ```
+
+The `X-Blindsight-App-Id` header is only needed when the key can use more than
+one App. With a key that is limited to one App, leave it out.
 
 ```json
 {
-  "uuid": "9c2f6a41-0d3e-4b8a-a1c7-5e8d2f3b6a90",
+  "uuid": "<event uuid>",
   "verdict": "redact",
-  "pii": {"count": 1, "categories": ["email"]},
-  "redacted_text": "Please email the report to <EMAIL>",
+  "pii": {"count": 1, "categories": ["email_address"]},
+  "redacted_text": "Please email the report to <EMAIL_ADDRESS_1>",
+  "latency_ms": 199,
   "text_length": 47,
-  "latency_ms": 12
+  "pseudonyms": {"<EMAIL_ADDRESS_1>": "jane.doe@example.com"},
+  "usage": {"billable_requests": 1, "characters": 47}
 }
 ```
 
-The response carries further fields that describe how the scan reached its
-result. Only the fields above are part of the supported contract.
+This answer is for an App set to **Pseudonymize and restore**. An App set to
+**Mask** answers with a type marker such as `<EMAIL_ADDRESS>` and has no
+`pseudonyms`. `<event uuid>` stands for the identifier of the event.
+
+The response carries further fields, among them `pii.findings` (where each item
+sits in the text) and fields that describe how the scan reached its result. They
+are left out of the examples on this page. Only the fields above are part of the
+supported contract.
 
 Rate limit: **200 requests per second per API key**.
 
@@ -162,17 +208,22 @@ The same fields as `/scan/input`.
 curl -X POST "https://platform.blindsight.io/api/runtime-security/scan/output" \
   -H "X-API-Key: $BLINDSIGHT_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"prompt": "Who is our contact?", "response": "Call Jane Doe on +41 79 555 01 02."}'
+  -d '{"prompt": "Who is our contact?", "response": "Call Ms. Petra Hoffmann on +41 79 555 01 02."}'
 ```
 
 ```json
 {
-  "uuid": "3a8e51d0-77c2-4f19-b6a4-2c9d1e0f8b35",
+  "uuid": "<event uuid>",
   "verdict": "redact",
-  "pii": {"count": 1, "categories": ["phone"]},
-  "redacted_text": "Call Jane Doe on <PHONE>.",
-  "text_length": 33,
-  "latency_ms": 9
+  "pii": {"count": 2, "categories": ["phone_number", "person"]},
+  "redacted_text": "Call Ms. <PERSON_1> on <PHONE_NUMBER_1>.",
+  "latency_ms": 49,
+  "text_length": 44,
+  "pseudonyms": {
+    "<PERSON_1>": "Petra Hoffmann",
+    "<PHONE_NUMBER_1>": "+41 79 555 01 02"
+  },
+  "usage": {"billable_requests": 1, "characters": 44}
 }
 ```
 
@@ -205,25 +256,57 @@ Each item:
 curl -X POST "https://platform.blindsight.io/api/runtime-security/scan/batch" \
   -H "X-API-Key: $BLINDSIGHT_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"items": [
-        {"text": "first prompt", "direction": "input"},
-        {"text": "model response here", "direction": "output"}
-      ]}'
+  -d '{
+        "session_id": "chat-8844",
+        "items": [
+          {"text": "Please send the contract to Jonas Bergmann at jonas.bergmann@example.com", "direction": "input"},
+          {"text": "Jonas Bergmann has the contract and will write from jonas.bergmann@example.com.", "direction": "output"}
+        ]
+      }'
 ```
 
 ### Response
 
 `results` holds one entry per item, in the same order, with the same fields as
-`/scan/input`.
+`/scan/input`. `usage` at the top is the total. The same person and e-mail
+address have the same placeholder in both items, because both items carry the
+same `session_id`.
 
 ```json
 {
   "results": [
-    {"uuid": "b1d4…", "verdict": "allow", "pii": {"count": 0, "categories": []}, "redacted_text": "first prompt", "text_length": 12, "latency_ms": 8},
-    {"uuid": "c7e2…", "verdict": "allow", "pii": {"count": 0, "categories": []}, "redacted_text": "model response here", "text_length": 19, "latency_ms": 8}
-  ]
+    {
+      "uuid": "<event uuid>",
+      "verdict": "redact",
+      "pii": {"count": 2, "categories": ["email_address", "person"]},
+      "redacted_text": "Please send the contract to <PERSON_1> at <EMAIL_ADDRESS_1>",
+      "latency_ms": 57,
+      "text_length": 72,
+      "pseudonyms": {
+        "<PERSON_1>": "Jonas Bergmann",
+        "<EMAIL_ADDRESS_1>": "jonas.bergmann@example.com"
+      },
+      "usage": {"billable_requests": 1, "characters": 72}
+    },
+    {
+      "uuid": "<event uuid>",
+      "verdict": "redact",
+      "pii": {"count": 2, "categories": ["email_address", "person"]},
+      "redacted_text": "<PERSON_1> has the contract and will write from <EMAIL_ADDRESS_1>.",
+      "latency_ms": 47,
+      "text_length": 79,
+      "pseudonyms": {
+        "<PERSON_1>": "Jonas Bergmann",
+        "<EMAIL_ADDRESS_1>": "jonas.bergmann@example.com"
+      },
+      "usage": {"billable_requests": 1, "characters": 79}
+    }
+  ],
+  "usage": {"billable_requests": 2, "characters": 151}
 }
 ```
+
+The answer header `Billable-Requests` is `2`.
 
 Rate limit: **40 requests per second per API key**.
 
@@ -292,7 +375,8 @@ work on what you send: nothing is looked up, stored or logged.
 | `pseudonyms` | object | yes      | The mapping the scan response returned.                      |
 
 The response holds `text` with the values back in and `restored`, how many of the
-placeholders you sent were found in the text and put back. The original text comes back exactly as it was written. Restoring is free: it counts no requests. A text over the restore limit is refused with `413` and nothing is restored; so is a result that would be too large (`RESTORE_TOO_LARGE`). The official SDKs restore
+placeholders you sent were found in the text and put back (see the example in the
+[API quickstart](/runtime-security/api-quickstart#put-the-values-back)). The original text comes back exactly as it was written. Restoring is free: it counts no requests. A text over the restore limit is refused with `413` and nothing is restored; so is a result that would be too large (`RESTORE_TOO_LARGE`). The official SDKs restore
 locally, so they never need this route.
 
 ## Pseudonymisation and restore
@@ -304,10 +388,11 @@ works with the placeholders, and you put the real values back in its answer.
 - **The same value gets the same placeholder.** Within one call, a value written
   twice has one placeholder. With a `session_id`, it keeps that placeholder in
   every later call of the conversation, and a new value gets the next number.
-- **Names follow the person.** A person's name is replaced wherever it is
-  written in the text. A title with the surname ("Dr. Bergmann") and a later
-  mention by surname ("Bergmann") get the placeholder of the same person, and
-  the title stays in the text.
+- **Names are replaced wherever they are written.** A person's name is replaced
+  in every place it appears in the text, also when only the surname is written
+  later ("Bergmann"). A title stays in the text ("Dr. <PERSON_1>"). A surname on
+  its own gets a placeholder of its own, next to the one of the full name, and
+  both are listed in `pseudonyms`, so restoring puts each back as it was written.
 - **Restore is exact.** Put the values back with the `pseudonyms` mapping and you
   get the original text back, character for character. The SDKs restore
   locally. Without an SDK, use `/scan/restore`, described below.
@@ -322,8 +407,8 @@ works with the placeholders, and you put the real values back in its answer.
 ```json
 {
   "verdict": "redact",
-  "redacted_text": "Dr. <PERSON_1> signed on Monday. Later, <PERSON_1> called again.",
-  "pseudonyms": {"<PERSON_1>": "Jonas Bergmann"}
+  "redacted_text": "Dr. <PERSON_1> signed on Monday. Later, <PERSON_2> called again.",
+  "pseudonyms": {"<PERSON_1>": "Jonas Bergmann", "<PERSON_2>": "Bergmann"}
 }
 ```
 
@@ -344,11 +429,47 @@ An App set to **Mask** replaces each piece with a type marker such as
 Formats: PDF, Word (`docx`), Excel (`xlsx`, `xls`), `csv`, `txt`, `md`, `json`
 and images.
 
+```bash
+curl -X POST "https://platform.blindsight.io/api/runtime-security/scan/file" \
+  -H "X-API-Key: $BLINDSIGHT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+        "data": "TWVldGluZyBub3RlcwpQbGVhc2Ugc2VuZCB0aGUgY29udHJhY3QgdG8gRHIuIEpvbmFzIEJlcmdtYW5uIGF0IGpvbmFzLmJlcmdtYW5uQGV4YW1wbGUuY29tLgo=",
+        "filename": "notes.txt",
+        "media_type": "text/plain",
+        "direction": "input"
+      }'
+```
+
+`data` is the text `Meeting notes`, a line break, and `Please send the contract to Dr. Jonas Bergmann at jonas.bergmann@example.com.`, base64 encoded.
+
+```json
+{
+  "uuid": "<event uuid>",
+  "verdict": "redact",
+  "pii": {"count": 2, "categories": ["email_address", "person"]},
+  "redacted": true,
+  "redacted_count": 2,
+  "data": "TWVldGluZyBub3RlcwpQbGVhc2Ugc2VuZCB0aGUgY29udHJhY3QgdG8gRHIuIDxQRVJTT04+IGF0IDxFTUFJTF9BRERSRVNTPi4K",
+  "media_type": "text/plain",
+  "filename": "notes.txt",
+  "kind": "text",
+  "extracted_chars": 91,
+  "latency_ms": 54
+}
+```
+
+`data` in the answer is the redacted file, base64 encoded. Decoded, it reads
+`Please send the contract to Dr. <PERSON> at <EMAIL_ADDRESS>.` under the first
+line. The answer carries `Billable-Requests: 1`.
+
 The answer holds `verdict`, `pii`, `redacted` and `redacted_count`, and `data`,
 the file with personal data replaced by type placeholders such as `<PERSON>`
-and `<EMAIL>`. A file scan returns type placeholders and has no `pseudonyms`
-mapping, so there is nothing to restore. The extracted text counts as requests
-like any text. Rate limit: **60 requests per second per API key**.
+and `<EMAIL_ADDRESS>`. It also names the file (`filename`, `media_type`, `kind`)
+and says how much text was read (`extracted_chars`). A file scan returns type
+placeholders and has no `pseudonyms` mapping, so there is nothing to restore.
+The extracted text counts as requests like any text. Rate limit: **60 requests
+per second per API key**.
 
 ## Retries and idempotency
 
@@ -412,8 +533,8 @@ import httpx
 BLINDSIGHT = httpx.Client(
     base_url="https://platform.blindsight.io",
     headers={
-        "X-API-Key": "ak_live_…",
-        "X-Blindsight-App-Id": "app_…",
+        "X-API-Key": "ak_...",
+        "X-Blindsight-App-Id": "<your app id>",
     },
     timeout=10.0,
 )

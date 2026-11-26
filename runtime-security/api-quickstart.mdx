@@ -38,7 +38,7 @@ create a key for your app and copy it. It is shown once.
 Set it in your shell:
 
 ```bash
-export BLINDSIGHT_API_KEY="ak_live_..."
+export BLINDSIGHT_API_KEY="ak_..."
 ```
 
 Because the key is bound to the app, requests need no
@@ -54,27 +54,73 @@ a terminal:
 curl -X POST "https://platform.blindsight.io/api/runtime-security/scan/input" \
   -H "X-API-Key: $BLINDSIGHT_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"text": "Please send the contract to Dr. Jonas Bergmann at jonas.bergmann@example.com", "session_id": "chat-8841"}'
+  -d '{"text": "Please send the contract to Dr. Jonas Bergmann at jonas.bergmann@example.com, IBAN DE89 3704 0044 0532 0130 00", "session_id": "chat-8841"}'
 ```
 
 ```json
 {
-  "uuid": "9c2f6a41-0d3e-4b8a-a1c7-5e8d2f3b6a90",
+  "uuid": "<event uuid>",
   "verdict": "redact",
-  "pii": {"count": 2, "categories": ["person", "email"]},
-  "redacted_text": "Please send the contract to Dr. <PERSON_1> at <EMAIL_ADDRESS_1>",
+  "pii": {"count": 3, "categories": ["iban", "email_address", "person"]},
+  "redacted_text": "Please send the contract to Dr. <PERSON_1> at <EMAIL_ADDRESS_1>, IBAN <IBAN_1>",
+  "latency_ms": 204,
+  "text_length": 110,
   "pseudonyms": {
     "<PERSON_1>": "Jonas Bergmann",
-    "<EMAIL_ADDRESS_1>": "jonas.bergmann@example.com"
+    "<EMAIL_ADDRESS_1>": "jonas.bergmann@example.com",
+    "<IBAN_1>": "DE89 3704 0044 0532 0130 00"
   },
-  "text_length": 76,
-  "usage": {"billable_requests": 1, "characters": 76}
+  "usage": {"billable_requests": 1, "characters": 110}
 }
+```
+
+The answer is shortened here: it also carries `pii.findings` (where each
+item sits in the text) and fields that describe how the scan reached its
+result. `<event uuid>` stands for the identifier of the event. The title stays
+in the text, the name goes. The answer also carries headers that say what
+the call used:
+
+```text
+Billable-Requests: 1
+X-Blindsight-Usage-Plan-State: trial
+X-Blindsight-Usage-Month-Used: 264
+X-Blindsight-Usage-Month-Included: 10000
+X-Blindsight-Usage-Month-Resets-At: 2026-12-10T17:35:01Z
+X-Blindsight-Text-Stored: false
 ```
 
 Send `redacted_text` to your model. When the model answers, put the
 original values back with the `pseudonyms` mapping. The mapping is in
 this response alone and Blindsight does not store it.
+
+### Put the values back
+
+Without an SDK, send the text that carries placeholders and the mapping to
+`/scan/restore`:
+
+```bash
+curl -X POST "https://platform.blindsight.io/api/runtime-security/scan/restore" \
+  -H "X-API-Key: $BLINDSIGHT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+        "text": "Please send the contract to Dr. <PERSON_1> at <EMAIL_ADDRESS_1>, IBAN <IBAN_1>",
+        "pseudonyms": {
+          "<PERSON_1>": "Jonas Bergmann",
+          "<EMAIL_ADDRESS_1>": "jonas.bergmann@example.com",
+          "<IBAN_1>": "DE89 3704 0044 0532 0130 00"
+        }
+      }'
+```
+
+```json
+{
+  "text": "Please send the contract to Dr. Jonas Bergmann at jonas.bergmann@example.com, IBAN DE89 3704 0044 0532 0130 00",
+  "restored": 3
+}
+```
+
+The text comes back as it was written. Restoring counts no requests: the
+answer carries `Billable-Requests: 0`.
 
 The request appears on your **Overview** page when it arrives.
 
@@ -106,12 +152,15 @@ More patterns are in [SDK examples](/runtime-security/sdk-examples).
 
 ## Versioned paths
 
-Every scan route is available at two paths. They behave the same.
+Every scan route except `/scan/file` is available at two paths. They behave
+the same.
 
 | Path | Use |
 | ---- | --- |
 | `/api/runtime-security/...` | The path the SDKs use. |
 | `/api/v1/runtime-security/...` | The versioned path. Responses carry the header `Blindsight-Api-Version: 1`. |
+
+The file route, `/scan/file`, is at `/api/runtime-security/scan/file` only.
 
 Changes inside version 1 are additive. A breaking change would ship under
 `/v2`, announced at least 12 months before the old version stops. Ignore
