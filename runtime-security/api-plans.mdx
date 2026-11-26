@@ -1,0 +1,136 @@
+---
+title: "API plans"
+description: "Plans, the request unit, the trial and what happens when a trial ends, for the pseudonymisation and scan API."
+---
+
+<Note>
+  Applies once API plans are enabled for your workspace.
+</Note>
+
+An API plan covers the [Scan API](/runtime-security/scan-api): the calls you make to
+find personal data in text, swap it for placeholders and put it back. You pay for
+the text you send, counted in requests. This page lists the plans, shows how a
+request is counted and explains what happens at the end of the trial.
+
+## Plans
+
+| Plan | Price | Requests included each month | Requests above that |
+| ---- | ----- | ---------------------------- | ------------------- |
+| Pay as you go | EUR 0.001 per request (EUR 1 per 1,000), billed monthly in arrears | None | Every request is charged at EUR 0.001 |
+| Starter | EUR 1,188 per year upfront (EUR 99 per month equivalent), or EUR 119 per month billed monthly | 150,000 | EUR 0.001 per request, on the next invoice. Service never stops. |
+| Growth | EUR 4,188 per year upfront (EUR 349 per month equivalent), or EUR 419 per month | 1,000,000 | EUR 0.001 per request, on the next invoice. Service never stops. |
+
+- Annual billing gives two months free.
+- All prices exclude taxes. Taxes are added on top.
+- Above 1,000,000 requests a month, or for an on-premises deployment, contact
+  [support@blindsight.io](mailto:support@blindsight.io).
+
+On Starter and Growth the included requests are counted per month. A paid plan
+is never refused for using more than it includes: the extra requests are charged
+at EUR 0.001 each.
+
+## The request unit
+
+One request is up to 4,000 characters of text. A longer text counts as more
+requests, rounded up for every started 4,000 characters, and a call is never
+less than one request.
+
+| Text length | Requests |
+| ----------- | -------- |
+| 1,500 characters | 1 |
+| 4,000 characters | 1 |
+| 4,001 characters | 2 |
+| 10,000 characters | 3 |
+
+Characters are counted after the text is decoded, as Unicode characters. An
+umlaut, an emoji and a letter each count as one, so the same text costs the same
+in every language.
+
+What each route counts:
+
+| Route | Characters counted |
+| ----- | ------------------ |
+| `/scan/input` | `text`, every `history` turn and every `untrusted` part |
+| `/scan/output` | `response`. The `prompt` is only read to keep placeholder numbers in step and is free. |
+| `/scan/batch` | Each item on its own, each at least one request, added up |
+| `/scan/file` | The text extracted from the file |
+| `/scan/tool-call` | The arguments, as the text they serialise to |
+| `/scan/restore` and `/pseudonymization/labels` | None. Restoring is not billed. |
+
+Every answer on an API plan tells you what the call counted, in the header
+`Billable-Requests` and in the body field `usage`. A call that is refused or
+fails is not billed, and neither is a text the service could not finish
+(`scan_incomplete`). See [Scan API: request units](/runtime-security/scan-api#request-units-and-usage)
+for the fields.
+
+The reverse proxy is not available on API plans. Its routes answer `403` with
+the code `not_available_on_api_plan`. Send the text to the Scan API instead.
+
+## The usage month
+
+The usage month is the calendar month in UTC. It starts on the 1st at 00:00:00
+UTC and the count of included requests starts again at zero. A caller in another
+time zone sees the same boundary. The count for a paid plan starts at zero on the
+day the plan starts.
+
+## Trial
+
+A new API workspace starts with a trial: **14 days and 10,000 requests, no card**.
+The trial ends when the time is over or the 10,000 requests are used, whichever
+comes first.
+
+- You are warned before it ends: when 80 percent of the requests are used
+  (8,000), and when 3 days or less are left. Requests are served in full while
+  you are warned.
+- The 10,000 requests are one pool for the whole trial. A new month does not give
+  a second pool.
+
+## When a trial ends without a plan
+
+The workspace is paused gracefully. Nothing is deleted: your keys, apps and
+settings stay.
+
+- The workspace is still served **10 billable requests an hour**. The count is
+  in requests as described above, not in calls: a call that is worth 3 requests
+  uses 3 of the 10.
+- Every other call answers `429` with the code `plan_required` and a
+  `Retry-After` header that gives the seconds to the next hour. The message reads
+  "Your trial has ended. Choose a plan under Settings, Plan and usage, to restore
+  service. Nothing has been deleted."
+- Choosing a plan restores service at once.
+
+A paid plan that ends, because the subscription is cancelled or unpaid, is paused
+the same way, with the message "Your plan has ended. Choose a plan under
+Settings, Plan and usage, to restore service. Nothing has been deleted." A
+payment that is late but still being retried does not pause the plan.
+
+Code that calls the API should treat `plan_required` as a reason to stop and tell
+a person, not to retry in a loop. See [Errors](/api-reference/errors).
+
+## Where to see your usage
+
+Every counted answer carries the state of your month in these headers:
+
+| Header | Value |
+| ------ | ----- |
+| `X-Blindsight-Usage-Month-Used` | Requests counted so far |
+| `X-Blindsight-Usage-Month-Included` | Requests included each month. During the trial, the 10,000 request cap. |
+| `X-Blindsight-Usage-Month-Resets-At` | When the counter starts again (UTC). During the trial, when the trial ends. |
+| `X-Blindsight-Usage-Plan-State` | `trial`, `trial_warning`, `paused` or `active` |
+
+A figure the service cannot read is left out of the headers, never sent as 0.
+
+## Limits per call
+
+At most 500,000 characters per call. This is the most any workspace can have. The
+limit in force for your workspace is returned as `limit` in the body of the `413`
+answer and can be lower than 500,000 while capacity is being added. A text over
+the limit is refused with `text_too_long` and is never cut. The
+[Scan API page](/runtime-security/scan-api#size-limits) describes when the larger
+limit applies, and the [SDK](/runtime-security/sdk-examples#long-documents) can
+split a long document for you.
+
+## Questions
+
+Write to [support@blindsight.io](mailto:support@blindsight.io). For where your
+data is processed and what is kept, see the [privacy pack](/runtime-security/privacy-pack).

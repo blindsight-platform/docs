@@ -13,8 +13,9 @@ The reference is built from two OpenAPI documents, each with its own
 | Runtime Security (scan and proxy)  | `1.0.0` | Hand written, with worked examples.     |
 | Full REST surface                  | `0.1.0` | Generated from the running application. |
 
-The version describes the document, not a path prefix. REST paths such
-as `/api/datasets` carry no version segment.
+The version describes the document, not an API version. REST paths such
+as `/api/datasets` carry no version segment. Only the scan routes listed below
+have a `/v1` form.
 
 ## Proxy routes
 
@@ -23,8 +24,54 @@ segment such as `v1` or `v1beta` in `/api/runtime-security/proxy/...`
 is the provider's version, not Blindsight's, so your SDK keeps working
 when you only change its `base_url`.
 
+## Scan API paths and versions
+
+<Note>
+  Applies once API plans are enabled for your workspace.
+</Note>
+
+The scan routes are available under `/api/v1/runtime-security/`:
+
+- `scan/input`
+- `scan/output`
+- `scan/batch`
+- `scan/restore`
+- `pseudonymization/labels`
+
+The unversioned paths under `/api/runtime-security/` stay and are the same as
+v1. Responses on a `/v1` path carry the header `Blindsight-Api-Version: 1`. The
+official SDKs keep the unversioned prefix. The `/v1` paths answer once they are
+enabled on your deployment. Until then, use the unversioned paths.
+
+### What can change inside v1
+
+Additive changes only: new optional request fields, new response fields, new
+headers, new routes and new error codes. Your client must ignore response fields
+and headers it does not know, and must treat an error code it does not know by
+its HTTP status.
+
+### What needs v2
+
+Removing or renaming a field, changing the meaning of a field or code, making an
+optional field required, and tightening a limit below what is documented. These
+ship under `/v2` and never under `/v1`.
+
+### Deprecation policy
+
+A breaking change is announced at least 12 months before the old version stops.
+From the announcement, the old version answers with the headers `Deprecation`
+and `Sunset`. The [changelog](/api-reference/changelog) records every change.
+
+### Error codes
+
+Error codes are case sensitive strings. Codes that existed before keep their
+spelling (upper case). Codes added for API plans are lower case:
+`text_too_long`, `scan_incomplete`, `plan_required`, `idempotency_key_reused` and
+`not_available_on_api_plan`. See [Errors](/api-reference/errors).
+
 ## Staying current
 
+- Read the [changelog](/api-reference/changelog) for changes to the scan API.
 - Changes ship with each release. Read the [release notes](/release-notes) before you upgrade a self-hosted deployment.
 - Treat unknown response fields as additive and ignore them.
 - Read `error.code` and `X-Blindsight-Error-Code` rather than message text. See [Errors](/api-reference/errors).

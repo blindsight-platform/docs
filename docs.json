@@ -46,6 +46,8 @@
               "runtime-security/overview",
               "runtime-security/apps",
               "runtime-security/scan-api",
+              "runtime-security/api-plans",
+              "runtime-security/privacy-pack",
               "runtime-security/reverse-proxy",
               "runtime-security/tool-calls",
               "runtime-security/verdicts",
@@ -171,7 +173,8 @@
               "api-reference/authentication",
               "api-reference/errors",
               "api-reference/rate-limits",
-              "api-reference/versioning"
+              "api-reference/versioning",
+              "api-reference/changelog"
             ]
           },
           {

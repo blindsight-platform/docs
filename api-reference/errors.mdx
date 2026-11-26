@@ -48,3 +48,81 @@ parsing the body.
 
 The Runtime Security scan and proxy routes add their own typed codes.
 See [Runtime Security errors](/runtime-security/errors).
+
+## Scan API error codes
+
+<Note>
+  Applies once API plans are enabled for your workspace.
+</Note>
+
+Codes are case sensitive strings. The code is in the `X-Blindsight-Error-Code`
+header of every error answer. A refused or failed call is never billed, and a
+charge taken before a failure is refunded. If you meet a code that is not in this
+list, handle it by its HTTP status.
+
+### Size and body
+
+| Code | Status | Meaning | What to do |
+| ---- | ------ | ------- | ---------- |
+| `PAYLOAD_TOO_LARGE` | 413 | The text is longer than the workspace `max_text_length` (default 32,000 characters). The body names `field`, `length`, `max_text_length`, `scanned: false`, `recommended_chunk_chars` and `recommended_chunk_overlap_chars`. | Split the text into parts of `recommended_chunk_chars` with the stated overlap, or use the SDK. |
+| `text_too_long` | 413 | The call holds more characters than the per call limit (500,000 at most, 600,000 for `/scan/restore`; the limit in force is `limit` in the body and can be lower). The body keeps every field of the `PAYLOAD_TOO_LARGE` body and adds `limit` and `legacy_code`. | Split the text into parts of at most `limit` characters, or use the SDK. |
+| `RESTORE_TOO_LARGE` | 413 | `/scan/restore` text over 2,000,000 characters. | Restore in parts. |
+| `LENGTH_REQUIRED` | 411 | A body without a `Content-Length` on a route that limits its size. | Send `Content-Length`. Do not use chunked uploads on the scan routes. |
+
+### Credentials, licence and apps
+
+| Code | Status | Meaning | What to do |
+| ---- | ------ | ------- | ---------- |
+| `MISSING_AUTH` | 401 | No credential on the request. | Send `X-API-Key` or `Authorization: Bearer ak_...`. |
+| `INVALID_CREDENTIALS` | 401 | The key is unknown, disabled, deleted or expired, or its owner left the workspace. A key without the scan permission, or a key of an archived app, may also answer 401 today. | Check the key. Create or rotate one under Settings, API keys. |
+| `WORKSPACE_REQUIRED` | 401 | The caller resolved to no workspace. | Use a key of a workspace. |
+| `APP_NOT_ALLOWED` | 403 | The key is limited to other apps. | Use a key made for this app. |
+| `not_available_on_api_plan` | 403 | The route is not part of the API plan, for example the reverse proxy. | Send the text to `/scan/input` and `/scan/output`. |
+| `FEATURE_NOT_LICENSED` | 404 | The workspace has no licence for the feature. The code is in the header only and the body reads `Not Found`. | Contact support. |
+| `APP_ID_REQUIRED` | 400 | The key may use several apps and the request names none. | Send `X-Blindsight-App-Id`. |
+| `APP_NOT_FOUND` | 400 | The named app does not exist in the workspace. | Check the app id, a UUID. |
+| `APP_TOKEN_REQUIRED` | 400 | An app id was sent as the credential without its token. | Send `X-Blindsight-App-Token`. |
+| `APP_TOKEN_INVALID` | 400 | The app token is wrong, revoked or unknown. | Create a new app token. |
+| `APP_SCOPED_KEY` | 400 | `/scan/batch` was called with a key limited to specific apps. | Use `/scan/input` and `/scan/output` with `X-Blindsight-App-Id`. |
+| `COMPONENT_NOT_FOUND` | 400 | The named component of the app does not exist. | Check the component name. |
+| `CUSTOM_PARAM_REQUIRED` | 400 | A required custom parameter is missing. | Include it in `custom_params`. |
+| `APP_DISABLED` | 423 | The app is switched off. | Switch it on, or use another app. |
+| `APP_ARCHIVED` | 410 | The app is archived. A key of an archived app may answer 401 today. | Use another app. |
+| `APP_NO_CONFIG_VERSION` | 500 | The app has no published configuration. | Publish a version of the app. Contact support if it persists. |
+
+### Allowance and rate
+
+| Code | Status | Meaning | What to do |
+| ---- | ------ | ------- | ---------- |
+| `QUOTA_EXCEEDED` | 402 | The allowance of a licence without an API plan is used up. An API plan is never refused with this code. | Wait for `resets_at` or change the plan. |
+| `DAILY_ALLOWANCE_SOFT_LIMIT` | 429 | A licence with a daily allowance is over its pace. | Back off until `Retry-After`. |
+| `APP_QUOTA_EXCEEDED` | 429 | The hourly or daily event cap of the app is reached. | Back off, or raise the app cap. |
+| `RATE_LIMITED` | 429 | The per key rate limit is reached. See [Rate limits](/api-reference/rate-limits). | Slow down and retry after `Retry-After`. |
+| `plan_required` | 429 | The trial ended or the plan is paused. The workspace is still served 10 billable requests an hour. The rest get this answer, with `Retry-After` to the next hour. Nothing is deleted. | Choose a plan under Settings, Plan and usage. See [API plans](/runtime-security/api-plans). |
+| `idempotency_key_reused` | 409 | The same `Idempotency-Key` was sent with a different body within 24 hours. | Use a new key for a new body. |
+
+### Failures on our side
+
+| Code | Status | Meaning | What to do |
+| ---- | ------ | ------- | ---------- |
+| `SCANNER_UNAVAILABLE` | 503 | The scan crashed, or the app policy could not be resolved. | Retry after `Retry-After`. |
+| `scan_incomplete` | 503 | The service could not read the whole text in time. Nothing is returned and `Retry-After` is 5. | Retry. Split the text if it keeps happening. |
+| `DATABASE_UNAVAILABLE` | 503 | The database could not be reached. | Retry after `Retry-After`. |
+| `INTERNAL_ERROR` | 500 | An unexpected error. The `X-Correlation-ID` header names it for support. | Retry once, then send the correlation id to support. |
+
+### Validation
+
+| Code | Status | Meaning | What to do |
+| ---- | ------ | ------- | ---------- |
+| `VALIDATION_ERROR` | 422 | The body does not match the schema. | Read `details.errors`. |
+| `INVALID_TEXT` | 422 | A route other than the scan routes was sent text that cannot be encoded. The scan routes answer an ordinary 422 that names the field. | Send UTF-8 text. |
+
+### Answers without a typed code
+
+These carry the header `HTTP_<status>`: 503 when the firewall is disabled or still
+starting (retry), 404 when the workspace licence does not cover the route, 403
+when the key does not have the scan permission (this may be 401 today), and 400
+for a bad `custom_params`.
+
+Contact [support@blindsight.io](mailto:support@blindsight.io) with the
+`X-Correlation-ID` of the call when you need help.
