@@ -98,7 +98,7 @@ list, handle it by its HTTP status.
 | `DAILY_ALLOWANCE_SOFT_LIMIT` | 429 | A licence with a daily allowance is over its pace. | Back off until `Retry-After`. |
 | `APP_QUOTA_EXCEEDED` | 429 | The hourly or daily event cap of the app is reached. | Back off, or raise the app cap. |
 | `RATE_LIMITED` | 429 | The per key rate limit is reached. See [Rate limits](/api-reference/rate-limits). | Slow down and retry after `Retry-After`. |
-| `plan_required` | 429 | The trial ended or the plan is paused. The workspace is still served 10 billable requests an hour. The rest get this answer, with `Retry-After` to the next hour. Nothing is deleted. | Choose a plan under Settings, Plan and usage. See [API plans](/runtime-security/api-plans). |
+| `plan_required` | 429 | The trial ended or the plan is paused. The workspace is still served up to 10 request units an hour, which are not billed. The rest get this answer, with `Retry-After` to the next hour. Nothing is deleted. | Choose a plan under Settings, Plan and usage. See [API plans](/runtime-security/api-plans). |
 | `idempotency_key_reused` | 409 | The same `Idempotency-Key` was sent with a different body within 24 hours. | Use a new key for a new body. |
 
 ### Failures on our side

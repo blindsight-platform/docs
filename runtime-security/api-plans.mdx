@@ -90,9 +90,10 @@ comes first.
 The workspace is paused gracefully. Nothing is deleted: your keys, apps and
 settings stay.
 
-- The workspace is still served **10 billable requests an hour**. The count is
-  in requests as described above, not in calls: a call that is worth 3 requests
-  uses 3 of the 10.
+- The workspace is still served **up to 10 request units an hour**. The count is
+  in units as described above, not in calls: a call that is worth 3 units uses
+  3 of the 10. These calls are not counted as usage and are not billed. They
+  answer with `Billable-Requests: 0`.
 - Every other call answers `429` with the code `plan_required` and a
   `Retry-After` header that gives the seconds to the next hour. The message reads
   "Your trial has ended. Choose a plan under Settings, Plan and usage, to restore

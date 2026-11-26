@@ -43,7 +43,7 @@ for what can change inside a version.
   `Billable-Requests: 0` and `Idempotent-Replay: true`. The same key with a
   different body answers `409 idempotency_key_reused`.
 - **`429 plan_required`.** When a trial has ended or a plan is paused. The
-  workspace is still served 10 billable requests an hour.
+  workspace is still served up to 10 request units an hour. These are not counted as usage, not billed, and answer with `Billable-Requests: 0`.
 - **`403 not_available_on_api_plan`.** The reverse proxy is not part of an API
   plan.
 - **`overlap_hours` on key rotation.** `overlap_hours` (0 to 168) on

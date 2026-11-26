@@ -136,8 +136,9 @@ unversioned paths are the same as v1. See [Versioning](/api-reference/versioning
 
 ### When the trial ends
 
-A workspace whose trial ended without a plan is served 10 billable requests an
-hour. Every other call answers `429` with the code `plan_required` and
+A workspace whose trial ended without a plan is served up to 10 request units an
+hour. These calls are not counted as usage and not billed: they answer with
+`Billable-Requests: 0`. Every other call answers `429` with the code `plan_required` and
 `Retry-After`. Choose a plan to restore service at once. Nothing is deleted.
 
 ## `POST /api/runtime-security/scan/input`
