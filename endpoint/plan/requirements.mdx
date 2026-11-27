@@ -71,7 +71,8 @@ especially those with 8 GB of memory or less.
 | Install, upgrade and uninstall on Windows | An administrator, or `SYSTEM` from your delivery tool (Intune, Configuration Manager, Group Policy). The person at the machine needs no admin rights. |
 | What runs on Windows | The `BlindsightDLP` service as `LocalSystem`, and the tray app as the signed-in person, not elevated. |
 | Install on macOS | Anyone who can write to `/Applications`, or your MDM. |
-| First run on macOS | Each person approves the inspection certificate once, with their login password or Touch ID. Blindsight cannot approve it for them, and no configuration profile can trust it in advance, because each Mac creates its own. Until they approve it, the device reads as not protected. |
+| First run on macOS | Each person who signs in to a Mac approves the Blindsight root certificate once, in a macOS system prompt, with their own Mac password or Touch ID. macOS does not ask that person again. Blindsight cannot approve it for them, and no configuration profile can trust it in advance, because each Mac creates its own. Until they approve it, the device reads as not protected. |
+| First run on Windows | No prompt. The service trusts the certificate for the whole machine at install. |
 | Uninstall on macOS | An administrator, or root from your MDM. |
 | Console | At least one console administrator (see below). |
 
