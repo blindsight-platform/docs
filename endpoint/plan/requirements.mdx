@@ -1,6 +1,6 @@
 ---
 title: "Requirements"
-description: "What you need before a Windows or macOS deployment of the endpoint agent: supported systems, hardware, admin rights, the accounts and groups you provide, and the versions to use."
+description: "What you need before a Windows or macOS deployment of the endpoint agent: supported systems, hardware, admin rights, and the accounts and groups you provide."
 ---
 
 This page is the shopping list for a deployment. It is written for the
@@ -10,15 +10,6 @@ pages in this section cover the [network](/endpoint/plan/network),
 [packaging and silent install](/endpoint/plan/silent-install),
 [data flow](/endpoint/plan/data-flow) and the
 [deployment diagrams](/endpoint/plan/architecture).
-
-## Versions to use
-
-| Component | Version | Notes |
-| --------- | ------- | ----- |
-| Desktop agent, Windows | **2.2.1**, `Blindsight-2.2.1.msi` | One x64 MSI. Do not deploy 2.2.0: its Windows service grows in memory over a working day, which 2.2.1 fixes. |
-| Desktop agent, macOS | **2.2.1**, `Blindsight-Mac-2.2.1-arm64.dmg` or `Blindsight-Mac-2.2.1-x86_64.dmg` | One build per processor. Neither runs on the other's chip. |
-| Desktop agent behind a proxy-only network | **2.2.2** or later | Needed for Macs behind your proxy or the [egress gateway](/endpoint/plan/gateway), and for the `GatewayURL` setting on Windows. |
-| Platform | The Blindsight cloud at `platform.blindsight.io` | Console and API on one host. See [Deployment options](/getting-started/deployment) for dedicated and self-hosted platforms. |
 
 ## Supported systems
 
