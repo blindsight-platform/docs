@@ -445,7 +445,7 @@ exactly as it was written.
 
 ### Restoring stand-ins
 
-`/scan/restore` and the SDK helpers take the same mapping for both kinds. Every
+`/scan/restore` and the SDK helpers take the same mapping for both kinds. On the route, a mapping that holds stand-ins is restored only for a caller that declared stand-ins (SDK 1.1 or later, or a request that asks), as on the scan routes. Every
 key is replaced in one pass, longest first, and a restored value is never
 expanded again. Only the keys of the mapping are restored. A stand-in name matches
 on whole words in the case it was issued (and in capitals when it has four letters

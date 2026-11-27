@@ -213,7 +213,7 @@ paths:
         Plain text work on what you send: nothing is looked up, stored or
         logged. Use it with the `pseudonyms` mapping a scan returned for an
         App set to pseudonymize and restore, whether it holds realistic
-        stand-ins, numbered tokens or both. Every key is replaced in one pass,
+        stand-ins, numbered tokens or both. A mapping that holds stand-ins is restored only for a caller that declared stand-ins (SDK 1.1 or later, or a request that asks), as on the scan routes. Every key is replaced in one pass,
         longest first, and a restored value is never expanded again. Only keys
         of the mapping are restored; a stand-in name matches on whole words in
         the case it was issued (and in capitals for four letters or more),
