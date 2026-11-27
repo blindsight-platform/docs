@@ -213,7 +213,7 @@ paths:
         Plain text work on what you send: nothing is looked up, stored or
         logged. Use it with the `pseudonyms` mapping a scan returned for an
         App set to pseudonymize and restore, whether it holds realistic
-        stand-ins, numbered tokens or both. A mapping that holds stand-ins is restored only for a caller that declared stand-ins (SDK 1.1 or later, or a request that asks), as on the scan routes. Every key is replaced in one pass,
+        stand-ins, numbered tokens or both. A mapping that holds stand-ins is restored only for a caller that declared stand-ins (the request field `pseudonym_format: stand_in`, or SDK 1.1 or later). A call that is not declared gets its tokens restored and the stand-ins it could not restore listed in `unrestored`. Every key is replaced in one pass,
         longest first, and a restored value is never expanded again. Only keys
         of the mapping are restored; a stand-in name matches on whole words in
         the case it was issued (and in capitals for four letters or more),
@@ -1070,6 +1070,7 @@ components:
       type: object
       required: [text]
       properties:
+        known_stand_ins: { type: array, maxItems: 600, items: { type: string, maxLength: 60 }, description: "Accepted and unused on this route: stand-ins are never skipped in an input scan's own text, so nothing here changes the answer. It is read only from an output scan of a caller that declared stand-ins, and only for the response." }
         pseudonym_format: { type: string, enum: [token, stand_in], description: "Optional. `stand_in` asks for realistic stand-ins (restore through the SDK or `/scan/restore`); `token` forces numbered tokens. Left out, stand-ins go only to callers that can restore them (SDK 1.1 or later) and everyone else gets numbered tokens." }
         text:
           type: string
