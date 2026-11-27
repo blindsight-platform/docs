@@ -1070,6 +1070,7 @@ components:
       type: object
       required: [text]
       properties:
+        known_stand_ins: { type: array, maxItems: 600, items: { type: string, maxLength: 60 }, description: "Optional. Stand-ins already issued in this conversation (keys only, never the original values). A finding equal to one is left as it is and not added to the mapping. SDK 1.1 sends it for you." }
         pseudonym_format: { type: string, enum: [token, stand_in], description: "Optional. `stand_in` asks for realistic stand-ins (restore through the SDK or `/scan/restore`); `token` forces numbered tokens. Left out, stand-ins go only to callers that can restore them (SDK 1.1 or later) and everyone else gets numbered tokens." }
         text:
           type: string
@@ -1122,6 +1123,7 @@ components:
       type: object
       required: [response]
       properties:
+        known_stand_ins: { type: array, maxItems: 600, items: { type: string, maxLength: 60 }, description: "Optional. Stand-ins already issued in this conversation (keys only, never the original values). A finding equal to one is left as it is and not added to the mapping. SDK 1.1 sends it for you." }
         pseudonym_format: { type: string, enum: [token, stand_in], description: "Optional. `stand_in` asks for realistic stand-ins (restore through the SDK or `/scan/restore`); `token` forces numbered tokens. Left out, stand-ins go only to callers that can restore them (SDK 1.1 or later) and everyone else gets numbered tokens." }
         response:
           type: string
@@ -1274,9 +1276,10 @@ components:
           type: array
           items: { type: string }
           description: |
-            Stand-in keys of the mapping that were found inside a link or
-            another place that can load a resource, and so were not restored.
-            Empty when there are none. Only present when the mapping holds stand-ins.
+            Full stand-in keys whose fake is still in the text after the
+            restore, whether in a link, in another case, as an initial or
+            abbreviation, or in another spelling. Each key once. Empty when
+            there are none. Only present when the mapping holds stand-ins.
 
     ScanToolCallResponse:
       type: object

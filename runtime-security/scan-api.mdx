@@ -383,7 +383,7 @@ locally, so they never need this route.
 For an App set to **Pseudonymize and restore**, each piece of personal data is
 replaced, and you put the real values back in its answer. Personal names, email
 addresses and phone numbers are replaced with realistic stand-ins, such as
-`Maria Keller` or `maria.keller@example.com`. Every other type is replaced with a
+`Maria Keller` or `contact.4821@example.org`. Every other type is replaced with a
 numbered token such as `<IBAN_1>`, so one text can hold both. Your model works
 with the replaced text.
 
@@ -452,9 +452,12 @@ on whole words in the case it was issued (and in capitals when it has four lette
 or more), so an ordinary word is never touched; an English possessive or a German
 genitive "s" right after it is tolerated ("Keller's", "Kellers"). Emails and phone
 numbers match exactly. A stand-in inside anything that can be a link or a resource
-is left as it is. The answer includes `unrestored`, a list of the stand-ins found
-in such places. Treat a non-empty list as a warning: look at the text, or ask your
-model again.
+is left as it is. A first name or surname the mapping holds beside the full name is
+restored on its own ("Hi Elif", "Dear Ms. Hargreaves"), unless it stands next to
+another capitalised name word. The answer includes `unrestored`, a list of every
+stand-in still in the text after the restore, whether in a link, in another case,
+as an initial or abbreviation, or in another spelling. Each is listed once. Treat a
+non-empty list as a warning: look at the text, or ask your model again.
 
 ```json
 {
