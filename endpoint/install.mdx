@@ -128,7 +128,7 @@ script.
 ## Install on macOS
 
 macOS ships as a `.dmg`: drag `Blindsight Mac.app` into
-`/Applications`. macOS 11.0 is the minimum. There is no `.pkg`.
+`/Applications`. macOS 12 is the minimum. There is no `.pkg`.
 
 There are **two macOS builds, one per processor**, and they are not
 interchangeable: neither will launch on the other's chip.
@@ -205,14 +205,17 @@ first opened:
 | `CloudBaseURL` | Your platform's API host               |
 | `SSOLoginBase` | `<CloudBaseURL>/api/auth/sso`          |
 
-A per-user profile is read before the device-wide one. Enrolment still
-happens through the person's sign-in. The Mac app does not read an enrollment
-token from the profile, so a Mac has no zero-touch enrolment.
+A per-user profile is read before the device-wide one. Enrolment happens
+through the person's sign-in. From desktop 2.2.1, a Mac can also enrol without a
+sign-in from a device-level profile that carries an enrollment token and the
+workspace ID. See [Packaging and silent install](/endpoint/plan/silent-install#macos).
 
 ## What the install actually changes
 
 Knowing this up front makes the security review shorter, and it is the
 same list [uninstall](/endpoint/uninstall) reverses.
+For the full allow-list for AV and EDR products, see
+[AV and EDR](/endpoint/plan/av-edr).
 
 ### Windows
 

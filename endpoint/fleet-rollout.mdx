@@ -525,9 +525,12 @@ minutes.
 
 ### Proxies
 
-Agent version 1.6.4 follows your proxy. Enrolment, sign-in, updates and prompt
-scans all use the proxy the machine is set to, and they trust the Windows
-certificate store. Static proxy, PAC file and WPAD
+On Windows, agent version 1.6.4 and later follows your proxy. Enrolment, sign-in,
+updates and prompt scans all use the proxy the machine is set to, and they trust
+the Windows certificate store. Two calls still go direct: pause protection and the
+connectivity check in a diagnostics report. On macOS, the agent's own calls to
+Blindsight do not follow the PAC file, WPAD or the company proxy, so a Mac needs a
+direct path. See [Network and firewall](/endpoint/plan/network#proxies). Static proxy, PAC file and WPAD
 auto-detect all work. Agent version 1.6.3 and earlier connect directly for
 enrolment, sign-in, updates and the uninstall check, so a device on 1.6.3 needs
 direct outbound port 443 to the two hosts above.

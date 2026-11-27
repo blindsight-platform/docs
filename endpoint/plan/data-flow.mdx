@@ -1,0 +1,170 @@
+---
+title: "Data flow for a DPIA"
+description: "Exactly what the endpoint agent sends off the device and what stays on it, in watch only mode and in protect mode, what the cloud scanner and the Inspector receive, retention, identity modes and hosting."
+---
+
+This page is for a data protection team writing a data protection impact
+assessment (DPIA). It lists what leaves a device, where it goes and for how long it
+is kept. It describes desktop **2.2.1** and the Blindsight cloud. For the network
+side of the same flows, see [Network and firewall](/endpoint/plan/network). For a
+picture, see [Deployment diagrams](/endpoint/plan/architecture).
+
+## Where the data goes
+
+| Destination | What it is | Where it runs |
+| ----------- | ---------- | ------------- |
+| `platform.blindsight.io` | The console, the API and the cloud scanner. Every item on this page that leaves a device goes here. | Amazon Web Services, region **eu-west-1 (Ireland)**. The database and its backups are in the same region. |
+| `downloads.blindsight.io` | Installers, update manifests and the names model. Devices only download from it. It holds no customer data. | A content delivery network in front of storage in AWS **us-east-1**. |
+
+Blindsight does not offer hosting in Switzerland, and promises nothing beyond the
+region above. Ask Blindsight for its data processing agreement and its list of
+sub-processors.
+
+## Always sent, in every mode
+
+| Data | When | Why |
+| ---- | ---- | --- |
+| Host name, the Windows user name, a hardware ID, the serial number and Entra device ID when they can be read, the operating system version and the agent version | At enrolment | To list the device and match it to your device management. On a Mac, the person's work account from their sign-in takes the place of the Windows user name. |
+| A heartbeat: protection state, the settings in force, the health of each component, counters (connections seen, inspected, passed through, blocked), the device's certificate fingerprint, and the issuer when a TLS-inspecting proxy re-signs the agent's own traffic | About once a minute | To show whether the device is protecting. |
+| AI service host names, with the name of the program that connected, the lane, counts, and first and last seen | As they are seen, batched | The Shadow AI inventory. A host name only: never a path, a query, a header or a body. |
+| Device events: tamper attempts, setup and health causes | As they happen | The device timeline and the audit trail. |
+| Blocks of a whole AI service: the host, the category and counts | As they happen | The audit trail. No text. |
+
+### Other host names
+
+**Look at the whole estate** at **Endpoint → Policies → Default policy** is on
+unless your workspace switched it off. While it is on, a device also reports host
+names it cannot place as AI or as known infrastructure, with counts, at most 200 at
+a time per device, so that AI services nobody has catalogued yet can be found.
+Known infrastructure, such as Microsoft, update and telemetry hosts, is dropped on
+the device and never sent. Switch the setting off if your DPIA allows only AI
+service host names to leave the device.
+
+Names that the agent reads from the Windows DNS cache are kept only when they
+belong to a known AI service. Every other name is dropped in memory.
+
+## Watch only mode (passive)
+
+[Discovery only](/endpoint/discovery-only) turns prompt checking, masking and
+blocking off. Devices record which AI services people use, and nothing is changed or
+blocked.
+
+**With personal data recording.** On top of watch only, a device can look for the
+personal data types your workspace chose, on the device, and report what it found.
+
+| Leaves the device, per prompt or file | Never leaves the device |
+| ------------------------------------- | ----------------------- |
+| The AI service host, provider and program | The prompt, the reply and any file content |
+| The **categories** of personal data found and a **count** for each, for example two email addresses and one IBAN | The values that were found |
+| The length of the text | The file's name |
+| For a file: its kind, extension, media type and size | |
+
+The platform enforces this too: if a device in this mode sends any text, the
+platform drops it before anything is stored or scored.
+
+**Inventory of what devices carry.** **What devices carry** at
+**Endpoint → Policies → Default policy** reports the AI applications, browser
+extensions, MCP servers and local model tools installed on a device: their names,
+versions and identifiers, and the install folder of a machine-wide install, never
+of a per-person one. It is off unless switched on. A workspace created since 10
+November 2026 starts with it on. Check it before the first device enrols.
+
+## Protect mode
+
+On devices in protect mode, the agent reads AI traffic on the device and acts on it
+before it leaves: personal data is masked, or replaced with realistic stand-ins, and
+an AI service or a data type can be blocked. What leaves the device then depends on
+**Prompt injection detection**, at **Endpoint → Policies → Default policy**.
+
+| | Prompt injection detection off | Prompt injection detection on |
+| - | ------------------------------ | ----------------------------- |
+| Prompt, reply or file text | Nothing. The event says the check ran on the device only. | The text **after** masking on the device, sent to the cloud scanner to be checked for injection. What the detectors miss leaves as it was typed. |
+| Kept on the platform | Categories, counts, length, host, provider, program | Also up to 4,000 characters of the **masked** text, encrypted, when **Keep prompt text** is on, which it is by default. |
+| File name | Not sent | Sent |
+
+See [Keeping prompts on the machine](/endpoint/policies#keeping-prompts-on-the-machine)
+and [Protections](/endpoint/protections).
+
+**The stand-ins stay on the device.** With pseudonymisation on, the mapping from
+each stand-in back to the real value is kept only on the device, in an encrypted
+store (`pseudonym_vault.db`, its key protected by the machine). It is kept for 30
+days by default (1 to 365), never sent, and left out of support reports. The agent
+puts the real values back into the AI's reply on the device.
+
+**Topic rules.** If you add topic rules, a masked window of the prompt is checked by
+a model service in the same AWS region. Without topic rules, nothing is sent for
+them, and they are never used in a pseudonymised or aggregated workspace.
+
+## What the cloud scanner receives
+
+The cloud scanner is part of the platform at `platform.blindsight.io`. It receives
+text only in protect mode with prompt injection detection on, and then it receives:
+
+- the masked text of the prompt, reply or file;
+- the AI service host, provider, model and program;
+- what the device already found.
+
+For a file, it receives the masked text extracted from it. It never receives the
+stand-in mapping or the values that were masked. In watch only mode it receives
+nothing.
+
+## What the Inspector receives
+
+The Inspector is a scanner you run in your own network, built so that text a device
+sends to be checked stays there. By design it receives the text, checks it against
+your policy and keeps none of it. Blindsight then receives only a signed, text-free
+receipt of each check, filed by the device: the verdict, scores, categories, counts,
+host and length. The Inspector itself sends Blindsight a heartbeat with counts and
+health, and downloads your signed policy.
+
+<Note>
+  **No desktop version, including 2.2.1, sends text to an Inspector yet.** For
+  endpoints, keep text off the Blindsight cloud by staying in watch only mode, or by
+  running protect mode with prompt injection detection off.
+</Note>
+
+## Support reports
+
+A device uploads a support report only when an administrator asks for one, or when
+the person exports it. Home folders, other drives, shares, user and host names, IPv6
+and MAC addresses are removed from it. Reports are kept for 30 days.
+
+## Identity modes
+
+The workspace decides how people appear in the console and in exports. See
+[Who is named in the console](/endpoint/who-is-named).
+
+| Mode | What the console shows |
+| ---- | ---------------------- |
+| **Named** | People and devices by name. The default. |
+| **Pseudonymised** | People as codes. Figures by department only above a minimum group size. |
+| **Aggregated** | Totals only. No per-person or per-device rows. |
+
+The mode is enforced by the platform, in the console, in exports and in the API.
+
+## Retention
+
+Defaults for a new workspace. An administrator can change them within the ranges
+shown.
+
+| Data | Kept for |
+| ---- | -------- |
+| Prompt event records | 90 days (7 to 3,650) |
+| Counts and roll-ups | 400 days (30 to 3,650) |
+| Audit records | 7 years (1 to 10 years) |
+| Device timeline | 30 days |
+| Support reports | 30 days |
+| Pseudonymisation mapping, on the device only | 30 days (1 to 365) |
+
+Removal at the end of each period is on by default for a new workspace. Check it
+under your workspace settings for an older one. Each removal of
+audit records is itself recorded, so the audit chain still verifies. An uninstall
+deletes everything on the device, including the mapping store. Events a device
+already sent stay in the workspace until their period ends.
+
+## Encryption
+
+- In transit: TLS 1.2 or later between devices, browsers and the platform.
+- At rest: the database, file storage and backups are encrypted. Prompt text,
+  enrollment tokens and integration secrets are encrypted again by the application.
+- Customer-managed keys are not available.

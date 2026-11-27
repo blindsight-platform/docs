@@ -1,0 +1,130 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 740" width="1000" height="740" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Helvetica, Arial, sans-serif" role="img" aria-labelledby="t d">
+  <title id="t">Inspector option: your devices, your network with your Inspector, the Blindsight cloud</title>
+  <desc id="d">The Inspector runs in your network. It downloads your signed policy from platform.blindsight.io and sends a heartbeat, never text. Devices would send text to the Inspector and file a signed, text-free receipt with the platform. No desktop version, including 2.2.1, sends text to an Inspector yet, so those two flows are drawn dashed.</desc>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#111"/>
+    </marker>
+    <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#71717a"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="1000" height="740" rx="16" fill="#ffffff"/>
+
+  <!-- Tier 1: devices -->
+  <rect x="20" y="20" width="290" height="540" rx="12" fill="#f4f4f5" stroke="#d4d4d8"/>
+  <text x="40" y="50" font-size="15" font-weight="700" fill="#111">1. Your devices</text>
+  <text x="40" y="69" font-size="12" fill="#52525b">Windows and macOS</text>
+
+  <rect x="40" y="90" width="250" height="52" rx="8" fill="#fff" stroke="#111"/>
+  <text x="56" y="112" font-size="13" font-weight="600" fill="#111">Browsers, AI apps, CLI tools</text>
+  <text x="56" y="130" font-size="12" fill="#52525b">Used as normal by the person</text>
+  <line x1="165" y1="142" x2="165" y2="166" stroke="#111" stroke-width="1.6" marker-end="url(#a)"/>
+
+  <rect x="40" y="170" width="250" height="280" rx="8" fill="#fff" stroke="#111" stroke-width="2"/>
+  <text x="56" y="196" font-size="14" font-weight="700" fill="#111">Blindsight agent</text>
+  <text x="56" y="219" font-size="12" fill="#3f3f46">Inspects AI traffic on the device</text>
+  <text x="56" y="237" font-size="12" fill="#3f3f46">Masks personal data before</text>
+  <text x="56" y="255" font-size="12" fill="#3f3f46">anything leaves</text>
+  <text x="56" y="284" font-size="12" font-weight="600" fill="#111">Desktop 2.2.1 does not send</text>
+  <text x="56" y="302" font-size="12" font-weight="600" fill="#111">text to an Inspector yet</text>
+  <text x="56" y="330" font-size="12" fill="#3f3f46">To keep text on the device today:</text>
+  <text x="56" y="348" font-size="12" fill="#3f3f46">watch only mode, or prompt</text>
+  <text x="56" y="366" font-size="12" fill="#3f3f46">injection detection off</text>
+  <text x="56" y="432" font-size="11" fill="#52525b">127.0.0.1: 8787, 47324 to 47327</text>
+
+  <rect x="40" y="476" width="250" height="56" rx="8" fill="#fff" stroke="#111"/>
+  <text x="56" y="500" font-size="13" font-weight="600" fill="#111">Console users</text>
+  <text x="56" y="519" font-size="12" fill="#52525b">A browser. Local accounts or SSO</text>
+
+  <!-- Tier 2: network -->
+  <rect x="330" y="20" width="300" height="540" rx="12" fill="#f4f4f5" stroke="#d4d4d8"/>
+  <text x="350" y="50" font-size="15" font-weight="700" fill="#111">2. Your network</text>
+  <text x="350" y="69" font-size="12" fill="#52525b">Your Inspector, proxy, firewall</text>
+
+  <rect x="345" y="360" width="140" height="112" rx="8" fill="#fff" stroke="#111" stroke-width="2"/>
+  <text x="360" y="384" font-size="14" font-weight="700" fill="#111">Inspector</text>
+  <text x="360" y="404" font-size="11" fill="#3f3f46">Your server, Docker,</text>
+  <text x="360" y="419" font-size="11" fill="#3f3f46">Kubernetes or ECS</text>
+  <text x="360" y="438" font-size="11" fill="#3f3f46">Keeps no text</text>
+  <text x="360" y="455" font-size="11" fill="#3f3f46">Models bundled</text>
+
+  <rect x="505" y="90" width="105" height="450" rx="8" fill="#fff" stroke="#111" stroke-dasharray="6 4"/>
+  <text x="557" y="116" font-size="12" font-weight="700" fill="#111" text-anchor="middle">Proxy</text>
+  <text x="557" y="132" font-size="11" fill="#52525b" text-anchor="middle">(optional)</text>
+  <text x="557" y="150" font-size="12" font-weight="700" fill="#111" text-anchor="middle">and firewall</text>
+  <text x="557" y="526" font-size="11" fill="#52525b" text-anchor="middle">TCP 443 out</text>
+
+  <!-- Tier 3 -->
+  <rect x="650" y="150" width="330" height="84" rx="12" fill="#ffffff" stroke="#a1a1aa" stroke-dasharray="5 4"/>
+  <text x="670" y="178" font-size="15" font-weight="700" fill="#111">AI services</text>
+  <text x="670" y="198" font-size="12" fill="#52525b">On the internet, as today</text>
+
+  <rect x="650" y="250" width="330" height="310" rx="12" fill="#f4f4f5" stroke="#d4d4d8"/>
+  <text x="670" y="276" font-size="15" font-weight="700" fill="#111">3. Blindsight cloud</text>
+  <text x="670" y="294" font-size="12" fill="#52525b">AWS eu-west-1 (Ireland)</text>
+
+  <rect x="670" y="306" width="290" height="112" rx="8" fill="#fff" stroke="#111" stroke-width="2"/>
+  <text x="686" y="330" font-size="14" font-weight="700" fill="#111">platform.blindsight.io</text>
+  <text x="686" y="351" font-size="12" fill="#3f3f46">Console, API, policy</text>
+  <text x="686" y="369" font-size="12" fill="#3f3f46">Inspector registry and health</text>
+  <text x="686" y="387" font-size="12" fill="#3f3f46">Receives no text from</text>
+  <text x="686" y="405" font-size="12" fill="#3f3f46">the Inspector</text>
+
+  <rect x="670" y="458" width="290" height="84" rx="8" fill="#fff" stroke="#111"/>
+  <text x="686" y="482" font-size="14" font-weight="700" fill="#111">downloads.blindsight.io</text>
+  <text x="686" y="503" font-size="12" fill="#3f3f46">Agent updates and names model,</text>
+  <text x="686" y="521" font-size="12" fill="#3f3f46">as in the cloud option</text>
+
+  <!-- Flow 1: AI traffic -->
+  <line x1="290" y1="198" x2="644" y2="198" stroke="#71717a" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#g)"/>
+  <circle cx="400" cy="198" r="11" fill="#fff" stroke="#71717a" stroke-width="1.5"/>
+  <text x="400" y="202.5" font-size="12" font-weight="700" fill="#3f3f46" text-anchor="middle">1</text>
+
+  <!-- Flow 2: agent to platform, metadata -->
+  <line x1="290" y1="324" x2="664" y2="324" stroke="#111" stroke-width="2" marker-end="url(#a)"/>
+  <circle cx="400" cy="324" r="11" fill="#111"/>
+  <text x="400" y="328.5" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">2</text>
+
+  <!-- Flow 3: agent to Inspector, not available in 2.2.1 -->
+  <line x1="290" y1="400" x2="340" y2="400" stroke="#71717a" stroke-width="2" stroke-dasharray="4 4" marker-end="url(#g)"/>
+  <circle cx="314" cy="384" r="10" fill="#fff" stroke="#71717a" stroke-width="1.5"/>
+  <text x="314" y="388" font-size="11" font-weight="700" fill="#3f3f46" text-anchor="middle">3</text>
+
+  <!-- Flow 4: Inspector to platform -->
+  <line x1="485" y1="372" x2="664" y2="372" stroke="#111" stroke-width="2" marker-end="url(#a)"/>
+  <circle cx="494" cy="352" r="10" fill="#111"/>
+  <text x="494" y="356" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">4</text>
+
+  <!-- Flow 5: receipts from the device to the platform, not available in 2.2.1 -->
+  <path d="M290,436 H322 V490 H645 V396 H664" fill="none" stroke="#71717a" stroke-width="1.6" stroke-dasharray="4 4" marker-end="url(#g)"/>
+  <circle cx="420" cy="490" r="10" fill="#fff" stroke="#71717a" stroke-width="1.5"/>
+  <text x="420" y="494" font-size="11" font-weight="700" fill="#3f3f46" text-anchor="middle">5</text>
+
+  <!-- Flow 6: console users -->
+  <path d="M290,504 H315 V550 H636 V410 H664" fill="none" stroke="#111" stroke-width="1.6" marker-end="url(#a)"/>
+  <circle cx="460" cy="550" r="10" fill="#111"/>
+  <text x="460" y="554" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">6</text>
+
+  <!-- Legend -->
+  <rect x="20" y="580" width="960" height="146" rx="12" fill="#fff" stroke="#d4d4d8"/>
+  <text x="40" y="604" font-size="12" font-weight="700" fill="#111">HTTPS on TCP 443. Dashed grey flows 3 and 5 are not available in any desktop version yet, including 2.2.1.</text>
+  <circle cx="48" cy="624" r="8" fill="#fff" stroke="#71717a"/>
+  <text x="48" y="628" font-size="10" font-weight="700" fill="#3f3f46" text-anchor="middle">1</text>
+  <text x="64" y="628" font-size="12" fill="#3f3f46">Inspected AI traffic leaves as it did before: direct, or through your proxy, PAC or WPAD.</text>
+  <circle cx="48" cy="646" r="8" fill="#111"/>
+  <text x="48" y="650" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">2</text>
+  <text x="64" y="650" font-size="12" fill="#3f3f46">The agent's enrolment, policy, heartbeat and events, as in the cloud option.</text>
+  <circle cx="48" cy="668" r="8" fill="#fff" stroke="#71717a"/>
+  <text x="48" y="672" font-size="10" font-weight="700" fill="#3f3f46" text-anchor="middle">3</text>
+  <text x="64" y="672" font-size="12" fill="#3f3f46">Text sent to the Inspector to be checked would stay inside your network. Not in desktop 2.2.1.</text>
+  <circle cx="48" cy="690" r="8" fill="#111"/>
+  <text x="48" y="694" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">4</text>
+  <text x="64" y="694" font-size="12" fill="#3f3f46">The Inspector downloads your signed policy and sends a heartbeat about once a minute: version, counts, health. Never text.</text>
+  <circle cx="48" cy="712" r="8" fill="#fff" stroke="#71717a"/>
+  <text x="48" y="716" font-size="10" font-weight="700" fill="#3f3f46" text-anchor="middle">5</text>
+  <text x="64" y="716" font-size="12" fill="#3f3f46">A signed, text-free receipt of each check, filed by the device. Not in desktop 2.2.1.</text>
+  <circle cx="668" cy="712" r="8" fill="#111"/>
+  <text x="668" y="716" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">6</text>
+  <text x="684" y="716" font-size="12" fill="#3f3f46">Console users reach the console.</text>
+</svg>

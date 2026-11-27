@@ -59,6 +59,17 @@
             "group": "Endpoint",
             "pages": [
               "endpoint/overview",
+              {
+                "group": "Plan a deployment",
+                "pages": [
+                  "endpoint/plan/requirements",
+                  "endpoint/plan/network",
+                  "endpoint/plan/av-edr",
+                  "endpoint/plan/silent-install",
+                  "endpoint/plan/data-flow",
+                  "endpoint/plan/architecture"
+                ]
+              },
               "endpoint/install",
               "endpoint/uninstall",
               "endpoint/fleet-rollout",

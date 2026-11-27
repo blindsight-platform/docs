@@ -1,0 +1,163 @@
+---
+title: "Requirements"
+description: "What you need before a Windows or macOS deployment of the endpoint agent: supported systems, hardware, admin rights, the accounts and groups you provide, and the versions to use."
+---
+
+This page is the shopping list for a deployment. It is written for the
+infrastructure and endpoint teams that prepare one without a call. The other
+pages in this section cover the [network](/endpoint/plan/network),
+[AV and EDR](/endpoint/plan/av-edr),
+[packaging and silent install](/endpoint/plan/silent-install),
+[data flow for a DPIA](/endpoint/plan/data-flow) and the
+[deployment diagrams](/endpoint/plan/architecture).
+
+Every figure here was measured or read in the code of the version named. Where
+nothing has been measured yet, the page says so.
+
+## Versions to use
+
+| Component | Version | Notes |
+| --------- | ------- | ----- |
+| Desktop agent, Windows | **2.2.1**, `Blindsight-2.2.1.msi` | One x64 MSI. Do not deploy 2.2.0: its Windows service grows in memory over a working day, which 2.2.1 fixes. |
+| Desktop agent, macOS | **2.2.1**, `Blindsight-Mac-2.2.1-arm64.dmg` or `Blindsight-Mac-2.2.1-x86_64.dmg` | One build per processor. Neither runs on the other's chip. |
+| Platform | The Blindsight cloud at `platform.blindsight.io` | Console and API on one host. See [Deployment options](/getting-started/deployment) for dedicated and self-hosted platforms. |
+
+If your **Downloads** page still offers an older version, ask Blindsight for the
+2.2.1 packages before you build your own.
+
+## Supported systems
+
+### Windows
+
+| | Supported |
+| - | --------- |
+| Versions | Windows 10 version 1809 (build 17763) or later, Windows 11, Windows Server 2019 or later. The MSI refuses an older system and stops with a message. |
+| Architecture | x64. Windows 11 on ARM64 runs the x64 MSI, with native ARM64 helpers inside. There is no 32-bit build. |
+| Install scope | Per machine only. There is no per-user install. |
+
+Where earlier builds were walked end to end: Windows Server 2025 (through 2.2.0)
+and Windows 11 on ARM64 (through 2.2.0). Not walked yet: Windows 10, a Windows 11
+x64 laptop with a real user session, and memory integrity (HVCI) switched on.
+
+### macOS
+
+| | Supported |
+| - | --------- |
+| Versions | macOS 12 or later. The app does not open on an older system, and the updater never offers it one. |
+| Architecture | Apple silicon (M1 and later) and Intel, as two separate disk images. There is no universal build. |
+| Install | Drag the app to `/Applications`. There is no `.pkg`. |
+
+The macOS walks ran on macOS 26 on Apple silicon. The Intel build is built and
+signed, and was measured on an earlier version only (see below).
+
+Linux is not supported.
+
+## Disk, memory and CPU
+
+No CPU or memory figures exist for 2.2.1 yet. A four-hour Windows run of 2.2.1 is
+planned and not done. The figures below were measured on 2.2.0 and earlier, on
+test machines, and are indicative only.
+
+### Disk
+
+| What | Size | Measured on |
+| ---- | ---- | ----------- |
+| Program files, Windows (`C:\Program Files\Blindsight`) | 260 MB | 2.2.0, Windows Server 2025 |
+| Machine state, Windows (`C:\ProgramData\Blindsight`) | About 1 MB after install | 2.2.0, Windows Server 2025 |
+| On-device names model, downloaded once when names are found on the device | About 135 MB | 2.1.8 |
+| Free space the Intune app that the console builds requires | 2 GB | Platform code |
+
+Plan for 2 GB free, which covers the install, an update staged next to the
+running version, and the names model.
+
+### Memory and CPU, Windows
+
+Desktop 2.2.0 on a Windows Server 2025 virtual machine with 2 vCPU and Defender on.
+No browser and no tray app ran, so the tray is not included. Sum of the agent's
+three processes.
+
+| Phase | CPU, median of one core | Private memory, median |
+| ----- | ----------------------- | ---------------------- |
+| Idle, 15 minutes | 4.6 % | 234 MB |
+| Office-pace load, 15 minutes | 6.6 % | 269 MB |
+
+<Warning>
+  These are starting figures. On 2.2.0 the main process grew by about 45 MB an
+  hour, idle or not, so memory on 2.2.0 does not stay at these values. 2.2.1 fixes
+  the cause. Until the 2.2.1 run is published, do not use these numbers as a
+  steady state.
+</Warning>
+
+### Memory and CPU, macOS
+
+Desktop 2.2.0 on a macOS 26 virtual machine on Apple silicon, 4 vCPU, on a loaded
+host, so the CPU figures are a ceiling. Sum of the agent's four processes.
+
+| Phase | CPU, median of one core | Resident memory, median |
+| ----- | ----------------------- | ----------------------- |
+| Idle | 12 % | 389 MB |
+| After the first AI prompt (names model loaded) | 13 % | 677 MB |
+
+**Intel Macs use more.** Desktop 2.1.5 on a 6-core Intel Mac mini, signed in and
+idle, used about 24 % of one core in total, and the inspection process grew to
+about 1.4 GB once the names model loaded. The causes are known and not fixed in
+2.2.1. On an Intel Mac with 2 or 4 cores and 8 GB, expect the agent to be
+noticeable. Prefer Apple silicon Macs for a pilot.
+
+## Admin rights
+
+| Task | Who |
+| ---- | --- |
+| Install, upgrade and uninstall on Windows | An administrator, or `SYSTEM` from your delivery tool (Intune, Configuration Manager, Group Policy). The person at the machine needs no admin rights. |
+| What runs on Windows | The `BlindsightDLP` service as `LocalSystem`, and the tray app as the signed-in person, not elevated. |
+| Install on macOS | Anyone who can write to `/Applications`, or your MDM. |
+| First run on macOS | macOS asks for a password to approve the inspection certificate and the protection service, once each. Plan for someone who can approve both on each Mac. |
+| Uninstall on macOS | An administrator, or root from your MDM. |
+| Console | At least one console administrator (see below). |
+
+## What you provide
+
+<Steps>
+  <Step title="A device group">
+    A static group of the pilot devices in your delivery tool. Assign the agent to
+    **devices**, not users: the Windows install needs nobody signed in.
+  </Step>
+  <Step title="At least one console administrator">
+    Name the person or people who will run the console. An administrator invites
+    the others. See [Invitations](/getting-started/invitations).
+  </Step>
+  <Step title="Console sign-in: local accounts or SSO">
+    Either works for a pilot.
+
+    - **Local accounts.** Each console user signs in with an email address and a
+      password. Two-factor sign-in with an authenticator app is available, and the
+      workspace can require it.
+    - **Single sign-on.** OpenID Connect with Entra ID, Okta, Google or another
+      OIDC provider. SAML is not available. See
+      [Single sign-on](/permissions-and-access/single-sign-on).
+  </Step>
+  <Step title="Mac users' sign-in">
+    A Mac enrols when someone signs in inside the app, and that sign-in binds the
+    Mac to that person. With local accounts and no SSO, each person who signs in
+    on a Mac needs an account in the workspace. A Windows machine enrols with the
+    enrollment token and needs no sign-in to start protecting. See
+    [Identity binding](/endpoint/identity).
+  </Step>
+  <Step title="A network path">
+    Outbound HTTPS from the devices to two Blindsight hosts, and loopback left
+    open on the device. See [Network and firewall](/endpoint/plan/network).
+  </Step>
+  <Step title="Your AV and EDR policy">
+    A test on two devices before the rest. See
+    [AV and EDR](/endpoint/plan/av-edr).
+  </Step>
+</Steps>
+
+## What Blindsight provides
+
+- The workspace, with a licence that includes Endpoint.
+- The signed packages and their SHA-256 checksums, on the console's
+  **Downloads** page.
+- An enrollment token for Windows, which you mint yourself in the console under
+  **Endpoint → Configurations → Install**. See
+  [Fleet rollout](/endpoint/fleet-rollout#1-create-the-fleet-enrollment-token).
