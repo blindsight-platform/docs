@@ -108,8 +108,8 @@ it changes anything, and sends the inspected AI traffic on through it:
 - a PAC file;
 - WPAD auto-detection;
 - a proxy that asks for credentials: Basic, and on a domain-joined Windows machine
-  NTLM and Kerberos with the machine's own credentials. Proxy credentials are never
-  written to a file.
+  Kerberos with the computer account, under the same rules as below. Proxy
+  credentials are never written to a file.
 
 This is on by default, as **Inspect traffic through a company proxy** at
 **Endpoint → Policies → Default policy**, under **AI services**. See
@@ -138,15 +138,15 @@ Proxy sign-in:
 | Your proxy | What happens |
 | ---------- | ------------ |
 | No sign-in: fixed, PAC or WPAD | Works. |
-| Negotiate (Kerberos, or NTLM inside it), set machine-wide by an administrator: the machine proxy variables, machine-wide Internet Settings (with per-user proxy settings turned off, `ProxySettingsPerUser=0`), WinHTTP, or Chrome or Edge policy, including a PAC file set in any of these | The agent signs in silently with the computer account. |
+| Kerberos, for a proxy set machine-wide by an administrator: the machine proxy variables, machine-wide Internet Settings (with per-user proxy settings turned off, `ProxySettingsPerUser=0`), WinHTTP, or Chrome or Edge policy, including a PAC file set in any of these | The agent signs in silently with the computer account, with no credentials stored anywhere. Address the proxy by its fully qualified name, and register the SPN `HTTP/<proxy fully qualified name>` for it. |
 | Any sign-in, for a proxy or PAC file set only in a person's own settings | The agent never signs in to it: the person can change it. |
-| Any sign-in, for a proxy found only by WPAD | The agent never signs in to it, because WPAD answers can be spoofed on the network. Set the proxy or its PAC file by Group Policy or your MDM instead. |
+| Any sign-in, for a proxy found only by WPAD | The agent never signs in to it, because WPAD answers can be spoofed on the network, so the device does not enrol. Name the proxy, or set its PAC file, by Group Policy or your MDM. WPAD together with a named proxy works. |
 | Basic, with the credentials in a machine-wide `HTTPS_PROXY` set by an administrator, for example `http://svc-blindsight:password@proxy.example.internal:8080` | Works, alone or together with a PAC file or WPAD. |
 | Basic, without that `HTTPS_PROXY` | The device does not enrol: a PAC file carries no credentials. Set the `HTTPS_PROXY` above, or let the two Blindsight hosts through your proxy without sign-in. From desktop 2.2.2 the device reports that the proxy needs a sign-in, and how to fix it. |
 
-A proxy that asks for Basic credentials on every connection also stops Windows' own
-background traffic that cannot answer it: network connectivity checks, certificate
-revocation checks and Defender's cloud lookups. Exempt those too, or the machine can
+A proxy that asks every connection to sign in also stops Windows' own background
+traffic that cannot answer it: network connectivity checks (`*.msftconnecttest.com`,
+`*.msftncsi.com`), certificate revocation checks and Defender's cloud lookups. Exempt those too, or the machine can
 look like it has an install problem when it does not.
 
 On desktop 2.2.0 and 2.2.1, two calls go direct even when a proxy is set: pausing
