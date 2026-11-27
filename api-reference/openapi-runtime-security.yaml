@@ -1197,6 +1197,10 @@ components:
       type: object
       required: [uuid, verdict, pii, redacted_text, latency_ms, text_length]
       properties:
+        stand_in_variants:
+          type: array
+          items: { type: string }
+          description: "On an output scan of a caller that declared stand-ins: keys of `pseudonyms` (tokens or stand-in keys) of person values the output scan masked that look like a variant of an issued stand-in. Absent when there are none."
         re_masked_stand_ins:
           type: array
           items: { type: string }

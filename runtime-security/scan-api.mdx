@@ -487,6 +487,8 @@ The scan calls take `known_stand_ins` (the keys of the stand-ins already issued,
 
 For a caller that uses stand-ins, when the model's reply addresses the person in a greeting (a common greeting in English, German, French, Italian, Spanish or Portuguese, optionally a title, then the first name or the surname, followed by a comma, an exclamation mark, a colon or a line break), the output scan leaves that name in place for the restore. A lone first name or surname anywhere else in the reply is masked again, comes back from the restore as the stand-in part, and is reported in `unrestored`. The output scan lists the stand-ins it masked a second time in `re_masked_stand_ins`; restore those through the joined mapping, and anything not listed is personal data the model wrote on its own. The same `Idempotency-Key` with a different `pseudonym_format` answers 409 `idempotency_key_reused`.
 
+The output scan also lists `stand_in_variants`: keys of `pseudonyms` of person values it masked that look like a variant of an issued stand-in. They stay hidden, and the SDKs report the issued name they resemble in `unrestored`. A key that two scans map to different values is never restored, it is listed in `unrestored`: send a `session_id`, or restore each turn on its own.
+
 Use SDK version 1.1 or later for stand-ins. Version 1.0 only understands numbered
 tokens, which is why it keeps getting them.
 
