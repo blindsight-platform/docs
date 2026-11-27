@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 740" width="1000" height="740" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Helvetica, Arial, sans-serif" role="img" aria-labelledby="t d">
   <title id="t">Inspector option: your devices, your network with your Inspector, the Blindsight cloud</title>
-  <desc id="d">The Inspector runs in your network. It downloads your signed policy from platform.blindsight.io and sends a heartbeat, never text. Devices would send text to the Inspector and file a signed, text-free receipt with the platform. No desktop version, including 2.2.1, sends text to an Inspector yet, so those two flows are drawn dashed.</desc>
+  <desc id="d">The Inspector runs in your network. It downloads your signed policy from platform.blindsight.io and sends a heartbeat, never text. Devices would send text to the Inspector and file a signed, text-free receipt with the platform. No desktop version, including 2.2.1, sends text to an Inspector, so those two flows are drawn dashed.</desc>
   <defs>
     <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
       <path d="M0,0 L10,5 L0,10 z" fill="#111"/>
@@ -27,7 +27,7 @@
   <text x="56" y="237" font-size="12" fill="#3f3f46">Masks personal data before</text>
   <text x="56" y="255" font-size="12" fill="#3f3f46">anything leaves</text>
   <text x="56" y="284" font-size="12" font-weight="600" fill="#111">Desktop 2.2.1 does not send</text>
-  <text x="56" y="302" font-size="12" font-weight="600" fill="#111">text to an Inspector yet</text>
+  <text x="56" y="302" font-size="12" font-weight="600" fill="#111">text to an Inspector</text>
   <text x="56" y="330" font-size="12" fill="#3f3f46">To keep text on the device today:</text>
   <text x="56" y="348" font-size="12" fill="#3f3f46">watch only mode, or prompt</text>
   <text x="56" y="366" font-size="12" fill="#3f3f46">injection detection off</text>
@@ -108,7 +108,7 @@
 
   <!-- Legend -->
   <rect x="20" y="580" width="960" height="146" rx="12" fill="#fff" stroke="#d4d4d8"/>
-  <text x="40" y="604" font-size="12" font-weight="700" fill="#111">HTTPS on TCP 443. Dashed grey flows 3 and 5 are not available in any desktop version yet, including 2.2.1.</text>
+  <text x="40" y="604" font-size="12" font-weight="700" fill="#111">HTTPS on TCP 443. Dashed grey flows 3 and 5 are not available for endpoints.</text>
   <circle cx="48" cy="624" r="8" fill="#fff" stroke="#71717a"/>
   <text x="48" y="628" font-size="10" font-weight="700" fill="#3f3f46" text-anchor="middle">1</text>
   <text x="64" y="628" font-size="12" fill="#3f3f46">Inspected AI traffic leaves as it did before: direct, or through your proxy, PAC or WPAD.</text>

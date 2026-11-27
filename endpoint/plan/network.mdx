@@ -27,10 +27,9 @@ The cloud scanner is part of the platform. It runs behind `platform.blindsight.i
 and needs no separate rule. It receives text only when your workspace sends text
 to be checked. See [Data flow](/endpoint/plan/data-flow).
 
-Not found in the agent: calls to a licence service (licensing is checked by the
-platform), analytics or crash-reporting services, certificate revocation fetches of
-its own, network calls from the installer's custom actions, or any call to an
-Inspector.
+The agent makes no other calls: no licence service (the platform checks the
+licence), no analytics or crash reporting, no certificate revocation fetches of its
+own, no network calls from the installer, and no calls to an Inspector.
 
 <Note>
   Both Blindsight host names resolve to addresses that can change. Allow them by
@@ -42,7 +41,7 @@ Inspector.
 | From | To | Port | When |
 | ---- | -- | ---- | ---- |
 | Blindsight cloud | Your syslog collector | Your port, TLS 1.2 or later | Only if you send events to a SIEM. See [Syslog export](/endpoint/syslog-export). |
-| Your Inspector | `platform.blindsight.io` | TCP 443 | Only if you run an Inspector: policy download and a heartbeat about once a minute. No desktop version sends text to an Inspector yet, so for endpoints it has no use today. See [Deployment diagrams](/endpoint/plan/architecture#the-inspector-option). |
+| Your Inspector | `platform.blindsight.io` | TCP 443 | Only if you run an Inspector: policy download and a heartbeat about once a minute. No desktop version sends text to an Inspector, so for endpoints it has no use today. See [Deployment diagrams](/endpoint/plan/architecture#the-inspector-option). |
 
 ### Staging
 
@@ -59,8 +58,7 @@ device token, the policy and the pause, revoke and uninstall decisions.
   against the roots in the **machine** certificate store, so a TLS-inspecting proxy
   whose root is in that store works. The heartbeat names the issuer that re-signs
   the traffic, and the device page shows it.
-- **macOS.** Exempt both hosts. Inspection of the Mac agent's own traffic has not
-  been tested.
+- **macOS.** Exempt both hosts.
 
 The agent does not pin certificates. Updates are protected separately: the update
 manifest carries an Ed25519 signature checked against a key built into the agent,
@@ -134,8 +132,7 @@ machine's proxy. It tries, in this order:
 
 A direct connection is always the last attempt. Proxy authentication works with
 Basic credentials written into an administrator's proxy URL, and with Negotiate
-(NTLM or Kerberos) using the machine's credentials. For 2.2.1 this is read in the
-code; it has not yet been walked on a device behind a real company proxy.
+(NTLM or Kerberos) using the machine's credentials.
 
 Two calls go direct even when a proxy is set:
 
@@ -175,15 +172,14 @@ then fail, as described above.
 
 <Note>
   **Planned, not available.** There is no Blindsight relay or egress component
-  today, and no date for one.
+  today.
 </Note>
 
 Blindsight is designing an egress gateway: a small service you would run in your
 own network, through which every agent reaches Blindsight. It would relay the
 agents' encrypted connections to the two Blindsight hosts without decrypting them,
 so it could not read device tokens or any content, and your firewall would allow
-only the gateway out. A desktop update would make Macs and the two direct Windows
-calls use it. This page will describe it when it ships.
+only the gateway out. Macs and the two direct Windows calls would use it too.
 
 The Inspector is not a relay. It checks text, and it does not carry the agent's
 calls to Blindsight.

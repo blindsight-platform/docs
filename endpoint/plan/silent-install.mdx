@@ -93,7 +93,7 @@ waits for the agent's answer and adds two codes of its own:
 | Code | Meaning | What to do |
 | ---- | ------- | ---------- |
 | `7001` | The platform refused the enrollment token: expired, revoked, unknown, or from another workspace. | Mint a new token and rebuild the package. |
-| `7002` | The machine is pinned to another workspace by `HKLM\SOFTWARE\Blindsight\WorkspaceId`, so the token was refused. Needs desktop 2.2.1, and a kit built after the next platform release, which is in testing now. | Correct the `WorkspaceId` on the machine, or use a token from that workspace. |
+| `7002` | The machine is pinned to another workspace by `HKLM\SOFTWARE\Blindsight\WorkspaceId`, so the token was refused. Needs desktop 2.2.1. | Correct the `WorkspaceId` on the machine, or use a token from that workspace. |
 
 The kit's script waits up to 120 seconds after `msiexec` returns. It exits `7001`
 in about 40 seconds when the token is refused, and exits at once when the device
@@ -259,7 +259,7 @@ carries `CloudBaseURL`, `EnrollmentToken` and `WorkspaceId`. When the console's
 macOS install kit includes `40-managed-config.mobileconfig`, that is the profile.
 Push it as a **device** profile: a user-level profile is not read for this. Then,
 as a root script step in your MDM after the app is delivered, run
-`install-guardian.sh`, which Blindsight supplies on request. It copies the app to a
+`install-guardian.sh`, supplied by Blindsight. It copies the app to a
 root-only folder, checks its signature and starts the root guardian, which reads
 the profile and enrols. It exits `0` when installed, `1` when the check or the
 install failed, and `2` when the app is not in `/Applications` yet, so your MDM

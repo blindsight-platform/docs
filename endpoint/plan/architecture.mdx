@@ -37,8 +37,7 @@ each check, with no text, with the platform.
 <Warning>
   **Not usable for endpoints today.** The Inspector service and its registration in
   the console exist, but no desktop version, including 2.2.1, sends text to an
-  Inspector. Flows 3 and 5 below are drawn dashed for that reason. There is no date
-  for desktop support.
+  Inspector. Flows 3 and 5 below are drawn dashed for that reason.
 
   To keep endpoint text off the Blindsight cloud today, run devices in
   [watch only mode](/endpoint/discovery-only), or in protect mode with **Prompt
@@ -46,14 +45,14 @@ each check, with no text, with the platform.
   needed for that.
 </Warning>
 
-<Frame caption="The Inspector option. Dashed grey flows are not available in any desktop version yet.">
-  <img src="/images/deployment/inspector-option.svg" alt="Three tiers. The Inspector runs in your network, downloads the signed policy from platform.blindsight.io and sends a heartbeat with no text. Devices would send text to the Inspector and file a text-free receipt with the platform; these two flows are dashed because desktop 2.2.1 does not do this yet. The Blindsight agent sends enrolment, policy, heartbeat and events to platform.blindsight.io as in the cloud option." />
+<Frame caption="The Inspector option. Dashed grey flows are not available for endpoints.">
+  <img src="/images/deployment/inspector-option.svg" alt="Three tiers. The Inspector runs in your network, downloads the signed policy from platform.blindsight.io and sends a heartbeat with no text. Devices would send text to the Inspector and file a text-free receipt with the platform; these two flows are dashed because they are not available for endpoints. The Blindsight agent sends enrolment, policy, heartbeat and events to platform.blindsight.io as in the cloud option." />
 </Frame>
 
 | Tier | Component | Runs where | Who runs it |
 | ---- | --------- | ---------- | ----------- |
 | 1 | Blindsight agent | Each device | You deploy it |
-| 2 | Inspector | Your server: Docker 24 or later, Kubernetes 1.27 or later, or AWS ECS on Fargate, 64-bit x86. Measured sizing: 4 vCPU and 10 GB RAM, 2 vCPU at least. | You. Blindsight supplies the image. |
+| 2 | Inspector | Your server: Docker 24 or later, Kubernetes 1.27 or later, or AWS ECS on Fargate, 64-bit x86. Sizing: 4 vCPU and 10 GB RAM, 2 vCPU at least. | You. Blindsight supplies the image. |
 | 2 | Your proxy and firewall | Your network | You |
 | 3 | Console, API, policy, Inspector registry | `platform.blindsight.io` | Blindsight |
 
@@ -64,7 +63,7 @@ at run time.
 
 ## What is not in either diagram
 
-- **A Blindsight egress gateway.** It is planned, not available, and has no date.
+- **A Blindsight egress gateway.** It is planned and not available.
   See [A Blindsight egress gateway: planned](/endpoint/plan/network#a-blindsight-egress-gateway-planned).
 - **A relay through the Inspector.** The Inspector checks text. It does not carry
   the agent's other traffic.

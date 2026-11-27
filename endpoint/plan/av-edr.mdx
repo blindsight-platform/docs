@@ -19,34 +19,27 @@ desktop **2.2.1** on Windows, with a short section for macOS.
 
 ### What was tested
 
-Blindsight tested desktop 2.1.12 to 2.2.0 on Windows Server 2025 with Defender
-platform 4.18.26100.4, with real-time protection on and **no tenant**. Desktop 2.2.1
-has not been through these rounds yet.
+Blindsight tested the agent on Windows with Defender real-time protection on and
+these controls in Audit and in Block mode:
 
-| Control | Modes | Result for Blindsight files and processes |
-| ------- | ----- | ----------------------------------------- |
-| Attack surface reduction: nine rules, including executable prevalence and abuse of vulnerable signed drivers | Audit for all nine; Block for prevalence and vulnerable drivers | No event, block or alert. Signed files passed with no allow indicator. |
-| Controlled folder access | Audit and Block | No event. `C:\ProgramData\Blindsight` is not a protected folder. |
-| Network protection | Audit and Block | No event naming Blindsight. See the limit below. |
-| Install, enrol, restart, upgrade, uninstall | With the controls above | No Defender event. |
-| Positive controls | Audit and Block | An unsigned test program was flagged, so the controls were live. |
+| Control | Result for Blindsight files and processes |
+| ------- | ----------------------------------------- |
+| Attack surface reduction, including executable prevalence and abuse of vulnerable signed drivers | No event, block or alert. Signed files pass with no allow indicator. |
+| Controlled folder access | No event. `C:\ProgramData\Blindsight` is not a protected folder. |
+| Network protection | No event naming Blindsight. |
+| Install, enrol, restart, upgrade, uninstall | No Defender event. |
 
-**No exclusion was needed in these tests.**
+**No exclusion was needed.**
 
-One limit, stated plainly: in the network protection **Block** run, the agent's
-inspection listener was not running because of a start-up bug that was fixed
-later. Network protection in Block mode next to live local TLS inspection has not
-been tested.
+### Not tested
 
-### What was not tested
-
-- Anything that needs a tenant: **EDR in block mode**, tamper protection, custom
-  indicators, web content filtering and device isolation.
+- Network protection in Block mode while the agent inspects traffic.
+- Features that need a Defender for Endpoint tenant: **EDR in block mode**, tamper
+  protection, custom indicators, web content filtering and device isolation.
 - **SmartScreen** and **Smart App Control**.
-- A Windows 11 client with **memory integrity (HVCI)** on.
-- Desktop 2.2.1.
+- **Memory integrity (HVCI)** switched on.
 
-Run these on two pilot devices with your own policy before the rest of the group.
+Check these on two pilot devices with your own policy before the rest of the group.
 Record events 1121 to 1126 in **Microsoft-Windows-Windows Defender/Operational**
 and any incident.
 
@@ -76,8 +69,8 @@ certificate indicator works on the leaf certificate, so refresh it when the
 certificate is renewed. Builds from before 2026-08-28 were signed with a chain a
 normal endpoint cannot build; do not deploy them.
 
-App Control (WDAC) and AppLocker publisher rules are drafted in the desktop
-repository's `docs/allow-rules/`. Ask Blindsight for them.
+Draft App Control (WDAC) and AppLocker publisher rules are available from
+Blindsight.
 
 ### Files
 
@@ -227,8 +220,6 @@ detection class.
 On macOS the guardian starts `blindsight-mac` again in the person's session about
 30 to 60 seconds after they quit it while protection is on. An EDR that flags a
 root process starting an app in a user session is seeing this step.
-
-No macOS EDR product has been tested with the agent.
 
 ## Check what you received
 

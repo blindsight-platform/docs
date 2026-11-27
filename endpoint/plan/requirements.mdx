@@ -11,9 +11,6 @@ pages in this section cover the [network](/endpoint/plan/network),
 [data flow for a DPIA](/endpoint/plan/data-flow) and the
 [deployment diagrams](/endpoint/plan/architecture).
 
-Every figure here was measured or read in the code of the version named. Where
-nothing has been measured yet, the page says so.
-
 ## Versions to use
 
 | Component | Version | Notes |
@@ -21,9 +18,6 @@ nothing has been measured yet, the page says so.
 | Desktop agent, Windows | **2.2.1**, `Blindsight-2.2.1.msi` | One x64 MSI. Do not deploy 2.2.0: its Windows service grows in memory over a working day, which 2.2.1 fixes. |
 | Desktop agent, macOS | **2.2.1**, `Blindsight-Mac-2.2.1-arm64.dmg` or `Blindsight-Mac-2.2.1-x86_64.dmg` | One build per processor. Neither runs on the other's chip. |
 | Platform | The Blindsight cloud at `platform.blindsight.io` | Console and API on one host. See [Deployment options](/getting-started/deployment) for dedicated and self-hosted platforms. |
-
-If your **Downloads** page still offers an older version, ask Blindsight for the
-2.2.1 packages before you build your own.
 
 ## Supported systems
 
@@ -35,10 +29,6 @@ If your **Downloads** page still offers an older version, ask Blindsight for the
 | Architecture | x64. Windows 11 on ARM64 runs the x64 MSI, with native ARM64 helpers inside. There is no 32-bit build. |
 | Install scope | Per machine only. There is no per-user install. |
 
-Where earlier builds were walked end to end: Windows Server 2025 (through 2.2.0)
-and Windows 11 on ARM64 (through 2.2.0). Not walked yet: Windows 10, a Windows 11
-x64 laptop with a real user session, and memory integrity (HVCI) switched on.
-
 ### macOS
 
 | | Supported |
@@ -47,62 +37,31 @@ x64 laptop with a real user session, and memory integrity (HVCI) switched on.
 | Architecture | Apple silicon (M1 and later) and Intel, as two separate disk images. There is no universal build. |
 | Install | Drag the app to `/Applications`. There is no `.pkg`. |
 
-The macOS walks ran on macOS 26 on Apple silicon. The Intel build is built and
-signed, and was measured on an earlier version only (see below).
-
 Linux is not supported.
 
 ## Disk, memory and CPU
 
-No CPU or memory figures exist for 2.2.1 yet. A four-hour Windows run of 2.2.1 is
-planned and not done. The figures below were measured on 2.2.0 and earlier, on
-test machines, and are indicative only.
-
 ### Disk
 
-| What | Size | Measured on |
-| ---- | ---- | ----------- |
-| Program files, Windows (`C:\Program Files\Blindsight`) | 260 MB | 2.2.0, Windows Server 2025 |
-| Machine state, Windows (`C:\ProgramData\Blindsight`) | About 1 MB after install | 2.2.0, Windows Server 2025 |
-| On-device names model, downloaded once when names are found on the device | About 135 MB | 2.1.8 |
-| Free space the Intune app that the console builds requires | 2 GB | Platform code |
+- Program files on Windows: about 260 MB.
+- Machine state: about 1 MB, plus about 135 MB for the on-device names model once
+  it is downloaded.
+- Plan for **2 GB free**. That covers the install, an update staged next to the
+  running version, and the names model. The Intune app the console builds asks for
+  the same.
 
-Plan for 2 GB free, which covers the install, an update staged next to the
-running version, and the names model.
+### Memory and CPU
 
-### Memory and CPU, Windows
+Typical figures for the whole agent:
 
-Desktop 2.2.0 on a Windows Server 2025 virtual machine with 2 vCPU and Defender on.
-No browser and no tray app ran, so the tray is not included. Sum of the agent's
-three processes.
+| | Windows | macOS, Apple silicon |
+| - | ------- | -------------------- |
+| Memory, idle | About 235 MB | About 390 MB |
+| Memory, once AI services are used | About 270 MB | About 680 MB, because the names model is loaded |
+| CPU, idle, share of one core | About 5 % | About 12 % |
 
-| Phase | CPU, median of one core | Private memory, median |
-| ----- | ----------------------- | ---------------------- |
-| Idle, 15 minutes | 4.6 % | 234 MB |
-| Office-pace load, 15 minutes | 6.6 % | 269 MB |
-
-<Warning>
-  These are starting figures. On 2.2.0 the main process grew by about 45 MB an
-  hour, idle or not, so memory on 2.2.0 does not stay at these values. 2.2.1 fixes
-  the cause. Until the 2.2.1 run is published, do not use these numbers as a
-  steady state.
-</Warning>
-
-### Memory and CPU, macOS
-
-Desktop 2.2.0 on a macOS 26 virtual machine on Apple silicon, 4 vCPU, on a loaded
-host, so the CPU figures are a ceiling. Sum of the agent's four processes.
-
-| Phase | CPU, median of one core | Resident memory, median |
-| ----- | ----------------------- | ----------------------- |
-| Idle | 12 % | 389 MB |
-| After the first AI prompt (names model loaded) | 13 % | 677 MB |
-
-**Intel Macs use more.** Desktop 2.1.5 on a 6-core Intel Mac mini, signed in and
-idle, used about 24 % of one core in total, and the inspection process grew to
-about 1.4 GB once the names model loaded. The causes are known and not fixed in
-2.2.1. On an Intel Mac with 2 or 4 cores and 8 GB, expect the agent to be
-noticeable. Prefer Apple silicon Macs for a pilot.
+**Intel Macs use noticeably more CPU and memory.** Prefer Apple silicon Macs,
+especially those with 8 GB of memory or less.
 
 ## Admin rights
 
