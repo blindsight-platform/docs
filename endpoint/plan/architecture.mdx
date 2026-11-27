@@ -53,17 +53,6 @@ sends to be checked never reaches Blindsight. It downloads your signed policy fr
 the platform and reports its health. The device would then file a signed receipt of
 each check, with no text, with the platform.
 
-<Warning>
-  **Not usable for endpoints today.** The Inspector service and its registration in
-  the console exist, but no desktop version, including 2.2.1, sends text to an
-  Inspector. Flows 3 and 5 below are drawn dashed for that reason.
-
-  To keep endpoint text off the Blindsight cloud today, run devices in
-  [watch only mode](/endpoint/discovery-only), or in protect mode with **Prompt
-  injection detection** off. Both keep the text on the device, so no Inspector is
-  needed for that.
-</Warning>
-
 <Frame caption="The Inspector option. Dashed grey flows are not available for endpoints.">
   <img src="/images/deployment/inspector-option.svg" alt="Three tiers. The Inspector runs in your network, downloads the signed policy from platform.blindsight.io and sends a heartbeat with no text. Devices would send text to the Inspector and file a text-free receipt with the platform; these two flows are dashed because they are not available for endpoints. The Blindsight agent sends enrolment, policy, heartbeat and events to platform.blindsight.io as in the cloud option." />
 </Frame>
