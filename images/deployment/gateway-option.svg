@@ -21,15 +21,15 @@
   <text x="56" y="130" font-size="12" fill="#52525b">Used as normal by the person</text>
   <line x1="165" y1="142" x2="165" y2="166" stroke="#111" stroke-width="1.6" marker-end="url(#a)"/>
 
-  <rect x="40" y="170" width="250" height="250" rx="8" fill="#fff" stroke="#111" stroke-width="2"/>
+  <rect x="40" y="170" width="250" height="190" rx="8" fill="#fff" stroke="#111" stroke-width="2"/>
   <text x="56" y="196" font-size="14" font-weight="700" fill="#111">Blindsight agent</text>
   <text x="56" y="219" font-size="12" fill="#3f3f46">Inspects AI traffic on the device</text>
   <text x="56" y="248" font-size="12" fill="#3f3f46">Calls to Blindsight go to the</text>
   <text x="56" y="266" font-size="12" fill="#3f3f46">gateway, set by:</text>
   <text x="56" y="286" font-size="12" fill="#3f3f46">GatewayURL (Windows, macOS,</text>
   <text x="56" y="304" font-size="12" fill="#3f3f46">2.2.2 and later), or a PAC rule</text>
-  <text x="56" y="322" font-size="12" fill="#3f3f46">(Windows, 2.2.0 and later)</text>
-  <text x="56" y="400" font-size="11" fill="#52525b">127.0.0.1: 8787, 47324 to 47327</text>
+  <text x="56" y="322" font-size="12" fill="#3f3f46">(Windows 2.2.0, macOS 2.2.2)</text>
+  <text x="56" y="346" font-size="11" fill="#52525b">127.0.0.1: 8787, 47324 to 47327</text>
 
   <rect x="40" y="476" width="250" height="56" rx="8" fill="#fff" stroke="#111"/>
   <text x="56" y="500" font-size="13" font-weight="600" fill="#111">Console users</text>
@@ -100,10 +100,10 @@
   <text x="460" y="554" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">4</text>
 
   <!-- Blocked direct path -->
-  <line x1="290" y1="440" x2="490" y2="440" stroke="#b91c1c" stroke-width="1.6" stroke-dasharray="4 4"/>
+  <path d="M165,360 V440 H490" fill="none" stroke="#b91c1c" stroke-width="1.6" stroke-dasharray="4 4"/>
   <line x1="496" y1="432" x2="512" y2="448" stroke="#b91c1c" stroke-width="2.2"/>
   <line x1="512" y1="432" x2="496" y2="448" stroke="#b91c1c" stroke-width="2.2"/>
-  <text x="300" y="432" font-size="11" fill="#b91c1c">Direct path to Blindsight</text>
+  <text x="176" y="432" font-size="11" fill="#b91c1c">Direct path to Blindsight</text>
 
   <!-- Legend -->
   <rect x="20" y="580" width="960" height="104" rx="12" fill="#fff" stroke="#d4d4d8"/>

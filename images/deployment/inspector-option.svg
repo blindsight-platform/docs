@@ -21,17 +21,17 @@
   <text x="56" y="130" font-size="12" fill="#52525b">Used as normal by the person</text>
   <line x1="165" y1="142" x2="165" y2="166" stroke="#111" stroke-width="1.6" marker-end="url(#a)"/>
 
-  <rect x="40" y="170" width="250" height="280" rx="8" fill="#fff" stroke="#111" stroke-width="2"/>
+  <rect x="40" y="170" width="250" height="250" rx="8" fill="#fff" stroke="#111" stroke-width="2"/>
   <text x="56" y="196" font-size="14" font-weight="700" fill="#111">Blindsight agent</text>
   <text x="56" y="219" font-size="12" fill="#3f3f46">Inspects AI traffic on the device</text>
   <text x="56" y="237" font-size="12" fill="#3f3f46">Masks personal data before</text>
   <text x="56" y="255" font-size="12" fill="#3f3f46">anything leaves</text>
-  <text x="56" y="284" font-size="12" font-weight="600" fill="#111">Desktop 2.2.1 does not send</text>
+  <text x="56" y="284" font-size="12" font-weight="600" fill="#111">The agent does not send</text>
   <text x="56" y="302" font-size="12" font-weight="600" fill="#111">text to an Inspector</text>
   <text x="56" y="330" font-size="12" fill="#3f3f46">To keep text on the device today:</text>
   <text x="56" y="348" font-size="12" fill="#3f3f46">watch only mode, or prompt</text>
   <text x="56" y="366" font-size="12" fill="#3f3f46">injection detection off</text>
-  <text x="56" y="432" font-size="11" fill="#52525b">127.0.0.1: 8787, 47324 to 47327</text>
+  <text x="56" y="404" font-size="11" fill="#52525b">127.0.0.1: 8787, 47324 to 47327</text>
 
   <rect x="40" y="476" width="250" height="56" rx="8" fill="#fff" stroke="#111"/>
   <text x="56" y="500" font-size="13" font-weight="600" fill="#111">Console users</text>
@@ -87,9 +87,9 @@
   <text x="400" y="328.5" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">2</text>
 
   <!-- Flow 3: agent to Inspector, not available in 2.2.1 -->
-  <line x1="290" y1="400" x2="340" y2="400" stroke="#71717a" stroke-width="2" stroke-dasharray="4 4" marker-end="url(#g)"/>
-  <circle cx="314" cy="384" r="10" fill="#fff" stroke="#71717a" stroke-width="1.5"/>
-  <text x="314" y="388" font-size="11" font-weight="700" fill="#3f3f46" text-anchor="middle">3</text>
+  <line x1="290" y1="390" x2="340" y2="390" stroke="#71717a" stroke-width="2" stroke-dasharray="4 4" marker-end="url(#g)"/>
+  <circle cx="314" cy="374" r="10" fill="#fff" stroke="#71717a" stroke-width="1.5"/>
+  <text x="314" y="378" font-size="11" font-weight="700" fill="#3f3f46" text-anchor="middle">3</text>
 
   <!-- Flow 4: Inspector to platform -->
   <line x1="485" y1="372" x2="664" y2="372" stroke="#111" stroke-width="2" marker-end="url(#a)"/>
@@ -97,7 +97,7 @@
   <text x="494" y="356" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">4</text>
 
   <!-- Flow 5: receipts from the device to the platform, not available in 2.2.1 -->
-  <path d="M290,436 H322 V490 H645 V396 H664" fill="none" stroke="#71717a" stroke-width="1.6" stroke-dasharray="4 4" marker-end="url(#g)"/>
+  <path d="M290,410 H322 V490 H645 V396 H664" fill="none" stroke="#71717a" stroke-width="1.6" stroke-dasharray="4 4" marker-end="url(#g)"/>
   <circle cx="420" cy="490" r="10" fill="#fff" stroke="#71717a" stroke-width="1.5"/>
   <text x="420" y="494" font-size="11" font-weight="700" fill="#3f3f46" text-anchor="middle">5</text>
 
@@ -117,13 +117,13 @@
   <text x="64" y="650" font-size="12" fill="#3f3f46">The agent's enrolment, policy, heartbeat and events, as in the cloud option.</text>
   <circle cx="48" cy="668" r="8" fill="#fff" stroke="#71717a"/>
   <text x="48" y="672" font-size="10" font-weight="700" fill="#3f3f46" text-anchor="middle">3</text>
-  <text x="64" y="672" font-size="12" fill="#3f3f46">Text sent to the Inspector to be checked would stay inside your network. Not in desktop 2.2.1.</text>
+  <text x="64" y="672" font-size="12" fill="#3f3f46">Text sent to the Inspector to be checked would stay inside your network. Not available for endpoints.</text>
   <circle cx="48" cy="690" r="8" fill="#111"/>
   <text x="48" y="694" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">4</text>
   <text x="64" y="694" font-size="12" fill="#3f3f46">The Inspector downloads your signed policy and sends a heartbeat about once a minute: version, counts, health. Never text.</text>
   <circle cx="48" cy="712" r="8" fill="#fff" stroke="#71717a"/>
   <text x="48" y="716" font-size="10" font-weight="700" fill="#3f3f46" text-anchor="middle">5</text>
-  <text x="64" y="716" font-size="12" fill="#3f3f46">A signed, text-free receipt of each check, filed by the device. Not in desktop 2.2.1.</text>
+  <text x="64" y="716" font-size="12" fill="#3f3f46">A signed, text-free receipt of each check, filed by the device. Not available for endpoints.</text>
   <circle cx="668" cy="712" r="8" fill="#111"/>
   <text x="668" y="716" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">6</text>
   <text x="684" y="716" font-size="12" fill="#3f3f46">Console users reach the console.</text>
