@@ -1,0 +1,281 @@
+---
+title: "Egress gateway"
+description: "Run the Blindsight egress gateway in your network so every agent reaches Blindsight through one exit point, without the gateway being able to read or change anything."
+---
+
+The egress gateway is a small proxy you run inside your own network. Every agent
+sends its calls to Blindsight (enrolment, policy, heartbeat, events, updates) to
+the gateway, and only the gateway talks to Blindsight. Your firewall then allows one
+address out instead of every laptop.
+
+The gateway is a **pass-through tunnel**. The connection from the agent to
+Blindsight stays encrypted end to end, so the gateway **cannot read or change**
+anything the agent and Blindsight say to each other: no device token, no policy, no
+text, no update. It logs only which laptop connected to which Blindsight host and
+how many bytes passed.
+
+<Frame caption="One exit point. Laptops reach Blindsight only through the gateway. Inspected AI traffic keeps its usual route.">
+  <img src="/images/deployment/gateway-option.svg" alt="Three tiers. Laptops send the agent's calls to Blindsight to the gateway on TCP 3128. The gateway forwards them, directly or through your proxy, to platform.blindsight.io and downloads.blindsight.io on TCP 443, and sends its own heartbeat. Inspected AI traffic goes to AI services by its usual route. The firewall blocks direct TCP 443 from laptops to the Blindsight hosts." />
+</Frame>
+
+## What it does and does not do
+
+| It does | It does not |
+| ------- | ----------- |
+| Accept `CONNECT host:443` from your laptop networks and relay the TCP stream | Decrypt, inspect or store anything inside a tunnel |
+| Allow only exact Blindsight host names on port 443, from a closed list | Forward plain HTTP, other ports or other sites |
+| Check the TLS server name of each tunnel and close it if it differs from the host the tunnel was opened for | Hold a certificate, a key, a device token or any text |
+| Refuse a name that resolves to a loopback, private, link-local or multicast address | Carry the AI traffic the agent inspects: that keeps your existing route |
+| Chain through your own proxy, with no sign-in or with Basic credentials | Sign in to your proxy with Kerberos or NTLM |
+
+## Requirements
+
+| | |
+| - | - |
+| Host | Linux with Docker 24 or later, or Kubernetes 1.27 or later, 64-bit x86 |
+| Size | 0.25 vCPU, 256 MB RAM, no disk. One copy serves far more than a pilot. |
+| Runs as | A non-root user, with a read-only file system |
+| Inbound | TCP 3128 from your laptop networks; TCP 9090 from your admin or monitoring network |
+| Outbound | TCP 443 to the Blindsight hosts, directly or through your proxy |
+| Agents | Windows: desktop 2.2.0 or later with a PAC rule, or 2.2.2 or later with the gateway setting. macOS: desktop 2.2.2 or later with the gateway setting. |
+
+## Firewall rules
+
+| From | To | Port | Why |
+| ---- | -- | ---- | --- |
+| Laptops | The gateway | TCP 3128 | The agent's calls to Blindsight |
+| Admin network, monitoring | The gateway | TCP 9090 | Health, metrics and the PAC helper |
+| The gateway, or your proxy for it | `platform.blindsight.io` | TCP 443 | API, enrolment, policy, events, the gateway's heartbeat |
+| The gateway, or your proxy for it | `downloads.blindsight.io` | TCP 443 | Update manifest, installers, names model |
+| The gateway, macOS fleets only | `www.cloudflare.com` | TCP 443 | Cloudflare's published address list |
+| Laptops | `platform.blindsight.io`, `downloads.blindsight.io` | TCP 443 | **Block.** The gateway is then the only way out. |
+
+Allow the Blindsight hosts **by name** on your proxy, because their addresses change.
+Console users' browsers reach `platform.blindsight.io` through your normal proxy; the
+console does not need the gateway.
+
+## Set it up
+
+<Steps>
+  <Step title="Register the gateway">
+    In the console, open **Settings → Network gateway**, add a gateway with a name,
+    and copy the token. It is shown once. A gateway without a token still relays,
+    and the console shows it as **Not registered**.
+  </Step>
+
+  <Step title="Load the image">
+    Blindsight hands over the image as a file with its checksum. Verify it, then
+    load it:
+
+    ```bash
+    sha256sum -c blindsight-gateway-1.0.0.tar.gz.sha256
+    gunzip -c blindsight-gateway-1.0.0.tar.gz | docker load
+    ```
+
+    Never run an image whose checksum does not match. Push it to your own registry
+    if you use one.
+  </Step>
+
+  <Step title="Fill in the settings">
+    Copy `gateway.env.example` to `gateway.env` and set at least:
+
+    ```bash
+    GATEWAY_PUBLIC_NAME=gw.example.internal
+    GATEWAY_TOKEN=<token from the console>
+    GATEWAY_CLIENT_CIDRS=10.20.0.0/16
+    ```
+
+    `GATEWAY_CLIENT_CIDRS` lists the laptop networks allowed to use the gateway. The
+    default is every private range; narrow it to your laptops. Keep `gateway.env`
+    out of version control: it holds the token, and may hold a proxy password.
+  </Step>
+
+  <Step title="Run it">
+    On one host with Docker:
+
+    ```bash
+    export GATEWAY_IMAGE=blindsight-gateway:1.0.0
+    docker compose up -d
+    curl -s http://localhost:9090/healthz
+    ```
+
+    For Kubernetes, the reference manifest `kubernetes/gateway.yaml` runs two copies
+    on two nodes, with restricted pod security, a disruption budget, a network
+    policy and probes.
+  </Step>
+
+  <Step title="Point the agents at it">
+    See [Point the agents at the gateway](#point-the-agents-at-the-gateway).
+  </Step>
+
+  <Step title="Block the direct path">
+    At your firewall, block TCP 443 from laptops to `platform.blindsight.io` and
+    `downloads.blindsight.io`. An agent then reaches Blindsight only through the
+    gateway, and never goes around it.
+  </Step>
+</Steps>
+
+## Point the agents at the gateway
+
+There are two ways. Use the gateway setting where you can: it covers Windows and
+macOS, and every call goes through the gateway.
+
+### The gateway setting (Windows and macOS, desktop 2.2.2 and later)
+
+Set `GatewayURL` to `http://<gateway name>:3128`. Only an address is accepted: no
+user name, password or path.
+
+| Platform | Where |
+| -------- | ----- |
+| Windows, at install | MSI property `GATEWAY`: `msiexec /i Blindsight-<version>.msi /qn /norestart CLOUD_BASE="https://platform.blindsight.io" ENROLL_TOKEN_FILE="%~dp0enroll.token" GATEWAY="http://gw.example.internal:3128"` |
+| Windows, after install | The string value `GatewayURL` in `HKLM\SOFTWARE\Blindsight`, from Group Policy or your management tool |
+| macOS | The key `GatewayURL` in the `dev.blindsight` configuration profile, pushed as a **device** profile |
+
+When `GatewayURL` is set:
+
+- every call from the agent to the Blindsight hosts goes **only** through the
+  gateway, with no direct attempt, so the agent can never go around it;
+- pause protection and the connectivity check in a diagnostics report go through it
+  too;
+- inspected AI traffic does **not** use it, and keeps its usual route;
+- the setting is read only from where an administrator writes it. A person on the
+  machine cannot change it or turn it off.
+
+An upgrade keeps the setting. An uninstall removes a `GatewayURL` the MSI wrote. A
+value your own tool wrote stays, as yours.
+
+### A PAC rule (Windows, desktop 2.2.0 and later)
+
+Windows agents follow the machine's PAC file for their calls to Blindsight, so a PAC
+rule is enough with no agent setting:
+
+```js
+if (host == "platform.blindsight.io" || host == "downloads.blindsight.io")
+  return "PROXY gw.example.internal:3128";
+```
+
+With two gateways, list both and the agent tries them in order:
+`"PROXY gw1.example.internal:3128; PROXY gw2.example.internal:3128"`. Every other host
+keeps your existing rules, including AI services.
+
+The gateway serves this rule at `http://<gateway>:9090/proxy.pac?snippet=1` as a
+helper function, `blindsightGateway(host)`, that returns the gateway for the
+Blindsight hosts and `null` for everything else. Paste it into your PAC and call it
+first:
+
+```js
+var gw = blindsightGateway(host);
+if (gw !== null) { return gw; }
+// your own rules, unchanged
+```
+
+`http://<gateway>:9090/proxy.pac` is the same helper with a small
+`FindProxyForURL` around it, for a test machine with no PAC of its own. Do not use it
+as your company PAC: it sends everything else direct.
+
+On desktop 2.2.0 and 2.2.1 with a PAC rule only, pause protection and the
+connectivity check in a diagnostics report still go direct, so they fail once the
+direct path is blocked. Use the gateway setting to avoid that.
+
+<Warning>
+  Do not point a machine-wide `HTTPS_PROXY`, or a fixed WinINET proxy, at the
+  gateway. The agent's route for inspected AI traffic uses the same setting first,
+  so AI traffic would be sent to the gateway and refused.
+</Warning>
+
+## Behind your own proxy
+
+When the gateway must reach the internet through your proxy:
+
+1. **Recommended:** an address exception on your proxy that lets the gateway's
+   address reach the two Blindsight hosts. No password to rotate and nothing secret
+   on the gateway.
+2. **Or** a service account with Basic credentials:
+
+   ```bash
+   GATEWAY_UPSTREAM_PROXY=http://svc-blindsight:password@proxy.example.internal:8080
+   ```
+
+   Or put the whole address in a file and set `GATEWAY_UPSTREAM_PROXY_FILE`, for a
+   Docker or Kubernetes secret. Percent-encode special characters in the user name
+   and password (`@` is `%40`, `:` is `%3A`). The connection to your proxy is plain
+   HTTP.
+
+Kerberos and NTLM to your proxy are not supported. If your proxy allows nothing else,
+use the address exception, or let the gateway reach the internet through your
+firewall directly.
+
+If your proxy inspects TLS, **exempt the two Blindsight hosts**. Windows agents
+accept a re-signed connection when your root is in the machine store; macOS agents
+do not.
+
+## Check that it works
+
+- `GET http://<gateway>:9090/healthz` answers `200` with `"status": "ok"`. A `503`
+  names the reason: `upstream_unreachable` (the gateway cannot reach your proxy),
+  `platform_unreachable` (two heartbeats in a row did not reach Blindsight),
+  `token_rejected` (rotate the token in the console), or `draining` (shutting down).
+  Set `GATEWAY_REQUIRE_REGISTRATION=1` to make an unregistered gateway answer `503`.
+- **Settings → Network gateway** shows the gateway's state, its last heartbeat, its
+  version and whether it is the current one, its health, and how many laptops it
+  served in 24 hours.
+- `GET /metrics` is Prometheus text: open and total tunnels by host and outcome,
+  refusals by reason, bytes by host, connect time, distinct laptops in 24 hours, and
+  whether the platform and your proxy are reachable.
+- The log is one JSON line per tunnel on standard output: time, laptop address,
+  host, port, outcome, reason, bytes each way and duration. It never holds a token,
+  text or a URL path, because the gateway never reads inside a tunnel.
+
+## What the gateway sends Blindsight
+
+A heartbeat every minute to `platform.blindsight.io`: its version, uptime, tunnel and
+refusal counts, bytes, the **number** of laptops seen in 24 hours (never their
+addresses), and its own health. Nothing else.
+
+## Operate it
+
+- **High availability.** The gateway keeps no state. Run two copies on two hosts and
+  list both in the PAC, or put them behind your internal TCP load balancer. A load
+  balancer that hides the laptop's address makes every laptop look like the
+  balancer: set `GATEWAY_CLIENT_CIDRS` to the balancer's subnets.
+- **Upgrade.** Load the new image, set the new tag and restart one copy at a time.
+  The gateway drains open tunnels for up to 25 seconds, and agents move to the next
+  copy or retry, so a restart is not noticed. The console shows whether each
+  gateway runs the current version. To go back, set the previous tag and restart.
+- **Limits.** 2,000 tunnels in all, 64 per laptop address, 15 minutes idle, 10
+  seconds to connect.
+
+## Settings
+
+| Variable | Meaning |
+| -------- | ------- |
+| `GATEWAY_PORT`, `GATEWAY_BIND` | Proxy port (default `3128`) and address (default `0.0.0.0`) |
+| `GATEWAY_ADMIN_PORT`, `GATEWAY_ADMIN_BIND` | Health, metrics and PAC (default `9090`, `0.0.0.0`) |
+| `GATEWAY_PUBLIC_NAME`, `GATEWAY_PUBLIC_PORT` | The name and port laptops use, written into the PAC helper |
+| `GATEWAY_TOKEN`, `GATEWAY_TOKEN_FILE` | Registration token from the console |
+| `GATEWAY_PLATFORM_URL` | Default `https://platform.blindsight.io` |
+| `GATEWAY_EXTRA_HOSTS` | Extra exact host names on port 443, comma separated. A wildcard stops the start. |
+| `GATEWAY_ALLOW_CLOUDFLARE` | `1` also allows `www.cloudflare.com`, for macOS fleets |
+| `GATEWAY_CLIENT_CIDRS` | Who may use the gateway (default: private ranges and `127.0.0.1`) |
+| `GATEWAY_ADMIN_CIDRS` | Who may read the admin port (default: the same; keep `127.0.0.1/32`) |
+| `GATEWAY_UPSTREAM_PROXY`, `GATEWAY_UPSTREAM_PROXY_FILE` | Your proxy, `http://[user:password@]host:port`, or a file holding it |
+| `GATEWAY_INBOUND_BASIC_FILE` | Optional: a file holding `user:password` that laptops must present. Off by default. |
+| `GATEWAY_REQUIRE_REGISTRATION` | `1` makes an unregistered gateway answer `503` on `/healthz` |
+| `GATEWAY_MAX_TUNNELS`, `GATEWAY_MAX_PER_CLIENT` | `2000` and `64` |
+| `GATEWAY_IDLE_SECONDS`, `GATEWAY_CONNECT_SECONDS`, `GATEWAY_DRAIN_SECONDS` | `900`, `10` and `25` |
+
+A wrong value stops the start with a message that names the variable.
+
+## Troubleshooting
+
+| You see | Likely cause |
+| ------- | ------------ |
+| `403 client_not_allowed` | The laptop's address is outside `GATEWAY_CLIENT_CIDRS`, or a load balancer hides it. |
+| `403 not_allowed_host` | The laptop asked for a host that is not on the list. Check that your PAC sends only the Blindsight hosts to the gateway. |
+| `403 private_target` | A Blindsight name resolved to a private address: split-horizon DNS or a DNS filter on the gateway host. |
+| The tunnel opens and closes at once (`sni_mismatch`, `sni_missing`) | Something between the laptop and the gateway rewrites the TLS handshake, or the client is not the Blindsight agent. |
+| `502 upstream_unreachable` | The gateway cannot connect to your proxy: address, port or firewall. |
+| `502 upstream_407` | Your proxy wants credentials the gateway does not have, or has wrong. |
+| `504 connect_timeout` | Your proxy or the Blindsight host did not answer in 10 seconds. |
+| `/healthz` `503 platform_unreachable` | No route to `platform.blindsight.io`. Check the proxy exception, and the host's clock. |
+| A device reads **Not reporting** once the direct path is blocked | The device is not pointed at the gateway: set `GatewayURL`, or check its PAC. |

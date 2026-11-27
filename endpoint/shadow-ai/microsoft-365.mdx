@@ -13,14 +13,13 @@ permission a level adds, and why, before you approve it. Every application
 Blindsight can ask your tenant to approve is listed in
 [Permissions Blindsight asks for](/permissions-and-access).
 
-Access comes in three levels. Each one is a separate approval in Microsoft, and
+Access comes in two levels. Each one is a separate approval in Microsoft, and
 you can stop at any level.
 
 | Level | What you see | Conversation text read |
 | ----- | ------------ | ---------------------- |
 | **1. Activity** | Who uses which Copilot app or agent, when, and which files and sites it referenced. AI apps people connected to their work account. Sign-ins to AI services. | No |
 | **2. Agent catalog** | Every Copilot agent available in your tenant, including agents nobody has used yet. | No |
-| **3. Content checks** | Copilot and agent conversations that broke one of your data policies, with a short masked excerpt. Off by default. | Yes, checked and not kept |
 
 ## How access is granted
 
@@ -37,9 +36,8 @@ so you can approve one without the other.
 - Every permission is an **application permission** and **read-only**.
   Blindsight signs in as the application, so no user signs in for collection
   to run.
-- Blindsight calls three Microsoft hosts only: `graph.microsoft.com`,
-  `manage.office.com`, and, at level 3, the Dataverse environment addresses you
-  enter.
+- Blindsight calls two Microsoft hosts only: `graph.microsoft.com` and
+  `manage.office.com`.
 
 ## Level 1: activity
 
@@ -67,59 +65,13 @@ Optional. Level 1 already lists every agent that has been used.
 
 Microsoft serves this list only to tenants with a Microsoft Agent 365 licence, in the global Microsoft cloud.
 
-## Level 3: content checks
-
-Off by default, approved separately, and limited to the groups you choose. Only
-this level reads conversation text. Each conversation is checked in memory
-against the same data policies as your devices. When a policy matches,
-Blindsight keeps the rule, the person, the time, the app and a short excerpt
-with the sensitive value masked. Nothing is kept when no policy matches, and in
-a [totals-only workspace](/endpoint/who-is-named) only counts are kept.
-
-### Microsoft 365 Copilot
-
-| Permission | API | What is read |
-| ---------- | --- | ------------ |
-| `AiEnterpriseInteraction.Read.All` | Microsoft Graph | Prompts and responses in Microsoft 365 Copilot, for users in the groups you chose who hold a Microsoft 365 Copilot licence with the Microsoft Copilot with Graph-grounded chat service plan. |
-
-Microsoft does not include agents built in Copilot Studio in this source. Those
-are read from Dataverse.
-
-### Copilot Studio agents
-
-Agents built in Copilot Studio keep their conversations in the Dataverse
-`ConversationTranscript` table of their Power Platform environment.
-
-<Steps>
-  <Step title="Add the application user">
-    In the Power Platform admin center, open the environment, then
-    **Settings → Users + permissions → Application users → New app user**.
-    Search for **Blindsight Activity** by name, and pick a business unit.
-  </Step>
-  <Step title="Give it a read-only role">
-    Assign a security role with organisation-level **Read** on the
-    **Conversation Transcript** and **Bot** tables and nothing else.
-  </Step>
-  <Step title="Add the environment in Blindsight">
-    Enter the environment's address. Environments you do not add are never
-    contacted.
-  </Step>
-</Steps>
-
-Blindsight reads no other Dataverse table, including Dynamics 365 business
-records. Microsoft deletes transcripts after 30 days by default. Transcripts
-are not saved in developer environments, Dataverse for Teams environments, or
-where an admin turned saving off. Blindsight reads what your environment
-keeps.
-
 ## What Blindsight never does
 
 With any of the access above, Blindsight never:
 
-- writes, changes or deletes anything in your tenant or Dataverse environments
+- writes, changes or deletes anything in your tenant
 - reads mailboxes, OneDrive or SharePoint files, Teams chats or calendars
-- reads conversation text unless you turn on level 3
-- stores full prompts or responses at any level
+- reads Copilot or agent conversation text
 
 ## Before you connect
 
@@ -141,7 +93,5 @@ You can remove access in Microsoft at any time, whatever the console shows.
   issuing it new tokens, or select **Delete**. A deleted application can be
   restored for 30 days. To drop one level and keep the rest, revoke just those
   permissions under **Permissions**.
-- **Copilot Studio transcripts:** in the Power Platform admin center, remove the **Blindsight Activity** application user from each
-  environment.
 - **In Blindsight:** disconnecting stops collection at once. Stored activity
   is deleted with the workspace or on request.

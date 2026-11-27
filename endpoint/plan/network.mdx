@@ -1,0 +1,226 @@
+---
+title: "Network and firewall"
+description: "Every host, port and protocol the endpoint agent and the console use, the local ports the agent opens, and exactly how the agent works with a company proxy today."
+---
+
+This page lists every network flow of a deployment on the Blindsight cloud, so your
+network team can write firewall and proxy rules before the first device is
+installed. It describes desktop **2.2.1**. For where each flow sits, see the
+[deployment diagrams](/endpoint/plan/architecture).
+
+## Outbound flows
+
+All of them are HTTPS over TCP 443, TLS 1.2 or later. Nothing is plain HTTP, and
+nothing uses UDP.
+
+| From | To | Port | What travels |
+| ---- | -- | ---- | ------------ |
+| Devices | `platform.blindsight.io` | TCP 443 | Enrolment, sign-in, the policy (which carries the AI service catalogue: there is no separate catalogue host), the heartbeat about once a minute, discovery and device events, cloud scans when your workspace sends text to be checked, support bundles only when an administrator asks for one, and the removal receipt. |
+| Devices | `downloads.blindsight.io` | TCP 443 | The signed update manifest and its signature, the MSI or disk image of an update, and the on-device names model, downloaded once. |
+| Macs only, optional | `www.cloudflare.com` | TCP 443 | Cloudflare's published address list, read at most once a day. If it is blocked, the Mac keeps the list it shipped with. |
+| Console users' browsers | `platform.blindsight.io` | TCP 443 | The console. |
+| Devices | Your PAC file server, if you use one | Your port | The agent reads your PAC file or WPAD answer to route AI traffic. See [Proxies](#proxies). |
+| Devices and browsers | Your identity provider | Your port | Only with single sign-on. |
+| AI traffic from devices | The AI services people use | As today | After inspection on the device, AI traffic leaves the way it always did: direct, or through your proxy. The agent adds no destination of its own. |
+
+The cloud scanner is part of the platform. It runs behind `platform.blindsight.io`
+and needs no separate rule. It receives text only when your workspace sends text
+to be checked. See [Data flow](/endpoint/plan/data-flow).
+
+The agent makes no other calls: no licence service (the platform checks the
+licence), no analytics or crash reporting, no certificate revocation fetches of its
+own, no network calls from the installer, and no calls to an Inspector.
+
+<Note>
+  Both Blindsight host names resolve to addresses that can change. Allow them by
+  **name** on your proxy or next-generation firewall. Do not pin IP addresses.
+</Note>
+
+### Optional flows
+
+| From | To | Port | When |
+| ---- | -- | ---- | ---- |
+| Blindsight cloud | Your syslog collector | Your port, TLS 1.2 or later | Only if you send events to a SIEM. See [Syslog export](/endpoint/syslog-export). |
+| Laptops | Your egress gateway | TCP 3128 | Only if you run the [egress gateway](/endpoint/plan/gateway). |
+| Your egress gateway | `platform.blindsight.io`, `downloads.blindsight.io` | TCP 443 | The agents' calls, relayed, and the gateway's heartbeat. |
+| Your Inspector | `platform.blindsight.io` | TCP 443 | Only if you run an Inspector: policy download and a heartbeat about once a minute. No desktop version sends text to an Inspector, so for endpoints it has no use today. See [Deployment diagrams](/endpoint/plan/architecture#the-inspector-option). |
+
+### Staging
+
+A workspace on Blindsight's staging platform uses `staging.blindsight.io` in place
+of `platform.blindsight.io`, and the same `downloads.blindsight.io`.
+
+## TLS inspection of the agent's own traffic
+
+Exempt `platform.blindsight.io` and `downloads.blindsight.io` from TLS inspection
+wherever your policy allows. A gateway that re-signs this traffic can read the
+device token, the policy and the pause, revoke and uninstall decisions.
+
+- **Windows.** The agent checks the server against the public roots first, then
+  against the roots in the **machine** certificate store, so a TLS-inspecting proxy
+  whose root is in that store works. The heartbeat names the issuer that re-signs
+  the traffic, and the device page shows it.
+- **macOS.** Exempt both hosts. From desktop 2.2.2, a re-signed connection works when
+  your administrator trusts the inspecting root on the Mac.
+
+The agent does not pin certificates. Updates are protected separately: the update
+manifest carries an Ed25519 signature checked against a key built into the agent,
+and each package must match the SHA-256 and size the signed manifest names.
+
+## Ports the agent opens on the device
+
+All of them listen on `127.0.0.1` only. None is reachable from the network, so they
+need no inbound firewall rule. Do not block loopback traffic in a host firewall.
+
+| Port | Use |
+| ---- | --- |
+| `8787` | The local window and its local scan interface. |
+| `47324` | Reserved for the local packet bridge. |
+| `47325` | The inspection listener. |
+| `47326` | The egress listener the inspector sends its own outbound traffic through, so it never loops back into inspection. |
+| `47327` | The proxy auto-configuration (PAC) file the agent serves to the system. |
+
+On Windows the installer reserves `47324` to `47327` as a persistent excluded port
+range, so that Hyper-V's network address translation (used by WSL 2 and Docker
+Desktop) cannot take them at boot. It may stop and restart the `winnat` service to
+do so. The reservation stays after an uninstall, on purpose: it is harmless, and a
+reinstall reuses it.
+
+### QUIC and HTTP/3
+
+You do not need a firewall rule for QUIC. The agent turns QUIC off in Chrome and
+Edge by browser policy, and connections to the AI services it inspects fall back
+from UDP 443 to TCP, so they can be inspected. An uninstall removes the browser
+policy.
+
+## Proxies
+
+There are two separate kinds of traffic, and today they do not handle a company
+proxy the same way.
+
+### 1. AI traffic the agent inspects
+
+This follows your company proxy on Windows and macOS, as it did before the agent
+was installed. The agent reads the proxy the machine is set to, records it before
+it changes anything, and sends the inspected AI traffic on through it:
+
+- a fixed proxy, with its bypass list;
+- a PAC file;
+- WPAD auto-detection;
+- a proxy that asks for credentials: Basic, and on a domain-joined Windows machine
+  NTLM and Kerberos with the machine's own credentials. Proxy credentials are never
+  written to a file.
+
+This is on by default, as **Inspect traffic through a company proxy** at
+**Endpoint → Policies → Default policy**, under **AI services**. See
+[Fleet rollout: Proxies](/endpoint/fleet-rollout#proxies) for what happens when it is
+off. An uninstall puts the machine's proxy settings back exactly as they were,
+including a PAC file set by Group Policy.
+
+### 2. The agent's own calls to Blindsight
+
+**Windows.** The agent's calls to Blindsight follow the machine's proxy. It tries,
+in this order:
+
+1. proxy environment variables an administrator set machine-wide
+   (`HTTPS_PROXY`, `HTTP_PROXY`, `ALL_PROXY`, `NO_PROXY`);
+2. otherwise the machine's proxy configuration: browser policy, Internet Settings,
+   WinHTTP, a fixed proxy with its bypass list, or a PAC file;
+3. otherwise WPAD.
+
+With proxy variables or a PAC file, a direct connection is the last attempt. With
+WPAD, the agent tries a direct connection first, then the proxy.
+
+Proxy sign-in:
+
+| Your proxy | What happens |
+| ---------- | ------------ |
+| No sign-in: fixed, PAC or WPAD | Works. |
+| Negotiate (Kerberos, or NTLM inside it), named by an administrator: machine-wide proxy settings, WinHTTP, browser policy, or a PAC file set by Group Policy or your MDM | The agent signs in silently with the computer account. |
+| Any sign-in, for a proxy found only by WPAD | The agent never signs in to it, because WPAD answers can be spoofed on the network. Set the proxy or its PAC file by Group Policy or your MDM instead. |
+| Basic, with the credentials in a machine-wide `HTTPS_PROXY` set by an administrator, for example `http://svc-blindsight:password@proxy.example.internal:8080` | Works, alone or together with a PAC file or WPAD. |
+| Basic, without that `HTTPS_PROXY` | The device does not enrol: a PAC file carries no credentials. Set the `HTTPS_PROXY` above, or let the two Blindsight hosts through your proxy without sign-in. From desktop 2.2.2 the device reports that the proxy needs a sign-in, and how to fix it. |
+
+A proxy that asks for Basic credentials on every connection also stops Windows' own
+background traffic that cannot answer it: network connectivity checks, certificate
+revocation checks and Defender's cloud lookups. Exempt those too, or the machine can
+look like it has an install problem when it does not.
+
+On desktop 2.2.0 and 2.2.1, two calls go direct even when a proxy is set: pausing
+protection from the device, and the connectivity check in a diagnostics report. From
+desktop 2.2.2 they follow the proxy too.
+
+**macOS, desktop 2.2.2 and later.** The agent's calls to Blindsight follow the Mac's
+system proxy settings: a fixed proxy, a PAC file or WPAD, with a direct connection
+last. For a proxy named in the system settings or reached through a PAC file, the
+agent signs in silently with Kerberos. It never signs in to a proxy found only by
+WPAD. With a TLS-inspecting proxy, it accepts a root your administrator trusts on the
+Mac. The [egress gateway](/endpoint/plan/gateway) works through the `GatewayURL`
+setting.
+
+**macOS, desktop 2.2.1.** The agent's calls to Blindsight do not follow the PAC file,
+WPAD or the company proxy, so each Mac needs a direct path on TCP 443 to the two
+Blindsight hosts.
+
+### One exit point
+
+Two ways to make one exit point the only route to Blindsight:
+
+| | Your own proxy | The Blindsight egress gateway |
+| - | -------------- | ----------------------------- |
+| What it is | Your existing proxy, with a PAC rule for the two Blindsight hosts | A small pass-through proxy you run in your network. See [Egress gateway](/endpoint/plan/gateway). |
+| Windows | Desktop 2.2.0 and later | Desktop 2.2.0 and later with a PAC rule; 2.2.2 and later with the `GatewayURL` setting |
+| macOS | Desktop 2.2.2 and later | Desktop 2.2.2 and later with the `GatewayURL` setting |
+| Can read the agent's traffic | Only if your proxy inspects TLS. Exempt the Blindsight hosts. | No. It never decrypts. |
+
+**With your own proxy:**
+
+1. In your PAC file, send the two Blindsight hosts to your proxy:
+
+   ```js
+   if (host == "platform.blindsight.io" || host == "downloads.blindsight.io")
+     return "PROXY proxy.example.internal:8080";
+   ```
+
+2. In your firewall, allow only the proxy to reach those two hosts.
+
+With a PAC rule, direct is the agent's last attempt, so a blocked direct path makes
+the agent use the proxy. If your proxy asks for Basic credentials, also set the
+machine-wide `HTTPS_PROXY` described above. On desktop 2.2.0 and 2.2.1, pausing protection from the device and the
+diagnostics connectivity check then fail; from 2.2.2 they work.
+
+**With the egress gateway:** see [Egress gateway](/endpoint/plan/gateway).
+
+The Inspector is not a relay. It checks text, and it does not carry the agent's
+calls to Blindsight.
+
+## Many devices behind one address
+
+Most of the agent's calls are limited per device once it is identified, so a shared
+public address does not matter for them. A few calls made before a device is
+identified are limited per public address:
+
+- **Enrolment:** 30 a minute and 300 an hour from one address. Ten devices are not
+  affected. A thousand devices behind one exit address take more than three hours
+  to enrol, and a simultaneous push sees many devices asked to retry. Stagger a
+  large rollout, or ask Blindsight about the limit before it.
+- **The start of a browser sign-in:** also limited per address, so many people
+  signing in at the same moment are asked to wait and retry.
+
+The agent retries by itself.
+
+## Checklist for your network team
+
+- [ ] Devices reach `platform.blindsight.io` and `downloads.blindsight.io` on TCP 443,
+  by name: directly, through your proxy (Windows), or through the
+  [egress gateway](/endpoint/plan/gateway) (Windows and macOS).
+- [ ] Both hosts exempt from TLS inspection, or the inspecting root in the machine
+  certificate store on Windows.
+- [ ] Console users reach `platform.blindsight.io` on TCP 443.
+- [ ] If you filter outbound traffic per program on Windows, allow
+  `C:\Program Files\Blindsight\BlindsightAgent.exe` and
+  `C:\Program Files\Blindsight\Blindsight.exe`. Without the `BlindsightAgent.exe`
+  rule the whole-device lane stays down.
+- [ ] Loopback not blocked on the device. Ports `47324` to `47327` and `8787` free.
+- [ ] Your PAC file or proxy settings in place before the install, so the agent
+  records them first.

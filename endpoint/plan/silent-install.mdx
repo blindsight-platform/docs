@@ -1,0 +1,317 @@
+---
+title: "Packaging and silent install"
+description: "Package the Windows MSI and the macOS app yourself: silent install and uninstall commands, enrollment token handling, exit codes, detection rules, upgrades, and exactly what a clean uninstall removes and keeps."
+---
+
+This page is for a team that packages and delivers the agent with its own tools:
+Intune, Configuration Manager, Group Policy, or any other software delivery tool
+that can run a command as `SYSTEM` and read an exit code. It describes desktop
+**2.2.1**.
+
+If you would rather have Blindsight build and assign the Intune app for you, see
+[Connect Intune](/endpoint/connect-intune). If you want a ready-made script, the
+console's install kit holds `install.bat`, `uninstall.cmd` and a `README.txt`. See
+[Fleet rollout](/endpoint/fleet-rollout#package-the-kit-instead).
+
+## Windows
+
+### Before you package
+
+1. Download `Blindsight-2.2.1.msi` from **Downloads** in the console and check its
+   checksum against the one shown there:
+
+   ```powershell
+   Get-FileHash .\Blindsight-2.2.1.msi -Algorithm SHA256
+   ```
+
+2. Mint an enrollment token under **Endpoint → Configurations → Install**. Use one
+   token per wave of devices, and cap its activations to the size of the wave. See
+   [Create the fleet enrollment token](/endpoint/fleet-rollout#1-create-the-fleet-enrollment-token).
+3. Decide who changes the version: the agent itself, or your delivery tool. See
+   [Upgrades](#upgrades).
+
+### MSI properties
+
+| Property | Required | What it does |
+| -------- | -------- | ------------ |
+| `CLOUD_BASE` | Yes, on a first install | Your platform's address: `https://platform.blindsight.io` on the Blindsight cloud. Written to `HKLM\SOFTWARE\Blindsight\CloudBaseURL`. |
+| `ENROLL_TOKEN` | One of the two | The enrollment token on the command line. Hidden from the Windows Installer log, but visible to anything that can read the command line. |
+| `ENROLL_TOKEN_FILE` | One of the two | The path of a file that holds the token, so the token never appears on a command line. The installer reads at most 256 bytes from a regular file (never a link), seals the token with DPAPI, and deletes the file only when it sits under `C:\ProgramData\Blindsight\`. When both are given, the file wins. A file that is refused falls back to `ENROLL_TOKEN`. |
+| `WORKSPACE_ID` | No | Pins the machine to one workspace. Written to `HKLM\SOFTWARE\Blindsight\WorkspaceId`. A token from any other workspace is then refused on this machine. Ask Blindsight for your workspace ID. |
+| `GATEWAY` | No | Desktop 2.2.2 and later. The [egress gateway](/endpoint/plan/gateway) address, `http://<gateway name>:3128`, with no user name, password or path. Written to `HKLM\SOFTWARE\Blindsight\GatewayURL`. Every call from the agent to Blindsight then goes only through the gateway. |
+| `UNINSTALL_CODE` | Only to uninstall under **enforce** | See [Uninstall codes](/endpoint/uninstall#uninstall-codes). Never remembered and hidden from the log. |
+
+Every property is per machine. A value on the command line always wins. With no
+value, the installer keeps what the machine already has, so an upgrade with no
+properties never retargets a device.
+
+### Install
+
+With the token in a file next to the MSI in your package:
+
+```text
+msiexec /i "Blindsight-2.2.1.msi" /qn /norestart CLOUD_BASE="https://platform.blindsight.io" ENROLL_TOKEN_FILE="%~dp0enroll.token"
+```
+
+With the token on the command line:
+
+```text
+msiexec /i "Blindsight-2.2.1.msi" /qn /norestart CLOUD_BASE="https://platform.blindsight.io" ENROLL_TOKEN="<token>"
+```
+
+`%~dp0` is the folder of the script that runs the command. In a delivery tool
+that runs `msiexec` directly, give the full path of the token file instead.
+
+<Warning>
+  The token is a fleet secret. Keep it in your tool's secret store, do not turn on
+  verbose Windows Installer logging (`/l*v`) on a production fleet, and if a token
+  reaches a log, revoke it and mint another. The installer deletes a token file
+  only when it sits under `C:\ProgramData\Blindsight\`. Delete any other copy in
+  your install script once `msiexec` has run, as the wrapper below does.
+</Warning>
+
+The install takes about a minute, and the device is protected about a minute after
+`msiexec` returns. It then appears in **Endpoint → Devices**.
+
+### Exit codes
+
+`msiexec` returns its own codes:
+
+| Code | Meaning | Treat as |
+| ---- | ------- | -------- |
+| `0` | Installed or removed. | Success |
+| `1707` | Windows Installer reports success. | Success |
+| `3010` | Done, and Windows reports a restart as pending. Nothing is forced. Some upgrades with files held open return it although the install is complete. | Success, soft reboot |
+| `1641` | The installer started a restart. Rare with `/norestart`. | Hard reboot |
+| `1618` | Another installation was running. | Retry |
+| `1603` | A fatal error: also a downgrade, a full disk, a Windows version below 10 1809, or an uninstall that needs an uninstall code. | Failed |
+| `1605` | On uninstall: the product is not installed. | Success for an uninstall |
+
+`msiexec` returns `0` as soon as the files are in place, before the agent has
+enrolled. A refused token therefore still reads `0`. The console's install kit
+waits for the agent's answer and adds two codes of its own:
+
+| Code | Meaning | What to do |
+| ---- | ------- | ---------- |
+| `7001` | The platform refused the enrollment token: expired, revoked, unknown, or from another workspace. | Mint a new token and rebuild the package. |
+| `7002` | The machine is pinned to another workspace by `HKLM\SOFTWARE\Blindsight\WorkspaceId`, so the token was refused. Needs desktop 2.2.1. | Correct the `WorkspaceId` on the machine, or use a token from that workspace. |
+
+The kit's script waits up to 120 seconds after `msiexec` returns. It exits `7001`
+in about 40 seconds when the token is refused, and exits at once when the device
+was already enrolled. An agent that has not answered in 120 seconds leaves the
+result at `0`. Any other `msiexec` failure passes straight through.
+
+**From desktop 2.2.2**, the agent gives you the same answer itself. After `msiexec`
+returns, run:
+
+```text
+"%ProgramFiles%\Blindsight\BlindsightAgent.exe" install-status --wait 120
+```
+
+It waits up to 120 seconds and exits `7001` when the token was refused, `7002` when
+the workspace pin or the device check refused it, and `0` when the device enrolled or
+is still trying.
+
+**On desktop 2.2.1**, use the kit's `install.bat` (or the `install.cmd` in an Intune
+package the console builds) rather than bare `msiexec`, so that a refused token
+reads as **Failed** in your tool and not as installed.
+
+### Your own wrapper
+
+To get the same two codes from your own package, wrap `msiexec` the way the kit
+does. The agent writes its answer to `C:\ProgramData\Blindsight\install-status.json`.
+This example is plain `cmd`, so it runs where PowerShell is locked down (AllSigned
+or constrained language mode). Test it on one device first.
+
+```bat
+@echo off
+setlocal
+set "STATUS=%ProgramData%\Blindsight\install-status.json"
+set "WAITING=1"
+if exist "%STATUS%" findstr /r /c:".state.: *.enrolled." "%STATUS%" >nul 2>&1 && set "WAITING="
+if defined WAITING del /f /q "%STATUS%" >nul 2>&1
+
+msiexec /i "%~dp0Blindsight-2.2.1.msi" /qn /norestart CLOUD_BASE="https://platform.blindsight.io" ENROLL_TOKEN_FILE="%~dp0enroll.token"
+set "RC=%ERRORLEVEL%"
+if not "%RC%"=="1618" del /f /q "%~dp0enroll.token" >nul 2>&1
+if not "%RC%"=="0" exit /b %RC%
+if not defined WAITING exit /b 0
+
+set "N=0"
+:wait
+if exist "%STATUS%" findstr /r /c:".code.: *.token_" "%STATUS%" >nul 2>&1 && exit /b 7001
+if exist "%STATUS%" findstr /r /c:".code.: *.workspace_pinned" "%STATUS%" >nul 2>&1 && exit /b 7002
+if exist "%STATUS%" findstr /r /c:".state.: *.enrolled." "%STATUS%" >nul 2>&1 && exit /b 0
+if %N% GEQ 120 exit /b 0
+ping -n 6 127.0.0.1 >nul
+set /a N+=5
+goto wait
+```
+
+Map `7001` and `7002` to **Failed** in your tool.
+
+### Detection rule
+
+Use one of these, or both. Never detect on the ProductCode: it changes with every
+version, so a rule that pins it reports "not detected" after the first update.
+
+| Rule | Value |
+| ---- | ----- |
+| File version | `C:\Program Files\Blindsight\BlindsightAgent.exe`, version **greater than or equal to** the version you packaged, for example `2.2.1`. An agent that updated itself still passes. A half-updated install reads as not installed, and a re-run repairs it. |
+| Registry key | `HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Installer\UpgradeCodes\EB2308B1879234F408A2A3011B6815F5` exists, in the 64-bit view. This is the packed form of the stable UpgradeCode `{1B8032BE-2978-4F43-802A-3A10B186515F}`. |
+
+Use a file or registry rule, not a detection script, where PowerShell runs only
+signed scripts.
+
+### Upgrades
+
+The MSI is a major upgrade: installing a newer MSI over an older one keeps the
+enrollment, the device's certificate, the pseudonymisation vault, unsent events,
+the person's sign-in and their settings. A downgrade is refused with `1603`.
+
+```text
+msiexec /i "Blindsight-<new version>.msi" /qn /norestart
+```
+
+No properties are needed: the machine keeps its address, token and workspace pin.
+An upgrade restarts the agent, and AI traffic is not inspected for about a minute
+while it starts. The device reports that gap. Schedule upgrades outside working
+hours.
+
+**Who changes the version.** By default the agent updates itself from the signed
+release channel: it checks 60 seconds after it starts and then every 6 hours, and
+verifies the signature, SHA-256 and size of the package before it installs it. To
+keep the version on your change calendar instead:
+
+- set the machine environment variable `BLINDSIGHT_AUTO_UPDATE=0` **before** the
+  install. The service reads it after the next restart of the machine;
+- deploy each new version as a new package, with the file version rule above;
+- optionally set `HKLM\SOFTWARE\Blindsight\UpdateApplyRequiresManifest` to `1`, so
+  even an update the agent was told to install must match the signed manifest.
+
+There is no version pin inside the product. With automatic updates on, a device
+follows the stable channel, where a build arrives only when Blindsight promotes it.
+
+### Uninstall
+
+If the installed version is the one you packaged, uninstall with the same MSI:
+
+```text
+msiexec /x "Blindsight-2.2.1.msi" /qn /norestart
+```
+
+If the agent may have updated itself, use the kit's `uninstall.cmd`, which finds
+the installed product by its UpgradeCode, needs no ProductCode and no PowerShell,
+and treats `1605` as success. Put it inside your package.
+
+```text
+uninstall.cmd
+```
+
+The uninstall takes one to two minutes, longer for a damaged install. It needs no
+reboot.
+
+**Uninstall codes.** A workspace's uninstall mode is **off** by default, and then
+an administrator or `SYSTEM` can remove the agent with no code. Keep it off for a
+pilot. Under **enforce**, a plain uninstall exits `1603` and the agent stays: see
+[Uninstall codes](/endpoint/uninstall#uninstall-codes). Never put a code in a
+delivery tool's command line, where it is stored and logged.
+
+### What a clean uninstall removes
+
+1. The `BlindsightDLP` service, and every agent process.
+2. The proxy settings, WinHTTP proxy, proxy and CA environment variables, browser
+   policies and firewall rules, put back from the snapshot taken at install,
+   including a PAC file set by Group Policy.
+3. The machine's `Blindsight Root CA`, from the machine trust store, and its files.
+4. The scheduled tasks and the `\Blindsight\` task folder, and the `Run` value.
+5. The Wintun device and driver package, when no other program uses them.
+6. `C:\ProgramData\Blindsight`, including the enrollment and the pseudonymisation
+   vault. This loss is permanent: see [What you lose](/endpoint/uninstall#what-you-lose).
+7. `.blindsight` in every user profile, and in the `LocalSystem` profile.
+8. The registry values Blindsight wrote in `HKLM\SOFTWARE\Blindsight`:
+   `CloudBaseURL`, `SSOLoginBase`, a token left readable by an old version, the
+   `Secrets` subkey with the sealed token, the uninstall mode mirror, and the
+   installer's markers. New in 2.2.1: earlier versions left the first of these
+   behind.
+9. The program files.
+
+About two minutes later, a one-time task checks for anything an interrupted
+uninstall left and removes it. It writes event `901` from source
+`BlindsightUninstallSweep` to the Application log. *Nothing was left to remove* is
+the result you want.
+
+### What stays, on purpose
+
+| What stays | Why |
+| ---------- | --- |
+| Values an administrator, Group Policy or an MDM profile wrote in `HKLM\SOFTWARE\Blindsight`: `WorkspaceId`, `Site`, the silence settings, `OcrWindows`, `LocalModeProcesses` | They are your settings, not Blindsight's, and your tool would push them again. Delete them with your tool if you retire the machine for good. |
+| The excluded port range `47324` to `47327` | It keeps Hyper-V's NAT off those ports. It is harmless, and a reinstall reuses it. |
+| `C:\Windows\Logs\Blindsight\BlindsightGate.log` | The uninstall's own log, for your records. |
+| The device's row and its events in the console | Events are evidence. Revoke the row in **Endpoint → Devices** to free the seat. See [Retire the device in the console](/endpoint/uninstall#retire-the-device-in-the-console). |
+
+## macOS
+
+### Package and install
+
+1. Download the disk image for each processor you have: `-arm64.dmg` for Apple
+   silicon and `-x86_64.dmg` for Intel. Check the checksum shown on **Downloads**:
+
+   ```bash
+   shasum -a 256 Blindsight-Mac-2.2.1-arm64.dmg
+   ```
+
+2. Deliver `Blindsight Mac.app` to `/Applications` with your MDM. Scope each image
+   to Macs with the matching processor.
+3. The Mac enrols when someone signs in inside the app. See
+   [Install on macOS](/endpoint/install#install-on-macos).
+4. Each person approves the inspection certificate once with their password or
+   Touch ID. No profile can do this for them: each Mac creates its own certificate.
+
+**Enrolment without a sign-in.** With desktop 2.2.1, a Mac can also enrol by
+itself from a **device** configuration profile in the `dev.blindsight` domain that
+carries `CloudBaseURL`, `EnrollmentToken` and `WorkspaceId`. When the console's
+macOS install kit includes `40-managed-config.mobileconfig`, that is the profile.
+Push it as a **device** profile: a user-level profile is not read for this. To send
+the Mac's calls through the [egress gateway](/endpoint/plan/gateway), add the key
+`GatewayURL` with the gateway address to the same profile (desktop 2.2.2 and later). Then,
+as a root script step in your MDM after the app is delivered, run
+`install-guardian.sh`, supplied by Blindsight. It copies the app to a
+root-only folder, checks its signature and starts the root guardian, which reads
+the profile and enrols. It exits `0` when installed, `1` when the check or the
+install failed, and `2` when the app is not in `/Applications` yet, so your MDM
+should retry. The person signs in later to be named. A kit with that profile holds a live token: treat it as a
+secret.
+
+There is no `.pkg`. The app updates itself as on Windows.
+
+### Uninstall from an MDM
+
+```bash
+sudo "/Applications/Blindsight Mac.app/Contents/Resources/uninstall" --unattended --for-user <account name>
+```
+
+| Exit code | Meaning |
+| --------- | ------- |
+| `0` | Removed. |
+| `2` | An uninstall code was required, and it was missing or wrong. |
+| `3` | The check could not finish. |
+
+Without `--for-user`, the job removes the system parts and leaves that person's
+`~/.blindsight`, `~/.mitmproxy` and login item. A second run with `--for-user`
+removes them. Pass a code with `--code-file <path>` or `--code-stdin`, never on the
+command line. See [Uninstall on macOS](/endpoint/uninstall#uninstall-on-macos) for
+each step it takes.
+
+## Intune and other delivery tools
+
+| Tool | What to package | Install | Uninstall | Detection |
+| ---- | --------------- | ------- | --------- | --------- |
+| Intune, Win32 app (`.intunewin`) | The MSI, `enroll.token`, your wrapper or the kit's `install.bat`, and `uninstall.cmd` | The wrapper or `install.bat`, as `SYSTEM` | `uninstall.cmd` | File version or registry key above. Add return codes `7001` and `7002` as **Failed**. |
+| Intune, assigned for Blindsight | Nothing: Blindsight builds the app | | | See [Connect Intune](/endpoint/connect-intune). |
+| Configuration Manager | The same folder as an application | The wrapper or `install.bat` | `uninstall.cmd` | File version or registry key above. |
+| Group Policy | A computer startup script running `install.bat`, which skips a machine that already has the agent | `install.bat` | `uninstall.cmd` | |
+| Any other tool that runs a command as `SYSTEM` | The same folder | The wrapper or `install.bat` | `uninstall.cmd` | File version or registry key above. |
+
+Target **devices**, not users. In Intune, unassigning a required app does not
+uninstall it: assign the **Uninstall** intent to the group instead.

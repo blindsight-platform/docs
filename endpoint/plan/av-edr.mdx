@@ -1,0 +1,256 @@
+---
+title: "AV and EDR"
+description: "How the endpoint agent works with Microsoft Defender for Endpoint, and the full list of files, processes, drivers, tasks and behaviours to allow in any AV or EDR."
+---
+
+The agent does things an endpoint security product is right to look at: a
+`LocalSystem` service, a root certificate on each machine, local TLS termination, a
+virtual network adapter, and edits to proxy and browser policy settings. This page
+lists all of it, so you can allow exactly that and nothing wider. It describes
+desktop **2.2.1** on Windows, with a short section for macOS.
+
+<Tip>
+  Recommended order: allow the **publisher**, test on two devices with **no
+  exclusions**, and add a folder or process exclusion only for what your own logs
+  show is needed.
+</Tip>
+
+## Microsoft Defender for Endpoint
+
+### What to expect
+
+With Defender real-time protection on, Defender does not block, quarantine or alert
+on the agent, and no exclusion is needed, with:
+
+- network protection in Block mode, including when the only way out is your proxy;
+- these attack surface reduction rules in Block mode:
+  - Block executable files from running unless they meet a prevalence, age, or
+    trusted list criterion
+  - Block abuse of exploited vulnerable signed drivers
+  - Block credential stealing from the Windows local security authority subsystem
+  - Block process creations originating from PSExec and WMI commands
+  - Block persistence through WMI event subscription
+  - Block untrusted and unsigned processes that run from USB
+  - Use advanced protection against ransomware
+  - Block use of copied or impersonated system tools
+  - Block Webshell creation for Servers;
+- controlled folder access in Block mode. `C:\ProgramData\Blindsight` is not a
+  protected folder;
+- install, enrolment, restart, upgrade and uninstall.
+
+The agent's signed files pass with no allow indicator.
+
+**One expected event.** During an uninstall, the rule **Block credential stealing
+from the Windows local security authority subsystem** can log one event 1121 for
+`lsass.exe` against Windows Installer (`msiexec.exe`). It names Windows, not
+Blindsight, and the uninstall completes. No exclusion is needed.
+
+### Check on two devices first
+
+If your policy uses any of these, run it on two devices before the rest of the
+group:
+
+- EDR in block mode, tamper protection, custom indicators, web content filtering
+  and device isolation;
+- SmartScreen and Smart App Control;
+- memory integrity (HVCI).
+
+Record events 1121 to 1126 in **Microsoft-Windows-Windows Defender/Operational**
+and any incident, and send them to Blindsight if anything is flagged.
+
+### If you add exclusions
+
+- Deploy them through an Intune endpoint security policy, so tamper protection
+  honours them.
+- **Be careful with a process exclusion for `BlindsightAgent.exe`.** Microsoft
+  states that a process exclusion also takes that process out of network protection.
+  The agent's inspection runs inside `BlindsightAgent.exe`, so such an exclusion
+  takes all inspected AI traffic out of network protection and web content
+  filtering. Prefer the publisher and folder entries below.
+
+## What to allow on Windows
+
+### Publisher
+
+Blindsight's own files are Authenticode signed by:
+
+```text
+CN=Blindsight Technologies AG, O=Blindsight Technologies AG, L=Zürich, S=Zürich, C=CH
+```
+
+The certificate is publicly trusted and in use since 2026-08-28, so a publisher
+rule works and is the one to use. Scope it to that organisation name. A Defender
+certificate indicator works on the leaf certificate, so refresh it when the
+certificate is renewed. Builds from before 2026-08-28 were signed with a chain a
+normal endpoint cannot build; do not deploy them.
+
+Draft App Control (WDAC) and AppLocker publisher rules are available from
+Blindsight.
+
+### Files
+
+| File | Role |
+| ---- | ---- |
+| `C:\Program Files\Blindsight\BlindsightAgent.exe` | The `BlindsightDLP` service and the command-line agent. It also runs the inspection proxy, as `BlindsightAgent.exe mitmdump`, so you normally see two `BlindsightAgent.exe` processes. There is no `mitmdump.exe` on Windows: a rule for that name matches nothing. |
+| `C:\Program Files\Blindsight\Blindsight.exe` | The window and tray app, per signed-in person, not elevated. |
+| `C:\Program Files\Blindsight\bs-tun.exe` | The helper for the whole-device lane. |
+| `C:\Program Files\Blindsight\BlindsightGate.exe` | A small launcher the installer uses for cleanup and the uninstall code check. |
+| `C:\Program Files\Blindsight\wintun.dll` | Creates the Wintun virtual adapter. |
+| `C:\Program Files\Blindsight\WinDivert64.sys`, `WinDivert.dll` | A packet-capture driver kept for a fallback path. It is not used by default. `WinDivert.dll` has no signature, as its vendor publishes it; allow it explicitly if your policy requires signed modules. |
+| `C:\Windows\Logs\Blindsight\sweep\BlindsightGate.exe` | A copy that a one-time `SYSTEM` task runs after an uninstall to remove late leftovers. It exists for a few minutes. |
+
+### Folders
+
+| Folder | Contents |
+| ------ | -------- |
+| `C:\Program Files\Blindsight\` | The files above, about 260 MB. |
+| `C:\ProgramData\Blindsight\` | State, logs, the policy copy, the machine's certificate files, the names model when downloaded, the encrypted mapping store `pseudonym_vault.db`, and the update staging area. |
+| `C:\Windows\Logs\Blindsight\` | The installer gate's log and, briefly, the sweep copy. |
+
+### Services, drivers, tasks and registry
+
+| Item | Detail |
+| ---- | ------ |
+| Service | `BlindsightDLP`, `LocalSystem`, automatic start. Recovery: restart after 5 s, 5 s and 10 s, counter reset after one day. |
+| Driver | **Wintun**: service `Wintun`, hardware ID `Wintun`, setup class Net `{4d36e972-e325-11ce-bfc1-08002be10318}`, device `SWD\Wintun\{guid}`, adapter `wintun`. Signed by WireGuard LLC with a Microsoft-signed driver. |
+| Scheduled tasks | `\Blindsight\ServiceGuard` (`SYSTEM`, every 2 minutes, starts the service if it is stopped); `\Blindsight\ConnectivityGuard` (per person, every 3 minutes, repairs the proxy settings); `\Blindsight\UninstallSweep` (one time, only after an uninstall); `BlindsightAgentUpdate` (one time, only while a self-update installs). |
+| Autostart | `HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run`, value `Blindsight`, starts the tray app. |
+| Registry | `HKLM\SOFTWARE\Blindsight`. The enrollment token is sealed with DPAPI under `HKLM\SOFTWARE\Blindsight\Secrets`, readable by `SYSTEM` and Administrators only. |
+
+If you restrict device installation, allow hardware ID `Wintun`, not the whole Net
+class, and turn on **Apply layered order of evaluation for Allow and Prevent device
+installation policies across all device match criteria**. Without it the
+whole-device lane stays down and the browser and proxy lanes keep working. See
+[Device installation restrictions](/endpoint/fleet-rollout#device-installation-restrictions).
+
+### Certificate
+
+- Subject `CN=Blindsight Root CA`, RSA 4096, valid 10 years, **generated on each
+  machine**. The private key never leaves the machine, and no key is in the
+  installer.
+- Added to `LocalMachine\Root` by the installer and removed on uninstall. It also
+  goes into a CA bundle for command-line tools, Firefox's enterprise roots, and the
+  `cacerts` of installed Java runtimes; the Java change is reverted on uninstall.
+- Used only to sign certificates for the AI service hosts the policy chooses to
+  read.
+- Every machine has a different fingerprint. The agent reports it to the console,
+  so you can match a certificate rule or an inventory finding to a device.
+
+Do not exclude the certificate store from monitoring. Expect a
+**certificate store tampering** class of detection at install.
+
+### Ports
+
+Loopback only: `8787` and `47324` to `47327`. See
+[Ports the agent opens](/endpoint/plan/network#ports-the-agent-opens-on-the-device).
+These need no AV exclusion.
+
+### MSI custom actions
+
+The 2.2.1 MSI authors **49 custom actions**: 46 start a process and 3 set a
+property or make a check with no process. All but one run deferred or on rollback,
+not impersonated, so as `LocalSystem`. The one exception, `LaunchApp`, opens the
+window in the person's session at the end of an install. Two are test hooks that do
+nothing on a normal install.
+
+The processes they start are `BlindsightAgent.exe`, `BlindsightGate.exe` (from the
+install folder and from the installer's own Binary table), `Blindsight.exe`, and
+the stock `schtasks.exe`, `sc.exe` and `cmd.exe` from `%SystemRoot%\System32`.
+
+<Accordion title="The full list of custom actions">
+  | Action | When | What it does |
+  | ------ | ---- | ------------ |
+  | `ImportRootCA` | install | Generates and trusts the per-machine CA. |
+  | `ReservePorts` | install | Reserves ports 47324 to 47327. |
+  | `ApplySystemConfig` | install | Applies the proxy and PAC configuration. |
+  | `WriteManagedConfig` | install, when a cloud address, token, token file or workspace ID is given | Stores the managed configuration and seals the token. |
+  | `ClearStaleEnrolmentSecret` | fresh install without a token | Removes a leftover enrolment secret. |
+  | `EnsureService` | install, upgrade, repair | Makes sure the service exists and runs. |
+  | `RestoreServiceOnRollback` | rollback | Puts the service back if an install fails. |
+  | `RollbackFreshInstall` | rollback of a fresh install | Removes what a failed install left. |
+  | `WaitForFilesFree` | upgrade, repair | Waits until the install folder is not locked. |
+  | `QuiesceLane` | upgrade | Stops the whole-device lane before files are replaced. |
+  | `SettleSwapRollback` | rollback | Abandons a half-done file swap. |
+  | `SettleSwap` | upgrade, repair | Finishes the file swap. |
+  | `CommitSwap` | upgrade, repair | Commits the file swap. |
+  | `AbandonSwapOnUninstall` | uninstall | Discards a pending swap. |
+  | `SweepLeftovers` | uninstall | Removes files a late writer left. |
+  | `PurgeStateData` | uninstall | Clears `C:\ProgramData\Blindsight`. |
+  | `RemoveEmptyStateFolder` | uninstall | Removes the empty state folder. |
+  | `RefuseUninstallWithoutCode` | uninstall | No process. Refuses a gated uninstall that has no code. |
+  | `UninstallGate` | uninstall | Checks the uninstall code. |
+  | `UninstallReceipt` | uninstall | Records the uninstall. |
+  | `RevertSystemConfig` | uninstall | Reverts the proxy and PAC configuration. |
+  | `RemoveRootCA` | uninstall | Removes the CA from the trust store. |
+  | `ForceCleanupFull` | uninstall | Stops and deletes the service, full teardown. |
+  | `ForceCleanupUpgrade` | upgrade | Teardown that keeps enrolment. |
+  | `CloseRunningAgent` | upgrade | Closes the running agent. |
+  | `NoteRepairingStop` | repair | Notes that a stop is a repair, not tampering. |
+  | `CloseForMaintenance` | repair, uninstall | Closes the agent processes. |
+  | `DisableServiceGuard`, `DisableConnectivityGuard` | upgrade | Pause the two guard tasks. |
+  | `ClearServiceRecovery` | upgrade | Clears service recovery during the upgrade. |
+  | `EnableServiceGuard`, `EnableConnectivityGuard` | rollback of an upgrade | Re-enable the guard tasks. |
+  | `RestoreServiceFailureFlag`, `RestoreServiceRecovery` | rollback of an upgrade | Restore service recovery. |
+  | `ResumeServiceGuard`, `ResumeConnectivityGuard` | upgrade | Resume the guard tasks once the new service is up. |
+  | `SilenceServiceGuardOnUninstall`, `SilenceConnectivityGuardOnUninstall` | uninstall | Stop the guard tasks fighting the uninstall. |
+  | `ClearServiceRecoveryOnUninstall` | uninstall | Stops the service restarting during the uninstall. |
+  | `EnableServiceGuardOnUninstallRollback`, `EnableConnectivityGuardOnUninstallRollback`, `RestoreServiceRecoveryOnUninstallRollback` | rollback of an uninstall | Put the guards and recovery back. |
+  | `ArmUninstallSweep` | uninstall | Copies the gate to the sweep folder and creates the one-time sweep task. |
+  | `DisarmUninstallSweepTask`, `DisarmUninstallSweepCopy` | install, upgrade | Remove a sweep task and copy left by an earlier uninstall. |
+  | `SetTestFailStoreArg`, `FailForRollbackTest` | test only | Do nothing on a normal install. |
+  | `SetLaunchAppWillRun` | install | No process. Records that the window will open. |
+  | `LaunchApp` | install, impersonated | Opens the window in the person's session. |
+</Accordion>
+
+### Behaviours to expect
+
+| Behaviour | Typical detection class |
+| --------- | ----------------------- |
+| `LocalSystem` service created by an MSI | Persistence, service installation |
+| Root CA added to `LocalMachine\Root` | Certificate store tampering |
+| Local TLS termination | Traffic interception, man in the middle |
+| Wintun adapter creation and route changes | Virtual network adapter, VPN-like behaviour |
+| Proxy, environment variable and browser policy writes | Configuration tampering |
+| Scheduled tasks under `\Blindsight\`, `sc.exe failure`, `schtasks.exe` from an installer | Persistence, service tampering |
+| `HKLM\...\CurrentVersion\Run` entry | Autorun |
+| A one-time task running `msiexec` during a self-update | Installer launched from a task |
+| Reading the DNS client cache for AI service names | DNS monitoring |
+| PyInstaller-packed executables | Generic packer heuristics |
+
+Ask your vendor to scope an exclusion to the files above, never to a whole
+detection class.
+
+## What to allow on macOS
+
+| Item | Detail |
+| ---- | ------ |
+| Signature | `Blindsight Mac.app` is signed and notarized by Blindsight Technologies AG. |
+| Application | `/Applications/Blindsight Mac.app`, process `blindsight-mac`, running as the person. |
+| Root service | LaunchDaemon `dev.blindsight.guardian`, process `blindsight-mac guardian`, running as root. It runs the inspection proxy (`blindsight-mac mitmdump`), the PAC server and the `bs-tun` helper from `/Library/Application Support/Blindsight/`. |
+| Login item | LaunchAgent `dev.blindsight.mac`. |
+| State | `/Library/Application Support/Blindsight` and `~/.blindsight`. |
+| Certificate | The per-machine inspection root in the keychain, and in any JDK trust store. |
+| Network | An automatic proxy configuration on every enabled network service, pointing at `127.0.0.1:47327`, and a `utun` device when the whole-device lane is on. |
+
+On macOS the guardian starts `blindsight-mac` again in the person's session about
+30 to 60 seconds after they quit it while protection is on. An EDR that flags a
+root process starting an app in a user session is seeing this step.
+
+## Check what you received
+
+```powershell
+Get-AuthenticodeSignature "$env:ProgramFiles\Blindsight\BlindsightAgent.exe" | Format-List
+Get-Service BlindsightDLP
+Get-ChildItem Cert:\LocalMachine\Root | Where-Object Subject -match 'Blindsight Root CA'
+Get-ScheduledTask -TaskPath '\Blindsight\'
+netstat -ano | Select-String '127.0.0.1:(8787|4732[4-7])'
+```
+
+The signature reads `Valid` with `CN=Blindsight Technologies AG`. `NotSigned` or
+`HashMismatch` means the file is not what Blindsight shipped.
+
+## If your product blocks something
+
+Send Blindsight the vendor, the product version, the exact detection name and the
+blocked file path. Blindsight takes false positives up with the vendor directly and
+submits each signed release to Microsoft ahead of publication.
