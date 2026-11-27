@@ -1070,7 +1070,7 @@ components:
       type: object
       required: [text]
       properties:
-        known_stand_ins: { type: array, maxItems: 600, items: { type: string, maxLength: 60 }, description: "Accepted and unused on this route: stand-ins are never skipped in an input scan's own text, so nothing here changes the answer. It is read only from an output scan of a caller that declared stand-ins, and only for the response." }
+        known_stand_ins: { type: array, maxItems: 600, items: { type: string, maxLength: 60 }, description: "Optional. Stand-ins already issued in this conversation (keys only, never the original values). On an input scan, new stand-ins issued by the call avoid these keys, so two people never share a part across turns when there is no session; it never leaves a value unmasked. On an output scan of a caller that declared stand-ins it also leaves the whole issued name, email or phone of an issued person in place for the restore. SDK 1.1 sends it on output scans." }
         pseudonym_format: { type: string, enum: [token, stand_in], description: "Optional. `stand_in` asks for realistic stand-ins (restore through the SDK or `/scan/restore`); `token` forces numbered tokens. Left out, stand-ins go only to callers that can restore them (SDK 1.1 or later) and everyone else gets numbered tokens." }
         text:
           type: string
@@ -1123,7 +1123,7 @@ components:
       type: object
       required: [response]
       properties:
-        known_stand_ins: { type: array, maxItems: 600, items: { type: string, maxLength: 60 }, description: "Optional. Stand-ins already issued in this conversation (keys only, never the original values). Used on the output scan's response only, for a caller that asked for stand-ins, otherwise ignored. A finding equal to one is left as it is and not added to the mapping. SDK 1.1 sends it for you." }
+        known_stand_ins: { type: array, maxItems: 600, items: { type: string, maxLength: 60 }, description: "Optional. Stand-ins already issued in this conversation (keys only, never the original values). On an input scan, new stand-ins issued by the call avoid these keys, so two people never share a part across turns when there is no session; it never leaves a value unmasked. On an output scan of a caller that declared stand-ins it also leaves the whole issued name, email or phone of an issued person in place for the restore. SDK 1.1 sends it on output scans." }
         pseudonym_format: { type: string, enum: [token, stand_in], description: "Optional. `stand_in` asks for realistic stand-ins (restore through the SDK or `/scan/restore`); `token` forces numbered tokens. Left out, stand-ins go only to callers that can restore them (SDK 1.1 or later) and everyone else gets numbered tokens." }
         response:
           type: string

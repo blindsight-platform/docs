@@ -483,6 +483,8 @@ never restores parts. On the restore route, send `"pseudonym_format": "stand_in"
 (the same declaration as on the scan calls) and the mapping of the input scan joined
 with that of the output scan.
 
+The scan calls take `known_stand_ins` (the keys of the stand-ins already issued, never the originals). New stand-ins avoid these keys, so two people never share a part across turns when there is no `session_id`; it never leaves a value unmasked. On an output scan of a caller that declared stand-ins it also leaves the whole issued name, email or phone in place for the restore.
+
 Use SDK version 1.1 or later for stand-ins. Version 1.0 only understands numbered
 tokens, which is why it keeps getting them.
 
