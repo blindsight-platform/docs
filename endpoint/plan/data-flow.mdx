@@ -55,6 +55,7 @@ personal data types your workspace chose, on the device, and report what it foun
 | Leaves the device, per prompt or file | Never leaves the device |
 | ------------------------------------- | ----------------------- |
 | The AI service host, provider and program | The prompt, the reply and any file content |
+| The path of the AI service's endpoint, shaped: identifiers replaced by `{id}`, file-like parts by `{file}`, no query string, no fragment, at most 200 characters. Never the address of a page in the browser. | A query string, which can carry tokens or one-time codes |
 | The **categories** of personal data found and a **count** for each, for example two email addresses and one IBAN | The values that were found |
 | The length of the text | The file's name |
 | For a file: its kind, extension, media type and size | |
@@ -65,9 +66,15 @@ platform drops it before anything is stored or scored.
 **Inventory of what devices carry.** **What devices carry** at
 **Endpoint → Policies → Default policy** reports the AI applications, browser
 extensions, MCP servers and local model tools installed on a device: their names,
-versions and identifiers, and the install folder of a machine-wide install, never
+versions, identifiers and program names, and the install folder of a machine-wide install, never
 of a per-person one. It is off unless switched on. A workspace created since 10
 November 2026 starts with it on. Check it before the first device enrols.
+
+**Lookalike sites.** In a watch only workspace that never chose an action for
+lookalike sites, a person who opens a site that imitates an AI service sees a
+warning page they can click through. Nothing is read or changed. If the pilot must
+not be visible to people, set that action to off before the first device enrols.
+See [Impersonating AI sites and lookalikes](/endpoint/shadow-ai/impersonating-sites).
 
 ## Protect mode
 
@@ -79,7 +86,7 @@ an AI service or a data type can be blocked. What leaves the device then depends
 | | Prompt injection detection off | Prompt injection detection on |
 | - | ------------------------------ | ----------------------------- |
 | Prompt, reply or file text | Nothing. The event says the check ran on the device only. | The text **after** masking on the device, sent to the cloud scanner to be checked for injection. What the detectors miss leaves as it was typed. |
-| Kept on the platform | Categories, counts, length, host, provider, program | Also up to 4,000 characters of the **masked** text, encrypted, when **Keep prompt text** is on, which it is by default. |
+| Kept on the platform | Categories, counts, length, host, provider, program, the shaped endpoint path | Also up to 4,000 characters of the **masked** text, encrypted, when **Keep prompt text** is on, which it is by default. |
 | File name | Not sent | Sent |
 
 See [Keeping prompts on the machine](/endpoint/policies#keeping-prompts-on-the-machine)

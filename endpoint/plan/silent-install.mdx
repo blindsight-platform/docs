@@ -100,6 +100,10 @@ in about 40 seconds when the token is refused, and exits at once when the device
 was already enrolled. An agent that has not answered in 120 seconds leaves the
 result at `0`. Any other `msiexec` failure passes straight through.
 
+**Recommended:** use the kit's `install.bat` (or the `install.cmd` in an Intune
+package the console builds) rather than bare `msiexec`, so that a refused token
+reads as **Failed** in your tool and not as installed.
+
 ### Your own wrapper
 
 To get the same two codes from your own package, wrap `msiexec` the way the kit
@@ -246,13 +250,20 @@ the result you want.
    to Macs with the matching processor.
 3. The Mac enrols when someone signs in inside the app. See
    [Install on macOS](/endpoint/install#install-on-macos).
+4. Each person approves the inspection certificate once with their password or
+   Touch ID. No profile can do this for them: each Mac creates its own certificate.
 
 **Enrolment without a sign-in.** With desktop 2.2.1, a Mac can also enrol by
 itself from a **device** configuration profile in the `dev.blindsight` domain that
 carries `CloudBaseURL`, `EnrollmentToken` and `WorkspaceId`. When the console's
 macOS install kit includes `40-managed-config.mobileconfig`, that is the profile.
-Push it as a **device** profile: a user-level profile is not read for this. The
-person signs in later to be named. A kit with that profile holds a live token: treat it as a
+Push it as a **device** profile: a user-level profile is not read for this. Then,
+as a root script step in your MDM after the app is delivered, run
+`install-guardian.sh`, which Blindsight supplies on request. It copies the app to a
+root-only folder, checks its signature and starts the root guardian, which reads
+the profile and enrols. It exits `0` when installed, `1` when the check or the
+install failed, and `2` when the app is not in `/Applications` yet, so your MDM
+should retry. The person signs in later to be named. A kit with that profile holds a live token: treat it as a
 secret.
 
 There is no `.pkg`. The app updates itself as on Windows.

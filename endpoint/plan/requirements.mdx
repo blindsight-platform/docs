@@ -111,7 +111,7 @@ noticeable. Prefer Apple silicon Macs for a pilot.
 | Install, upgrade and uninstall on Windows | An administrator, or `SYSTEM` from your delivery tool (Intune, Configuration Manager, Group Policy). The person at the machine needs no admin rights. |
 | What runs on Windows | The `BlindsightDLP` service as `LocalSystem`, and the tray app as the signed-in person, not elevated. |
 | Install on macOS | Anyone who can write to `/Applications`, or your MDM. |
-| First run on macOS | macOS asks for a password to approve the inspection certificate and the protection service, once each. Plan for someone who can approve both on each Mac. |
+| First run on macOS | Each person approves the inspection certificate once, with their login password or Touch ID. Blindsight cannot approve it for them, and no configuration profile can trust it in advance, because each Mac creates its own. Until they approve it, the device reads as not protected. |
 | Uninstall on macOS | An administrator, or root from your MDM. |
 | Console | At least one console administrator (see below). |
 
@@ -133,8 +133,11 @@ noticeable. Prefer Apple silicon Macs for a pilot.
       password. Two-factor sign-in with an authenticator app is available, and the
       workspace can require it.
     - **Single sign-on.** OpenID Connect with Entra ID, Okta, Google or another
-      OIDC provider. SAML is not available. See
-      [Single sign-on](/permissions-and-access/single-sign-on).
+      OIDC provider, with SCIM to provision users and groups. SAML is not
+      available. See [Single sign-on](/permissions-and-access/single-sign-on).
+
+    Console users cannot be created from an Intune group. Connecting Intune reads
+    devices and group members for deployment only.
   </Step>
   <Step title="Mac users' sign-in">
     A Mac enrols when someone signs in inside the app, and that sign-in binds the

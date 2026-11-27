@@ -134,7 +134,8 @@ machine's proxy. It tries, in this order:
 
 A direct connection is always the last attempt. Proxy authentication works with
 Basic credentials written into an administrator's proxy URL, and with Negotiate
-(NTLM or Kerberos) using the machine's credentials.
+(NTLM or Kerberos) using the machine's credentials. For 2.2.1 this is read in the
+code; it has not yet been walked on a device behind a real company proxy.
 
 Two calls go direct even when a proxy is set:
 
@@ -191,10 +192,16 @@ calls to Blindsight.
 
 Most of the agent's calls are limited per device once it is identified, so a shared
 public address does not matter for them. A few calls made before a device is
-identified, such as enrolment and the start of a browser sign-in, are limited per
-public address. They are sized for normal enrolment. If many people behind one
-address sign in at the same moment, some are asked to wait and retry, and the
-agent retries by itself.
+identified are limited per public address:
+
+- **Enrolment:** 30 a minute and 300 an hour from one address. Ten devices are not
+  affected. A thousand devices behind one exit address take more than three hours
+  to enrol, and a simultaneous push sees many devices asked to retry. Stagger a
+  large rollout, or ask Blindsight about the limit before it.
+- **The start of a browser sign-in:** also limited per address, so many people
+  signing in at the same moment are asked to wait and retry.
+
+The agent retries by itself.
 
 ## Checklist for your network team
 
