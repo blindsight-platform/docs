@@ -60,7 +60,8 @@ device token, the policy and the pause, revoke and uninstall decisions.
   against the roots in the **machine** certificate store, so a TLS-inspecting proxy
   whose root is in that store works. The heartbeat names the issuer that re-signs
   the traffic, and the device page shows it.
-- **macOS.** Exempt both hosts.
+- **macOS.** Exempt both hosts. From desktop 2.2.2, a re-signed connection works when
+  your administrator trusts the inspecting root on the Mac.
 
 The agent does not pin certificates. Updates are protected separately: the update
 manifest carries an Ed25519 signature checked against a key built into the agent,
@@ -130,14 +131,15 @@ in this order:
 With proxy variables or a PAC file, a direct connection is the last attempt. With
 WPAD, the agent tries a direct connection first, then the proxy.
 
-Proxy authentication:
+Proxy sign-in:
 
-| Your proxy | Desktop 2.2.1 |
-| ---------- | ------------- |
-| No sign-in, fixed, PAC or WPAD | Works. |
+| Your proxy | What happens |
+| ---------- | ------------ |
+| No sign-in: fixed, PAC or WPAD | Works. |
+| Negotiate (Kerberos, or NTLM inside it), named by an administrator: machine-wide proxy settings, WinHTTP, browser policy, or a PAC file set by Group Policy or your MDM | The agent signs in silently with the computer account. |
+| Any sign-in, for a proxy found only by WPAD | The agent never signs in to it, because WPAD answers can be spoofed on the network. Set the proxy or its PAC file by Group Policy or your MDM instead. |
 | Basic, with the credentials in a machine-wide `HTTPS_PROXY` set by an administrator, for example `http://svc-blindsight:password@proxy.example.internal:8080` | Works, alone or together with a PAC file or WPAD. |
-| Basic, reached only through a PAC file or WPAD | Does not enrol, because a PAC file carries no credentials. Set the machine-wide `HTTPS_PROXY` above, or let the two Blindsight hosts through your proxy without sign-in. Desktop 2.2.2 handles this case. |
-| Negotiate (Kerberos or NTLM), with the machine's own account | Supported. |
+| Basic, without that `HTTPS_PROXY` | The device does not enrol: a PAC file carries no credentials. Set the `HTTPS_PROXY` above, or let the two Blindsight hosts through your proxy without sign-in. From desktop 2.2.2 the device reports that the proxy needs a sign-in, and how to fix it. |
 
 A proxy that asks for Basic credentials on every connection also stops Windows' own
 background traffic that cannot answer it: network connectivity checks, certificate
@@ -148,11 +150,16 @@ On desktop 2.2.0 and 2.2.1, two calls go direct even when a proxy is set: pausin
 protection from the device, and the connectivity check in a diagnostics report. From
 desktop 2.2.2 they follow the proxy too.
 
-**macOS.** The agent's calls to Blindsight do not follow the PAC file, WPAD or the
-company proxy. Most go direct, and a few follow a fixed system proxy or proxy
-environment variables. To route a Mac's calls through one exit point, use the
-[egress gateway](/endpoint/plan/gateway) with the `GatewayURL` setting, desktop 2.2.2
-or later. Otherwise, plan for a direct path on TCP 443 from each Mac to the two
+**macOS, desktop 2.2.2 and later.** The agent's calls to Blindsight follow the Mac's
+system proxy settings: a fixed proxy, a PAC file or WPAD, with a direct connection
+last. For a proxy named in the system settings or reached through a PAC file, the
+agent signs in silently with Kerberos. It never signs in to a proxy found only by
+WPAD. With a TLS-inspecting proxy, it accepts a root your administrator trusts on the
+Mac. The [egress gateway](/endpoint/plan/gateway) works through the `GatewayURL`
+setting.
+
+**macOS, desktop 2.2.1.** The agent's calls to Blindsight do not follow the PAC file,
+WPAD or the company proxy, so each Mac needs a direct path on TCP 443 to the two
 Blindsight hosts.
 
 ### One exit point
@@ -163,10 +170,10 @@ Two ways to make one exit point the only route to Blindsight:
 | - | -------------- | ----------------------------- |
 | What it is | Your existing proxy, with a PAC rule for the two Blindsight hosts | A small pass-through proxy you run in your network. See [Egress gateway](/endpoint/plan/gateway). |
 | Windows | Desktop 2.2.0 and later | Desktop 2.2.0 and later with a PAC rule; 2.2.2 and later with the `GatewayURL` setting |
-| macOS | Not supported | Desktop 2.2.2 and later with the `GatewayURL` setting |
+| macOS | Desktop 2.2.2 and later | Desktop 2.2.2 and later with the `GatewayURL` setting |
 | Can read the agent's traffic | Only if your proxy inspects TLS. Exempt the Blindsight hosts. | No. It never decrypts. |
 
-**With your own proxy (Windows):**
+**With your own proxy:**
 
 1. In your PAC file, send the two Blindsight hosts to your proxy:
 

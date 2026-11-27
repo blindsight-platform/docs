@@ -529,9 +529,8 @@ On Windows, agent version 1.6.4 and later follows your proxy. Enrolment, sign-in
 updates and prompt scans all use the proxy the machine is set to, and they trust
 the Windows certificate store. On 2.2.0 and 2.2.1, pause protection and the
 connectivity check in a diagnostics report still go direct; from 2.2.2 they follow the
-proxy too. On macOS, the agent's own calls to Blindsight do not follow the PAC file,
-WPAD or the company proxy, so a Mac needs a direct path, or the
-[egress gateway](/endpoint/plan/gateway) with desktop 2.2.2 or later. See
+proxy too. On macOS, from desktop 2.2.2, the agent's own calls follow the Mac's system proxy;
+on 2.2.1 they go direct, so a Mac on 2.2.1 needs a direct path. See
 [Network and firewall](/endpoint/plan/network#proxies). Static proxy, PAC file and WPAD
 auto-detect all work. Agent version 1.6.3 and earlier connect directly for
 enrolment, sign-in, updates and the uninstall check, so a device on 1.6.3 needs

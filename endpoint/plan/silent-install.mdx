@@ -101,7 +101,18 @@ in about 40 seconds when the token is refused, and exits at once when the device
 was already enrolled. An agent that has not answered in 120 seconds leaves the
 result at `0`. Any other `msiexec` failure passes straight through.
 
-**Recommended:** use the kit's `install.bat` (or the `install.cmd` in an Intune
+**From desktop 2.2.2**, the agent gives you the same answer itself. After `msiexec`
+returns, run:
+
+```text
+"%ProgramFiles%\Blindsight\BlindsightAgent.exe" install-status --wait 120
+```
+
+It waits up to 120 seconds and exits `7001` when the token was refused, `7002` when
+the workspace pin or the device check refused it, and `0` when the device enrolled or
+is still trying.
+
+**On desktop 2.2.1**, use the kit's `install.bat` (or the `install.cmd` in an Intune
 package the console builds) rather than bare `msiexec`, so that a refused token
 reads as **Failed** in your tool and not as installed.
 
