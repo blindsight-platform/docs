@@ -455,8 +455,9 @@ numbers match exactly. A stand-in inside anything that can be a link or a resour
 is left as it is. A first name or surname the mapping holds beside the full name is
 restored on its own ("Hi Elif", "Dear Ms. Hargreaves"), unless it stands next to
 another capitalised name word. The answer includes `unrestored`, a list of every
-stand-in still in the text after the restore, whether in a link, in another case,
-as an initial or abbreviation, or in another spelling. Each is listed once. Treat a
+stand-in it could not restore, found in a link, in another case, spelled another
+way, or next to an initial. Each is listed once. An empty list is not a promise
+that nothing fake is left. Treat a
 non-empty list as a warning: look at the text, or ask your model again.
 
 ```json
