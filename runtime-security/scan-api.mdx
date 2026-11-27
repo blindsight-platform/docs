@@ -389,8 +389,12 @@ with the replaced text.
 
 The response says which kind it holds in `pseudonym_format`: `stand_in` when the
 mapping holds at least one stand-in, `token` when it holds numbered tokens only.
-When stand-ins are not switched on for your workspace, you get numbered tokens
-and the field is absent. The examples below show tokens.
+Stand-ins are returned to callers that can restore them: the Python and
+TypeScript SDKs from version 1.1, which say so with every request, or a request
+that sets `"pseudonym_format": "stand_in"`. Any other caller gets numbered tokens,
+and `"pseudonym_format": "token"` always does. If you call the API over plain HTTP
+and ask for stand-ins, restore through `/scan/restore`. The examples below show
+tokens.
 
 - **The same value gets the same replacement.** Within one call, a value written
   twice has one placeholder. With a `session_id`, it keeps that placeholder in
@@ -443,12 +447,14 @@ exactly as it was written.
 
 `/scan/restore` and the SDK helpers take the same mapping for both kinds. Every
 key is replaced in one pass, longest first, and a restored value is never
-expanded again. A stand-in matches on whole words and without regard to case, and
-an English possessive or a German genitive "s" after a name is tolerated
-("Keller's", "Kellers"). A stand-in inside a link is left as it is. The answer
-includes `unrestored`, a list of stand-ins (or parts of a stand-in name) that are
-still in the text, for example a name your model shortened or wrote inside a link.
-Treat a non-empty list as a warning: look at the text, or ask your model again.
+expanded again. Only the keys of the mapping are restored. A stand-in name matches
+on whole words in the case it was issued (and in capitals when it has four letters
+or more), so an ordinary word is never touched; an English possessive or a German
+genitive "s" right after it is tolerated ("Keller's", "Kellers"). Emails and phone
+numbers match exactly. A stand-in inside anything that can be a link or a resource
+is left as it is. The answer includes `unrestored`, a list of the stand-ins found
+in such places. Treat a non-empty list as a warning: look at the text, or ask your
+model again.
 
 ```json
 {
@@ -465,8 +471,8 @@ Treat a non-empty list as a warning: look at the text, or ask your model again.
 }
 ```
 
-Upgrade the SDK to version 1.1 before your workspace is switched to stand-ins.
-Version 1.0 only understands numbered tokens.
+Use SDK version 1.1 or later for stand-ins. Version 1.0 only understands numbered
+tokens, which is why it keeps getting them.
 
 An App set to **Mask** replaces each piece with a type marker such as
 `<PERSON>` instead, and has no `pseudonyms` and no restore.

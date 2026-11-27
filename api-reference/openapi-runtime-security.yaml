@@ -214,10 +214,13 @@ paths:
         logged. Use it with the `pseudonyms` mapping a scan returned for an
         App set to pseudonymize and restore, whether it holds realistic
         stand-ins, numbered tokens or both. Every key is replaced in one pass,
-        longest first, and a restored value is never expanded again. A
-        stand-in matches on whole words and without regard to case, with an
-        English possessive or a German genitive "s" tolerated; a stand-in
-        inside a link is left as it is and listed in `unrestored`. The
+        longest first, and a restored value is never expanded again. Only keys
+        of the mapping are restored; a stand-in name matches on whole words in
+        the case it was issued (and in capitals for four letters or more),
+        emails and phone numbers match exactly, and an English possessive or a
+        German genitive "s" right after a name is tolerated. A stand-in inside
+        anything that can be a link or a resource is left as it is and listed
+        in `unrestored`. The
         official SDKs restore locally and never need this route.
 
         Requires the `runtime:scan` permission. Rate limit: 200 requests per
@@ -1067,6 +1070,7 @@ components:
       type: object
       required: [text]
       properties:
+        pseudonym_format: { type: string, enum: [token, stand_in], description: "Optional. `stand_in` asks for realistic stand-ins (restore through the SDK or `/scan/restore`); `token` forces numbered tokens. Left out, stand-ins go only to callers that can restore them (SDK 1.1 or later) and everyone else gets numbered tokens." }
         text:
           type: string
           description: The prompt about to be sent to the LLM. Up to `max_text_length` characters (32000 by default).
@@ -1118,6 +1122,7 @@ components:
       type: object
       required: [response]
       properties:
+        pseudonym_format: { type: string, enum: [token, stand_in], description: "Optional. `stand_in` asks for realistic stand-ins (restore through the SDK or `/scan/restore`); `token` forces numbered tokens. Left out, stand-ins go only to callers that can restore them (SDK 1.1 or later) and everyone else gets numbered tokens." }
         response:
           type: string
           description: The LLM response about to be shown to the user. Up to `max_text_length` characters.
@@ -1155,6 +1160,7 @@ components:
       type: object
       required: [items]
       properties:
+        pseudonym_format: { type: string, enum: [token, stand_in], description: "Optional. `stand_in` asks for realistic stand-ins (restore through the SDK or `/scan/restore`); `token` forces numbered tokens. Left out, stand-ins go only to callers that can restore them (SDK 1.1 or later) and everyone else gets numbered tokens." }
         items:
           type: array
           minItems: 1
@@ -1231,7 +1237,10 @@ components:
           description: |
             `stand_in` when `pseudonyms` holds at least one realistic stand-in
             (it may also hold tokens), `token` when it holds numbered tokens
-            only. Absent when stand-ins are not switched on for the workspace.
+            only. Stand-ins go to callers that can restore them (SDK 1.1 or
+            later, or a request with `pseudonym_format: stand_in`); any other
+            caller gets numbered tokens. Absent when stand-ins are not
+            available to the workspace.
         also_flagged:
           type: array
           items: { type: string }
@@ -1265,9 +1274,9 @@ components:
           type: array
           items: { type: string }
           description: |
-            Stand-ins (or parts of a stand-in name) from the mapping that are
-            still in the text or were found inside a link. Empty when there are
-            none. Only present when the mapping holds stand-ins.
+            Stand-in keys of the mapping that were found inside a link or
+            another place that can load a resource, and so were not restored.
+            Empty when there are none. Only present when the mapping holds stand-ins.
 
     ScanToolCallResponse:
       type: object
