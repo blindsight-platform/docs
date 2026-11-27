@@ -127,9 +127,22 @@ in this order:
    WinHTTP, a fixed proxy with its bypass list, or a PAC file;
 3. otherwise WPAD.
 
-A direct connection is always the last attempt. Proxy authentication works with
-Basic credentials written into an administrator's proxy URL, and with Negotiate
-(NTLM or Kerberos) using the machine's credentials.
+With proxy variables or a PAC file, a direct connection is the last attempt. With
+WPAD, the agent tries a direct connection first, then the proxy.
+
+Proxy authentication:
+
+| Your proxy | Desktop 2.2.1 |
+| ---------- | ------------- |
+| No sign-in, fixed, PAC or WPAD | Works. |
+| Basic, with the credentials in a machine-wide `HTTPS_PROXY` set by an administrator, for example `http://svc-blindsight:password@proxy.example.internal:8080` | Works, alone or together with a PAC file or WPAD. |
+| Basic, reached only through a PAC file or WPAD | Does not enrol, because a PAC file carries no credentials. Set the machine-wide `HTTPS_PROXY` above, or let the two Blindsight hosts through your proxy without sign-in. Desktop 2.2.2 handles this case. |
+| Negotiate (Kerberos or NTLM), with the machine's own account | Supported. |
+
+A proxy that asks for Basic credentials on every connection also stops Windows' own
+background traffic that cannot answer it: network connectivity checks, certificate
+revocation checks and Defender's cloud lookups. Exempt those too, or the machine can
+look like it has an install problem when it does not.
 
 On desktop 2.2.0 and 2.2.1, two calls go direct even when a proxy is set: pausing
 protection from the device, and the connectivity check in a diagnostics report. From
@@ -164,8 +177,9 @@ Two ways to make one exit point the only route to Blindsight:
 
 2. In your firewall, allow only the proxy to reach those two hosts.
 
-Because direct is the agent's last attempt, a blocked direct path makes the agent use
-the proxy. On desktop 2.2.0 and 2.2.1, pausing protection from the device and the
+With a PAC rule, direct is the agent's last attempt, so a blocked direct path makes
+the agent use the proxy. If your proxy asks for Basic credentials, also set the
+machine-wide `HTTPS_PROXY` described above. On desktop 2.2.0 and 2.2.1, pausing protection from the device and the
 diagnostics connectivity check then fail; from 2.2.2 they work.
 
 **With the egress gateway:** see [Egress gateway](/endpoint/plan/gateway).

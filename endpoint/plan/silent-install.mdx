@@ -65,9 +65,9 @@ that runs `msiexec` directly, give the full path of the token file instead.
 <Warning>
   The token is a fleet secret. Keep it in your tool's secret store, do not turn on
   verbose Windows Installer logging (`/l*v`) on a production fleet, and if a token
-  reaches a log, revoke it and mint another. A token file outside
-  `C:\ProgramData\Blindsight\` is not deleted by the installer: your delivery
-  tool's content cache holds it until the tool cleans its cache.
+  reaches a log, revoke it and mint another. The installer deletes a token file
+  only when it sits under `C:\ProgramData\Blindsight\`. Delete any other copy in
+  your install script once `msiexec` has run, as the wrapper below does.
 </Warning>
 
 The install takes about a minute, and the device is protected about a minute after
@@ -122,6 +122,7 @@ if defined WAITING del /f /q "%STATUS%" >nul 2>&1
 
 msiexec /i "%~dp0Blindsight-2.2.1.msi" /qn /norestart CLOUD_BASE="https://platform.blindsight.io" ENROLL_TOKEN_FILE="%~dp0enroll.token"
 set "RC=%ERRORLEVEL%"
+if not "%RC%"=="1618" del /f /q "%~dp0enroll.token" >nul 2>&1
 if not "%RC%"=="0" exit /b %RC%
 if not defined WAITING exit /b 0
 
@@ -162,7 +163,9 @@ msiexec /i "Blindsight-<new version>.msi" /qn /norestart
 ```
 
 No properties are needed: the machine keeps its address, token and workspace pin.
-An upgrade restarts the agent, so schedule it outside working hours.
+An upgrade restarts the agent, and AI traffic is not inspected for about a minute
+while it starts. The device reports that gap. Schedule upgrades outside working
+hours.
 
 **Who changes the version.** By default the agent updates itself from the signed
 release channel: it checks 60 seconds after it starts and then every 6 hours, and

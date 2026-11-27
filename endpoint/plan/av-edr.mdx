@@ -22,21 +22,34 @@ desktop **2.2.1** on Windows, with a short section for macOS.
 With Defender real-time protection on, Defender does not block, quarantine or alert
 on the agent, and no exclusion is needed, with:
 
-- attack surface reduction rules in Audit mode, and in Block mode for **Block
-  executable files from running unless they meet a prevalence, age, or trusted list
-  criterion** and **Block abuse of exploited vulnerable signed drivers**. The agent's
-  signed files pass with no allow indicator;
+- network protection in Block mode, including when the only way out is your proxy;
+- these attack surface reduction rules in Block mode:
+  - Block executable files from running unless they meet a prevalence, age, or
+    trusted list criterion
+  - Block abuse of exploited vulnerable signed drivers
+  - Block credential stealing from the Windows local security authority subsystem
+  - Block process creations originating from PSExec and WMI commands
+  - Block persistence through WMI event subscription
+  - Block untrusted and unsigned processes that run from USB
+  - Use advanced protection against ransomware
+  - Block use of copied or impersonated system tools
+  - Block Webshell creation for Servers;
 - controlled folder access in Block mode. `C:\ProgramData\Blindsight` is not a
   protected folder;
-- network protection in Audit mode;
 - install, enrolment, restart, upgrade and uninstall.
+
+The agent's signed files pass with no allow indicator.
+
+**One expected event.** During an uninstall, the rule **Block credential stealing
+from the Windows local security authority subsystem** can log one event 1121 for
+`lsass.exe` against Windows Installer (`msiexec.exe`). It names Windows, not
+Blindsight, and the uninstall completes. No exclusion is needed.
 
 ### Check on two devices first
 
 If your policy uses any of these, run it on two devices before the rest of the
 group:
 
-- network protection in Block mode;
 - EDR in block mode, tamper protection, custom indicators, web content filtering
   and device isolation;
 - SmartScreen and Smart App Control;
