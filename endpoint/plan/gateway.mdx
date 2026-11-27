@@ -220,6 +220,9 @@ do not.
 - **Settings → Network gateway** shows the gateway's state, its last heartbeat, its
   version and whether it is the current one, its health, and how many laptops it
   served in 24 hours.
+- The same page shows how many devices reach Blindsight through each gateway,
+  through another proxy, or directly. A device on an agent too old to report its
+  route is counted as **not reported yet**, never as 0.
 - `GET /metrics` is Prometheus text: open and total tunnels by host and outcome,
   refusals by reason, bytes by host, connect time, distinct laptops in 24 hours, and
   whether the platform and your proxy are reachable.
