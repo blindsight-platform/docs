@@ -1,10 +1,10 @@
 ---
 title: "Deployment diagrams"
-description: "The three tiers of an endpoint deployment, the agent, your network and the Blindsight platform, drawn for the cloud option and the Inspector option, with every flow numbered."
+description: "The three tiers of an endpoint deployment, the agent, your network and the Blindsight platform, drawn for the cloud option, the egress gateway option and the Inspector option."
 ---
 
 A deployment has three tiers: the agent on each device, your network, and the
-Blindsight platform. These diagrams show desktop **2.2.1** on the Blindsight cloud.
+Blindsight platform. These diagrams show the Blindsight cloud.
 Every arrow is a flow from [Network and firewall](/endpoint/plan/network), and the
 [data flow page](/endpoint/plan/data-flow) says what each one carries.
 
@@ -25,6 +25,25 @@ platform.
 | 1 | Blindsight agent: the `BlindsightDLP` service and tray app on Windows, the app and root guardian on macOS | Each device | You deploy it. See [Packaging and silent install](/endpoint/plan/silent-install). |
 | 2 | Your proxy, PAC file or WPAD, and firewall | Your network | You. Nothing from Blindsight is installed here. |
 | 3 | Console, API, policy, cloud scanner, database | `platform.blindsight.io`, AWS eu-west-1 (Ireland) | Blindsight |
+| 3 | Update manifests, installers, names model | `downloads.blindsight.io` | Blindsight |
+
+## The egress gateway option
+
+The same as the cloud option, with one exit point: every agent sends its calls to
+Blindsight to the egress gateway in your network, and only the gateway reaches
+Blindsight. The gateway relays the encrypted connections without decrypting them.
+Inspected AI traffic keeps its usual route. See [Egress gateway](/endpoint/plan/gateway).
+
+<Frame caption="The egress gateway option. Direct TCP 443 from laptops to the Blindsight hosts is blocked.">
+  <img src="/images/deployment/gateway-option.svg" alt="Three tiers. Laptops send the agent's calls to Blindsight to the egress gateway on TCP 3128. The gateway forwards them, directly or through your proxy, to platform.blindsight.io and downloads.blindsight.io on TCP 443, and sends its own heartbeat. Inspected AI traffic goes to AI services by its usual route. The firewall blocks direct TCP 443 from laptops to the Blindsight hosts." />
+</Frame>
+
+| Tier | Component | Runs where | Who runs it |
+| ---- | --------- | ---------- | ----------- |
+| 1 | Blindsight agent, pointed at the gateway by a PAC rule (Windows) or the `GatewayURL` setting (Windows and macOS, desktop 2.2.2 and later) | Each device | You deploy it |
+| 2 | Egress gateway: Docker or Kubernetes, 0.25 vCPU, 256 MB RAM, no disk | Your network | You. Blindsight supplies the image. |
+| 2 | Your proxy (optional) and firewall | Your network | You |
+| 3 | Console, API, policy, cloud scanner | `platform.blindsight.io` | Blindsight |
 | 3 | Update manifests, installers, names model | `downloads.blindsight.io` | Blindsight |
 
 ## The Inspector option
@@ -63,8 +82,6 @@ at run time.
 
 ## What is not in either diagram
 
-- **A Blindsight egress gateway.** It is planned and not available.
-  See [A Blindsight egress gateway: planned](/endpoint/plan/network#a-blindsight-egress-gateway-planned).
 - **A relay through the Inspector.** The Inspector checks text. It does not carry
   the agent's other traffic.
 - **A Swiss region.** The platform runs in AWS eu-west-1 (Ireland).

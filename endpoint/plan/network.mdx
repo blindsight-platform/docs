@@ -41,6 +41,8 @@ own, no network calls from the installer, and no calls to an Inspector.
 | From | To | Port | When |
 | ---- | -- | ---- | ---- |
 | Blindsight cloud | Your syslog collector | Your port, TLS 1.2 or later | Only if you send events to a SIEM. See [Syslog export](/endpoint/syslog-export). |
+| Laptops | Your egress gateway | TCP 3128 | Only if you run the [egress gateway](/endpoint/plan/gateway). |
+| Your egress gateway | `platform.blindsight.io`, `downloads.blindsight.io` | TCP 443 | The agents' calls, relayed, and the gateway's heartbeat. |
 | Your Inspector | `platform.blindsight.io` | TCP 443 | Only if you run an Inspector: policy download and a heartbeat about once a minute. No desktop version sends text to an Inspector, so for endpoints it has no use today. See [Deployment diagrams](/endpoint/plan/architecture#the-inspector-option). |
 
 ### Staging
@@ -116,13 +118,8 @@ including a PAC file set by Group Policy.
 
 ### 2. The agent's own calls to Blindsight
 
-<Warning>
-  **Windows and macOS differ here.** Read this before you design a single exit
-  point.
-</Warning>
-
-**Windows, desktop 2.2.0 and 2.2.1.** The agent's calls to Blindsight follow the
-machine's proxy. It tries, in this order:
+**Windows.** The agent's calls to Blindsight follow the machine's proxy. It tries,
+in this order:
 
 1. proxy environment variables an administrator set machine-wide
    (`HTTPS_PROXY`, `HTTP_PROXY`, `ALL_PROXY`, `NO_PROXY`);
@@ -134,24 +131,29 @@ A direct connection is always the last attempt. Proxy authentication works with
 Basic credentials written into an administrator's proxy URL, and with Negotiate
 (NTLM or Kerberos) using the machine's credentials.
 
-Two calls go direct even when a proxy is set:
+On desktop 2.2.0 and 2.2.1, two calls go direct even when a proxy is set: pausing
+protection from the device, and the connectivity check in a diagnostics report. From
+desktop 2.2.2 they follow the proxy too.
 
-- **Pause protection.** On a network where only the proxy can reach the internet,
-  pausing protection from the device fails.
-- **The connectivity check in a diagnostics report.** On such a network the report
-  says the platform cannot be reached although the agent works.
+**macOS.** The agent's calls to Blindsight do not follow the PAC file, WPAD or the
+company proxy. Most go direct, and a few follow a fixed system proxy or proxy
+environment variables. To route a Mac's calls through one exit point, use the
+[egress gateway](/endpoint/plan/gateway) with the `GatewayURL` setting, desktop 2.2.2
+or later. Otherwise, plan for a direct path on TCP 443 from each Mac to the two
+Blindsight hosts.
 
-**macOS, desktop 2.2.1.** The agent's calls to Blindsight **do not follow** the PAC
-file, WPAD or the company proxy. Most of them go direct. A few follow a fixed system
-proxy or proxy environment variables. Plan for a direct path on TCP 443 from each
-Mac to the two Blindsight hosts.
+### One exit point
 
-There is no Blindsight-specific proxy setting in the registry or in the macOS
-configuration profile.
+Two ways to make one exit point the only route to Blindsight:
 
-### A single exit point today
+| | Your own proxy | The Blindsight egress gateway |
+| - | -------------- | ----------------------------- |
+| What it is | Your existing proxy, with a PAC rule for the two Blindsight hosts | A small pass-through proxy you run in your network. See [Egress gateway](/endpoint/plan/gateway). |
+| Windows | Desktop 2.2.0 and later | Desktop 2.2.0 and later with a PAC rule; 2.2.2 and later with the `GatewayURL` setting |
+| macOS | Not supported | Desktop 2.2.2 and later with the `GatewayURL` setting |
+| Can read the agent's traffic | Only if your proxy inspects TLS. Exempt the Blindsight hosts. | No. It never decrypts. |
 
-**Windows.** You can already make your existing proxy the only way to Blindsight:
+**With your own proxy (Windows):**
 
 1. In your PAC file, send the two Blindsight hosts to your proxy:
 
@@ -162,24 +164,11 @@ configuration profile.
 
 2. In your firewall, allow only the proxy to reach those two hosts.
 
-Because direct is the agent's last attempt, a blocked direct path fails closed and
-the agent uses the proxy. Pause protection and the diagnostics connectivity check
-then fail, as described above.
+Because direct is the agent's last attempt, a blocked direct path makes the agent use
+the proxy. On desktop 2.2.0 and 2.2.1, pausing protection from the device and the
+diagnostics connectivity check then fail; from 2.2.2 they work.
 
-**macOS.** Not possible today. Macs need a direct path to the two hosts.
-
-### A Blindsight egress gateway: planned
-
-<Note>
-  **Planned, not available.** There is no Blindsight relay or egress component
-  today.
-</Note>
-
-Blindsight is designing an egress gateway: a small service you would run in your
-own network, through which every agent reaches Blindsight. It would relay the
-agents' encrypted connections to the two Blindsight hosts without decrypting them,
-so it could not read device tokens or any content, and your firewall would allow
-only the gateway out. Macs and the two direct Windows calls would use it too.
+**With the egress gateway:** see [Egress gateway](/endpoint/plan/gateway).
 
 The Inspector is not a relay. It checks text, and it does not carry the agent's
 calls to Blindsight.
@@ -202,7 +191,8 @@ The agent retries by itself.
 ## Checklist for your network team
 
 - [ ] Devices reach `platform.blindsight.io` and `downloads.blindsight.io` on TCP 443,
-  by name, directly or through your proxy (Windows), and directly (macOS).
+  by name: directly, through your proxy (Windows), or through the
+  [egress gateway](/endpoint/plan/gateway) (Windows and macOS).
 - [ ] Both hosts exempt from TLS inspection, or the inspecting root in the machine
   certificate store on Windows.
 - [ ] Console users reach `platform.blindsight.io` on TCP 443.

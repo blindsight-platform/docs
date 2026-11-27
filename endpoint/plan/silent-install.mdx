@@ -38,6 +38,7 @@ console's install kit holds `install.bat`, `uninstall.cmd` and a `README.txt`. S
 | `ENROLL_TOKEN` | One of the two | The enrollment token on the command line. Hidden from the Windows Installer log, but visible to anything that can read the command line. |
 | `ENROLL_TOKEN_FILE` | One of the two | The path of a file that holds the token, so the token never appears on a command line. The installer reads at most 256 bytes from a regular file (never a link), seals the token with DPAPI, and deletes the file only when it sits under `C:\ProgramData\Blindsight\`. When both are given, the file wins. A file that is refused falls back to `ENROLL_TOKEN`. |
 | `WORKSPACE_ID` | No | Pins the machine to one workspace. Written to `HKLM\SOFTWARE\Blindsight\WorkspaceId`. A token from any other workspace is then refused on this machine. Ask Blindsight for your workspace ID. |
+| `GATEWAY` | No | Desktop 2.2.2 and later. The [egress gateway](/endpoint/plan/gateway) address, `http://<gateway name>:3128`, with no user name, password or path. Written to `HKLM\SOFTWARE\Blindsight\GatewayURL`. Every call from the agent to Blindsight then goes only through the gateway. |
 | `UNINSTALL_CODE` | Only to uninstall under **enforce** | See [Uninstall codes](/endpoint/uninstall#uninstall-codes). Never remembered and hidden from the log. |
 
 Every property is per machine. A value on the command line always wins. With no
@@ -257,7 +258,9 @@ the result you want.
 itself from a **device** configuration profile in the `dev.blindsight` domain that
 carries `CloudBaseURL`, `EnrollmentToken` and `WorkspaceId`. When the console's
 macOS install kit includes `40-managed-config.mobileconfig`, that is the profile.
-Push it as a **device** profile: a user-level profile is not read for this. Then,
+Push it as a **device** profile: a user-level profile is not read for this. To send
+the Mac's calls through the [egress gateway](/endpoint/plan/gateway), add the key
+`GatewayURL` with the gateway address to the same profile (desktop 2.2.2 and later). Then,
 as a root script step in your MDM after the app is delivered, run
 `install-guardian.sh`, supplied by Blindsight. It copies the app to a
 root-only folder, checks its signature and starts the root guardian, which reads

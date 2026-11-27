@@ -1,6 +1,6 @@
 ---
 title: "AV and EDR"
-description: "What Microsoft Defender for Endpoint was tested against, what was not, and the full list of files, processes, drivers, tasks and behaviours to allow in any AV or EDR."
+description: "How the endpoint agent works with Microsoft Defender for Endpoint, and the full list of files, processes, drivers, tasks and behaviours to allow in any AV or EDR."
 ---
 
 The agent does things an endpoint security product is right to look at: a
@@ -17,31 +17,33 @@ desktop **2.2.1** on Windows, with a short section for macOS.
 
 ## Microsoft Defender for Endpoint
 
-### What was tested
+### What to expect
 
-Blindsight tested the agent on Windows with Defender real-time protection on and
-these controls in Audit and in Block mode:
+With Defender real-time protection on, Defender does not block, quarantine or alert
+on the agent, and no exclusion is needed, with:
 
-| Control | Result for Blindsight files and processes |
-| ------- | ----------------------------------------- |
-| Attack surface reduction, including executable prevalence and abuse of vulnerable signed drivers | No event, block or alert. Signed files pass with no allow indicator. |
-| Controlled folder access | No event. `C:\ProgramData\Blindsight` is not a protected folder. |
-| Network protection | No event naming Blindsight. |
-| Install, enrol, restart, upgrade, uninstall | No Defender event. |
+- attack surface reduction rules in Audit mode, and in Block mode for **Block
+  executable files from running unless they meet a prevalence, age, or trusted list
+  criterion** and **Block abuse of exploited vulnerable signed drivers**. The agent's
+  signed files pass with no allow indicator;
+- controlled folder access in Block mode. `C:\ProgramData\Blindsight` is not a
+  protected folder;
+- network protection in Audit mode;
+- install, enrolment, restart, upgrade and uninstall.
 
-**No exclusion was needed.**
+### Check on two devices first
 
-### Not tested
+If your policy uses any of these, run it on two devices before the rest of the
+group:
 
-- Network protection in Block mode while the agent inspects traffic.
-- Features that need a Defender for Endpoint tenant: **EDR in block mode**, tamper
-  protection, custom indicators, web content filtering and device isolation.
-- **SmartScreen** and **Smart App Control**.
-- **Memory integrity (HVCI)** switched on.
+- network protection in Block mode;
+- EDR in block mode, tamper protection, custom indicators, web content filtering
+  and device isolation;
+- SmartScreen and Smart App Control;
+- memory integrity (HVCI).
 
-Check these on two pilot devices with your own policy before the rest of the group.
 Record events 1121 to 1126 in **Microsoft-Windows-Windows Defender/Operational**
-and any incident.
+and any incident, and send them to Blindsight if anything is flagged.
 
 ### If you add exclusions
 
@@ -57,7 +59,7 @@ and any incident.
 
 ### Publisher
 
-Every Blindsight file is Authenticode signed by:
+Blindsight's own files are Authenticode signed by:
 
 ```text
 CN=Blindsight Technologies AG, O=Blindsight Technologies AG, L=Zürich, S=Zürich, C=CH
@@ -81,7 +83,7 @@ Blindsight.
 | `C:\Program Files\Blindsight\bs-tun.exe` | The helper for the whole-device lane. |
 | `C:\Program Files\Blindsight\BlindsightGate.exe` | A small launcher the installer uses for cleanup and the uninstall code check. |
 | `C:\Program Files\Blindsight\wintun.dll` | Creates the Wintun virtual adapter. |
-| `C:\Program Files\Blindsight\WinDivert64.sys`, `WinDivert.dll` | A packet-capture driver kept for a fallback path. It was not used in any test run. `WinDivert.dll` has no signature, as its vendor publishes it; allow it explicitly if your policy requires signed modules. |
+| `C:\Program Files\Blindsight\WinDivert64.sys`, `WinDivert.dll` | A packet-capture driver kept for a fallback path. It is not used by default. `WinDivert.dll` has no signature, as its vendor publishes it; allow it explicitly if your policy requires signed modules. |
 | `C:\Windows\Logs\Blindsight\sweep\BlindsightGate.exe` | A copy that a one-time `SYSTEM` task runs after an uninstall to remove late leftovers. It exists for a few minutes. |
 
 ### Folders

@@ -14,6 +14,7 @@ picture, see [Deployment diagrams](/endpoint/plan/architecture).
 | Destination | What it is | Where it runs |
 | ----------- | ---------- | ------------- |
 | `platform.blindsight.io` | The console, the API and the cloud scanner. Every item on this page that leaves a device goes here. | Amazon Web Services, region **eu-west-1 (Ireland)**. The database and its backups are in the same region. |
+| Your egress gateway, if you run one | Relays the agents' encrypted calls to the two hosts above without decrypting them. It sees only which laptop address connected to which Blindsight host, and how many bytes passed. It sends Blindsight a heartbeat with counts and its health, never laptop addresses. | Your network |
 | `downloads.blindsight.io` | Installers, update manifests and the names model. Devices only download from it. It holds no customer data. | A content delivery network in front of storage in AWS **us-east-1**. |
 
 Blindsight does not offer hosting in Switzerland, and promises nothing beyond the

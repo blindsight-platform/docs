@@ -64,6 +64,7 @@
                 "pages": [
                   "endpoint/plan/requirements",
                   "endpoint/plan/network",
+                  "endpoint/plan/gateway",
                   "endpoint/plan/av-edr",
                   "endpoint/plan/silent-install",
                   "endpoint/plan/data-flow",

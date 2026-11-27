@@ -17,6 +17,7 @@ pages in this section cover the [network](/endpoint/plan/network),
 | --------- | ------- | ----- |
 | Desktop agent, Windows | **2.2.1**, `Blindsight-2.2.1.msi` | One x64 MSI. Do not deploy 2.2.0: its Windows service grows in memory over a working day, which 2.2.1 fixes. |
 | Desktop agent, macOS | **2.2.1**, `Blindsight-Mac-2.2.1-arm64.dmg` or `Blindsight-Mac-2.2.1-x86_64.dmg` | One build per processor. Neither runs on the other's chip. |
+| Desktop agent with the egress gateway setting | **2.2.2** or later | Needed for Macs behind the [egress gateway](/endpoint/plan/gateway), and for the `GatewayURL` setting on Windows. |
 | Platform | The Blindsight cloud at `platform.blindsight.io` | Console and API on one host. See [Deployment options](/getting-started/deployment) for dedicated and self-hosted platforms. |
 
 ## Supported systems
@@ -106,8 +107,9 @@ especially those with 8 GB of memory or less.
     [Identity binding](/endpoint/identity).
   </Step>
   <Step title="A network path">
-    Outbound HTTPS from the devices to two Blindsight hosts, and loopback left
-    open on the device. See [Network and firewall](/endpoint/plan/network).
+    Outbound HTTPS from the devices to two Blindsight hosts, directly, through your
+    proxy, or through the [egress gateway](/endpoint/plan/gateway), and loopback
+    left open on the device. See [Network and firewall](/endpoint/plan/network).
   </Step>
   <Step title="Your AV and EDR policy">
     A test on two devices before the rest. See

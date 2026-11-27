@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700" width="1000" height="700" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Helvetica, Arial, sans-serif" role="img" aria-labelledby="t d">
+  <title id="t">Egress gateway option: your devices, your network with the egress gateway, the Blindsight cloud</title>
+  <desc id="d">Laptops send the agent's calls to Blindsight to the egress gateway on TCP 3128. The gateway relays them without decrypting, directly or through your proxy, to platform.blindsight.io and downloads.blindsight.io on TCP 443, and sends its own heartbeat. Inspected AI traffic keeps its usual route. The firewall blocks direct TCP 443 from laptops to the Blindsight hosts.</desc>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#111"/>
+    </marker>
+    <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#71717a"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="1000" height="700" rx="16" fill="#ffffff"/>
+
+  <!-- Tier 1 -->
+  <rect x="20" y="20" width="290" height="540" rx="12" fill="#f4f4f5" stroke="#d4d4d8"/>
+  <text x="40" y="50" font-size="15" font-weight="700" fill="#111">1. Your devices</text>
+  <text x="40" y="69" font-size="12" fill="#52525b">Windows and macOS</text>
+
+  <rect x="40" y="90" width="250" height="52" rx="8" fill="#fff" stroke="#111"/>
+  <text x="56" y="112" font-size="13" font-weight="600" fill="#111">Browsers, AI apps, CLI tools</text>
+  <text x="56" y="130" font-size="12" fill="#52525b">Used as normal by the person</text>
+  <line x1="165" y1="142" x2="165" y2="166" stroke="#111" stroke-width="1.6" marker-end="url(#a)"/>
+
+  <rect x="40" y="170" width="250" height="250" rx="8" fill="#fff" stroke="#111" stroke-width="2"/>
+  <text x="56" y="196" font-size="14" font-weight="700" fill="#111">Blindsight agent</text>
+  <text x="56" y="219" font-size="12" fill="#3f3f46">Inspects AI traffic on the device</text>
+  <text x="56" y="248" font-size="12" fill="#3f3f46">Calls to Blindsight go to the</text>
+  <text x="56" y="266" font-size="12" fill="#3f3f46">gateway, set by:</text>
+  <text x="56" y="286" font-size="12" fill="#3f3f46">GatewayURL (Windows, macOS,</text>
+  <text x="56" y="304" font-size="12" fill="#3f3f46">2.2.2 and later), or a PAC rule</text>
+  <text x="56" y="322" font-size="12" fill="#3f3f46">(Windows, 2.2.0 and later)</text>
+  <text x="56" y="400" font-size="11" fill="#52525b">127.0.0.1: 8787, 47324 to 47327</text>
+
+  <rect x="40" y="476" width="250" height="56" rx="8" fill="#fff" stroke="#111"/>
+  <text x="56" y="500" font-size="13" font-weight="600" fill="#111">Console users</text>
+  <text x="56" y="519" font-size="12" fill="#52525b">A browser. Local accounts or SSO</text>
+
+  <!-- Tier 2 -->
+  <rect x="330" y="20" width="300" height="540" rx="12" fill="#f4f4f5" stroke="#d4d4d8"/>
+  <text x="350" y="50" font-size="15" font-weight="700" fill="#111">2. Your network</text>
+  <text x="350" y="69" font-size="12" fill="#52525b">Egress gateway, proxy, firewall</text>
+
+  <rect x="345" y="270" width="140" height="140" rx="8" fill="#fff" stroke="#111" stroke-width="2"/>
+  <text x="360" y="294" font-size="14" font-weight="700" fill="#111">Egress gateway</text>
+  <text x="360" y="314" font-size="11" fill="#3f3f46">Docker or Kubernetes</text>
+  <text x="360" y="332" font-size="11" fill="#3f3f46">Listens on TCP 3128</text>
+  <text x="360" y="350" font-size="11" fill="#3f3f46">Admin on TCP 9090</text>
+  <text x="360" y="368" font-size="11" fill="#3f3f46">Never decrypts</text>
+  <text x="360" y="386" font-size="11" fill="#3f3f46">Blindsight hosts only</text>
+
+  <rect x="505" y="90" width="105" height="450" rx="8" fill="#fff" stroke="#111" stroke-dasharray="6 4"/>
+  <text x="557" y="116" font-size="12" font-weight="700" fill="#111" text-anchor="middle">Proxy</text>
+  <text x="557" y="132" font-size="11" fill="#52525b" text-anchor="middle">(optional)</text>
+  <text x="557" y="150" font-size="12" font-weight="700" fill="#111" text-anchor="middle">and firewall</text>
+  <text x="557" y="490" font-size="11" fill="#52525b" text-anchor="middle">Laptops to</text>
+  <text x="557" y="505" font-size="11" fill="#52525b" text-anchor="middle">Blindsight hosts:</text>
+  <text x="557" y="522" font-size="11" font-weight="700" fill="#111" text-anchor="middle">blocked</text>
+
+  <!-- Tier 3 -->
+  <rect x="650" y="150" width="330" height="84" rx="12" fill="#ffffff" stroke="#a1a1aa" stroke-dasharray="5 4"/>
+  <text x="670" y="178" font-size="15" font-weight="700" fill="#111">AI services</text>
+  <text x="670" y="198" font-size="12" fill="#52525b">On the internet, as today</text>
+
+  <rect x="650" y="250" width="330" height="310" rx="12" fill="#f4f4f5" stroke="#d4d4d8"/>
+  <text x="670" y="276" font-size="15" font-weight="700" fill="#111">3. Blindsight cloud</text>
+  <text x="670" y="294" font-size="12" fill="#52525b">AWS eu-west-1 (Ireland)</text>
+
+  <rect x="670" y="306" width="290" height="112" rx="8" fill="#fff" stroke="#111" stroke-width="2"/>
+  <text x="686" y="330" font-size="14" font-weight="700" fill="#111">platform.blindsight.io</text>
+  <text x="686" y="351" font-size="12" fill="#3f3f46">Console, API, policy with the AI</text>
+  <text x="686" y="369" font-size="12" fill="#3f3f46">service catalogue, cloud scanner</text>
+  <text x="686" y="387" font-size="12" fill="#3f3f46">Gateway registry and health</text>
+
+  <rect x="670" y="458" width="290" height="84" rx="8" fill="#fff" stroke="#111"/>
+  <text x="686" y="482" font-size="14" font-weight="700" fill="#111">downloads.blindsight.io</text>
+  <text x="686" y="503" font-size="12" fill="#3f3f46">Signed updates, names model</text>
+  <text x="686" y="524" font-size="11" fill="#52525b">CDN. No customer data.</text>
+
+  <!-- Flow 1: AI traffic -->
+  <line x1="290" y1="198" x2="644" y2="198" stroke="#71717a" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#g)"/>
+  <circle cx="400" cy="198" r="11" fill="#fff" stroke="#71717a" stroke-width="1.5"/>
+  <text x="400" y="202.5" font-size="12" font-weight="700" fill="#3f3f46" text-anchor="middle">1</text>
+
+  <!-- Flow 2: agent to gateway -->
+  <line x1="290" y1="300" x2="340" y2="300" stroke="#111" stroke-width="2" marker-end="url(#a)"/>
+  <circle cx="314" cy="284" r="10" fill="#111"/>
+  <text x="314" y="288" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">2</text>
+
+  <!-- Flow 3: gateway to platform -->
+  <line x1="485" y1="340" x2="664" y2="340" stroke="#111" stroke-width="2" marker-end="url(#a)"/>
+  <circle cx="494" cy="322" r="10" fill="#111"/>
+  <text x="494" y="326" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">3</text>
+
+  <!-- Flow 3: gateway to downloads -->
+  <path d="M485,395 H646 V490 H664" fill="none" stroke="#111" stroke-width="2" marker-end="url(#a)"/>
+
+  <!-- Flow 4: console users -->
+  <path d="M290,504 H315 V550 H628 V410 H664" fill="none" stroke="#111" stroke-width="1.6" marker-end="url(#a)"/>
+  <circle cx="460" cy="550" r="10" fill="#111"/>
+  <text x="460" y="554" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">4</text>
+
+  <!-- Blocked direct path -->
+  <line x1="290" y1="440" x2="490" y2="440" stroke="#b91c1c" stroke-width="1.6" stroke-dasharray="4 4"/>
+  <line x1="496" y1="432" x2="512" y2="448" stroke="#b91c1c" stroke-width="2.2"/>
+  <line x1="512" y1="432" x2="496" y2="448" stroke="#b91c1c" stroke-width="2.2"/>
+  <text x="300" y="432" font-size="11" fill="#b91c1c">Direct path to Blindsight</text>
+
+  <!-- Legend -->
+  <rect x="20" y="580" width="960" height="104" rx="12" fill="#fff" stroke="#d4d4d8"/>
+  <text x="40" y="604" font-size="12" font-weight="700" fill="#111">Blindsight hosts are reached only through the gateway. Connections stay encrypted end to end.</text>
+  <circle cx="48" cy="624" r="8" fill="#fff" stroke="#71717a"/>
+  <text x="48" y="628" font-size="10" font-weight="700" fill="#3f3f46" text-anchor="middle">1</text>
+  <text x="64" y="628" font-size="12" fill="#3f3f46">Inspected AI traffic keeps its usual route: direct, or through your proxy, PAC or WPAD. It never uses the gateway.</text>
+  <circle cx="48" cy="646" r="8" fill="#111"/>
+  <text x="48" y="650" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">2</text>
+  <text x="64" y="650" font-size="12" fill="#3f3f46">The agent's calls to Blindsight: enrolment, policy, heartbeat, events, updates. TCP 3128 to the gateway.</text>
+  <circle cx="48" cy="668" r="8" fill="#111"/>
+  <text x="48" y="672" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">3</text>
+  <text x="64" y="672" font-size="12" fill="#3f3f46">Relayed unchanged on TCP 443, directly or through your proxy, plus the gateway's heartbeat.</text>
+  <circle cx="668" cy="668" r="8" fill="#111"/>
+  <text x="668" y="672" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">4</text>
+  <text x="684" y="672" font-size="12" fill="#3f3f46">Console users reach the console.</text>
+</svg>
