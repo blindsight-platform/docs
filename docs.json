@@ -147,6 +147,7 @@
             "group": "Sign-in and identity",
             "pages": [
               "permissions-and-access/sign-in",
+              "permissions-and-access/connect-microsoft",
               "permissions-and-access/single-sign-on"
             ]
           },

@@ -1,0 +1,28 @@
+---
+title: "Connect Microsoft"
+sidebarTitle: "Connect Microsoft"
+description: "The application permissions Blindsight asks for when an administrator connects a Microsoft tenant in one step for sign-in, verified domains and directory sync."
+---
+
+**Connect Microsoft** sets up three things with one approval by an Entra
+administrator: single sign-on for your tenant, your verified domains, and a sync of
+the people in the groups you map to Blindsight roles. It uses Blindsight's own
+Microsoft application, the same one as
+[Sign in with Microsoft](/permissions-and-access/sign-in), with these application
+permissions added.
+
+| Permission | Type | Why | What is read |
+| ---------- | ---- | --- | ------------ |
+| `Organization.Read.All` | Application | Claims your domains as verified, with no DNS step. | Your tenant's ID, name and verified domains. |
+| `User.Read.All` | Application | Keeps console accounts in step with Entra: a person disabled or deleted in Entra loses access. | For each person in a mapped group, or who signed in through it: ID, user principal name, email address, display name, department and whether the account is enabled. |
+| `GroupMember.Read.All` | Application | Finds the people in the groups you map to Blindsight roles. | The members of the mapped groups. |
+
+- **Only the mapped groups.** People outside the groups you map to roles are never
+  given a console account.
+- **Read only.** Blindsight writes nothing to your tenant.
+- **Bound to one workspace.** After approval, an administrator of the tenant signs
+  in once to bind it. A tenant already bound to another workspace is refused.
+
+A Global Administrator or a Privileged Role Administrator approves it. To use your
+own identity provider application instead, see
+[Single sign-on and directory sync](/permissions-and-access/single-sign-on).
