@@ -47,7 +47,7 @@ how many bytes passed.
 | Admin network, monitoring | The gateway | TCP 9090 | Health, metrics and the PAC helper |
 | The gateway, or your proxy for it | `platform.blindsight.io` | TCP 443 | API, enrolment, policy, events, the gateway's heartbeat |
 | The gateway, or your proxy for it | `downloads.blindsight.io` | TCP 443 | Update manifest, installers, names model |
-| The gateway, macOS fleets only | `www.cloudflare.com` | TCP 443 | Cloudflare's published address list |
+| The gateway, macOS fleets only, with `GATEWAY_ALLOW_CLOUDFLARE=1` set on the gateway | `www.cloudflare.com` | TCP 443 | Cloudflare's published address list, which Macs fetch through the gateway |
 | Laptops | `platform.blindsight.io`, `downloads.blindsight.io` | TCP 443 | **Block.** The gateway is then the only way out. |
 
 Allow the Blindsight hosts **by name** on your proxy, because their addresses change.
@@ -134,7 +134,8 @@ user name, password or path.
 When `GatewayURL` is set:
 
 - every call from the agent to the Blindsight hosts goes **only** through the
-  gateway, with no direct attempt, so the agent can never go around it;
+  gateway: no other proxy and no direct attempt, so the agent can never go around
+  it;
 - pause protection and the connectivity check in a diagnostics report go through it
   too;
 - inspected AI traffic does **not** use it, and keeps its usual route;

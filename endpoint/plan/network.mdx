@@ -128,15 +128,18 @@ in this order:
    WinHTTP, a fixed proxy with its bypass list, or a PAC file;
 3. otherwise WPAD.
 
-With proxy variables or a PAC file, a direct connection is the last attempt. With
-WPAD, the agent tries a direct connection first, then the proxy.
+From desktop 2.2.2, a direct connection is always the last attempt, and only where
+your PAC file or WPAD answer allows it: when they name a proxy for a Blindsight host,
+that proxy is tried first. On desktop 2.2.1 with WPAD, a direct connection is tried
+first.
 
 Proxy sign-in:
 
 | Your proxy | What happens |
 | ---------- | ------------ |
 | No sign-in: fixed, PAC or WPAD | Works. |
-| Negotiate (Kerberos, or NTLM inside it), named by an administrator: machine-wide proxy settings, WinHTTP, browser policy, or a PAC file set by Group Policy or your MDM | The agent signs in silently with the computer account. |
+| Negotiate (Kerberos, or NTLM inside it), set machine-wide by an administrator: the machine proxy variables, machine-wide Internet Settings (with per-user proxy settings turned off, `ProxySettingsPerUser=0`), WinHTTP, or Chrome or Edge policy, including a PAC file set in any of these | The agent signs in silently with the computer account. |
+| Any sign-in, for a proxy or PAC file set only in a person's own settings | The agent never signs in to it: the person can change it. |
 | Any sign-in, for a proxy found only by WPAD | The agent never signs in to it, because WPAD answers can be spoofed on the network. Set the proxy or its PAC file by Group Policy or your MDM instead. |
 | Basic, with the credentials in a machine-wide `HTTPS_PROXY` set by an administrator, for example `http://svc-blindsight:password@proxy.example.internal:8080` | Works, alone or together with a PAC file or WPAD. |
 | Basic, without that `HTTPS_PROXY` | The device does not enrol: a PAC file carries no credentials. Set the `HTTPS_PROXY` above, or let the two Blindsight hosts through your proxy without sign-in. From desktop 2.2.2 the device reports that the proxy needs a sign-in, and how to fix it. |
