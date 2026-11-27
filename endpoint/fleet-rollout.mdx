@@ -706,20 +706,23 @@ elevated prompt, with the MSI in the same folder.
 macOS ships as a **`.dmg`**, one per processor
 (`Blindsight-Mac-<version>-arm64.dmg` for Apple silicon,
 `Blindsight-Mac-<version>-x86_64.dmg` for Intel). Drag
-`Blindsight Mac.app` into Applications. macOS 11.0 is the minimum.
-There is no `.pkg`. The app is signed and notarized, so it opens
+`Blindsight Mac.app` into Applications. macOS 12 is the minimum.
+The app is signed and notarized, so it opens
 without a Gatekeeper prompt.
 
-There is no token to distribute for a Mac. Push the disk image, or the
-app from it, with Jamf, Kandji or Intune, or let employees take it from
-the console's Downloads page. On first open the person signs in with
-their work account, which enrols the device and binds their identity,
-then approves the inspection certificate and the protection service
+Push the disk image, or the app from it, with Jamf, Kandji or Intune, or
+let employees take it from the console's Downloads page. A Mac enrols when
+the person signs in with their work account, which also binds their
+identity, or, from desktop 2.2.1, from a device configuration profile that
+carries an enrollment token. See
+[Packaging and silent install](/endpoint/plan/silent-install#macos). The
+person then approves the inspection certificate and the protection service
 when macOS asks.
 
 **Endpoint → Configurations → Install** offers a macOS install kit: a
 README with the download links, checksums and steps for both builds on
-your release channel. It holds no secret and can be shared freely.
+your release channel. When it includes the managed configuration profile,
+the kit holds an enrollment token: treat it as a secret.
 
 For a single-tenant or self-hosted platform, push a configuration
 profile in the `dev.blindsight` preferences domain so the app talks to
