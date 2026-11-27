@@ -114,17 +114,14 @@ const reply = await callYourModel(inp.safeText); // the model sees the replaced 
 const out = await rs.scanOutput(reply, { prompt: inp.safeText, sessionId: conversationId });
 if (out.blocked) return "Sorry, I can't help with that.";
 
-import { restorePseudonyms } from "@blindsight/security";
+import { restoreReply } from "@blindsight/security";
 
-const hide = Object.fromEntries(Object.keys(out.pseudonyms ?? {}).map((k) => [k, "[hidden]"]));
-const safe = restorePseudonyms(out.safeText, hide); // data the model wrote on its own
-const res = inp.restoreDetailed(safe); // your user's own values go back in
-if (res.unrestored.length) console.warn("not restored:", res.unrestored);
-const final = res.text;
+const res = restoreReply(out.safeText, inp, out); // one restore for the whole turn
+if (res.unrestored.length) return "Sorry, I can't answer that right now."; // or ask the model again
+const final = res.text; // your user's own values are back in
 ```
 
-`restore` runs locally and gives the original text back exactly, for stand-ins and
-tokens alike. `unrestored` lists what could not be put back. The mapping is in
+`restoreReply` (`restore_reply` in Python) joins the mappings of the input and output scans and restores once, locally, for stand-ins and tokens alike. Personal data the model wrote on its own, which the output scan hid, stays hidden; a stand-in the output scan masked a second time is put back, or listed in `unrestored`. `unrestored` lists what could not be put back. The mapping is in
 the response only: keep it on your server and never log it. Use version 1.1 of
 the SDK; version 1.0 only understands numbered tokens. See
 [Scan API](/runtime-security/scan-api#pseudonymisation-and-restore).
@@ -138,7 +135,8 @@ whole document.
 
 ```ts
 const doc = await rs.scanDocument(longText);
-const answer = doc.restore(await callYourModel(doc.redactedText));
+const res = restoreReply(await callYourModel(doc.redactedText), doc);
+const answer = res.text; // check res.unrestored before you show it
 console.log(doc.billableRequests); // the requests this document counted
 ```
 

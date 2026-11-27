@@ -483,7 +483,7 @@ never restores parts. On the restore route, send `"pseudonym_format": "stand_in"
 (the same declaration as on the scan calls) and the mapping of the input scan joined
 with that of the output scan.
 
-The scan calls take `known_stand_ins` (the keys of the stand-ins already issued, never the originals). New stand-ins avoid these keys, so two people never share a part across turns when there is no `session_id`; it never leaves a value unmasked. On an output scan of a caller that declared stand-ins it also leaves the whole issued name, email or phone in place for the restore.
+The scan calls take `known_stand_ins` (the keys of the stand-ins already issued, never the originals). New stand-ins avoid these keys, so two people never share a part across turns when there is no `session_id`. An input scan never leaves a value unmasked. On an output scan of a caller that declared stand-ins it also leaves the whole issued name, email or phone in place for the restore.
 
 Use SDK version 1.1 or later for stand-ins. Version 1.0 only understands numbered
 tokens, which is why it keeps getting them.
@@ -566,10 +566,12 @@ placeholders, never the real values, and your user gets their own values back.
    `redacted_text` to your model.
 2. Call `/scan/output` with the model's reply, the text your model saw as `prompt`,
    and the same `session_id`. On `block`, answer with a refusal.
-3. Replace each placeholder listed in the second call's `pseudonyms` with a word
-   such as `[hidden]`. That is personal data the model wrote on its own, and it
-   stays hidden.
-4. Put the user's values back with the first call's `pseudonyms`.
+3. Put the user's values back once, with the first call's `pseudonyms` joined to the
+   second call's `pseudonyms` (the SDKs' `restore_reply` / `restoreReply` do it).
+   Personal data the model wrote on its own, which the output scan hid, stays
+   hidden. Do not replace the second call's replacements by hand: that would turn
+   a stand-in the output scan masked again into a fake name.
+4. Check `unrestored` before you show the text.
 
 Create the `session_id` on your server, one random value per conversation. Never
 use a value your users can choose or see. Within a conversation a value keeps its
