@@ -110,6 +110,52 @@ and `.code`, specialised as `BlindsightAuthError` on 401/403 and
   functionally identical.
 </Note>
 
+## Long documents
+
+<Note>
+  Applies once API plans are enabled for your workspace.
+</Note>
+
+<Warning>
+  Document chunking comes in the next SDK release. It is not yet published.
+  The current release does not have `scan_document` or `scanDocument`.
+</Warning>
+
+A call holds up to 500,000 characters (see [Size limits](/runtime-security/scan-api#size-limits)).
+For a longer text, or when you want to keep every call small, the SDK splits the
+document for you. `scan_document` (Python) and `scanDocument` (TypeScript) split
+a text of any length at paragraph, sentence and whitespace boundaries, never
+inside a word. The pieces do not overlap, so joined they give the original text
+exactly. The SDK scans the pieces in order and gives you one result.
+
+A name that appears in piece 1 and piece 5 gets one placeholder, and `restore`
+works on the whole document.
+
+```python Python
+doc = rs.scan_document(long_text, chunk_chars=16000)
+safe = doc.redacted_text          # the pieces joined
+answer = doc.restore(llm(safe))   # originals back
+print(doc.billable_requests)      # the Billable-Requests headers, summed
+```
+
+```ts TypeScript
+const doc = await rs.scanDocument(longText, 16000);
+const safe = doc.redactedText; // the pieces joined
+const answer = doc.restore(await llm(safe)); // originals back
+console.log(doc.billableRequests); // the Billable-Requests headers, summed
+```
+
+- If the API answers `413`, the SDK splits the document again, once, at the size
+  the API recommends. A second `413` raises an error.
+- If the API answers `scan_incomplete`, the SDK sends that piece again after
+  `Retry-After`.
+- Chunking can add at most one request per piece compared with one large call,
+  because each piece is rounded up to whole 4,000 character requests.
+- New error classes: `BlindsightTextTooLong` for both `text_too_long` and
+  `PAYLOAD_TOO_LARGE`, `BlindsightPlanRequired`, and `BlindsightScanIncomplete` in
+  Python. In TypeScript they are `BlindsightTextTooLongError`,
+  `BlindsightPlanRequiredError` and `BlindsightScanIncompleteError`.
+
 ## Python: explicit scan calls (no SDK)
 
 The portable pattern: scan input, call your model, scan output.

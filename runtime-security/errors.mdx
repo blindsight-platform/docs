@@ -7,6 +7,13 @@ This page is your reference when something doesn't go to 200. Use the
 [Verdicts](/runtime-security/verdicts) page for what to do with the
 verdict inside a 200 response; this page is for protocol failures.
 
+<Note>
+  On an API plan, new codes apply once API plans are enabled for your workspace:
+  `text_too_long`, `scan_incomplete`, `plan_required`, `idempotency_key_reused` and
+  `not_available_on_api_plan`. They are listed with the others in the
+  [API reference errors](/api-reference/errors#scan-api-error-codes).
+</Note>
+
 ## Error codes
 
 | Status | `code`                                           | When                                                                                              | What to do                                                                                          |

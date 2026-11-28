@@ -27,20 +27,119 @@ traffic is attributed to it when you omit the header.
 
 | Status | When                                                                                   |
 | ------ | -------------------------------------------------------------------------------------- |
-| `401`  | The key is missing, invalid, expired, disabled or revoked (`INVALID_CREDENTIALS`). A key is revoked with its App when that App is archived or deleted. |
+| `401`  | The key is missing, invalid, expired, disabled or revoked (`INVALID_CREDENTIALS`). A key is revoked with its App when that App is archived or deleted. A key without the `runtime:scan` permission, and a key of an archived App, may also answer `401` today (see `403` and `410`). |
 | `402`  | The workspace has used its request allowance for the current period (`QUOTA_EXCEEDED`). |
-| `403`  | The key does not have the `runtime:scan` permission, or its owner no longer holds it. A key limited to other Apps gets `APP_NOT_ALLOWED`. |
+| `403`  | The key does not have the `runtime:scan` permission, or its owner no longer holds it. A key limited to other Apps gets `APP_NOT_ALLOWED`. A key without the permission may be `401` today. |
+| `410`  | The App is archived (`APP_ARCHIVED`). A key of an archived App may be `401` today. |
 | `404`  | Runtime Security (or, for tool calls, the agentic guardrails module) is not enabled for the workspace. |
-| `413`  | A text field is longer than the workspace limit (`PAYLOAD_TOO_LARGE`). The default limit is 32,000 characters. |
+| `413`  | A text field is longer than the workspace limit (`PAYLOAD_TOO_LARGE`). The default limit is 32,000 characters. On an API plan, a call over the per call limit gets `text_too_long`. See [Size limits](#size-limits). |
 | `422`  | The request body is not valid. The error names the field and never repeats what you sent. Text that is not valid Unicode is refused the same way. |
-| `429`  | You are over the rate limit (limits apply per API key), or, with the code `DAILY_ALLOWANCE_SOFT_LIMIT`, today's request allowance is used and requests are paced. Wait `Retry-After` seconds and send the same request again. |
-| `503`  | The firewall is disabled or still starting, or the scanner could not be reached (`SCANNER_UNAVAILABLE`). A single prompt, reply or file scan that fails because the scanner could not run is not counted against your allowance. |
+| `409`  | On an API plan, the `Idempotency-Key` was already used with a different body (`idempotency_key_reused`). |
+| `429`  | You are over the rate limit (limits apply per API key), or, with the code `DAILY_ALLOWANCE_SOFT_LIMIT`, today's request allowance is used and requests are paced. Wait `Retry-After` seconds and send the same request again. On an API plan whose trial has ended or whose plan is paused, `plan_required`. |
+| `503`  | The firewall is disabled or still starting, or the scanner could not be reached (`SCANNER_UNAVAILABLE`). A single prompt, reply or file scan that fails because the scanner could not run is not counted against your allowance. On an API plan, a text the service could not finish is refused with `scan_incomplete`. |
 
 If your plan has a daily request allowance, every counted scan call made with an API
 key also says how much of today's allowance is used, in the headers
 `X-Blindsight-Usage-Day-Used`, `-Limit`, `-State` and `-Resets-At`, so you can
 warn your team before requests are paced. Requests well past the allowance are slowed
 down, never stopped for the day.
+
+## Request units and usage
+
+<Note>
+  Applies once API plans are enabled for your workspace.
+</Note>
+
+On an API plan you are billed in request units, not in calls. One request is
+up to 4,000 characters, counted after the text is decoded and the same in every
+language. A longer text counts as more requests, rounded up per 4,000
+characters: 1,500 characters are 1 request, 10,000 characters are 3. A call is
+never less than 1. See [API plans](/runtime-security/api-plans) for the prices
+and the trial.
+
+| Route | Characters counted |
+| ----- | ------------------ |
+| `/scan/input` | `text`, every `history` turn and every `untrusted` part |
+| `/scan/output` | `response`. The `prompt` is free. |
+| `/scan/batch` | Each item on its own, each at least 1, added up |
+| `/scan/file` | The extracted text |
+| `/scan/restore` | None. Restoring is not billed. |
+
+Every answer says what the call counted:
+
+- The response header `Billable-Requests`, for example `Billable-Requests: 3`.
+- The response field `usage`, with `billable_requests` and `characters`. A batch
+  has `usage` on each result and a total at the top.
+
+```json
+{
+  "verdict": "redact",
+  "redacted_text": "...",
+  "usage": {"billable_requests": 3, "characters": 10000}
+}
+```
+
+A call that is refused or fails is not billed. The headers
+`X-Blindsight-Usage-Month-Used`, `-Included`, `-Resets-At` and `-Plan-State`
+say where your month stands. The month is the calendar month in UTC.
+
+The inline reverse proxy is not available on an API plan. Its routes answer
+`403` with the code `not_available_on_api_plan`.
+
+### Size limits
+
+At most 500,000 characters per call. The limit counts every text field of the
+call together: for `/scan/input` the `text`, the `history` turns and the
+`untrusted` parts, for `/scan/output` the `response` and the `prompt`, and for a
+batch all items. The limit in force for your workspace is returned as `limit` in the `413`
+body and can be lower than 500,000 while capacity is being added.
+
+The larger limit applies to an App that only looks for personal data, that is, an
+App whose prompt injection detection is off or flag only. For any other App the
+workspace limit `max_text_length` (default 32,000 characters) applies, and the
+answer is `413 PAYLOAD_TOO_LARGE`.
+
+A call over the limit is refused, never cut. The answer is `413` with the code
+`text_too_long`. Its body names `field`, `length`, `max_text_length`,
+`scanned: false`, `recommended_chunk_chars`, `recommended_chunk_overlap_chars`
+and adds `limit` and `legacy_code`. It is not billed. Split the text, or use the
+[SDK](/runtime-security/sdk-examples#long-documents), which splits long documents
+for you.
+
+For a text this long, the whole text is read. If the service cannot finish
+reading it in time, the call answers `503` with the code `scan_incomplete` and
+`Retry-After: 5`. Nothing is returned and nothing is billed. Send the same call
+again, or split the text if it keeps happening.
+
+### Idempotency-Key
+
+Send an optional `Idempotency-Key` header (up to 255 characters) on a scan call
+that you may have to repeat after a timeout. The same key with the same body on
+the same App and route within 24 hours is not charged again. The answer carries
+`Billable-Requests: 0` and `Idempotent-Replay: true`. A key can replay at most 3
+times for free, and the fourth and later calls are charged. The same key with a
+different body answers `409` with the code `idempotency_key_reused`. A call that
+was refused or failed gives its key back, so the retry is charged normally.
+
+```bash
+curl -X POST "https://platform.blindsight.io/api/v1/runtime-security/scan/input" \
+  -H "X-API-Key: $BLINDSIGHT_API_KEY" \
+  -H "Idempotency-Key: 6f1c2a84-3b7e-4d90-9a15-0c8e2b4f7d31" \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Please email the report to jane.doe@example.com"}'
+```
+
+### Versioned paths
+
+The scan routes are also served under `/api/v1/runtime-security/`. The
+unversioned paths are the same as v1. See [Versioning](/api-reference/versioning).
+
+### When the trial ends
+
+A workspace whose trial ended without a plan is served up to 10 request units an
+hour. These calls are not counted as usage and not billed: they answer with
+`Billable-Requests: 0`. Every other call answers `429` with the code `plan_required` and
+`Retry-After`. Choose a plan to restore service at once. Nothing is deleted.
 
 ## `POST /api/runtime-security/scan/input`
 
@@ -141,13 +240,16 @@ Rate limit: **200 requests per second per API key**.
 ## `POST /api/runtime-security/scan/batch`
 
 Scan up to 32 items in one call. Each item still uses one request from your
-allowance, but you save the HTTP overhead.
+allowance, but you save the HTTP overhead. On an API plan each item is counted on
+its own in request units, at least 1 each, and the header `Billable-Requests`
+carries the total.
 
 ### Request
 
 | Field   | Type  | Required | Notes                     |
 | ------- | ----- | -------- | ------------------------- |
 | `items` | array | yes      | 1 to 32 items.            |
+| `session_id` | string | no  | On an API plan: one numbering for all items, in order, shared with other calls of the same conversation. |
 
 Each item:
 
@@ -185,7 +287,8 @@ curl -X POST "https://platform.blindsight.io/api/runtime-security/scan/batch" \
 ```
 
 Rate limit: **40 requests per second per API key**. Each batch uses
-`len(items)` requests from your allowance. If the workspace runs out partway
+`len(items)` requests from your allowance (on an API plan, the units of its
+items). If the workspace runs out partway
 through, the call returns `402`.
 
 A batch cannot be attributed to an App. A key that is limited to specific Apps
@@ -245,17 +348,48 @@ Rate limit: **200 requests per second per API key**.
 ## `POST /api/runtime-security/scan/restore`
 
 Put the real values back into text that carries placeholders. It does plain text
-work on what you send: nothing is looked up, stored or logged.
+work on what you send: nothing is looked up, stored or logged. Use it with the
+`pseudonyms` mapping that a scan response returned for an App set to
+**Pseudonymize and restore**. The official SDKs restore locally, so they never
+need this route.
+
+### Request
 
 | Field        | Type   | Required | Notes                                                       |
 | ------------ | ------ | -------- | ----------------------------------------------------------- |
 | `text`       | string | yes      | Text that carries placeholders.                              |
-| `pseudonyms` | object | yes      | The mapping the scan response returned.                      |
+| `pseudonyms` | object | yes      | The mapping the scan response returned, placeholder to value. At most 5,000 entries. |
 
-The response holds `text` with the values back in and `restored`, how many of the
-placeholders you sent were found in the text and put back. A result that would be too large is refused with `413` and
-the code `RESTORE_TOO_LARGE`, and nothing is restored. The official SDKs restore
-locally, so they never need this route.
+### Response
+
+| Field      | Notes                                                                              |
+| ---------- | ---------------------------------------------------------------------------------- |
+| `text`     | The text with the values back in.                                                   |
+| `restored` | How many of the placeholders you sent were found in the text and put back.          |
+
+```bash
+curl -X POST "https://platform.blindsight.io/api/runtime-security/scan/restore" \
+  -H "X-API-Key: $BLINDSIGHT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Write to <PERSON_1> at <EMAIL_ADDRESS_1>.",
+       "pseudonyms": {"<PERSON_1>": "Jane Doe", "<EMAIL_ADDRESS_1>": "jane.doe@example.com"}}'
+```
+
+```json
+{
+  "text": "Write to Jane Doe at jane.doe@example.com.",
+  "restored": 2
+}
+```
+
+Restore is not billed: on an API plan the answer carries
+`Billable-Requests: 0`. The rate limit is **200 requests per second per API key**.
+
+A text of more than 2,000,000 characters, or a result that would be too large,
+is refused with `413` and the code `RESTORE_TOO_LARGE`, and nothing is restored.
+On an API plan with whole text scanning, the limit is 600,000 characters and the
+code is `text_too_long`. Pseudonymised text can be longer than the original, which
+is why the limit is higher than for a scan.
 
 ## Protect a chatbot
 

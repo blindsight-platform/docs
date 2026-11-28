@@ -1,0 +1,87 @@
+---
+title: "Privacy pack"
+description: "Where the pseudonymisation API processes your text, what it keeps, and where to find the agreements."
+---
+
+<Note>
+  Applies once API plans are enabled for your workspace.
+</Note>
+
+This page answers the questions a data protection review asks about the
+pseudonymisation and scan API. It states only what the platform does today. For
+the legal terms, use the agreements linked at the end.
+
+## Where your text is processed
+
+The platform runs on Amazon Web Services in **eu-west-1 (Ireland), in the EU**.
+The hosting provider is Amazon Web Services EMEA SARL (Luxembourg), and the
+processing location is Ireland. Product emails are sent through Amazon SES in
+Ireland.
+
+## Encryption
+
+- Data at rest is encrypted in the database, in the file system and in the cache.
+- Traffic to the API uses HTTPS.
+- Any text the platform keeps is encrypted again before it is written (see below).
+
+## What is kept, and what is not
+
+The text storage choice is yours. Two settings decide it, and text is kept only
+when **both** allow it: the workspace setting `keep_prompt_text` and the app
+setting `redaction.store_text`. Check the setting of each app you create.
+
+| Choice | What is kept | Where |
+| ------ | ------------ | ----- |
+| Text storage on | The redacted text, the first 4,000 characters of it for each event, encrypted | On the event record, in the platform database |
+| Text storage off | No text. The event record notes that the text was not kept (`text_not_kept`). | Nothing is kept. No text, email address or IBAN is in any column, log, events list or export. |
+
+In both cases:
+
+- **The pseudonym mapping is never stored.** The placeholders and the values they
+  stand for are returned in the answer to your call, and nowhere else. Keep the
+  mapping on your side if you want to restore text later.
+- **The original text is not kept by default.** It is kept only if the app's
+  privacy mode is `both_role_gated`, or the call asks for it with `persist_raw`.
+- An event record always holds the verdict and scores, the kinds and number of
+  personal data found, the text length, the client IP address, the source app,
+  provider and model, the id of the API key, and any `custom_params` you send.
+
+Stored redacted text appears in the app's events list and in the workspace export.
+
+This page does not yet state how long stored text is kept or who at Blindsight
+can access it. The data processing agreement (AVV) governs both. Read it at
+[blindsight.io/platform/legal/dpa](https://blindsight.io/platform/legal/dpa/).
+
+## What the logs contain
+
+- **Request logs** hold the method, a redacted form of the path and the
+  status. Error bodies never repeat the text you sent.
+- **Audit records** for a blocked call hold the verdict, the scores and the
+  categories, and no text.
+- Stored text never appears in a log line.
+
+## Subprocessors
+
+The current list is on the subprocessors page:
+[blindsight.io/platform/legal/subprocessors](https://blindsight.io/platform/legal/subprocessors/).
+It names Amazon Web Services EMEA SARL for hosting, email and, for policy import
+and topic rules only, Amazon Bedrock in Ireland, and Microsoft Ireland for the
+support mailboxes. Keygen, the licensing service, receives the licence key and
+counters only.
+
+## Technical and organisational measures
+
+The technical and organisational measures are part of the data processing
+agreement (Auftragsverarbeitungsvertrag, AVV). Read them there:
+[blindsight.io/platform/legal/dpa](https://blindsight.io/platform/legal/dpa/).
+
+## Agreements and contact
+
+| Document | Link |
+| -------- | ---- |
+| Data processing agreement (DPA, AVV) | [blindsight.io/platform/legal/dpa](https://blindsight.io/platform/legal/dpa/) |
+| Subprocessors | [blindsight.io/platform/legal/subprocessors](https://blindsight.io/platform/legal/subprocessors/) |
+| Privacy notice | [blindsight.io/platform/legal/privacy](https://blindsight.io/platform/legal/privacy/) |
+
+The contracting party is Blindsight Technologies AG, Rennweg 57, 8001 Zurich.
+Questions: [support@blindsight.io](mailto:support@blindsight.io).

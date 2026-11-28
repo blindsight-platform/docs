@@ -20,12 +20,31 @@ curl -i -H "X-API-Key: $API_KEY" $API_BASE/api/datasets
 Wait for `Retry-After` and retry. Add jitter if several workers share
 a key, so they do not retry in step.
 
+## Scan API rate limits
+
+Scan routes are limited per API key, not per workspace.
+
+| Route | Limit |
+| ----- | ----- |
+| `/scan/input`, `/scan/output`, `/scan/restore`, `/scan/tool-call` | 200 requests per second |
+| `/scan/batch` | 40 requests per second |
+| `/scan/file` | 60 requests per second |
+| `/pseudonymization/labels` | 100 requests per minute and 1,000 per hour |
+
+Over the limit, the answer is `429` with the code `RATE_LIMITED` and a
+`Retry-After` header. The same limits apply on the `/api/v1/runtime-security/`
+paths.
+
 ## Quotas: `402`
 
 Runtime Security scans are metered against your plan's
 `max_runtime_security_calls`. When the quota runs out, scan routes
 return `402` with the typed code `QUOTA_EXCEEDED` until the quota
 resets or the license is upgraded. Retrying does not help.
+
+On an API plan this code never appears. A paid plan is never refused for using
+more than it includes, and a trial that has ended answers `429` with the code
+`plan_required` instead. See [API plans](/runtime-security/api-plans).
 
 Runtime Security Apps also carry hourly and daily event caps that
 answer `429` with `APP_QUOTA_EXCEEDED`. See

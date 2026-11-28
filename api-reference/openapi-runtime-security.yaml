@@ -29,6 +29,37 @@ info:
     All timestamps are UTC, ISO 8601, ending in `Z`, unless an endpoint says
     otherwise.
 
+    **API plans.** The following applies once API plans are enabled for your
+    workspace.
+
+    * **Versions.** The scan routes `scan/input`, `scan/output`, `scan/batch`,
+      `scan/restore` and `pseudonymization/labels` are also served under
+      `/api/v1/runtime-security/` (replace `/api/runtime-security/` in the
+      paths below). The unversioned paths are the same as v1. Responses on a
+      `/v1` path carry `Blindsight-Api-Version: 1`. Changes inside v1 are
+      additive. A breaking change means `/v2`, announced 12 months ahead with
+      `Deprecation` and `Sunset` headers. The `version` of this document
+      describes the document, not the API.
+    * **Rate limits.** Per API key: `/scan/input`, `/scan/output`,
+      `/scan/restore` and `/scan/tool-call` 200 requests a second;
+      `/scan/batch` 40 a second; `/scan/file` 60 a second;
+      `/pseudonymization/labels` 100 a minute and 1000 an hour. Over the
+      limit: `429 RATE_LIMITED` with `Retry-After`.
+    * **Request units.** A call is billed in units of 4,000 characters, at
+      least one: `max(1, ceil(characters / 4000))`, counted in Unicode code
+      points. The answer carries the header `Billable-Requests` and the field
+      `usage`. `/scan/restore` and `/pseudonymization/labels` are not billed.
+      The text of one call is limited per call (500,000 characters at most;
+      the limit in force is returned as `limit` in the 413 body). Over it the
+      answer is `413 text_too_long`.
+    * **Idempotency.** Send `Idempotency-Key` on a scan. The same key with the
+      same body on the same app and route within 24 hours is not charged
+      again, at most 3 times. The answer carries `Billable-Requests: 0` and
+      `Idempotent-Replay: true`. The same key with a different body answers
+      `409 idempotency_key_reused`.
+    * **Errors.** Every error carries `X-Blindsight-Error-Code`. All codes are
+      listed on the Errors page of the API reference.
+
     See the Runtime Security guides for prose docs, SDK examples, and a
     walk-through of verdicts and configuration.
   contact:
@@ -72,6 +103,7 @@ paths:
       operationId: scanInput
       parameters:
         - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
         required: true
         content:
@@ -89,6 +121,10 @@ paths:
       responses:
         '200':
           description: "Scan complete: verdict in body"
+          headers:
+            Billable-Requests: { $ref: '#/components/headers/BillableRequests' }
+            Blindsight-Api-Version: { $ref: '#/components/headers/ApiVersion' }
+            Idempotent-Replay: { $ref: '#/components/headers/IdempotentReplay' }
           content:
             application/json:
               schema: { $ref: '#/components/schemas/ScanResponse' }
@@ -103,6 +139,8 @@ paths:
         '402': { $ref: '#/components/responses/QuotaExceeded' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotEnabled' }
+        '409': { $ref: '#/components/responses/IdempotencyKeyReused' }
+        '410': { $ref: '#/components/responses/AppArchived' }
         '413': { $ref: '#/components/responses/PayloadTooLarge' }
         '422': { $ref: '#/components/responses/ValidationError' }
         '429': { $ref: '#/components/responses/RateLimited' }
@@ -120,6 +158,7 @@ paths:
       operationId: scanOutput
       parameters:
         - $ref: '#/components/parameters/AppId'
+        - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
         required: true
         content:
@@ -131,6 +170,10 @@ paths:
       responses:
         '200':
           description: "Scan complete: verdict in body"
+          headers:
+            Billable-Requests: { $ref: '#/components/headers/BillableRequests' }
+            Blindsight-Api-Version: { $ref: '#/components/headers/ApiVersion' }
+            Idempotent-Replay: { $ref: '#/components/headers/IdempotentReplay' }
           content:
             application/json:
               schema: { $ref: '#/components/schemas/ScanResponse' }
@@ -145,6 +188,8 @@ paths:
         '402': { $ref: '#/components/responses/QuotaExceeded' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotEnabled' }
+        '409': { $ref: '#/components/responses/IdempotencyKeyReused' }
+        '410': { $ref: '#/components/responses/AppArchived' }
         '413': { $ref: '#/components/responses/PayloadTooLarge' }
         '422': { $ref: '#/components/responses/ValidationError' }
         '429': { $ref: '#/components/responses/RateLimited' }
@@ -159,12 +204,20 @@ paths:
         an individual scan. If the allowance runs out partway through, the
         call fails with `402`.
 
+        On an API plan, each item is billed on its own in units of 4,000
+        characters, at least one, and the header `Billable-Requests` carries
+        the total. An optional top level `session_id` gives all items one
+        numbering, in order, shared with other calls of the same conversation.
+        The response has `usage` on each result and a total.
+
         A batch cannot be attributed to an App. A key that is limited to
         specific Apps gets `400` with the code `APP_SCOPED_KEY`.
 
         Requires the `runtime:scan` permission. Rate limit: 40 requests per
         second per API key.
       operationId: scanBatch
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
         required: true
         content:
@@ -177,6 +230,10 @@ paths:
       responses:
         '200':
           description: All items scanned, in request order
+          headers:
+            Billable-Requests: { $ref: '#/components/headers/BillableRequests' }
+            Blindsight-Api-Version: { $ref: '#/components/headers/ApiVersion' }
+            Idempotent-Replay: { $ref: '#/components/headers/IdempotentReplay' }
           content:
             application/json:
               schema: { $ref: '#/components/schemas/ScanBatchResponse' }
@@ -200,6 +257,8 @@ paths:
         '402': { $ref: '#/components/responses/QuotaExceeded' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotEnabled' }
+        '409': { $ref: '#/components/responses/IdempotencyKeyReused' }
+        '410': { $ref: '#/components/responses/AppArchived' }
         '413': { $ref: '#/components/responses/PayloadTooLarge' }
         '422': { $ref: '#/components/responses/ValidationError' }
         '429': { $ref: '#/components/responses/RateLimited' }
@@ -211,7 +270,10 @@ paths:
       summary: Put the real values back into text that carries placeholders
       description: |
         Plain text work on what you send: nothing is looked up, stored or
-        logged. Use it with the `pseudonyms` mapping a scan returned for an
+        logged. Restoring is not billed: on an API plan the answer carries
+        `Billable-Requests: 0`. The text may hold up to 2,000,000 characters
+        (`RESTORE_TOO_LARGE`), or 600,000 when whole text scanning applies to
+        your workspace (`text_too_long`). Use it with the `pseudonyms` mapping a scan returned for an
         App set to pseudonymize and restore. The official SDKs restore
         locally and never need this route.
 
@@ -231,6 +293,9 @@ paths:
       responses:
         '200':
           description: The text with the values back in
+          headers:
+            Billable-Requests: { $ref: '#/components/headers/BillableRequests' }
+            Blindsight-Api-Version: { $ref: '#/components/headers/ApiVersion' }
           content:
             application/json:
               schema: { $ref: '#/components/schemas/ScanRestoreResponse' }
@@ -240,7 +305,7 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '413':
-          description: The restored text would be too long, or needs too many replacements (`RESTORE_TOO_LARGE`). Nothing is restored.
+          description: The restored text would be too long, or needs too many replacements (`RESTORE_TOO_LARGE`), or the text is over the per call limit (`text_too_long`). Nothing is restored.
         '422': { $ref: '#/components/responses/ValidationError' }
         '429': { $ref: '#/components/responses/RateLimited' }
 
@@ -983,9 +1048,49 @@ components:
         App, or a workspace with exactly one App, uses that App. A key limited
         to several Apps must send it.
 
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: |
+        API plans. The same key with the same body on the same app and route
+        within 24 hours is not charged again, at most 3 times
+        (`Billable-Requests: 0`, `Idempotent-Replay: true`). The same key with a
+        different body answers 409 `idempotency_key_reused`. Up to 255
+        characters.
+      schema: { type: string, maxLength: 255 }
+
+  headers:
+    BillableRequests:
+      description: Billable units of this call (API plans). 0 for a replay, a restore and a refused call.
+      schema: { type: integer, minimum: 0 }
+    ApiVersion:
+      description: "`1` on a `/api/v1/` path."
+      schema: { type: string }
+    IdempotentReplay:
+      description: "`true` when the call is a replay of an earlier call with the same `Idempotency-Key`."
+      schema: { type: string, enum: ["true"] }
+
   responses:
+    IdempotencyKeyReused:
+      description: The `Idempotency-Key` was already used with a different body within 24 hours (`idempotency_key_reused`). Not billed.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: object
+                properties:
+                  code: { type: string, enum: [idempotency_key_reused] }
+                  message: { type: string }
+    AppArchived:
+      description: The App is archived (`APP_ARCHIVED`).
     Unauthorized:
-      description: The API key is missing, invalid, expired or disabled
+      description: |
+        The API key is missing, invalid, expired or disabled. A key bound to an
+        archived App may answer 401 today and `410 APP_ARCHIVED` once the
+        deployment switches the status codes on.
       content:
         application/json:
           schema:
@@ -993,7 +1098,11 @@ components:
             properties:
               detail: { type: string }
     Forbidden:
-      description: The key does not have the permission this endpoint needs, or its owner no longer holds it
+      description: |
+        The key does not have the permission this endpoint needs, or its owner
+        no longer holds it. A key without the scan permission may answer 401
+        today. On an API plan, the reverse proxy routes answer `403
+        not_available_on_api_plan`.
       content:
         application/json:
           schema:
@@ -1017,7 +1126,12 @@ components:
                   resets_at: { type: string }
                   upgrade_url: { type: string }
     PayloadTooLarge:
-      description: A text field is longer than the workspace limit
+      description: |
+        A text field is longer than the workspace limit (`PAYLOAD_TOO_LARGE`),
+        or, when whole text scanning applies, the call is over the per call
+        limit (`text_too_long`, 500,000 characters at most; the limit in force is
+        `limit` in the body and can be lower). `text_too_long` also carries
+        `limit` and `legacy_code`. Not billed.
       content:
         application/json:
           schema:
@@ -1047,9 +1161,17 @@ components:
                     msg: { type: string }
                     type: { type: string }
     RateLimited:
-      description: Rate limit reached for this API key
+      description: |
+        `RATE_LIMITED` (per API key, with `Retry-After`),
+        `DAILY_ALLOWANCE_SOFT_LIMIT`, `APP_QUOTA_EXCEEDED`, or `plan_required`
+        (the trial ended or the plan is paused: a few requests an hour are
+        still served, the rest get this answer with `Retry-After`).
     Unavailable:
-      description: The firewall is disabled or still starting
+      description: |
+        The firewall is disabled or still starting, the scanner could not be
+        reached (`SCANNER_UNAVAILABLE`), or a text could not be read to the end
+        (`scan_incomplete`, with `Retry-After: 5`, nothing returned and nothing
+        billed).
       content:
         application/json:
           schema:
@@ -1155,10 +1277,20 @@ components:
           minItems: 1
           maxItems: 32
           items: { $ref: '#/components/schemas/ScanBatchItem' }
+        session_id:
+          type: string
+          maxLength: 200
+          description: API plans. One numbering shared by all items, in order, and with other calls of the same conversation.
 
     ScanBatchResponse:
       type: object
       properties:
+        usage:
+          type: object
+          description: API plans only. The total over all items.
+          properties:
+            billable_requests: { type: integer, minimum: 0 }
+            characters: { type: integer, minimum: 0 }
         results:
           type: array
           items: { $ref: '#/components/schemas/ScanResponse' }
@@ -1212,6 +1344,12 @@ components:
         latency_ms:
           type: integer
           minimum: 0
+        usage:
+          type: object
+          description: API plans only. What the call was billed.
+          properties:
+            billable_requests: { type: integer, minimum: 0 }
+            characters: { type: integer, minimum: 0 }
         pseudonyms:
           type: object
           additionalProperties: { type: string }

@@ -1,0 +1,58 @@
+---
+title: "Changelog"
+description: "Changes to the scan and pseudonymisation API, newest first."
+---
+
+<Note>
+  Applies once API plans are enabled for your workspace.
+</Note>
+
+Changes inside v1 are additive. Everything below applies to a workspace on an API
+plan. Other workspaces see no difference. See [Versioning](/api-reference/versioning)
+for what can change inside a version.
+
+## Not yet released
+
+### Added
+
+- **The request unit.** One billable request is 4,000 characters of text, at least
+  one per call: the number of characters divided by 4,000, rounded up, counted in
+  Unicode characters. `/scan/input` counts `text`, every `history` turn and every
+  `untrusted` part. `/scan/output` counts `response`. `/scan/batch` counts each
+  item on its own, at least one each, and adds them up. `/scan/file` counts the
+  extracted text. `/scan/restore` and `/pseudonymization/labels` count nothing. See
+  [API plans](/runtime-security/api-plans).
+- **`Billable-Requests` and `usage`.** The response header `Billable-Requests` and
+  the response field `usage` (`billable_requests`, `characters`) on every scan
+  answer. A batch has `usage` on each result and a total.
+- **Month usage headers.** `X-Blindsight-Usage-Month-Used`, `-Included`,
+  `-Resets-At` and `X-Blindsight-Usage-Plan-State`. The usage month is the
+  calendar month in UTC.
+- **A limit per call.** At most 500,000 characters per call (600,000 for
+  `/scan/restore`), answered with `413 text_too_long`. The limit in force is
+  returned in the body and can be lower. A 16 MiB body limit on the scan routes.
+- **Whole text scanning.** A long text is read to the end. If the service cannot
+  finish, the call answers `503 scan_incomplete` with `Retry-After: 5`, returns
+  nothing and is not billed.
+- **Versioned paths.** `/api/v1/runtime-security/` and the response header
+  `Blindsight-Api-Version`. See [Versioning](/api-reference/versioning).
+- **`session_id` on `/scan/batch`.** One numbering shared by all items, in order,
+  and with other calls of the same conversation.
+- **`Idempotency-Key`.** The same key with the same body on the same app and route
+  within 24 hours is not charged again, at most 3 times. The answer carries
+  `Billable-Requests: 0` and `Idempotent-Replay: true`. The same key with a
+  different body answers `409 idempotency_key_reused`.
+- **`429 plan_required`.** When a trial has ended or a plan is paused. The
+  workspace is still served up to 10 request units an hour. These are not counted as usage, not billed, and answer with `Billable-Requests: 0`.
+- **`403 not_available_on_api_plan`.** The reverse proxy is not part of an API
+  plan.
+- **`overlap_hours` on key rotation.** `overlap_hours` (0 to 168) on
+  `POST /api/api-keys/{id}/rotate`: the replaced key keeps working for that long.
+- **`error.code` on a 413.** The body of a 413 carries `error.code` equal to the
+  header code.
+
+### Changed
+
+- A key without the scan permission may answer 403 instead of 401, and a key of an
+  archived app may answer 410 `APP_ARCHIVED` instead of 401, once your deployment
+  enables the status codes. Handle both as an authentication failure.
