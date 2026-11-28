@@ -7,6 +7,19 @@ Each entry below is one release, newest first. Agent releases are named
 **Endpoint** with their version. Console and platform releases are named
 **Platform** with their date.
 
+<Update label="Platform 2026-11-28" description="Console and platform, 28 November 2026">
+  Realistic stand-ins are now live, and the Python SDK is published.
+
+  - **Realistic stand-ins.** Personal names, email addresses and phone numbers can be
+    replaced with realistic stand-ins instead of numbered tokens, and are restored in
+    the answer. Every other type keeps a numbered token, and one text can hold both.
+    The response gains `pseudonym_format`, and `/scan/restore` gains `unrestored`. SDK
+    version 1.1 restores both kinds and asks for stand-ins; a request over plain HTTP
+    asks with `pseudonym_format: stand_in`, and everything else keeps numbered tokens. See [Pseudonymisation and restore](/runtime-security/scan-api#pseudonymisation-and-restore).
+  - **SDK 1.1.** `@blindsight/security` on npm and `blindsight-security` on PyPI, both at
+    version 1.1. See [SDK examples](/runtime-security/sdk-examples).
+</Update>
+
 <Update label="Platform 2026-11-26" description="Console and platform, 26 November 2026">
   This release adds the pseudonymisation API for teams that send text from their own
   applications. Personal data is replaced by consistent placeholders before your
@@ -16,12 +29,6 @@ Each entry below is one release, newest first. Agent releases are named
   - **Consistent placeholders and exact restore.** A value keeps one placeholder
     across a text and across a conversation, and restoring gives the original text
     back exactly. See [Pseudonymisation and restore](/runtime-security/scan-api#pseudonymisation-and-restore).
-  - **Realistic stand-ins.** Personal names, email addresses and phone numbers can be
-    replaced with realistic stand-ins instead of numbered tokens, and are restored in
-    the answer. Every other type keeps a numbered token, and one text can hold both.
-    The response gains `pseudonym_format`, and `/scan/restore` gains `unrestored`. SDK
-    version 1.1 restores both kinds and asks for stand-ins; a request over plain HTTP
-    asks with `pseudonym_format: stand_in`, and everything else keeps numbered tokens. See [Pseudonymisation and restore](/runtime-security/scan-api#pseudonymisation-and-restore).
   - **Names.** A person's name is replaced wherever it is written, including a title
     with the surname and later mentions by surname.
   - **Longer texts and files.** One call takes much longer texts, files are returned
