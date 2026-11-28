@@ -538,7 +538,7 @@ direct outbound port 443 to the two hosts above.
 
 | Network | What to know |
 | ------- | ------------ |
-| Static proxy | Works. NTLM and Kerberos proxies work on a domain-joined machine. Proxy credentials are never written to a file. |
+| Static proxy | Works. Kerberos proxies work on a domain-joined machine. Proxy credentials are never written to a file. |
 | PAC file | Works. |
 | WPAD | Works, and a WPAD-only machine enrols at install. Before 1.6.4 it waited about ten minutes. |
 | TLS-inspecting proxy | Works when the inspection root sits in the **machine** certificate store. A root in the current user's store is refused on purpose. |
@@ -589,8 +589,10 @@ and names the issuer. A device whose AI sites are sent around Blindsight by a
 company proxy, or are re-signed by an issuer nobody trusts, reads as not
 inspected, with the reason and what to do.
 
-An uninstall puts the machine's proxy settings back exactly as they were,
-including a PAC file set by Group Policy.
+From desktop 2.2.2, an uninstall puts back the proxy setting the machine had before,
+and if the saved copy is lost it restores the proxy that WinHTTP or browser policy
+still name. On earlier versions, check the machine's proxy and PAC settings after an
+uninstall, and let your own policy re-apply them if they differ.
 
 **A failed enrolment.** A device that cannot enrol can be left with a machine
 proxy setting that points at a local port nothing listens on. Programs such as

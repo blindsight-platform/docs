@@ -5,7 +5,8 @@ description: "Every host, port and protocol the endpoint agent and the console u
 
 This page lists every network flow of a deployment on the Blindsight cloud, so your
 network team can write firewall and proxy rules before the first device is
-installed. It describes desktop **2.2.1**. For where each flow sits, see the
+installed. It describes desktop **2.2.1**; items marked "from desktop 2.2.2" need
+that later build. For where each flow sits, see the
 [deployment diagrams](/endpoint/plan/architecture).
 
 ## Outbound flows
@@ -32,8 +33,11 @@ licence), no analytics or crash reporting, no certificate revocation fetches of 
 own, no network calls from the installer, and no calls to an Inspector.
 
 <Note>
-  Both Blindsight host names resolve to addresses that can change. Allow them by
-  **name** on your proxy or next-generation firewall. Do not pin IP addresses.
+  `downloads.blindsight.io` is served by Amazon CloudFront and
+  `platform.blindsight.io` by an AWS load balancer in eu-west-1 (Ireland). Both
+  resolve to addresses that can change. Allow them by **name** on your proxy or
+  next-generation firewall. Do not pin IP addresses, and do not build a rule from
+  published CloudFront address ranges, which do not cover the platform host.
 </Note>
 
 ### Optional flows
@@ -69,8 +73,11 @@ and each package must match the SHA-256 and size the signed manifest names.
 
 ## Ports the agent opens on the device
 
-All of them listen on `127.0.0.1` only. None is reachable from the network, so they
-need no inbound firewall rule. Do not block loopback traffic in a host firewall.
+On Windows, port `47324` listens on all interfaces and closes, unread, any
+connection that does not come from the device itself. The other ports listen on
+`127.0.0.1` only. None needs an inbound firewall rule: keep your default inbound
+block. Do not block loopback traffic in a host firewall. A port scan or `netstat`
+on a Windows device shows `0.0.0.0:47324`.
 
 | Port | Use |
 | ---- | --- |
@@ -114,8 +121,10 @@ it changes anything, and sends the inspected AI traffic on through it:
 This is on by default, as **Inspect traffic through a company proxy** at
 **Endpoint → Policies → Default policy**, under **AI services**. See
 [Fleet rollout: Proxies](/endpoint/fleet-rollout#proxies) for what happens when it is
-off. An uninstall puts the machine's proxy settings back exactly as they were,
-including a PAC file set by Group Policy.
+off. From desktop 2.2.2, an uninstall puts back the proxy setting the machine had
+before, and if the saved copy is lost it restores the proxy that WinHTTP or browser
+policy still name. On earlier versions, check the machine's proxy and PAC settings
+after an uninstall, and let your own policy re-apply them if they differ.
 
 ### 2. The agent's own calls to Blindsight
 
@@ -153,7 +162,7 @@ On desktop 2.2.0 and 2.2.1, two calls go direct even when a proxy is set: pausin
 protection from the device, and the connectivity check in a diagnostics report. From
 desktop 2.2.2 they follow the proxy too.
 
-**macOS, desktop 2.2.2 and later.** The agent's calls to Blindsight follow the Mac's
+**macOS, from desktop 2.2.2.** The agent's calls to Blindsight follow the Mac's
 system proxy settings: a fixed proxy, a PAC file or WPAD, with a direct connection
 last. For a proxy named in the system settings or reached through a PAC file, the
 agent signs in silently with Kerberos. It never signs in to a proxy found only by
@@ -161,7 +170,7 @@ WPAD. With a TLS-inspecting proxy, it accepts a root your administrator trusts o
 Mac. The [egress gateway](/endpoint/plan/gateway) works through the `GatewayURL`
 setting.
 
-**macOS, desktop 2.2.1.** The agent's calls to Blindsight do not follow the PAC file,
+**macOS, desktop 2.2.1 and earlier.** The agent's calls to Blindsight do not follow the PAC file,
 WPAD or the company proxy, so each Mac needs a direct path on TCP 443 to the two
 Blindsight hosts.
 

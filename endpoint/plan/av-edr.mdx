@@ -19,7 +19,8 @@ desktop **2.2.1** on Windows, with a short section for macOS.
 
 ### What to expect
 
-With Defender real-time protection on, Defender does not block, quarantine or alert
+With Defender real-time protection on, on a machine that has no tenant policy,
+Defender does not block, quarantine or alert
 on the agent, and no exclusion is needed, with:
 
 - network protection in Block mode, including when the only way out is your proxy;
@@ -36,7 +37,7 @@ on the agent, and no exclusion is needed, with:
   - Block Webshell creation for Servers;
 - controlled folder access in Block mode. `C:\ProgramData\Blindsight` is not a
   protected folder;
-- install, enrolment, restart, upgrade and uninstall.
+- install, enrolment, restart and uninstall.
 
 The agent's signed files pass with no allow indicator.
 
@@ -233,7 +234,8 @@ detection class.
 | Network | An automatic proxy configuration on every enabled network service, pointing at `127.0.0.1:47327`, and a `utun` device when the whole-device lane is on. |
 
 On macOS the guardian starts `blindsight-mac` again in the person's session about
-30 to 60 seconds after they quit it while protection is on. An EDR that flags a
+30 to 60 seconds after they quit it while protection is on, and stops doing so
+after three quits within 10 minutes. An EDR that flags a
 root process starting an app in a user session is seeing this step.
 
 ## Check what you received
@@ -252,5 +254,4 @@ The signature reads `Valid` with `CN=Blindsight Technologies AG`. `NotSigned` or
 ## If your product blocks something
 
 Send Blindsight the vendor, the product version, the exact detection name and the
-blocked file path. Blindsight takes false positives up with the vendor directly and
-submits each signed release to Microsoft ahead of publication.
+blocked file path. Blindsight takes false positives up with the vendor directly.
