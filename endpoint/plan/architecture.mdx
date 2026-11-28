@@ -12,7 +12,10 @@ Every arrow is a flow from [Network and firewall](/endpoint/plan/network), and t
 
 The agent inspects AI traffic on the device, then lets it leave as it did before.
 The agent talks to two Blindsight hosts. In watch only mode, or with prompt
-injection detection off, only metadata reaches the platform. With prompt injection
+injection detection off, no prompt or file text reaches the platform. What does
+leave is listed on the data flow page: device identity at enrolment, a heartbeat,
+AI service host names with the program name, device events and, where switched on,
+host inventory. With prompt injection
 detection on, the masked text also reaches the cloud scanner, which runs inside the
 platform.
 

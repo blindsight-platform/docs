@@ -38,7 +38,7 @@ console's install kit holds `install.bat`, `uninstall.cmd` and a `README.txt`. S
 | `ENROLL_TOKEN` | One of the two | The enrollment token on the command line. Hidden from the Windows Installer log, but visible to anything that can read the command line. |
 | `ENROLL_TOKEN_FILE` | One of the two | The path of a file that holds the token, so the token never appears on a command line. The installer reads at most 256 bytes from a regular file (never a link), seals the token with DPAPI, and deletes the file only when it sits under `C:\ProgramData\Blindsight\`. When both are given, the file wins. A file that is refused falls back to `ENROLL_TOKEN`. |
 | `WORKSPACE_ID` | No | Pins the machine to one workspace. Written to `HKLM\SOFTWARE\Blindsight\WorkspaceId`. A token from any other workspace is then refused on this machine. Ask Blindsight for your workspace ID. |
-| `GATEWAY` | No | Desktop 2.2.2 and later. The [egress gateway](/endpoint/plan/gateway) address, `http://<gateway name>:3128`, with no user name, password or path. Written to `HKLM\SOFTWARE\Blindsight\GatewayURL`. Every call from the agent to Blindsight then goes only through the gateway. |
+| `GATEWAY` | No | From version 2.2.2. The [egress gateway](/endpoint/plan/gateway) address, `http://<gateway name>:3128`, with no user name, password or path. Written to `HKLM\SOFTWARE\Blindsight\GatewayURL`. Every call from the agent to Blindsight then goes only through the gateway. |
 | `UNINSTALL_CODE` | Only to uninstall under **enforce** | See [Uninstall codes](/endpoint/uninstall#uninstall-codes). Never remembered and hidden from the log. |
 
 Every property is per machine. A value on the command line always wins. With no
@@ -89,12 +89,13 @@ The install takes about a minute, and the device is protected about a minute aft
 
 `msiexec` returns `0` as soon as the files are in place, before the agent has
 enrolled. A refused token therefore still reads `0`. The console's install kit
-waits for the agent's answer and adds two codes of its own:
+waits for the agent's answer and adds codes of its own:
 
 | Code | Meaning | What to do |
 | ---- | ------- | ---------- |
 | `7001` | The platform refused the enrollment token: expired, revoked, unknown, or from another workspace. | Mint a new token and rebuild the package. |
-| `7002` | The machine is pinned to another workspace by `HKLM\SOFTWARE\Blindsight\WorkspaceId`, so the token was refused. Needs desktop 2.2.1. | Correct the `WorkspaceId` on the machine, or use a token from that workspace. |
+| `7002` | The machine is pinned to another workspace by `HKLM\SOFTWARE\Blindsight\WorkspaceId`, so the token was refused. From version 2.2.2. | Correct the `WorkspaceId` on the machine, or use a token from that workspace. |
+| `7003` | An upgrade or repair could not apply the new token or workspace ID and kept the old one. From version 2.2.2. | Check the token and workspace ID, then run the upgrade or repair again. |
 
 The kit's script waits up to 120 seconds after `msiexec` returns. It exits `7001`
 in about 40 seconds when the token is refused, and exits at once when the device
@@ -109,8 +110,9 @@ returns, run:
 ```
 
 It waits up to 120 seconds and exits `7001` when the token was refused, `7002` when
-the workspace pin or the device check refused it, and `0` when the device enrolled or
-is still trying.
+the workspace pin or the device check refused it, `7003` when an upgrade or repair
+could not apply the new token or workspace ID and kept the old one, and `0` when the
+device enrolled or is still trying.
 
 **On desktop 2.2.1**, use the kit's `install.bat` (or the `install.cmd` in an Intune
 package the console builds) rather than bare `msiexec`, so that a refused token
@@ -221,8 +223,10 @@ delivery tool's command line, where it is stored and logged.
 
 1. The `BlindsightDLP` service, and every agent process.
 2. The proxy settings, WinHTTP proxy, proxy and CA environment variables, browser
-   policies and firewall rules, put back from the snapshot taken at install,
-   including a PAC file set by Group Policy.
+   policies and firewall rules, put back from the snapshot taken at install. From
+   version 2.2.2, if the saved copy is lost, the proxy that WinHTTP or browser policy
+   still name is restored. After an uninstall, check the machine's proxy and PAC
+   settings, and let your own policy re-apply them if they differ.
 3. The machine's `Blindsight Root CA`, from the machine trust store, and its files.
 4. The scheduled tasks and the `\Blindsight\` task folder, and the `Run` value.
 5. The Wintun device and driver package, when no other program uses them.
@@ -274,7 +278,7 @@ carries `CloudBaseURL`, `EnrollmentToken` and `WorkspaceId`. When the console's
 macOS install kit includes `40-managed-config.mobileconfig`, that is the profile.
 Push it as a **device** profile: a user-level profile is not read for this. To send
 the Mac's calls through the [egress gateway](/endpoint/plan/gateway), add the key
-`GatewayURL` with the gateway address to the same profile (desktop 2.2.2 and later). Then,
+`GatewayURL` with the gateway address to the same profile (from version 2.2.2). Then,
 as a root script step in your MDM after the app is delivered, run
 `install-guardian.sh`, supplied by Blindsight. It copies the app to a
 root-only folder, checks its signature and starts the root guardian, which reads

@@ -154,10 +154,13 @@ AI service can still follow who and what a conversation is about.
 
 ### Shadow AI only means no prompt is read
 
-With injection and personal data both off, a device decrypts nothing. It
-sees which AI services people connect to and nothing they send. The one
-exception is a site you set to **Block**: the connection is ended only to
-show the block page, and the request is never read or forwarded.
+With injection and personal data both off, and no personal data recording, a
+device decrypts nothing. It sees which AI services people connect to and nothing
+they send. With personal data recording on (from version 2.2.2), the device reads
+prompts to the AI services in scope on the laptop, only to count categories, and
+sends Blindsight nothing but the category and the count. Microsoft 365 traffic is
+never read. A site you set to **Block** is refused: the connection is ended, and
+the request is never read or forwarded.
 
 ### Turning personal data off covers everything
 
@@ -176,8 +179,10 @@ as high severity.
 
 ## What a person sees on their device
 
-- **A blocked request.** A browser that is sent to a blocked AI service gets a
-  block page with a reference.
+- **A blocked AI service.** The connection to a blocked AI service host is refused
+  before the page opens, and the person sees the browser's connection error. A
+  request that carries a blocked type of data is refused on the device with a
+  notice.
 - **Large uploads take longer.** Inspecting a large upload adds time. The upload
   completes.
 - **Upgrades.** Plan agent upgrades outside working hours. See

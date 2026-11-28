@@ -58,9 +58,10 @@ console does not need the gateway.
 
 <Steps>
   <Step title="Register the gateway">
-    In the console, open **Settings → Network gateway**, add a gateway with a name,
-    and copy the token. It is shown once. A gateway without a token still relays,
-    and the console shows it as **Not registered**.
+    From the next platform release, open **Settings → Network gateway** in the
+    console, add a gateway with a name, and copy the token. It is shown once. A
+    gateway without a token still relays, and the console shows it as **Not
+    registered**.
   </Step>
 
   <Step title="Load the image">
@@ -217,12 +218,12 @@ do not.
   `platform_unreachable` (two heartbeats in a row did not reach Blindsight),
   `token_rejected` (rotate the token in the console), or `draining` (shutting down).
   Set `GATEWAY_REQUIRE_REGISTRATION=1` to make an unregistered gateway answer `503`.
-- **Settings → Network gateway** shows the gateway's state, its last heartbeat, its
+- From the next platform release, **Settings → Network gateway** shows the gateway's state, its last heartbeat, its
   version and whether it is the current one, its health, and how many laptops it
   served in 24 hours.
 - The same page shows how many devices reach Blindsight through each gateway,
-  through another proxy, or directly. A device on an agent too old to report its
-  route is counted as **not reported yet**, never as 0.
+  through another proxy, or directly. This needs an agent from desktop 2.2.2: a
+  device on an older agent is counted as **not reported yet**, never as 0.
 - `GET /metrics` is Prometheus text: open and total tunnels by host and outcome,
   refusals by reason, bytes by host, connect time, distinct laptops in 24 hours, and
   whether the platform and your proxy are reachable.
@@ -243,9 +244,10 @@ addresses), and its own health. Nothing else.
   balancer that hides the laptop's address makes every laptop look like the
   balancer: set `GATEWAY_CLIENT_CIDRS` to the balancer's subnets.
 - **Upgrade.** Load the new image, set the new tag and restart one copy at a time.
-  The gateway drains open tunnels for up to 25 seconds, and agents move to the next
-  copy or retry, so a restart is not noticed. The console shows whether each
-  gateway runs the current version. To go back, set the previous tag and restart.
+  The gateway drains open tunnels for up to 25 seconds. Run two copies and restart
+  one at a time, and check after your first restart that devices report again. The
+  console shows whether each gateway runs the current version. To go back, set the
+  previous tag and restart.
 - **Limits.** 2,000 tunnels in all, 64 per laptop address, 15 minutes idle, 10
   seconds to connect.
 

@@ -5,7 +5,8 @@ description: "Exactly what the endpoint agent sends off the device and what stay
 
 This page is for a data protection team writing a data protection impact
 assessment (DPIA). It lists what leaves a device, where it goes and for how long it
-is kept. It describes desktop **2.2.1** and the Blindsight cloud. For the network
+is kept. It describes desktop **2.2.1** and the Blindsight cloud; items marked
+"from version 2.2.2" need that later desktop build. For the network
 side of the same flows, see [Network and firewall](/endpoint/plan/network). For a
 picture, see [Deployment diagrams](/endpoint/plan/architecture).
 
@@ -29,7 +30,7 @@ sub-processors.
 | A heartbeat: protection state, the settings in force, the health of each component, counters (connections seen, inspected, passed through, blocked), the device's certificate fingerprint, and the issuer when a TLS-inspecting proxy re-signs the agent's own traffic | About once a minute | To show whether the device is protecting. |
 | AI service host names, with the name of the program that connected, the lane, counts, and first and last seen | As they are seen, batched | The Shadow AI inventory. A host name only: never a path, a query, a header or a body. |
 | Device events: tamper attempts, setup and health causes | As they happen | The device timeline and the audit trail. |
-| Blocks of a whole AI service: the host, the category and counts | As they happen | The audit trail. No text. |
+| Blocks of a whole AI service: the host, the category and counts, where the device records the block | As they happen | The audit trail. No text. |
 
 ### Other host names
 
@@ -50,8 +51,14 @@ belong to a known AI service. Every other name is dropped in memory.
 blocking off. Devices record which AI services people use, and nothing is changed or
 blocked.
 
-**With personal data recording.** On top of watch only, a device can look for the
-personal data types your workspace chose, on the device, and report what it found.
+Discovery only applies to the whole workspace. Choosing watch only for some device
+groups and protection for others in the same workspace is available from the next
+platform release.
+
+**With personal data recording (from version 2.2.2).** On top of watch only, a
+device can look for the personal data types your workspace chose, on the device, and
+report the category and a count. Text and values never leave the device. Recording
+applies in a workspace where no AI service is blocked.
 
 | Leaves the device, per prompt or file | Never leaves the device |
 | ------------------------------------- | ----------------------- |
@@ -71,13 +78,17 @@ versions, identifiers and program names, and the install folder of a machine-wid
 of a per-person one. It is off unless switched on. A workspace created since 10
 November 2026 starts with it on. Check it before the first device enrols.
 
-**Lookalike sites.** In a watch only workspace that never chose an action for
-lookalike sites, a person who opens a site that imitates an AI service sees a
-warning page they can click through. Nothing is read or changed. If the pilot must
-not be visible to people, set that action to off before the first device enrols.
+**Lookalike sites.** In a watch only workspace, a person who opens a site that
+imitates an AI service sees a page: a block page if the workspace blocks lookalike
+sites, which a new workspace does, or a warning page. If the pilot must not be
+visible to people, set that action to off before the first device enrols.
 See [Impersonating AI sites and lookalikes](/endpoint/shadow-ai/impersonating-sites).
 
 ## Protect mode
+
+Choosing protection for some device groups while others stay in watch only, in the
+same workspace, is available from the next platform release. Until then, protect
+mode applies to the whole workspace.
 
 On devices in protect mode, the agent reads AI traffic on the device and acts on it
 before it leaves: personal data is masked, or replaced with realistic stand-ins, and
@@ -96,8 +107,7 @@ and [Protections](/endpoint/protections).
 **The stand-ins stay on the device.** With pseudonymisation on, the mapping from
 each stand-in back to the real value is kept only on the device, in an encrypted
 store (`pseudonym_vault.db`, its key protected by the machine). It is kept for 30
-days by default (1 to 365), never sent, and left out of support reports. The agent
-puts the real values back into the AI's reply on the device.
+days by default (1 to 365), never sent, and left out of support reports.
 
 **Topic rules.** If you add topic rules, a masked window of the prompt is checked by
 a model service in the same AWS region. Without topic rules, nothing is sent for
