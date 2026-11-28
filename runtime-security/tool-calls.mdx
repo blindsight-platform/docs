@@ -43,6 +43,14 @@ of triggering reasons.
 
 Rate limit: **20 requests / second / workspace**.
 
+The call counts requests by the size of the serialised `arguments`, in units of
+4,000 characters, at least one. The answer carries the `Billable-Requests`
+header and a `usage` field, like every scan. See
+[Plan and usage](/runtime-security/plan-and-usage#what-a-request-is). The route
+is also served at `/api/v1/runtime-security/scan/tool-call`. Personal data in
+the arguments comes back as type placeholders such as `<EMAIL>` in
+`redacted_arguments`, and there is no restore for them.
+
 ## What it catches
 
 | Code                       | What triggers it                                                                                          |

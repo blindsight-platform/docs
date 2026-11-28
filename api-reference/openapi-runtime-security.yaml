@@ -212,8 +212,16 @@ paths:
       description: |
         Plain text work on what you send: nothing is looked up, stored or
         logged. Use it with the `pseudonyms` mapping a scan returned for an
-        App set to pseudonymize and restore. The official SDKs restore
-        locally and never need this route.
+        App set to pseudonymize and restore, whether it holds realistic
+        stand-ins, numbered tokens or both. A mapping that holds stand-ins is restored only for a caller that declared stand-ins (the request field `pseudonym_format: stand_in`, or SDK 1.1 or later). A call that is not declared gets its tokens restored and the stand-ins it could not restore listed in `unrestored`. Every key is replaced in one pass,
+        longest first, and a restored value is never expanded again. Only keys
+        of the mapping are restored; a stand-in name matches on whole words in
+        the case it was issued (and in capitals for four letters or more),
+        emails and phone numbers match exactly, and an English possessive or a
+        German genitive "s" right after a name is tolerated. A stand-in inside
+        anything that can be a link or a resource is left as it is and listed
+        in `unrestored`. The
+        official SDKs restore locally and never need this route.
 
         Requires the `runtime:scan` permission. Rate limit: 200 requests per
         second per API key.
@@ -1062,6 +1070,8 @@ components:
       type: object
       required: [text]
       properties:
+        known_stand_ins: { type: array, maxItems: 600, items: { type: string, maxLength: 60 }, description: "Optional. Stand-ins already issued in this conversation (keys only, never the original values). On an input scan, new stand-ins issued by the call avoid these keys, so two people never share a part across turns when there is no session. An input scan never leaves a value unmasked. On an output scan of a caller that declared stand-ins it also leaves the whole issued name, email or phone of an issued person in place for the restore. SDK 1.1 sends it on output scans." }
+        pseudonym_format: { type: string, enum: [token, stand_in], description: "Optional. `stand_in` asks for realistic stand-ins (restore through the SDK or `/scan/restore`); `token` forces numbered tokens. Left out, stand-ins go only to callers that can restore them (SDK 1.1 or later) and everyone else gets numbered tokens." }
         text:
           type: string
           description: The prompt about to be sent to the LLM. Up to `max_text_length` characters (32000 by default).
@@ -1113,6 +1123,8 @@ components:
       type: object
       required: [response]
       properties:
+        known_stand_ins: { type: array, maxItems: 600, items: { type: string, maxLength: 60 }, description: "Optional. Stand-ins already issued in this conversation (keys only, never the original values). On an input scan, new stand-ins issued by the call avoid these keys, so two people never share a part across turns when there is no session. An input scan never leaves a value unmasked. On an output scan of a caller that declared stand-ins it also leaves the whole issued name, email or phone of an issued person in place for the restore. SDK 1.1 sends it on output scans." }
+        pseudonym_format: { type: string, enum: [token, stand_in], description: "Optional. `stand_in` asks for realistic stand-ins (restore through the SDK or `/scan/restore`); `token` forces numbered tokens. Left out, stand-ins go only to callers that can restore them (SDK 1.1 or later) and everyone else gets numbered tokens." }
         response:
           type: string
           description: The LLM response about to be shown to the user. Up to `max_text_length` characters.
@@ -1150,6 +1162,7 @@ components:
       type: object
       required: [items]
       properties:
+        pseudonym_format: { type: string, enum: [token, stand_in], description: "Optional. `stand_in` asks for realistic stand-ins (restore through the SDK or `/scan/restore`); `token` forces numbered tokens. Left out, stand-ins go only to callers that can restore them (SDK 1.1 or later) and everyone else gets numbered tokens." }
         items:
           type: array
           minItems: 1
@@ -1184,6 +1197,14 @@ components:
       type: object
       required: [uuid, verdict, pii, redacted_text, latency_ms, text_length]
       properties:
+        stand_in_variants:
+          type: array
+          items: { type: string }
+          description: "On an output scan of a caller that declared stand-ins: keys of `pseudonyms` (tokens or stand-in keys) of person values the output scan masked that look like a variant of an issued stand-in. Absent when there are none."
+        re_masked_stand_ins:
+          type: array
+          items: { type: string }
+          description: "On an output scan of a caller that declared stand-ins: the keys of `pseudonyms` that are stand-ins masked a second time. Keys not listed are personal data the model wrote on its own. Absent otherwise."
         uuid:
           type: string
           description: Event identifier. Empty when the workspace has event logging turned off.
@@ -1216,9 +1237,20 @@ components:
           type: object
           additionalProperties: { type: string }
           description: |
-            Only for an App set to pseudonymize and restore: each placeholder in
-            `redacted_text` (for example `<PERSON_1>`) with the real value it
-            stands for. It is in this response alone and is never stored.
+            Only for an App set to pseudonymize and restore: each replacement in
+            `redacted_text` (a realistic stand-in such as `Maria Keller`, or a
+            numbered token such as `<IBAN_1>`) with the real value it stands
+            for. It is in this response alone and is never stored.
+        pseudonym_format:
+          type: string
+          enum: [token, stand_in]
+          description: |
+            `stand_in` when `pseudonyms` holds at least one realistic stand-in
+            (it may also hold tokens), `token` when it holds numbered tokens
+            only. Stand-ins go to callers that can restore them (SDK 1.1 or
+            later, or a request with `pseudonym_format: stand_in`); any other
+            caller gets numbered tokens. Absent when stand-ins are not
+            available to the workspace.
         also_flagged:
           type: array
           items: { type: string }
@@ -1248,6 +1280,14 @@ components:
           type: integer
           minimum: 0
           description: How many of the placeholders sent were found in the text and put back.
+        unrestored:
+          type: array
+          items: { type: string }
+          description: |
+            Full stand-in keys the restore could not put back, found in a
+            link, in another case, spelled another way, or next to an initial.
+            Each key once. An empty list is not a promise that nothing fake is
+            left. Empty when there are none. Only present when the mapping holds stand-ins.
 
     ScanToolCallResponse:
       type: object

@@ -1,0 +1,72 @@
+---
+title: "Plan and usage"
+description: "How the trial, requests and usage work for the API, where you see them, and how to choose a plan."
+---
+
+A workspace on the API starts on a 14 day trial. This page explains what
+counts as a request, where you see your usage, and how to choose a plan.
+
+## What a request is
+
+A request is a unit of text of up to 4,000 characters. Every call counts
+at least one request. A longer text counts as more requests, rounded up.
+
+| Text in the call | Requests |
+| ---------------- | -------- |
+| Up to 4,000 characters | 1 |
+| 4,001 to 8,000 characters | 2 |
+| 100,000 characters | 25 |
+
+What counts in each call:
+
+| Call | Counted |
+| ---- | ------- |
+| `/scan/input` | `text`, every `history` turn and every `untrusted` part. |
+| `/scan/output` | `response`. |
+| `/scan/batch` | Each item on its own, at least one each, added together. |
+| `/scan/file` | The text read from the file. |
+| `/scan/tool-call` | The arguments. |
+| `/scan/restore` | Nothing. Restoring is free. |
+
+A call that is refused or fails is not counted.
+
+Every scan answer says what it counted, in the header
+`Billable-Requests` and in the `usage` field:
+
+```json
+"usage": {"billable_requests": 3, "characters": 9120}
+```
+
+A call that you repeat with the same `Idempotency-Key` header and the same
+body is not counted again. Use the key to make retries safe. See
+[Scan API](/runtime-security/scan-api#retries-and-idempotency).
+
+## Where you see usage
+
+Open **Settings > Plan and usage**. It shows your plan, the requests used
+so far against your allowance, and a chart of requests per day. The
+**Overview** page shows how many requests your workspace has sent.
+
+Calls also report where you stand. When your plan has a daily allowance,
+every scan answer carries the headers `X-Blindsight-Usage-Day-Used`,
+`X-Blindsight-Usage-Day-Limit`, `X-Blindsight-Usage-Day-State` and
+`X-Blindsight-Usage-Day-Resets-At`, so your application can tell your team
+before requests slow down.
+
+## Choose or change a plan
+
+Plans are shown by Stripe. On **Settings > Plan and usage**, select
+**Manage on Stripe**. There you choose Pay as you go, Starter or Growth,
+change your plan, update your card and download invoices. Come back to the
+page afterwards: it shows the plan that is now active.
+
+## At the end of the trial or the allowance
+
+Your service keeps running. If you have not chosen a plan when the trial
+ends, or you have used your allowance, requests are served at a reduced pace
+until you choose a plan or the next period starts. Nothing is deleted: your
+apps, keys, settings and history stay as they are.
+
+When requests are paced, the API answers `429` with a `Retry-After` header.
+Wait that many seconds and send the same request again. The SDKs do this for
+you. Requests that are paced are not counted. See [Errors](/runtime-security/errors).

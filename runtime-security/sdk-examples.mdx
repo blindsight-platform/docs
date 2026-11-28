@@ -16,7 +16,7 @@ dependency** at all. The snippets below cover both.
     `@blindsight/security`, available now on npm.
   </Card>
   <Card title="Python" icon="python">
-    `blindsight-security`, coming soon.
+    `blindsight-security`, available now on PyPI.
   </Card>
 </CardGroup>
 
@@ -100,15 +100,88 @@ and `.code`, specialised as `BlindsightAuthError` on 401/403 and
 `BlindsightQuotaError` on 402/429), `BlindsightConnectionError`, and
 `ContentBlockedError`.
 
+### Pseudonymise and restore
+
+For an App set to **Pseudonymize and restore**, scan the user's message, send the
+replaced text to your model, and put the real values back in the answer. Personal
+names, email addresses and phone numbers come back as realistic stand-ins, other
+types as numbered tokens. Send the same `sessionId` for the whole conversation, so
+a value keeps its replacement in every turn.
+
+```ts
+const inp = await rs.scanInput(userText, { sessionId: conversationId });
+const reply = await callYourModel(inp.safeText); // the model sees the replaced text only
+const out = await rs.scanOutput(reply, { prompt: inp.safeText, sessionId: conversationId });
+if (out.blocked) return "Sorry, I can't help with that.";
+
+import { restoreReply } from "@blindsight/security";
+
+const res = restoreReply(out.safeText, inp, out); // one restore for the whole turn
+if (res.unrestored.length) return "Sorry, I can't answer that right now."; // or ask the model again
+const final = res.text; // your user's own values are back in
+```
+
+`restoreReply` (`restore_reply` in Python) joins the mappings of the input and output scans and restores once, locally, for stand-ins and tokens alike. Personal data the model wrote on its own, which the output scan hid, stays hidden; a stand-in the output scan masked a second time is put back, or listed in `unrestored`. `unrestored` lists what could not be put back. The mapping is in
+the response only: keep it on your server and never log it. Use version 1.1 of
+the SDK; version 1.0 only understands numbered tokens. See
+[Scan API](/runtime-security/scan-api#pseudonymisation-and-restore).
+
+### Long documents
+
+`scanDocument` splits a text of any length at paragraph, sentence and whitespace
+boundaries, scans the parts in order and gives you one result. A name that appears
+in the first part and in the fifth is put back in both, and `restore` works on the
+whole document.
+
+```ts
+const doc = await rs.scanDocument(longText);
+const res = restoreReply(await callYourModel(doc.redactedText), doc);
+const answer = res.text; // check res.unrestored before you show it
+console.log(doc.billableRequests); // the requests this document counted
+```
+
+### Errors and retries
+
+The SDK reads the error code and the wait from a response, retries a `429` or
+`503` a bounded number of times, honours `Retry-After`, and raises an error you
+handle instead of letting text through unscanned. Errors you can catch include
+`BlindsightTextTooLongError`, `BlindsightPlanRequiredError` and
+`BlindsightScanIncompleteError`. See [Errors](/runtime-security/errors).
+
 ### Python
 
-<Note>
-  The Python SDK (`blindsight-security`) is **coming soon**. Its
-  surface mirrors the TypeScript client with snake‑case names
-  (`rs.scan_input(...)`, `verdict.blocked`, `verdict.safe_text`). Until
-  it ships, use the dependency‑free `httpx` pattern below, which is
-  functionally identical.
-</Note>
+```bash
+pip install blindsight-security
+```
+
+Python 3.9+, one runtime dependency (`httpx`). The surface mirrors the
+TypeScript client with snake_case names:
+
+```python
+from blindsight_security import RuntimeSecurity, restore_reply
+
+rs = RuntimeSecurity(
+    base_url="https://api.your-blindsight.com",
+    api_key="ak_live_…",
+    app_id="app_…",  # optional
+)
+
+inp = rs.scan_input(user_text, session_id=conversation_id)
+if inp.blocked:
+    raise PermissionError(inp.blocked_reason)
+reply = call_your_model(inp.safe_text)  # the model sees the replaced text only
+out = rs.scan_output(reply, prompt=inp.safe_text, session_id=conversation_id)
+if out.blocked:
+    return "Sorry, I can't help with that."
+
+res = restore_reply(out.safe_text, inp, out)  # one restore for the whole turn
+if res.unrestored:
+    return "Sorry, I can't answer that right now."
+final = res.text  # your user's own values are back in
+```
+
+Use version 1.1 or later for stand-ins and restore. The explicit `httpx`
+pattern below still works and is functionally identical.
 
 ## Python: explicit scan calls (no SDK)
 

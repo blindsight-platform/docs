@@ -1,0 +1,192 @@
+---
+title: "API quickstart"
+description: "From your invitation to your first request: create an app, create its key, and send text to the API."
+---
+
+This page takes you from the invitation email to a first request. It
+covers the pseudonymisation API: you send text to Blindsight, you get
+the text back with personal data replaced by consistent placeholders,
+and you put the original values back after your model has answered.
+
+The base URL is `https://platform.blindsight.io`.
+
+## 1. Accept the invitation
+
+Open the invitation email, choose a password and sign in. Your workspace
+starts on a 14 day trial. You can send requests from the first minute.
+
+## 2. Set up your first app
+
+An [App](/runtime-security/apps) is the thing you protect: a chatbot, a
+pipeline, a document flow. The first run walks you through it.
+
+1. Name the app.
+2. Confirm the countries your data comes from, so the right ID types are
+   covered first.
+3. Choose whether Blindsight keeps request text. By default it keeps none.
+
+A new app protects personal data only, and it is set to **Pseudonymize and
+restore**. You can add topics and prompt
+injection protection later on the app's page. See
+[Apps](/runtime-security/apps#the-three-protections).
+
+## 3. Create its key
+
+A key is made for one app, and it can only scan. On the **Keys** page,
+create a key for your app and copy it. It is shown once.
+
+Set it in your shell:
+
+```bash
+export BLINDSIGHT_API_KEY="ak_..."
+```
+
+Because the key is bound to the app, requests need no
+`X-Blindsight-App-Id` header. To rotate the key without downtime, see
+[Rotate a key](#rotate-a-key).
+
+## 4. Send your first request
+
+The **Integrate** page shows this call with your key's app. Paste it in
+a terminal:
+
+```bash
+curl -X POST "https://platform.blindsight.io/api/runtime-security/scan/input" \
+  -H "X-API-Key: $BLINDSIGHT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Please send the contract to Dr. Jonas Bergmann at jonas.bergmann@example.com, IBAN DE89 3704 0044 0532 0130 00", "session_id": "chat-8841"}'
+```
+
+```json
+{
+  "uuid": "<event uuid>",
+  "verdict": "redact",
+  "pii": {"count": 3, "categories": ["iban", "email_address", "person"]},
+  "redacted_text": "Please send the contract to Dr. <PERSON_1> at <EMAIL_ADDRESS_1>, IBAN <IBAN_1>",
+  "latency_ms": 204,
+  "text_length": 110,
+  "pseudonyms": {
+    "<PERSON_1>": "Jonas Bergmann",
+    "<EMAIL_ADDRESS_1>": "jonas.bergmann@example.com",
+    "<IBAN_1>": "DE89 3704 0044 0532 0130 00"
+  },
+  "usage": {"billable_requests": 1, "characters": 110}
+}
+```
+
+The answer is shortened here: it also carries `pii.findings` (where each
+item sits in the text) and fields that describe how the scan reached its
+result. `<event uuid>` stands for the identifier of the event. The title stays
+in the text, the name goes. The answer also carries headers that say what
+the call used:
+
+```text
+Billable-Requests: 1
+X-Blindsight-Usage-Plan-State: trial
+X-Blindsight-Usage-Month-Used: 264
+X-Blindsight-Usage-Month-Included: 10000
+X-Blindsight-Usage-Month-Resets-At: 2026-12-10T17:35:01Z
+X-Blindsight-Text-Stored: false
+```
+
+Send `redacted_text` to your model. When the model answers, put the
+original values back with the `pseudonyms` mapping. The mapping is in
+this response alone and Blindsight does not store it.
+
+### Put the values back
+
+Without an SDK, send the text that carries placeholders and the mapping to
+`/scan/restore`:
+
+```bash
+curl -X POST "https://platform.blindsight.io/api/runtime-security/scan/restore" \
+  -H "X-API-Key: $BLINDSIGHT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+        "text": "Please send the contract to Dr. <PERSON_1> at <EMAIL_ADDRESS_1>, IBAN <IBAN_1>",
+        "pseudonyms": {
+          "<PERSON_1>": "Jonas Bergmann",
+          "<EMAIL_ADDRESS_1>": "jonas.bergmann@example.com",
+          "<IBAN_1>": "DE89 3704 0044 0532 0130 00"
+        }
+      }'
+```
+
+```json
+{
+  "text": "Please send the contract to Dr. Jonas Bergmann at jonas.bergmann@example.com, IBAN DE89 3704 0044 0532 0130 00",
+  "restored": 3
+}
+```
+
+The text comes back as it was written. Restoring counts no requests: the
+answer carries `Billable-Requests: 0`.
+
+The request appears on your **Overview** page when it arrives.
+
+## 5. Use the SDK
+
+The TypeScript SDK wraps the same calls, restores locally, and splits
+long documents for you.
+
+```bash
+npm install @blindsight/security
+```
+
+```ts
+import { RuntimeSecurity } from "@blindsight/security";
+
+const rs = new RuntimeSecurity({
+  baseUrl: "https://platform.blindsight.io",
+  apiKey: process.env.BLINDSIGHT_API_KEY!,
+});
+
+const inp = await rs.scanInput(userText, { sessionId: conversationId });
+const reply = await callYourModel(inp.safeText); // the model sees placeholders only
+const out = await rs.scanOutput(reply, { prompt: inp.safeText, sessionId: conversationId });
+if (out.blocked) return "Sorry, I can't help with that.";
+const final = inp.restore(out.safeText); // the original values go back in
+```
+
+More patterns are in [SDK examples](/runtime-security/sdk-examples).
+
+## Versioned paths
+
+Every scan route is available at two paths. They behave the same.
+
+| Path | Use |
+| ---- | --- |
+| `/api/runtime-security/...` | The path the SDKs use. |
+| `/api/v1/runtime-security/...` | The versioned path. Responses carry the header `Blindsight-Api-Version: 1`. |
+
+Changes inside version 1 are additive. A breaking change would ship under
+`/v2`, announced at least 12 months before the old version stops. Ignore
+response fields and headers you do not know. See
+[Versioning](/api-reference/versioning).
+
+## Where to go next
+
+<Columns cols={2}>
+  <Card title="Scan API" icon="shield" href="/runtime-security/scan-api">
+    Every route, field, header and limit.
+  </Card>
+  <Card title="Plan and usage" icon="gauge" href="/runtime-security/plan-and-usage">
+    The trial, what a request is, and where you see usage.
+  </Card>
+  <Card title="Policies" icon="sliders" href="/runtime-security/apps">
+    Change what each app protects.
+  </Card>
+  <Card title="Errors" icon="triangle-exclamation" href="/runtime-security/errors">
+    Every error code and what to do.
+  </Card>
+</Columns>
+
+## Rotate a key
+
+Rotate a key from the **Keys** page. The new key is shown once. Choose an
+overlap window of up to 168 hours: the replaced key keeps working for that
+long, so you can deploy the new key without a gap. When the window ends,
+the old key stops answering. A key that a rotation replaced cannot be
+switched back on. Rotate its replacement to get another secret.
+
+See [API keys](/administration/api-keys#rotate-and-revoke).
